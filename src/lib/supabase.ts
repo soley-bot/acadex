@@ -19,32 +19,37 @@ export interface User {
 export interface Course {
   id: string
   title: string
-  description: string
+  description?: string
   instructor_id: string
-  instructor_name: string
-  category: string
+  price?: number
+  duration_hours?: number
   level: 'beginner' | 'intermediate' | 'advanced'
-  price: number
-  duration: string
+  category?: string
   image_url?: string
-  rating: number
-  student_count: number
-  is_published: boolean
+  is_active: boolean
   created_at: string
   updated_at: string
+  // Computed fields
+  instructor_name?: string
+  rating?: number
+  student_count?: number
 }
 
 export interface Quiz {
   id: string
   title: string
-  description: string
-  category: string
-  difficulty: 'beginner' | 'intermediate' | 'advanced'
-  duration_minutes: number
-  total_questions: number
-  is_published: boolean
+  description?: string
+  course_id?: string
+  difficulty: 'easy' | 'medium' | 'hard'
+  time_limit?: number
+  is_active: boolean
   created_at: string
   updated_at: string
+  // Computed fields
+  course_title?: string
+  question_count?: number
+  attempts?: number
+  avg_score?: number
 }
 
 export interface QuizQuestion {

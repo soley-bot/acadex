@@ -159,13 +159,15 @@ This project will serve as a portfolio piece to showcase your new skills.`,
 
   const markLessonComplete = async () => {
     const updatedLessons = [...lessons]
-    updatedLessons[currentLesson].completed = true
-    setLessons(updatedLessons)
+    if (updatedLessons[currentLesson]) {
+      updatedLessons[currentLesson].completed = true
+      setLessons(updatedLessons)
 
-    // Calculate new progress
-    const completedLessons = updatedLessons.filter(lesson => lesson.completed).length
-    const progressPercentage = (completedLessons / updatedLessons.length) * 100
-    setProgress(progressPercentage)
+      // Calculate new progress
+      const completedLessons = updatedLessons.filter(lesson => lesson.completed).length
+      const progressPercentage = (completedLessons / updatedLessons.length) * 100
+      setProgress(progressPercentage)
+    }
 
     // In a real app, you'd save this progress to the database
     // await enrollmentAPI.updateProgress(enrollmentId, progressPercentage)

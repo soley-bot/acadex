@@ -141,7 +141,7 @@ export default function Dashboard() {
     <div className="pt-24 p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Welcome back, {user?.user_metadata?.full_name || user?.email}</p>
+        <p className="text-gray-600">Welcome back, {(user as any)?.user_metadata?.full_name || user?.email}</p>
       </div>
 
       {/* Stats Overview */}

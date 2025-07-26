@@ -148,7 +148,7 @@ export default function QuizPreview() {
           {/* Content */}
           <div>
             <h3 className="text-2xl font-semibold tracking-tight mb-6">
-              {questions.length > 0 && questions[0].quiz?.title ? questions[0].quiz.title : 'Interactive Learning Experience'}
+              {questions.length > 0 && questions[0]?.quiz?.title ? questions[0].quiz.title : 'Interactive Learning Experience'}
             </h3>
             <p className="text-muted-foreground mb-8 leading-relaxed">
               Test your knowledge with our interactive quiz system. Get instant feedback 

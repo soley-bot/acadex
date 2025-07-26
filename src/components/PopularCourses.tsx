@@ -13,7 +13,7 @@ const STATIC_COURSES: Course[] = [
     description: 'Master the basics of English grammar with comprehensive lessons and practical exercises.',
     category: 'Grammar',
     level: 'beginner',
-    duration_weeks: 8,
+    duration: '8 weeks',
     price: 49.99,
     instructor_id: 'instructor-1',
     instructor_name: 'Sarah Johnson',
@@ -22,7 +22,7 @@ const STATIC_COURSES: Course[] = [
     updated_at: '2024-01-01',
     student_count: 1250,
     rating: 4.8,
-    thumbnail_url: null
+    image_url: undefined
   },
   {
     id: 'static-2',
@@ -30,7 +30,7 @@ const STATIC_COURSES: Course[] = [
     description: 'Develop professional communication skills for the modern workplace.',
     category: 'Business English',
     level: 'intermediate',
-    duration_weeks: 6,
+    duration: '6 weeks',
     price: 79.99,
     instructor_id: 'instructor-2',
     instructor_name: 'Michael Chen',
@@ -39,7 +39,7 @@ const STATIC_COURSES: Course[] = [
     updated_at: '2024-01-01',
     student_count: 980,
     rating: 4.9,
-    thumbnail_url: null
+    image_url: undefined
   },
   {
     id: 'static-3',
@@ -47,7 +47,7 @@ const STATIC_COURSES: Course[] = [
     description: 'Enhance your writing skills with advanced techniques and creative approaches.',
     category: 'Writing',
     level: 'advanced',
-    duration_weeks: 10,
+    duration: '10 weeks',
     price: 99.99,
     instructor_id: 'instructor-3',
     instructor_name: 'Emma Thompson',
@@ -56,7 +56,7 @@ const STATIC_COURSES: Course[] = [
     updated_at: '2024-01-01',
     student_count: 750,
     rating: 4.7,
-    thumbnail_url: null
+    image_url: undefined
   }
 ]
 

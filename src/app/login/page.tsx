@@ -1,19 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function SignInPage() {
-  const { signIn } = useAuth()
+function LoginForm() {
+  const { signIn, user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Get redirect parameter
+  const redirect = searchParams.get('redirect')
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      const redirectTo = redirect || (user.role === 'admin' ? '/admin' : '/dashboard')
+      router.push(redirectTo)
+    }
+  }, [user, redirect, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,7 +37,10 @@ export default function SignInPage() {
     if (error) {
       setError(error.message)
     } else {
-      router.push('/')
+      // Redirect will be handled by the useEffect above
+      // But we can also handle it here for immediate response
+      const redirectTo = redirect || '/dashboard'
+      router.push(redirectTo)
     }
     
     setLoading(false)
@@ -138,5 +153,13 @@ export default function SignInPage() {
           </div>
         </div>
     </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   )
 }

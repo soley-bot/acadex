@@ -11,10 +11,8 @@ interface QuizAttempt {
   id: string
   quiz_title: string
   score: number
-  time_taken_seconds: number
   completed_at: string
-  total_questions: number
-  correct_answers: number
+  time_taken_minutes: number
 }
 
 export default function AllResultsPage() {
@@ -39,7 +37,7 @@ export default function AllResultsPage() {
           setError('Failed to load quiz results')
           console.error('Error fetching quiz attempts:', fetchError)
         } else {
-          setQuizAttempts(data || [])
+          setQuizAttempts((data || []) as QuizAttempt[])
         }
       } catch (err) {
         console.error('Error fetching quiz attempts:', err)
@@ -203,12 +201,9 @@ export default function AllResultsPage() {
                           <div className="flex items-center gap-3 text-xs text-gray-600">
                             <div className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
-                              <span>{formatTime(attempt.time_taken_seconds)}</span>
+                              <span>{attempt.time_taken_minutes} min</span>
                             </div>
                             <span>{formatDate(attempt.completed_at)}</span>
-                            <span>
-                              {attempt.correct_answers}/{attempt.total_questions} correct
-                            </span>
                           </div>
                         </div>
                         <div className={`px-2 py-0.5 rounded text-xs font-medium ml-2 ${getScoreColor(attempt.score)}`}>

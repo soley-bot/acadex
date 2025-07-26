@@ -43,7 +43,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               id: session.user.id,
               email: session.user.email!,
               name: session.user.user_metadata?.name || session.user.email!.split('@')[0],
-              role: 'student'
+              // DEV MODE: Make admin01@acadex.com automatically admin
+              role: session.user.email === 'admin01@acadex.com' ? 'admin' : 'student'
             })
             setUser(newProfile)
           }

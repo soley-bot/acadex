@@ -3,8 +3,8 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
+import { ConditionalLayout } from '@/components/ConditionalLayout'
+import DevBanner from '@/components/DevBanner'
 
 export const metadata: Metadata = {
   title: 'Acadex - Learn & Practice',
@@ -29,11 +29,10 @@ html {
       </head>
       <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased`}>
         <AuthProvider>
-          <Header />
-          <main>
+          <DevBanner />
+          <ConditionalLayout>
             {children}
-          </main>
-          <Footer />
+          </ConditionalLayout>
         </AuthProvider>
       </body>
     </html>
