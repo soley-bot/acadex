@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { quizAPI } from '@/lib/database'
 
 interface Quiz {
@@ -52,22 +53,22 @@ export default function QuizzesPage() {
     }
   }
 
-  const getCategoryEmoji = (category: string) => {
-    const emojiMap: Record<string, string> = {
-      'Grammar': '📚',
-      'Vocabulary': '📝',
-      'Pronunciation': '🗣️',
-      'Speaking': '💬',
-      'Business English': '💼',
-      'Writing': '✍️',
-      'Literature': '📖',
-      'Test Preparation': '🎯',
-      'Science': '🔬',
-      'Math': '🔢',
-      'History': '📜',
-      'Geography': '🌍',
+  const getCategoryIcon = (category: string) => {
+    const iconMap: Record<string, string> = {
+      'Grammar': '/Icons8/icons8-document-50.png',
+      'Vocabulary': '/Icons8/icons8-puzzle-50.png', 
+      'Pronunciation': '/Icons8/icons8-mailbox-50.png',
+      'Speaking': '/Icons8/icons8-contacts-50.png',
+      'Business English': '/Icons8/icons8-services-50.png',
+      'Writing': '/Icons8/icons8-document-50.png',
+      'Literature': '/Icons8/icons8-document-50.png',
+      'Test Preparation': '/Icons8/icons8-checkmark-50.png',
+      'Science': '/Icons8/icons8-services-50.png',
+      'Math': '/Icons8/icons8-puzzle-50.png',
+      'History': '/Icons8/icons8-document-50.png',
+      'Geography': '/Icons8/icons8-info-50.png',
     }
-    return emojiMap[category] || '🧠'
+    return iconMap[category] || '/Icons8/icons8-puzzle-50.png'
   }
 
   if (loading) {
@@ -156,8 +157,16 @@ export default function QuizzesPage() {
               <div key={quiz.id} className="group">
                 <div className="card hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
                   {/* Quiz Icon */}
-                  <div className="h-48 bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center relative rounded-t-lg">
-                    <span className="text-6xl">{getCategoryEmoji(quiz.category)}</span>
+                  <div className="h-48 bg-gradient-to-br from-brand/5 to-brand/10 flex items-center justify-center relative rounded-t-lg">
+                    <div className="w-20 h-20 bg-white/80 rounded-full flex items-center justify-center shadow-lg">
+                      <Image 
+                        src={getCategoryIcon(quiz.category)} 
+                        alt={quiz.category}
+                        width={40}
+                        height={40}
+                        className="w-10 h-10"
+                      />
+                    </div>
                     <div className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium border">
                       {quiz.question_count} questions
                     </div>
@@ -166,7 +175,7 @@ export default function QuizzesPage() {
                   <div className="p-8">
                     {/* Category & Difficulty */}
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full border border-primary/20">
+                      <span className="px-3 py-1 bg-brand/10 text-brand text-xs font-semibold rounded-full border border-brand/20">
                         {quiz.category}
                       </span>
                       <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getDifficultyColor(quiz.difficulty)}`}>

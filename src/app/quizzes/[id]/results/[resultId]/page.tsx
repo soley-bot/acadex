@@ -107,7 +107,17 @@ export default function QuizResultsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 pt-24">
+        {/* Header with ACADEX logo */}
+        <div className="text-center mb-8">
+          <Link href="/">
+            <span className="text-2xl font-inter tracking-tight inline-block mb-4">
+              <span className="font-light text-black">ACAD</span>
+              <span className="font-bold text-[#ff5757]">EX</span>
+            </span>
+          </Link>
+        </div>
+
         {/* Results Header */}
         <div className="bg-white rounded-lg shadow-sm border p-8 mb-8">
           <div className="text-center">
@@ -203,7 +213,7 @@ export default function QuizResultsPage() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href={`/quizzes/${params.id}`}
-            className="bg-gray-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-black transition-colors text-center"
+            className="bg-brand text-brand-foreground px-8 py-3 rounded-lg font-semibold hover:bg-brand/90 transition-colors text-center"
           >
             Retake Quiz
           </Link>
@@ -222,9 +232,9 @@ export default function QuizResultsPage() {
         </div>
 
         {/* Performance Tips */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-900 mb-3">💡 Tips for Improvement</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-blue-800">
+        <div className="mt-8 bg-brand/5 border border-brand/20 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-brand mb-3">💡 Tips for Improvement</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
             <ul className="space-y-2 text-sm">
               <li>• Review the explanations for incorrect answers</li>
               <li>• Take notes on topics you found challenging</li>

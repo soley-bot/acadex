@@ -1,7 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function Header() {
@@ -9,12 +11,23 @@ export default function Header() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const { user, signOut, loading } = useAuth()
   const userMenuRef = useRef<HTMLDivElement>(null)
+  const pathname = usePathname()
 
   const handleSignOut = async () => {
     await signOut()
     setIsMenuOpen(false)
     setIsUserMenuOpen(false)
   }
+
+  const handleMobileNavClick = () => {
+    setIsMenuOpen(false)
+  }
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false)
+    setIsUserMenuOpen(false)
+  }, [pathname])
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -30,30 +43,57 @@ export default function Header() {
     }
   }, [])
 
+    // Handle click outside to close mobile menu
+  useEffect(() => {
+    const handleClickOutside = (event: Event) => {
+      const target = event.target as Node
+      const mobileMenu = document.querySelector('.mobile-menu')
+      const mobileMenuButton = document.querySelector('[aria-label="Toggle mobile menu"]')
+      
+      if (isMenuOpen && 
+          mobileMenu && 
+          !mobileMenu.contains(target) && 
+          mobileMenuButton && 
+          !mobileMenuButton.contains(target)) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('touchstart', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
+  }, [isMenuOpen])
+
   return (
     <header className="fixed top-0 w-full glass border-b z-50">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3 group">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-              <span className="text-primary-foreground font-bold text-lg">A</span>
-            </div>
-            <span className="text-xl font-semibold tracking-tight">Acadex</span>
+          <Link href="/" className="flex items-center group">
+            <span className="text-2xl font-inter tracking-tight group-hover:scale-105 transition-transform duration-200">
+              <span className="font-light text-black">ACAD</span>
+              <span className="font-bold text-[#ff5757]">EX</span>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
-            <Link href="/courses" className="nav-link">
+            <Link href="/courses" className="nav-link hover:text-brand transition-colors">
               Courses
             </Link>
-            <Link href="/quizzes" className="nav-link">
+            <Link href="/quizzes" className="nav-link hover:text-brand transition-colors">
               Quizzes
             </Link>
-            <Link href="/about" className="nav-link">
+            <Link href="/about" className="nav-link hover:text-brand transition-colors">
               About
             </Link>
-            <Link href="/contact" className="nav-link">
+            <Link href="/contact" className="nav-link hover:text-brand transition-colors">
               Contact
             </Link>
           </nav>
@@ -79,16 +119,13 @@ export default function Header() {
 
                 {/* User Dropdown Menu */}
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-card border rounded-lg shadow-lg py-1 z-50">
+                  <div className="absolute right-0 mt-2 w-48 bg-card border rounded-lg shadow-lg py-1 z-50 animate-in slide-in-from-top-2 fade-in duration-200">
                     <Link
                       href="/dashboard"
                       className="flex items-center gap-3 px-4 py-2 hover:bg-accent transition-colors"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v1h-8V5z" />
-                      </svg>
+                      <Image src="/Icons8/icons8-home-50.png" alt="Dashboard" width={18} height={18} className="w-[18px] h-[18px]" />
                       Dashboard
                     </Link>
                     <Link
@@ -96,9 +133,7 @@ export default function Header() {
                       className="flex items-center gap-3 px-4 py-2 hover:bg-accent transition-colors"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
+                      <Image src="/Icons8/icons8-user-50.png" alt="Profile" width={18} height={18} className="w-[18px] h-[18px]" />
                       Profile
                     </Link>
                     <div className="border-t my-1"></div>
@@ -116,10 +151,10 @@ export default function Header() {
               </div>
             ) : (
               <>
-                <Link href="/login" className="btn-ghost">
+                <Link href="/login" className="btn-ghost hover:text-brand transition-colors">
                   Sign In
                 </Link>
-                <Link href="/signup" className="btn-default">
+                <Link href="/signup" className="bg-brand text-brand-foreground hover:bg-brand/90 px-4 py-2 rounded-lg font-medium transition-colors">
                   Get Started
                 </Link>
               </>
@@ -129,74 +164,136 @@ export default function Header() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-md hover:bg-accent transition-colors"
+            className="md:hidden p-2 rounded-md hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+            aria-label="Toggle mobile menu"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <div className="w-6 h-6 relative flex flex-col justify-center items-center">
+              <span className={`block w-6 h-0.5 bg-current transition-all duration-300 ${
+                isMenuOpen 
+                  ? 'rotate-45 translate-y-0' 
+                  : '-translate-y-1.5'
+              }`} />
+              <span className={`block w-6 h-0.5 bg-current transition-all duration-300 ${
+                isMenuOpen 
+                  ? 'opacity-0' 
+                  : 'opacity-100'
+              }`} />
+              <span className={`block w-6 h-0.5 bg-current transition-all duration-300 ${
+                isMenuOpen 
+                  ? '-rotate-45 -translate-y-0.5' 
+                  : 'translate-y-1.5'
+              }`} />
+            </div>
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t animate-fade-in">
-            <div className="flex flex-col space-y-1">
-              <Link href="/courses" className="nav-link justify-start">
-                Courses
-              </Link>
-              <Link href="/quizzes" className="nav-link justify-start">
-                Quizzes
-              </Link>
-              <Link href="/about" className="nav-link justify-start">
-                About
-              </Link>
-              <Link href="/contact" className="nav-link justify-start">
-                Contact
-              </Link>
-              <div className="flex flex-col space-y-2 pt-4 border-t">
-                {loading ? (
-                  <div className="w-full h-10 bg-muted animate-pulse rounded-md"></div>
-                ) : user ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-3 bg-card border rounded-lg px-3 py-2">
-                      <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                        <span className="text-primary-foreground font-semibold text-sm">{user.name?.charAt(0).toUpperCase()}</span>
+          <>
+            {/* Backdrop Overlay */}
+            <div 
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
+              onClick={() => setIsMenuOpen(false)}
+            />
+            
+            {/* Mobile Menu */}
+            <div className="mobile-menu fixed top-16 left-0 w-full bg-background border-b shadow-lg z-50 md:hidden animate-in slide-in-from-top-2 fade-in duration-300">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+                <div className="flex flex-col space-y-1">
+                  <Link 
+                    href="/courses" 
+                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                    onClick={handleMobileNavClick}
+                  >
+                    <Image src="/Icons8/icons8-document-50.png" alt="Courses" width={22} height={22} className="w-[22px] h-[22px] mr-3" />
+                    Courses
+                  </Link>
+                  <Link 
+                    href="/quizzes" 
+                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                    onClick={handleMobileNavClick}
+                  >
+                    <Image src="/Icons8/icons8-puzzle-50.png" alt="Quizzes" width={22} height={22} className="w-[22px] h-[22px] mr-3" />
+                    Quizzes
+                  </Link>
+                  <Link 
+                    href="/about" 
+                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                    onClick={handleMobileNavClick}
+                  >
+                    <Image src="/Icons8/icons8-info-50.png" alt="About" width={22} height={22} className="w-[22px] h-[22px] mr-3" />
+                    About
+                  </Link>
+                  <Link 
+                    href="/contact" 
+                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                    onClick={handleMobileNavClick}
+                  >
+                    <Image src="/Icons8/icons8-mailbox-50.png" alt="Contact" width={22} height={22} className="w-[22px] h-[22px] mr-3" />
+                    Contact
+                  </Link>
+                  
+                  {/* Mobile User Section */}
+                  <div className="flex flex-col space-y-2 pt-4 border-t">
+                    {loading ? (
+                      <div className="w-full h-12 bg-muted animate-pulse rounded-md"></div>
+                    ) : user ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-3 bg-card border rounded-lg px-4 py-3">
+                          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                            <span className="text-primary-foreground font-semibold">{user.name?.charAt(0).toUpperCase()}</span>
+                          </div>
+                          <span className="text-foreground font-medium">Welcome, {user.name}</span>
+                        </div>
+                        <Link 
+                          href="/dashboard" 
+                          className="nav-link justify-start w-full py-3 px-4 rounded-lg hover:bg-accent transition-colors" 
+                          onClick={handleMobileNavClick}
+                        >
+                          <Image src="/Icons8/icons8-home-50.png" alt="Dashboard" width={22} height={22} className="w-[22px] h-[22px] mr-3" />
+                          Dashboard
+                        </Link>
+                        <Link 
+                          href="/profile" 
+                          className="nav-link justify-start w-full py-3 px-4 rounded-lg hover:bg-accent transition-colors" 
+                          onClick={handleMobileNavClick}
+                        >
+                          <Image src="/Icons8/icons8-user-50.png" alt="Profile" width={22} height={22} className="w-[22px] h-[22px] mr-3" />
+                          Profile
+                        </Link>
+                        <button
+                          onClick={handleSignOut}
+                          className="btn-secondary w-full py-3 justify-center"
+                        >
+                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                          </svg>
+                          Sign Out
+                        </button>
                       </div>
-                      <span className="text-foreground font-medium text-sm">Welcome, {user.name}</span>
-                    </div>
-                    <Link href="/dashboard" className="nav-link justify-start w-full" onClick={() => setIsMenuOpen(false)}>
-                      <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v1h-8V5z" />
-                      </svg>
-                      Dashboard
-                    </Link>
-                    <Link href="/profile" className="nav-link justify-start w-full" onClick={() => setIsMenuOpen(false)}>
-                      <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      Profile
-                    </Link>
-                    <button
-                      onClick={handleSignOut}
-                      className="btn-secondary w-full"
-                    >
-                      Sign Out
-                    </button>
+                    ) : (
+                      <div className="space-y-2">
+                        <Link 
+                          href="/login" 
+                          className="btn-outline w-full justify-center py-3"
+                          onClick={handleMobileNavClick}
+                        >
+                          Sign In
+                        </Link>
+                        <Link 
+                          href="/signup" 
+                          className="btn-default w-full justify-center py-3"
+                          onClick={handleMobileNavClick}
+                        >
+                          Get Started
+                        </Link>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <>
-                    <Link href="/login" className="btn-outline w-full justify-center">
-                      Sign In
-                    </Link>
-                    <Link href="/signup" className="btn-default w-full justify-center">
-                      Get Started
-                    </Link>
-                  </>
-                )}
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     </header>

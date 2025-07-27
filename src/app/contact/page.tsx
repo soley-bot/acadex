@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -56,13 +57,13 @@ export default function ContactPage() {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
         
         <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium mb-6 border">
-            <span className="w-2 h-2 bg-primary rounded-full"></span>
+          <div className="inline-flex items-center gap-2 bg-brand/10 text-brand px-3 py-1.5 rounded-full text-sm font-medium mb-6 border border-brand/20">
+            <span className="w-2 h-2 bg-brand rounded-full"></span>
             Contact Us
           </div>
           <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-6">
             Get in Touch
-            <span className="block text-primary mt-2">We&apos;re Here to Help</span>
+            <span className="block text-brand mt-2">We&apos;re Here to Help</span>
           </h1>
           <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
             Have questions, feedback, or need support? Our team is dedicated to helping you 
@@ -82,9 +83,13 @@ export default function ContactPage() {
               {success && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                   <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+                    <Image
+                      src="/icons8/icons8-done-100.png"
+                      alt="Success"
+                      width={20}
+                      height={20}
+                      className="w-5 h-5"
+                    />
                     <p className="text-green-800 font-medium">
                       Thank you for your message! We&apos;ll get back to you within 24 hours.
                     </p>
@@ -95,9 +100,13 @@ export default function ContactPage() {
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                   <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <Image
+                      src="/icons8/icons8-cancel-100.png"
+                      alt="Error"
+                      width={20}
+                      height={20}
+                      className="w-5 h-5"
+                    />
                     <p className="text-red-800 font-medium">{error}</p>
                   </div>
                 </div>
@@ -179,21 +188,23 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="btn-default w-full"
+                  className="bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-lg font-medium transition-colors duration-200 w-full"
                 >
                   {loading ? (
                     <div className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
+                      <div className="w-4 h-4 border-2 border-brand-foreground/30 border-t-brand-foreground rounded-full animate-spin"></div>
                       Sending...
                     </div>
                   ) : (
                     <div className="flex items-center justify-center gap-2">
                       <span>Send Message</span>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                      </svg>
+                      <Image
+                        src="/icons8/icons8-share-100.png"
+                        alt="Send"
+                        width={16}
+                        height={16}
+                        className="w-4 h-4"
+                      />
                     </div>
                   )}
                 </button>
@@ -213,15 +224,19 @@ export default function ContactPage() {
               <div className="space-y-6">
                 <div className="card p-6 hover:shadow-lg transition-shadow duration-300">
                   <div className="flex items-start gap-4">
-                    <div className="p-3 bg-primary/10 rounded-full">
-                      <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
+                    <div className="p-3 bg-brand/10 rounded-full">
+                      <Image
+                        src="/icons8/icons8-mailbox-100.png"
+                        alt="Email"
+                        width={24}
+                        height={24}
+                        className="w-6 h-6"
+                      />
                     </div>
                     <div>
                       <h3 className="font-semibold mb-2">Email Us</h3>
                       <p className="text-muted-foreground mb-2">Send us an email anytime</p>
-                      <a href="mailto:support@acadex.com" className="text-primary hover:underline font-medium">
+                      <a href="mailto:support@acadex.com" className="text-brand hover:underline font-medium">
                         support@acadex.com
                       </a>
                     </div>
@@ -230,11 +245,14 @@ export default function ContactPage() {
 
                 <div className="card p-6 hover:shadow-lg transition-shadow duration-300">
                   <div className="flex items-start gap-4">
-                    <div className="p-3 bg-primary/10 rounded-full">
-                      <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
+                    <div className="p-3 bg-brand/10 rounded-full">
+                      <Image
+                        src="/icons8/icons8-home-100.png"
+                        alt="Location"
+                        width={24}
+                        height={24}
+                        className="w-6 h-6"
+                      />
                     </div>
                     <div>
                       <h3 className="font-semibold mb-2">Our Office</h3>
@@ -250,10 +268,14 @@ export default function ContactPage() {
 
                 <div className="card p-6 hover:shadow-lg transition-shadow duration-300">
                   <div className="flex items-start gap-4">
-                    <div className="p-3 bg-primary/10 rounded-full">
-                      <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                    <div className="p-3 bg-brand/10 rounded-full">
+                      <Image
+                        src="/icons8/icons8-clock-100.png"
+                        alt="Clock"
+                        width={24}
+                        height={24}
+                        className="w-6 h-6"
+                      />
                     </div>
                     <div>
                       <h3 className="font-semibold mb-2">Support Hours</h3>

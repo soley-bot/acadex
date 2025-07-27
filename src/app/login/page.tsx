@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -62,8 +63,8 @@ function LoginForm() {
       
       <div className="relative w-full max-w-md space-y-8">
         <div className="text-center">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium mb-6 border">
-            <span className="w-2 h-2 bg-primary rounded-full"></span>
+          <div className="inline-flex items-center gap-2 bg-brand/10 text-brand px-3 py-1.5 rounded-full text-sm font-medium mb-6 border border-brand/20">
+            <span className="w-2 h-2 bg-brand rounded-full"></span>
             Welcome Back
           </div>
           <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-foreground mb-4">
@@ -79,9 +80,13 @@ function LoginForm() {
               {error && (
                 <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <Image
+                      src="/icons8/icons8-cancel-100.png"
+                      alt="Error"
+                      width={16}
+                      height={16}
+                      className="w-4 h-4"
+                    />
                     <p className="text-destructive text-sm font-medium">{error}</p>
                   </div>
                 </div>
@@ -122,21 +127,23 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-default w-full"
+                className="bg-brand text-brand-foreground hover:bg-brand/90 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-lg font-medium transition-colors duration-200 w-full"
               >
                 {loading ? (
                   <div className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
+                    <div className="w-4 h-4 border-2 border-brand-foreground/30 border-t-brand-foreground rounded-full animate-spin"></div>
                     Signing in...
                   </div>
                 ) : (
                   <div className="flex items-center justify-center gap-2">
                     <span>Sign In</span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <Image
+                      src="/icons8/icons8-user-100.png"
+                      alt="Login"
+                      width={16}
+                      height={16}
+                      className="w-4 h-4"
+                    />
                   </div>
                 )}
               </button>
@@ -145,7 +152,7 @@ function LoginForm() {
             <div className="mt-8 pt-6 border-t">
               <p className="text-center text-muted-foreground">
                 Don&apos;t have an account?{' '}
-                <Link href="/signup" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                <Link href="/signup" className="text-brand hover:text-brand/80 font-medium transition-colors">
                   Sign up for free
                 </Link>
               </p>

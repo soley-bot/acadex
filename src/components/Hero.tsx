@@ -12,8 +12,8 @@ export default function Hero() {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Content */}
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium mb-6 border">
-              <span className="w-2 h-2 bg-primary rounded-full"></span>
+            <div className="inline-flex items-center gap-2 bg-brand/10 text-brand px-3 py-1.5 rounded-full text-sm font-medium mb-6 border border-brand/20">
+              <span className="w-2 h-2 bg-brand rounded-full"></span>
               New learning experience
             </div>
             
@@ -28,13 +28,13 @@ export default function Hero() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Link href="/courses" className="btn-default group">
+              <Link href="/courses" className="bg-brand text-brand-foreground hover:bg-brand/90 px-6 py-3 rounded-lg font-medium transition-colors group">
                 <span>Explore Courses</span>
-                <svg className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </Link>
-              <Link href="/quizzes" className="btn-outline group">
+              <Link href="/quizzes" className="btn-outline group border-brand/20 hover:bg-brand/5 hover:border-brand/40 transition-colors">
                 <span>Try Free Quiz</span>
                 <svg className="w-4 h-4 ml-2 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -45,15 +45,15 @@ export default function Hero() {
             {/* Modern Stats */}
             <div className="grid grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-1">10K+</div>
+                <div className="text-3xl font-bold text-brand mb-1">10K+</div>
                 <div className="text-sm text-muted-foreground">Active Students</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-1">50+</div>
+                <div className="text-3xl font-bold text-brand mb-1">50+</div>
                 <div className="text-sm text-muted-foreground">Expert Courses</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-1">500+</div>
+                <div className="text-3xl font-bold text-brand mb-1">500+</div>
                 <div className="text-sm text-muted-foreground">Practice Quizzes</div>
               </div>
             </div>
@@ -76,7 +76,7 @@ export default function Hero() {
                 <div className="h-6 bg-muted rounded-lg w-4/5 animate-pulse"></div>
                 <div className="h-4 bg-muted/70 rounded w-3/5"></div>
                 <div className="h-4 bg-muted/70 rounded w-4/5"></div>
-                <div className="h-8 bg-primary rounded-lg w-2/3"></div>
+                <div className="h-8 bg-brand/20 rounded-lg w-2/3"></div>
               </div>
               
               {/* Success Notification */}

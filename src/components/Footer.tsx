@@ -13,10 +13,10 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center space-x-3 mb-6 group">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                <span className="text-primary-foreground font-bold text-lg">A</span>
-              </div>
-              <span className="text-xl font-semibold tracking-tight">Acadex</span>
+              <span className="text-2xl font-inter font-bold tracking-tight">
+                <span className="text-foreground font-light">ACAD</span>
+                <span className="text-brand font-bold">EX</span>
+              </span>
             </Link>
             <p className="text-muted-foreground mb-6 leading-relaxed">
               Empowering learners worldwide with interactive quizzes and expert-led courses. 
@@ -128,7 +128,7 @@ export default function Footer() {
                 placeholder="Enter your email"
                 className="input flex-1"
               />
-              <button className="btn-default">
+              <button className="bg-brand text-brand-foreground hover:bg-brand/90 px-6 py-3 rounded-lg font-medium transition-colors duration-200">
                 Subscribe
               </button>
             </div>
@@ -141,7 +141,7 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-muted-foreground text-sm">
-              © 2025 Acadex. All rights reserved. Made with ❤️ for learners worldwide.
+              © 2025 ACADEX. All rights reserved. Made with ❤️ for learners worldwide.
             </p>
             <div className="flex items-center space-x-6">
               {[

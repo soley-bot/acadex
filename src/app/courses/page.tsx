@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { getCourses } from '@/lib/database'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface Course {
   id: string
@@ -116,8 +117,8 @@ export default function CoursesPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-gray-50"></div>
         
         <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium mb-6 border border-primary/20">
-            <span className="w-2 h-2 bg-primary rounded-full"></span>
+          <div className="inline-flex items-center gap-2 bg-brand/10 text-brand px-3 py-1.5 rounded-full text-sm font-medium mb-6 border border-brand/20">
+            <span className="w-2 h-2 bg-brand rounded-full"></span>
             Course Catalog
           </div>
           <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-6 text-foreground">
@@ -147,8 +148,8 @@ export default function CoursesPage() {
                     onClick={() => setSelectedCategory(category)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       selectedCategory === category
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-background text-foreground hover:bg-muted border border-border hover:border-primary/50'
+                        ? 'bg-brand text-brand-foreground'
+                        : 'bg-background text-foreground hover:bg-muted border border-border hover:border-brand/50'
                     }`}
                   >
                     {category === 'all' ? 'All Categories' : category}
@@ -167,8 +168,8 @@ export default function CoursesPage() {
                     onClick={() => setSelectedLevel(level)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       selectedLevel === level
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-background text-foreground hover:bg-muted border border-border hover:border-primary/50'
+                        ? 'bg-brand text-brand-foreground'
+                        : 'bg-background text-foreground hover:bg-muted border border-border hover:border-brand/50'
                     }`}
                   >
                     {level === 'all' ? 'All Levels' : formatLevel(level)}
@@ -182,12 +183,12 @@ export default function CoursesPage() {
               <div className="flex items-center gap-2 pt-2">
                 <span className="text-sm text-muted-foreground">Active filters:</span>
                 {selectedCategory !== 'all' && (
-                  <span className="inline-flex items-center px-2.5 py-1 bg-primary/10 text-primary text-xs font-medium rounded border border-primary/20">
+                  <span className="inline-flex items-center px-2.5 py-1 bg-brand/10 text-brand text-xs font-medium rounded border border-brand/20">
                     {selectedCategory}
                   </span>
                 )}
                 {selectedLevel !== 'all' && (
-                  <span className="inline-flex items-center px-2.5 py-1 bg-primary/10 text-primary text-xs font-medium rounded border border-primary/20">
+                  <span className="inline-flex items-center px-2.5 py-1 bg-brand/10 text-brand text-xs font-medium rounded border border-brand/20">
                     {formatLevel(selectedLevel)}
                   </span>
                 )}
@@ -218,9 +219,13 @@ export default function CoursesPage() {
           {courses.length === 0 ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-lg flex items-center justify-center border border-border">
-                <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
+                <Image 
+                  src="/Icons8/icons8-document-50.png" 
+                  alt="No courses" 
+                  width={32} 
+                  height={32} 
+                  className="w-8 h-8 opacity-60" 
+                />
               </div>
               <h3 className="text-lg font-medium text-foreground mb-2">No courses found</h3>
               <p className="text-muted-foreground mb-4">We couldn&apos;t find any courses matching your current filters.</p>
@@ -246,9 +251,13 @@ export default function CoursesPage() {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="text-center">
                         <div className="w-16 h-16 mx-auto mb-3 bg-muted-foreground/20 rounded-lg flex items-center justify-center">
-                          <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                          </svg>
+                          <Image 
+                            src="/Icons8/icons8-document-50.png" 
+                            alt="Course" 
+                            width={32} 
+                            height={32} 
+                            className="w-8 h-8 opacity-60" 
+                          />
                         </div>
                         <p className="text-sm text-muted-foreground font-medium">{course.category}</p>
                       </div>
@@ -287,22 +296,16 @@ export default function CoursesPage() {
                     <div className="flex items-center justify-between text-sm text-muted-foreground mb-6 pb-4 border-b border-border">
                       <div className="flex items-center gap-4">
                         <span className="flex items-center gap-1.5">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
+                          <Image src="/Icons8/icons8-clock-50.png" alt="Duration" width={18} height={18} className="w-[18px] h-[18px]" />
                           {course.duration}
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                          </svg>
+                          <Image src="/Icons8/icons8-contacts-50.png" alt="Students" width={18} height={18} className="w-[18px] h-[18px]" />
                           {course.student_count.toLocaleString()}
                         </span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
+                        <Image src="/Icons8/icons8-checkmark-50.png" alt="Rating" width={18} height={18} className="w-[18px] h-[18px]" />
                         <span className="font-medium">{course.rating}</span>
                       </div>
                     </div>
@@ -313,11 +316,9 @@ export default function CoursesPage() {
                         <span className="text-lg text-muted-foreground font-normal">$</span>{course.price}
                       </div>
                       <Link href={`/courses/${course.id}`}>
-                        <button className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                        <button className="inline-flex items-center px-4 py-2 bg-brand text-brand-foreground rounded-lg font-medium hover:bg-brand/90 transition-colors">
                           <span>View Course</span>
-                          <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                          </svg>
+                          <Image src="/Icons8/icons8-external-link-50.png" alt="External link" width={18} height={18} className="w-[18px] h-[18px] ml-2" />
                         </button>
                       </Link>
                     </div>

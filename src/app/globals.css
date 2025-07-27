@@ -30,6 +30,8 @@
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
     --radius: 0.5rem;
+    --brand: 0 78% 67%;
+    --brand-foreground: 0 0% 98%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -57,6 +59,8 @@
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
+    --brand: 0 78% 67%;
+    --brand-foreground: 0 0% 98%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -205,5 +209,108 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Mobile-specific styles and improvements */
+@layer utilities {
+  /* Touch-friendly buttons and links */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  /* Mobile-optimized spacing */
+  .mobile-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Mobile-friendly text sizes */
+  .mobile-text {
+    @apply text-base sm:text-lg;
+  }
+  
+  /* Responsive containers */
+  .container-mobile {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Mobile menu animations */
+  .mobile-menu-enter {
+    @apply transform transition-all duration-300 ease-out;
+  }
+  
+  .mobile-menu-enter-from {
+    @apply opacity-0 translate-y-[-10px];
+  }
+  
+  .mobile-menu-enter-to {
+    @apply opacity-100 translate-y-0;
+  }
+  
+  /* Safe area handling for mobile devices */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Mobile viewport optimizations */
+@media (max-width: 768px) {
+  /* Improve touch targets on mobile */
+  button, 
+  .btn, 
+  .nav-link, 
+  [role="button"] {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  /* Better mobile spacing */
+  .card {
+    @apply mx-4 rounded-lg;
+  }
+  
+  /* Mobile-optimized forms */
+  input, 
+  textarea, 
+  select {
+    @apply text-base; /* Prevent zoom on iOS */
+  }
+  
+  /* Mobile navigation improvements */
+  .nav-link {
+    @apply py-3 px-4;
+  }
+}
+
+/* Tablet-specific optimizations */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container-mobile {
+    @apply px-6;
+  }
+}
+
+/* Ensure proper mobile viewport handling */
+@media (max-width: 640px) {
+  /* Prevent horizontal scrolling */
+  html, body {
+    overflow-x: hidden;
+  }
+  
+  /* Mobile-first grid adjustments */
+  .grid {
+    @apply gap-4;
+  }
+  
+  /* Mobile table responsiveness */
+  table {
+    @apply text-sm;
+  }
+  
+  /* Mobile modal adjustments */
+  .modal {
+    @apply m-4 max-h-[90vh] overflow-y-auto;
   }
 }

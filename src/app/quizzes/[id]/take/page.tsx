@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { getQuizQuestions, submitQuizAttempt } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -149,7 +150,7 @@ export default function TakeQuizPage() {
           <p className="text-gray-600 mb-8">{error || 'The quiz questions could not be loaded.'}</p>
           <button
             onClick={() => router.push('/quizzes')}
-            className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-black transition-colors"
+            className="bg-brand text-brand-foreground px-6 py-3 rounded-lg hover:bg-brand/90 transition-colors"
           >
             Back to Quizzes
           </button>
@@ -169,7 +170,7 @@ export default function TakeQuizPage() {
               setQuizStarted(true)
               setStartTime(new Date())
             }}
-            className="bg-gray-900 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-black transition-colors"
+            className="bg-brand text-brand-foreground px-8 py-4 rounded-lg font-semibold text-lg hover:bg-brand/90 transition-colors"
           >
             Start Quiz
           </button>
@@ -187,9 +188,18 @@ export default function TakeQuizPage() {
       <div className="bg-white border-b pt-16">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold text-gray-900">{quiz.title}</h1>
+            <div className="flex items-center gap-4">
+              <Link href="/">
+                <span className="text-lg font-inter tracking-tight">
+                  <span className="font-light text-black">ACAD</span>
+                  <span className="font-bold text-[#ff5757]">EX</span>
+                </span>
+              </Link>
+              <span className="text-gray-300">|</span>
+              <h1 className="text-xl font-bold text-gray-900">{quiz.title}</h1>
+            </div>
             <div className="flex items-center gap-6">
-              <div className="text-lg font-mono font-bold text-red-600">
+              <div className="text-lg font-mono font-bold text-brand">
                 ⏱️ {formatTime(timeLeft)}
               </div>
               <div className="text-sm text-gray-600">
@@ -268,7 +278,7 @@ export default function TakeQuizPage() {
             ) : (
               <button
                 onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
-                className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-black transition-colors"
+                className="px-6 py-3 bg-brand text-brand-foreground rounded-lg font-medium hover:bg-brand/90 transition-colors"
               >
                 Next
               </button>
@@ -286,7 +296,7 @@ export default function TakeQuizPage() {
                 onClick={() => setCurrentQuestionIndex(index)}
                 className={`w-10 h-10 rounded-lg font-medium text-sm transition-colors ${
                   index === currentQuestionIndex
-                    ? 'bg-gray-900 text-white'
+                    ? 'bg-brand text-brand-foreground'
                     : answers[questions[index]?.id ?? ''] !== undefined
                     ? 'bg-green-100 text-green-800 hover:bg-green-200'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -298,7 +308,7 @@ export default function TakeQuizPage() {
           </div>
           <div className="flex items-center gap-6 mt-4 text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-gray-900 rounded"></div>
+              <div className="w-4 h-4 bg-brand rounded"></div>
               <span className="text-gray-600">Current</span>
             </div>
             <div className="flex items-center gap-2">
