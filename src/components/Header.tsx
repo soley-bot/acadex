@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import SvgIcon from '@/components/ui/SvgIcon'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -76,7 +77,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
-            <span className="text-2xl font-inter tracking-tight group-hover:scale-105 transition-transform duration-200">
+            <span className="text-xl md:text-2xl font-inter tracking-tight group-hover:scale-105 transition-transform duration-200">
               <span className="font-light text-black">ACAD</span>
               <span className="font-bold text-[#ff5757]">EX</span>
             </span>
@@ -84,16 +85,20 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
-            <Link href="/courses" className="nav-link hover:text-brand transition-colors">
+            <Link href="/courses" className="nav-link hover:text-brand transition-colors flex items-center gap-2">
+              <SvgIcon icon="book" size={16} />
               Courses
             </Link>
-            <Link href="/quizzes" className="nav-link hover:text-brand transition-colors">
+            <Link href="/quizzes" className="nav-link hover:text-brand transition-colors flex items-center gap-2">
+              <SvgIcon icon="check" size={16} />
               Quizzes
             </Link>
-            <Link href="/about" className="nav-link hover:text-brand transition-colors">
+            <Link href="/about" className="nav-link hover:text-brand transition-colors flex items-center gap-2">
+              <SvgIcon icon="info" size={16} />
               About
             </Link>
-            <Link href="/contact" className="nav-link hover:text-brand transition-colors">
+            <Link href="/contact" className="nav-link hover:text-brand transition-colors flex items-center gap-2">
+              <SvgIcon icon="heart" size={16} />
               Contact
             </Link>
           </nav>
@@ -125,7 +130,7 @@ export default function Header() {
                       className="flex items-center gap-3 px-4 py-2 hover:bg-accent transition-colors"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <Image src="/Icons8/icons8-home-50.png" alt="Dashboard" width={18} height={18} className="w-[18px] h-[18px]" />
+                      <SvgIcon icon="home" size={16} />
                       Dashboard
                     </Link>
                     <Link
@@ -133,7 +138,7 @@ export default function Header() {
                       className="flex items-center gap-3 px-4 py-2 hover:bg-accent transition-colors"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <Image src="/Icons8/icons8-user-50.png" alt="Profile" width={18} height={18} className="w-[18px] h-[18px]" />
+                      <SvgIcon icon="user" size={16} />
                       Profile
                     </Link>
                     <div className="border-t my-1"></div>
@@ -141,9 +146,7 @@ export default function Header() {
                       onClick={handleSignOut}
                       className="flex items-center gap-3 px-4 py-2 hover:bg-accent transition-colors w-full text-left text-muted-foreground hover:text-destructive"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                      </svg>
+                      <SvgIcon icon="signOut" size={16} />
                       Sign Out
                     </button>
                   </div>
@@ -151,10 +154,16 @@ export default function Header() {
               </div>
             ) : (
               <>
-                <Link href="/login" className="btn-ghost hover:text-brand transition-colors">
+                <Link href="/login" className="btn-ghost hover:text-brand transition-colors inline-flex items-center gap-2">
+                  {loading ? (
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                  ) : null}
                   Sign In
                 </Link>
-                <Link href="/signup" className="bg-brand text-brand-foreground hover:bg-brand/90 px-4 py-2 rounded-lg font-medium transition-colors">
+                <Link href="/signup" className="bg-brand text-brand-foreground hover:bg-brand/90 px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center gap-2">
+                  {loading ? (
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                  ) : null}
                   Get Started
                 </Link>
               </>
@@ -202,34 +211,34 @@ export default function Header() {
                 <div className="flex flex-col space-y-1">
                   <Link 
                     href="/courses" 
-                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center gap-3"
                     onClick={handleMobileNavClick}
                   >
-                    <Image src="/Icons8/icons8-document-50.png" alt="Courses" width={22} height={22} className="w-[22px] h-[22px] mr-3" />
+                    <SvgIcon icon="book" size={18} />
                     Courses
                   </Link>
                   <Link 
                     href="/quizzes" 
-                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center gap-3"
                     onClick={handleMobileNavClick}
                   >
-                    <Image src="/Icons8/icons8-puzzle-50.png" alt="Quizzes" width={22} height={22} className="w-[22px] h-[22px] mr-3" />
+                    <SvgIcon icon="check" size={18} />
                     Quizzes
                   </Link>
                   <Link 
                     href="/about" 
-                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center gap-3"
                     onClick={handleMobileNavClick}
                   >
-                    <Image src="/Icons8/icons8-info-50.png" alt="About" width={22} height={22} className="w-[22px] h-[22px] mr-3" />
+                    <SvgIcon icon="info" size={18} />
                     About
                   </Link>
                   <Link 
                     href="/contact" 
-                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors"
+                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center gap-3"
                     onClick={handleMobileNavClick}
                   >
-                    <Image src="/Icons8/icons8-mailbox-50.png" alt="Contact" width={22} height={22} className="w-[22px] h-[22px] mr-3" />
+                    <SvgIcon icon="heart" size={18} />
                     Contact
                   </Link>
                   
@@ -250,7 +259,6 @@ export default function Header() {
                           className="nav-link justify-start w-full py-3 px-4 rounded-lg hover:bg-accent transition-colors" 
                           onClick={handleMobileNavClick}
                         >
-                          <Image src="/Icons8/icons8-home-50.png" alt="Dashboard" width={22} height={22} className="w-[22px] h-[22px] mr-3" />
                           Dashboard
                         </Link>
                         <Link 
@@ -258,16 +266,12 @@ export default function Header() {
                           className="nav-link justify-start w-full py-3 px-4 rounded-lg hover:bg-accent transition-colors" 
                           onClick={handleMobileNavClick}
                         >
-                          <Image src="/Icons8/icons8-user-50.png" alt="Profile" width={22} height={22} className="w-[22px] h-[22px] mr-3" />
                           Profile
                         </Link>
                         <button
                           onClick={handleSignOut}
                           className="btn-secondary w-full py-3 justify-center"
                         >
-                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                          </svg>
                           Sign Out
                         </button>
                       </div>

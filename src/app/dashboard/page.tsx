@@ -110,7 +110,7 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="text-center">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Image src="/Icons8/icons8-cancel-50.png" alt="Error" width={40} height={40} className="w-10 h-10" />
+                <span className="text-red-600 text-2xl font-bold">!</span>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Something went wrong</h3>
               <p className="text-gray-600 mb-6">{error}</p>
@@ -140,35 +140,26 @@ export default function Dashboard() {
           {
             title: 'Total Courses',
             value: progress?.courses_enrolled || '0',
-            iconSrc: '/Icons8/icons8-document-50.png',
             description: 'Enrolled courses'
           },
           {
             title: 'Completed',
             value: progress?.courses_completed || '0',
-            iconSrc: '/Icons8/icons8-checkmark-50.png',
             description: 'Courses finished'
           },
           {
             title: 'Quiz Attempts',
             value: progress?.quizzes_taken || '0',
-            iconSrc: '/Icons8/icons8-puzzle-50.png',
             description: 'Total quiz attempts'
           },
           {
             title: 'Avg Score',
             value: progress?.average_score ? `${Math.round(progress.average_score)}%` : '0%',
-            iconSrc: '/Icons8/icons8-services-50.png',
             description: 'Quiz performance'
           }
         ].map((stat, index) => (
           <Card key={index}>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-2">
-                <div className="p-2 bg-gray-50 rounded-lg">
-                  <Image src={stat.iconSrc} alt={stat.title} width={24} height={24} className="w-6 h-6" />
-                </div>
-              </div>
               <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
               <div className="text-sm font-medium text-gray-900">{stat.title}</div>
               <div className="text-sm text-gray-600">{stat.description}</div>

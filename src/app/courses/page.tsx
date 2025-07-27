@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { getCourses } from '@/lib/database'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { courseAPI } from '@/lib/database'
+import { Pagination } from '@/components/ui/Pagination'
 
 interface Course {
   id: string
@@ -23,55 +24,73 @@ interface Course {
   updated_at: string
 }
 
+interface PaginationData {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+  hasMore: boolean
+}
+
 export default function CoursesPage() {
-  const [selectedCategory, setSelectedCategory] = useState('all')
-  const [selectedLevel, setSelectedLevel] = useState('all')
   const [courses, setCourses] = useState<Course[]>([])
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pagination, setPagination] = useState<PaginationData>({
+    page: 1,
+    limit: 9,
+    total: 0,
+    totalPages: 0,
+    hasMore: false
+  })
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [selectedLevel, setSelectedLevel] = useState<string>('all')
+
+  const fetchCourses = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      
+      const filters = {
+        page: currentPage,
+        limit: 9,
+        ...(selectedCategory !== 'all' && { category: selectedCategory }),
+        ...(selectedLevel !== 'all' && { level: selectedLevel })
+      }
+
+      const { data, error, pagination: paginationData } = await courseAPI.getCourses(filters)
+      
+      if (error) {
+        console.error('Error loading courses:', error)
+        setError('Failed to load courses')
+      } else {
+        setCourses(data || [])
+        setPagination(paginationData)
+      }
+    } catch (err) {
+      console.error('Error fetching courses:', err)
+      setError('Failed to load courses')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [currentPage, selectedCategory, selectedLevel])
 
   useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        setLoading(true)
-        const filters: any = {}
-        
-        if (selectedCategory !== 'all') {
-          filters.category = selectedCategory
-        }
-        
-        if (selectedLevel !== 'all') {
-          filters.level = selectedLevel
-        }
-        
-        const { data, error: fetchError } = await getCourses(filters)
-        
-        if (fetchError) {
-          console.error('Error fetching courses:', fetchError)
-          setError('Failed to load courses')
-        } else {
-          setCourses(data || [])
-        }
-      } catch (err) {
-        console.error('Error fetching courses:', err)
-        setError('Failed to load courses')
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchCourses()
-  }, [selectedCategory, selectedLevel])
+  }, [fetchCourses])
 
-  const categories = ['all', 'Development', 'Design', 'Data Science', 'Marketing', 'Cloud Computing', 'Mobile']
-  const levels = ['all', 'beginner', 'intermediate', 'advanced']
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
-    const getLevelBadgeColor = (level: string) => {
-    switch (level.toLowerCase()) {
-      case 'beginner': return 'bg-green-100 text-green-700'
-      case 'intermediate': return 'bg-yellow-100 text-yellow-700'
-      case 'advanced': return 'bg-red-100 text-red-700'
-      default: return 'bg-muted text-muted-foreground'
+  const getLevelBadgeColor = (level: string) => {
+    switch (level?.toLowerCase()) {
+      case 'beginner': return 'bg-green-100 text-green-700 border-green-200'
+      case 'intermediate': return 'bg-yellow-100 text-yellow-700 border-yellow-200'
+      case 'advanced': return 'bg-red-100 text-red-700 border-red-200'
+      default: return 'bg-muted text-muted-foreground border'
     }
   }
 
@@ -79,33 +98,18 @@ export default function CoursesPage() {
     return level.charAt(0).toUpperCase() + level.slice(1)
   }
 
-  if (loading) {
+  if (isLoading && currentPage === 1) {
     return (
-      <div className="min-h-screen bg-gray-900">
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading courses...</p>
+      <div className="min-h-screen bg-background">
+        <section className="relative pt-24 pb-16 px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+              Master English
+              <span className="block text-primary mt-2">Step by Step</span>
+            </h1>
+            <p className="text-base md:text-lg text-muted-foreground">Loading English courses...</p>
           </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-900">
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <div className="text-center">
-            <p className="text-red-400 mb-4">{error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="bg-white text-gray-900 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
-            >
-              Try Again
-            </button>
-          </div>
-        </div>
+        </section>
       </div>
     )
   }
@@ -113,219 +117,219 @@ export default function CoursesPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 px-6 lg:px-8 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-gray-50"></div>
-        
-        <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-brand/10 text-brand px-3 py-1.5 rounded-full text-sm font-medium mb-6 border border-brand/20">
-            <span className="w-2 h-2 bg-brand rounded-full"></span>
-            Course Catalog
-          </div>
-          <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-6 text-foreground">
-            Expert-Led
-            <span className="block text-primary mt-2">Learning Courses</span>
+      <section className="relative pt-24 pb-16 px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+            Master English
+            <span className="block text-primary mt-2">Step by Step</span>
           </h1>
-          <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-            Master new skills with our comprehensive courses designed by industry experts. 
-            From beginner basics to advanced mastery, find your perfect learning path.
+          <p className="text-base md:text-lg text-muted-foreground">
+            Discover comprehensive English courses designed by certified language instructors.
           </p>
         </div>
       </section>
 
-      {/* Filters */}
-      <section className="py-8 px-6 lg:px-8 border-b border-border bg-muted/30">
+      {/* Main Content */}
+      <section className="py-20 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-foreground">Filter Courses</h3>
-            
-            {/* Category Filter */}
-            <div className="space-y-3">
-              <span className="text-sm font-medium text-muted-foreground">Category:</span>
-              <div className="flex flex-wrap gap-2">
-                {categories.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      selectedCategory === category
-                        ? 'bg-brand text-brand-foreground'
-                        : 'bg-background text-foreground hover:bg-muted border border-border hover:border-brand/50'
-                    }`}
+          {/* Filters */}
+          <div className="mb-12 space-y-6">
+            <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold tracking-tight mb-2">English Courses</h2>
+                <p className="text-sm md:text-base text-muted-foreground">
+                  Showing {((currentPage - 1) * pagination.limit + 1)} - {Math.min(currentPage * pagination.limit, pagination.total)} of {pagination.total} courses
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="min-w-[160px]">
+                  <label htmlFor="category" className="block text-sm font-medium mb-2">Category</label>
+                  <select
+                    id="category"
+                    value={selectedCategory}
+                    onChange={(e) => {
+                      setSelectedCategory(e.target.value)
+                      setCurrentPage(1)
+                    }}
+                    className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   >
-                    {category === 'all' ? 'All Categories' : category}
-                  </button>
-                ))}
+                    <option value="all">All Categories</option>
+                    <option value="Development">Development</option>
+                    <option value="Design">Design</option>
+                    <option value="Data Science">Data Science</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Cloud Computing">Cloud Computing</option>
+                    <option value="Mobile">Mobile</option>
+                  </select>
+                </div>
+
+                <div className="min-w-[160px]">
+                  <label htmlFor="level" className="block text-sm font-medium mb-2">Level</label>
+                  <select
+                    id="level"
+                    value={selectedLevel}
+                    onChange={(e) => {
+                      setSelectedLevel(e.target.value)
+                      setCurrentPage(1)
+                    }}
+                    className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  >
+                    <option value="all">All Levels</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </div>
               </div>
             </div>
-
-            {/* Level Filter */}
-            <div className="space-y-3">
-              <span className="text-sm font-medium text-muted-foreground">Level:</span>
-              <div className="flex flex-wrap gap-2">
-                {levels.map((level) => (
-                  <button
-                    key={level}
-                    onClick={() => setSelectedLevel(level)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      selectedLevel === level
-                        ? 'bg-brand text-brand-foreground'
-                        : 'bg-background text-foreground hover:bg-muted border border-border hover:border-brand/50'
-                    }`}
-                  >
-                    {level === 'all' ? 'All Levels' : formatLevel(level)}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Active Filters Summary */}
-            {(selectedCategory !== 'all' || selectedLevel !== 'all') && (
-              <div className="flex items-center gap-2 pt-2">
-                <span className="text-sm text-muted-foreground">Active filters:</span>
-                {selectedCategory !== 'all' && (
-                  <span className="inline-flex items-center px-2.5 py-1 bg-brand/10 text-brand text-xs font-medium rounded border border-brand/20">
-                    {selectedCategory}
-                  </span>
-                )}
-                {selectedLevel !== 'all' && (
-                  <span className="inline-flex items-center px-2.5 py-1 bg-brand/10 text-brand text-xs font-medium rounded border border-brand/20">
-                    {formatLevel(selectedLevel)}
-                  </span>
-                )}
-                <button
-                  onClick={() => {
-                    setSelectedCategory('all')
-                    setSelectedLevel('all')
-                  }}
-                  className="text-xs text-muted-foreground hover:text-foreground underline ml-2"
-                >
-                  Clear all
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Courses Grid */}
-      <section className="py-16 px-6 lg:px-8 bg-background">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-bold text-foreground">
-              Available Courses
-            </h2>
           </div>
 
-          {courses.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-lg flex items-center justify-center border border-border">
-                <Image 
-                  src="/Icons8/icons8-document-50.png" 
-                  alt="No courses" 
-                  width={32} 
-                  height={32} 
-                  className="w-8 h-8 opacity-60" 
-                />
-              </div>
-              <h3 className="text-lg font-medium text-foreground mb-2">No courses found</h3>
-              <p className="text-muted-foreground mb-4">We couldn&apos;t find any courses matching your current filters.</p>
+          {/* Error State */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-8">
+              <p className="font-medium">Error loading courses</p>
+              <p className="text-sm mt-1">{error}</p>
               <button 
-                onClick={() => {
-                  setSelectedCategory('all')
-                  setSelectedLevel('all')
-                }}
-                className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                onClick={fetchCourses}
+                className="mt-2 text-sm underline hover:no-underline"
               >
-                Clear all filters
+                Try again
               </button>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course) => (
-                <div
-                  key={course.id}
-                  className="group bg-card rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-border hover:border-primary/30 flex flex-col h-full"
-                >
-                  {/* Course Image Placeholder - Will be replaced with actual images later */}
-                  <div className="relative h-48 bg-muted overflow-hidden">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="w-16 h-16 mx-auto mb-3 bg-muted-foreground/20 rounded-lg flex items-center justify-center">
-                          <Image 
-                            src="/Icons8/icons8-document-50.png" 
-                            alt="Course" 
-                            width={32} 
-                            height={32} 
-                            className="w-8 h-8 opacity-60" 
-                          />
-                        </div>
-                        <p className="text-sm text-muted-foreground font-medium">{course.category}</p>
-                      </div>
+          )}
+
+          {/* Courses Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="card p-6 animate-pulse">
+                  <div className="h-48 bg-muted rounded-lg mb-4"></div>
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <div className="h-5 w-16 bg-muted rounded-full"></div>
+                      <div className="h-5 w-20 bg-muted rounded-full"></div>
                     </div>
-                    <div className="absolute top-3 right-3">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getLevelBadgeColor(course.level)}`}>
-                        {formatLevel(course.level)}
-                      </span>
-                    </div>
+                    <div className="h-6 bg-muted rounded"></div>
+                    <div className="h-4 bg-muted rounded w-3/4"></div>
+                    <div className="h-4 bg-muted rounded w-1/2"></div>
                   </div>
-
-                  {/* Course Content */}
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-lg font-semibold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-                      {course.title}
-                    </h3>
-                    
-                    <p className="text-muted-foreground mb-4 text-sm leading-relaxed line-clamp-3 flex-grow">
-                      {course.description}
-                    </p>
-
-                    {/* Instructor */}
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                        <span className="text-muted-foreground font-medium text-sm">
-                          {course.instructor_name.split(' ').map(n => n[0]).join('')}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{course.instructor_name}</p>
-                        <p className="text-xs text-muted-foreground">Instructor</p>
-                      </div>
+                </div>
+              ))
+            ) : courses.length > 0 ? (
+              courses.map((course) => (
+                <div key={course.id} className="group">
+                  <div className="card hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full">
+                    <div className="relative h-48 bg-muted overflow-hidden rounded-t-lg">
+                      {course.image_url ? (
+                        <Image
+                          src={course.image_url}
+                          alt={course.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                          <div className="text-4xl font-bold text-primary/40">
+                            {course.title.charAt(0).toUpperCase()}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    
-                    {/* Course Stats */}
-                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-6 pb-4 border-b border-border">
-                      <div className="flex items-center gap-4">
-                        <span className="flex items-center gap-1.5">
-                          <Image src="/Icons8/icons8-clock-50.png" alt="Duration" width={18} height={18} className="w-[18px] h-[18px]" />
-                          {course.duration}
+
+                    <div className="p-6 flex-1 flex flex-col">
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full border border-primary/20">
+                          {course.category}
                         </span>
-                        <span className="flex items-center gap-1.5">
-                          <Image src="/Icons8/icons8-contacts-50.png" alt="Students" width={18} height={18} className="w-[18px] h-[18px]" />
-                          {course.student_count.toLocaleString()}
+                        <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getLevelBadgeColor(course.level)}`}>
+                          {formatLevel(course.level)}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Image src="/Icons8/icons8-checkmark-50.png" alt="Rating" width={18} height={18} className="w-[18px] h-[18px]" />
-                        <span className="font-medium">{course.rating}</span>
+
+                      <h3 className="text-xl font-semibold tracking-tight mb-3">
+                        {course.title}
+                      </h3>
+
+                      <p className="text-muted-foreground mb-4 line-clamp-2 leading-relaxed flex-1">
+                        {course.description}
+                      </p>
+
+                      <div className="text-sm text-muted-foreground mb-4">
+                        <p className="font-medium">Instructor: {course.instructor_name}</p>
                       </div>
-                    </div>
-                    
-                    {/* Price and CTA */}
-                    <div className="flex items-center justify-between mt-auto">
-                      <div className="text-2xl font-bold text-foreground">
-                        <span className="text-lg text-muted-foreground font-normal">$</span>{course.price}
+
+                      <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+                        <div className="flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>{course.duration}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                          <span>{course.student_count} students</span>
+                        </div>
                       </div>
-                      <Link href={`/courses/${course.id}`}>
-                        <button className="inline-flex items-center px-4 py-2 bg-brand text-brand-foreground rounded-lg font-medium hover:bg-brand/90 transition-colors">
-                          <span>View Course</span>
-                          <Image src="/Icons8/icons8-external-link-50.png" alt="External link" width={18} height={18} className="w-[18px] h-[18px] ml-2" />
-                        </button>
-                      </Link>
+
+                      <div className="flex items-center justify-between mt-auto">
+                        <div className="text-2xl font-bold text-primary">
+                          ${course.price}
+                        </div>
+                        <Link 
+                          href={`/courses/${course.id}`}
+                          className="btn-default"
+                        >
+                          View Course
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-20">
+                <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-8">
+                  <svg className="w-12 h-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold tracking-tight mb-4">No Courses Available</h3>
+                <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+                  {selectedCategory !== 'all' || selectedLevel !== 'all' 
+                    ? 'No courses found matching your selected filters. Try adjusting your search criteria.'
+                    : 'We\'re working on adding more courses. Check back soon for new content!'
+                  }
+                </p>
+                {(selectedCategory !== 'all' || selectedLevel !== 'all') && (
+                  <button 
+                    onClick={() => {
+                      setSelectedCategory('all')
+                      setSelectedLevel('all')
+                      setCurrentPage(1)
+                    }}
+                    className="btn-outline"
+                  >
+                    Clear Filters
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Pagination */}
+          {!isLoading && courses.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={pagination.totalPages}
+              totalItems={pagination.total}
+              itemsPerPage={pagination.limit}
+              onPageChange={handlePageChange}
+              isLoading={isLoading}
+            />
           )}
         </div>
       </section>

@@ -5,59 +5,60 @@ import { useState, useEffect } from 'react'
 import { courseAPI } from '@/lib/database'
 import type { Course } from '@/lib/supabase'
 import { CourseImage } from '@/components/OptimizedImage'
+import SvgIcon from '@/components/ui/SvgIcon'
 
 // Static fallback courses for better performance
 const STATIC_COURSES: Course[] = [
   {
     id: 'static-1',
-    title: 'English Grammar Fundamentals',
-    description: 'Master the basics of English grammar with comprehensive lessons and practical exercises.',
-    category: 'Grammar',
-    level: 'beginner',
-    duration: '8 weeks',
-    price: 49.99,
+    title: 'IELTS Complete Preparation Course',
+    description: 'Comprehensive IELTS preparation covering all four skills: Reading, Writing, Listening, and Speaking.',
+    category: 'IELTS',
+    level: 'intermediate',
+    duration: '12 weeks',
+    price: 149.99,
     instructor_id: 'instructor-1',
-    instructor_name: 'Sarah Johnson',
+    instructor_name: 'Dr. Emily Watson',
     is_published: true,
     created_at: '2024-01-01',
     updated_at: '2024-01-01',
-    student_count: 1250,
+    student_count: 2850,
+    rating: 4.9,
+    image_url: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop'
+  },
+  {
+    id: 'static-2',
+    title: 'English Grammar Mastery',
+    description: 'Master all English grammar rules from basics to advanced with practical exercises and examples.',
+    category: 'Grammar',
+    level: 'beginner',
+    duration: '8 weeks',
+    price: 79.99,
+    instructor_id: 'instructor-2',
+    instructor_name: 'James Richardson',
+    is_published: true,
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
+    student_count: 3200,
     rating: 4.8,
     image_url: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop'
   },
   {
-    id: 'static-2',
-    title: 'Business English Communication',
-    description: 'Develop professional communication skills for the modern workplace.',
-    category: 'Business English',
-    level: 'intermediate',
-    duration: '6 weeks',
-    price: 79.99,
-    instructor_id: 'instructor-2',
-    instructor_name: 'Michael Chen',
-    is_published: true,
-    created_at: '2024-01-01',
-    updated_at: '2024-01-01',
-    student_count: 980,
-    rating: 4.9,
-    image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop'
-  },
-  {
     id: 'static-3',
-    title: 'Advanced Writing Techniques',
-    description: 'Enhance your writing skills with advanced techniques and creative approaches.',
-    category: 'Writing',
-    level: 'advanced',
+    title: 'Advanced Vocabulary Builder',
+    description: 'Expand your vocabulary with 3000+ essential English words, idioms, and phrases.',
+    category: 'Vocabulary',
+    level: 'intermediate',
     duration: '10 weeks',
     price: 99.99,
     instructor_id: 'instructor-3',
-    instructor_name: 'Emma Thompson',
+    instructor_name: 'Sarah Collins',
     is_published: true,
     created_at: '2024-01-01',
     updated_at: '2024-01-01',
-    student_count: 750,
+    student_count: 1920,
     rating: 4.7,
-    image_url: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop'
+    image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop'
   }
 ]
 
@@ -84,34 +85,20 @@ export default function PopularCourses() {
     return () => clearTimeout(timer)
   }, [])
 
-  const getCategoryEmoji = (category: string) => {
-    const emojiMap: Record<string, string> = {
-      'Grammar': '📚',
-      'Vocabulary': '📝',
-      'Pronunciation': '🗣️',
-      'Speaking': '💬',
-      'Business English': '💼',
-      'Writing': '✍️',
-      'Literature': '📖',
-      'Test Preparation': '🎯',
-    }
-    return emojiMap[category] || '📚'
-  }
-
   return (
     <section className="py-20 px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium mb-4 border">
-            <span className="w-2 h-2 bg-primary rounded-full"></span>
-            Popular Courses
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-brand/10 text-brand px-3 py-1.5 rounded-full text-sm font-medium mb-4 border border-brand/20">
+            <span className="w-2 h-2 bg-brand rounded-full"></span>
+            Featured Courses
           </div>
-          <h2 className="text-3xl lg:text-4xl font-bold tracking-tight mb-4">
-            Learn from the Best
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight mb-4">
+            Popular English Learning Courses
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Join thousands of students learning from industry experts. Start your journey today.
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+            Join thousands of students mastering English with our expert-designed courses for IELTS, grammar, and vocabulary.
           </p>
         </div>
 
@@ -131,7 +118,7 @@ export default function PopularCourses() {
                   {course.level}
                 </div>
                 {/* Category overlay */}
-                <div className="absolute bottom-3 left-3 px-3 py-1 bg-primary/90 text-white text-xs font-semibold rounded-full">
+                <div className="absolute bottom-3 left-3 px-3 py-1 bg-primary/90 text-white text-xs font-semibold rounded-full flex items-center gap-1">
                   {course.category}
                 </div>
               </div>
@@ -182,9 +169,7 @@ export default function PopularCourses() {
                     className="btn-default"
                   >
                     <span>Enroll Now</span>
-                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
+                    <SvgIcon icon="angleRight" size={16} className="ml-2" />
                   </Link>
                 </div>
               </div>

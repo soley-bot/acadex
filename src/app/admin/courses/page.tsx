@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Search, Plus, Users, BookOpen, Star, Calendar, Edit, Trash2, Eye, MoreVertical } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { CourseForm } from '@/components/admin/CourseForm'
 import { EnhancedCourseForm } from '@/components/admin/EnhancedCourseForm'
 import { DeleteCourseModal } from '@/components/admin/DeleteCourseModal'
 import { CourseViewModal } from '@/components/admin/CourseViewModal'
+import SvgIcon from '@/components/ui/SvgIcon'
 
 interface Course {
   id: string
@@ -169,6 +169,29 @@ export default function CoursesPage() {
     setDeletingCourse(null)
   }
 
+  const handleTogglePublish = async (course: Course) => {
+    try {
+      const { error } = await supabase
+        .from('courses')
+        .update({ is_published: !course.is_published })
+        .eq('id', course.id)
+
+      if (error) throw error
+
+      // Update local state
+      setCourses(prevCourses => 
+        prevCourses.map(c => 
+          c.id === course.id 
+            ? { ...c, is_published: !c.is_published }
+            : c
+        )
+      )
+    } catch (err) {
+      console.error('Error toggling publish status:', err)
+      setError('Failed to update course status. Please try again.')
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -218,7 +241,7 @@ export default function CoursesPage() {
             onClick={handleCreateCourse}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
-            <Plus className="h-4 w-4" />
+            <SvgIcon icon="plus" size={16} variant="white" />
             Add Course
           </button>
         </div>
@@ -229,7 +252,7 @@ export default function CoursesPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
-            <BookOpen className="h-4 w-4 text-blue-600" />
+            <SvgIcon icon="book" size={16} className="text-gray-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{courseStats.total}</div>
@@ -240,7 +263,7 @@ export default function CoursesPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Published</CardTitle>
-            <Star className="h-4 w-4 text-green-600" />
+            <SvgIcon icon="check" size={16} className="text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{courseStats.published}</div>
@@ -251,7 +274,7 @@ export default function CoursesPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Drafts</CardTitle>
-            <Calendar className="h-4 w-4 text-yellow-600" />
+            <SvgIcon icon="edit" size={16} className="text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{courseStats.draft}</div>
@@ -262,7 +285,7 @@ export default function CoursesPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <Users className="h-4 w-4 text-purple-600" />
+            <SvgIcon icon="users" size={16} className="text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{courseStats.totalStudents}</div>
@@ -274,11 +297,15 @@ export default function CoursesPage() {
       {/* Search and Filter */}
       <div className="mb-6 flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <SvgIcon 
+            icon="search" 
+            size={20} 
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
+          />
           <input
             type="text"
             placeholder="Search courses or instructors..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -346,23 +373,41 @@ export default function CoursesPage() {
                 <div className="flex gap-2 pt-2">
                   <button 
                     onClick={() => handleViewCourse(course)}
-                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center"
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
                   >
-                    <Eye className="h-3 w-3 mr-1" />
+                    <SvgIcon icon="eye" size={16} />
                     View
                   </button>
                   <button 
-                    onClick={() => handleEditCourse(course)}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center"
+                    onClick={() => handleTogglePublish(course)}
+                    className={`flex-1 px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 ${
+                      course.is_published
+                        ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                        : 'bg-green-600 hover:bg-green-700 text-white'
+                    }`}
                   >
-                    <Edit className="h-3 w-3 mr-1" />
+                    <SvgIcon 
+                      icon={course.is_published ? "eye" : "check"} 
+                      size={16} 
+                      variant="white" 
+                    />
+                    {course.is_published ? 'Unpublish' : 'Publish'}
+                  </button>
+                </div>
+                
+                <div className="flex gap-2 pt-2">
+                  <button 
+                    onClick={() => handleEditCourse(course)}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
+                  >
+                    <SvgIcon icon="edit" size={16} variant="white" />
                     Edit
                   </button>
                   <button 
                     onClick={() => handleDeleteCourse(course)}
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center"
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
                   >
-                    <Trash2 className="h-3 w-3 mr-1" />
+                    <SvgIcon icon="ban" size={16} variant="white" />
                     Delete
                   </button>
                 </div>
@@ -377,7 +422,6 @@ export default function CoursesPage() {
         <Card className="mt-8 border-2 border-dashed border-gray-300">
           <CardContent className="p-8">
             <div className="text-center">
-              <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No courses found</h3>
               <p className="text-gray-500 mb-4">
                 {searchTerm || selectedCategory !== 'all' 
@@ -388,8 +432,9 @@ export default function CoursesPage() {
               {!searchTerm && selectedCategory === 'all' && (
                 <button 
                   onClick={handleCreateCourse}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2"
                 >
+                  <SvgIcon icon="plus" size={16} variant="white" />
                   Create Course
                 </button>
               )}

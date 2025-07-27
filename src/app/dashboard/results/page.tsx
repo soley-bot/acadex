@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Brain, ArrowLeft, Clock, Award, TrendingUp } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { getUserQuizAttempts } from '@/lib/database'
 
@@ -106,8 +105,7 @@ export default function AllResultsPage() {
             href="/dashboard"
             className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-3"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
+            ← Back to Dashboard
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">All Quiz Results</h1>
           <p className="text-gray-600 mt-1">Complete overview of your quiz performance</p>
@@ -117,7 +115,6 @@ export default function AllResultsPage() {
           <div className="bg-white border rounded-lg shadow-sm mb-8">
             <div className="p-6">
               <div className="text-center">
-                <Brain className="w-12 h-12 text-red-400 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to Load Results</h3>
                 <p className="text-gray-600 mb-6">{error}</p>
                 <button
@@ -139,7 +136,7 @@ export default function AllResultsPage() {
                 <div className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Brain className="w-5 h-5 text-blue-600" />
+                      <span className="text-blue-600 font-bold text-lg">T</span>
                     </div>
                     <div>
                       <p className="text-xs text-gray-600">Total Quizzes</p>
@@ -153,7 +150,7 @@ export default function AllResultsPage() {
                 <div className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 text-green-600" />
+                      <span className="text-green-600 font-bold text-lg">A</span>
                     </div>
                     <div>
                       <p className="text-xs text-gray-600">Average Score</p>
@@ -167,7 +164,7 @@ export default function AllResultsPage() {
                 <div className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                      <Award className="w-5 h-5 text-yellow-600" />
+                      <span className="text-yellow-600 font-bold text-lg">B</span>
                     </div>
                     <div>
                       <p className="text-xs text-gray-600">Best Score</p>
@@ -182,7 +179,6 @@ export default function AllResultsPage() {
             <div className="bg-white border rounded-lg shadow-sm">
               <div className="px-4 py-2 border-b">
                 <h2 className="text-base font-medium text-gray-900 flex items-center gap-2">
-                  <Brain className="w-4 h-4" />
                   Quiz Results
                 </h2>
               </div>
@@ -200,7 +196,7 @@ export default function AllResultsPage() {
                           </h3>
                           <div className="flex items-center gap-3 text-xs text-gray-600">
                             <div className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
+                              <span>{attempt.time_taken_minutes}m</span>
                               <span>{attempt.time_taken_minutes} min</span>
                             </div>
                             <span>{formatDate(attempt.completed_at)}</span>
@@ -214,7 +210,6 @@ export default function AllResultsPage() {
                   </div>
                 ) : (
                   <div className="text-center py-6">
-                    <Brain className="w-10 h-10 text-gray-400 mx-auto mb-2" />
                     <h3 className="text-sm font-medium text-gray-900 mb-1">No Quiz Results Yet</h3>
                     <p className="text-xs text-gray-600 mb-3">You haven&apos;t taken any quizzes yet. Start your learning journey!</p>
                     <Link

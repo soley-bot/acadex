@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getQuizResults } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
+import SvgIcon from '@/components/ui/SvgIcon'
 
 interface QuizResult {
   id: string
@@ -68,11 +69,11 @@ export default function QuizResultsPage() {
   }
 
   const getScoreMessage = (score: number) => {
-    if (score >= 90) return { emoji: '🎉', message: 'Excellent work! You mastered this topic!' }
-    if (score >= 80) return { emoji: '✨', message: 'Great job! You have a solid understanding!' }
-    if (score >= 70) return { emoji: '👍', message: 'Good work! Keep practicing to improve!' }
-    if (score >= 60) return { emoji: '📚', message: 'Not bad! Review the topics and try again!' }
-    return { emoji: '💪', message: 'Keep learning! Practice makes perfect!' }
+    if (score >= 90) return { message: 'Excellent work! You mastered this topic!' }
+    if (score >= 80) return { message: 'Great job! You have a solid understanding!' }
+    if (score >= 70) return { message: 'Good work! Keep practicing to improve!' }
+    if (score >= 60) return { message: 'Not bad! Review the topics and try again!' }
+    return { message: 'Keep learning! Practice makes perfect!' }
   }
 
   if (loading) {
@@ -121,7 +122,6 @@ export default function QuizResultsPage() {
         {/* Results Header */}
         <div className="bg-white rounded-lg shadow-sm border p-8 mb-8">
           <div className="text-center">
-            <div className="text-6xl mb-4">{scoreMessage.emoji}</div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Quiz Complete!</h1>
             <h2 className="text-xl text-gray-600 mb-6">{results.quiz_title}</h2>
             
@@ -166,7 +166,11 @@ export default function QuizResultsPage() {
                 >
                   <div className="flex items-start gap-3 mb-4">
                     <span className={`text-2xl ${answer.is_correct ? 'text-green-600' : 'text-red-600'}`}>
-                      {answer.is_correct ? '✅' : '❌'}
+                      {answer.is_correct ? (
+                        <SvgIcon icon="check" variant="default" size={16} className="text-green-600" />
+                      ) : (
+                        <SvgIcon icon="ban" variant="default" size={16} className="text-red-600" />
+                      )}
                     </span>
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">

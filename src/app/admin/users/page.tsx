@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, UserPlus, Search, Filter, UserCheck, Clock, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@/lib/supabase'
 import AddUserModal from '@/components/admin/AddUserModal'
+import SvgIcon from '@/components/ui/SvgIcon'
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([])
@@ -14,6 +14,8 @@ export default function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('all')
   const [showAddUser, setShowAddUser] = useState(false)
+  const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [deletingUser, setDeletingUser] = useState<User | null>(null)
 
   useEffect(() => {
     fetchUsers()
@@ -21,6 +23,7 @@ export default function AdminUsers() {
 
   const fetchUsers = async () => {
     try {
+      setLoading(true)
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -32,6 +35,27 @@ export default function AdminUsers() {
       setError(err instanceof Error ? err.message : 'Failed to fetch users')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleEditUser = (user: User) => {
+    // For now, just show an alert since the modal doesn't support editing
+    alert(`Edit functionality for ${user.name} will be implemented soon.`)
+  }
+
+  const handleDeleteUser = async (user: User) => {
+    if (!confirm(`Are you sure you want to delete ${user.name}?`)) return
+
+    try {
+      const { error } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', user.id)
+
+      if (error) throw error
+      await fetchUsers()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete user')
     }
   }
 
@@ -71,7 +95,7 @@ export default function AdminUsers() {
     return (
       <div className="p-8 flex items-center justify-center min-h-[400px]">
         <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
           <span>Loading users...</span>
         </div>
       </div>
@@ -106,7 +130,7 @@ export default function AdminUsers() {
             onClick={() => setShowAddUser(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
-            <UserPlus className="h-4 w-4" />
+            <SvgIcon icon="plus" size={16} variant="white" />
             Add User
           </button>
         </div>
@@ -117,7 +141,7 @@ export default function AdminUsers() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-blue-600" />
+            <SvgIcon icon="users" size={16} className="text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{userStats.total}</div>
@@ -127,19 +151,8 @@ export default function AdminUsers() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <UserCheck className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{userStats.active}</div>
-            <p className="text-xs text-gray-500">Currently active users</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Students</CardTitle>
-            <Users className="h-4 w-4 text-purple-600" />
+            <SvgIcon icon="users" size={16} className="text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{userStats.students}</div>
@@ -150,77 +163,53 @@ export default function AdminUsers() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Instructors</CardTitle>
-            <Clock className="h-4 w-4 text-orange-600" />
+            <SvgIcon icon="briefcase" size={16} className="text-orange-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{userStats.instructors}</div>
             <p className="text-xs text-gray-500">Instructor accounts</p>
           </CardContent>
         </Card>
-
+        
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Admins</CardTitle>
-            <Users className="h-4 w-4 text-red-600" />
+            <SvgIcon icon="check" size={16} className="text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{userStats.admins}</div>
             <p className="text-xs text-gray-500">Admin accounts</p>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New This Month</CardTitle>
-            <Clock className="h-4 w-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {users.filter(u => {
-                const userDate = new Date(u.created_at)
-                const now = new Date()
-                const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-                return userDate >= thisMonth
-              }).length}
-            </div>
-            <p className="text-xs text-gray-500">New registrations</p>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Search and Filters */}
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                type="text"
-                placeholder="Search users by name or email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div className="flex gap-2">
-              <select 
-                value={roleFilter} 
-                onChange={(e) => setRoleFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Roles</option>
-                <option value="admin">Admin</option>
-                <option value="instructor">Instructor</option>
-                <option value="student">Student</option>
-              </select>
-              <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
-                <Filter className="h-4 w-4" />
-                Filter
-              </button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <SvgIcon 
+            icon="search" 
+            size={16} 
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
+          />
+          <input
+            type="text"
+            placeholder="Search users by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+        <select 
+          value={roleFilter} 
+          onChange={(e) => setRoleFilter(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="all">All Roles</option>
+          <option value="admin">Admin</option>
+          <option value="instructor">Instructor</option>
+          <option value="student">Student</option>
+        </select>
+      </div>
 
       {/* Users Table */}
       <Card>
@@ -254,48 +243,75 @@ export default function AdminUsers() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                          <span className="text-sm font-medium text-gray-700">
-                            {user.name.split(' ').map(n => n[0]).join('')}
-                          </span>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                          <div className="text-sm text-gray-500">{user.email}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadge(user.role)}`}>
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                        active
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatDate(user.created_at)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div>
-                        <div>0 courses</div>
-                        <div>0 quizzes</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900">Edit</button>
-                        <button className="text-red-600 hover:text-red-900">Delete</button>
+                {filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center">
+                      <div className="text-gray-500">
+                        <SvgIcon icon="users" size={48} className="mx-auto mb-4 text-gray-300" />
+                        <h3 className="text-lg font-medium mb-2">No users found</h3>
+                        <p className="text-sm">
+                          {searchTerm || roleFilter !== 'all' 
+                            ? 'Try adjusting your search or filter criteria'
+                            : 'No users have been added yet'
+                          }
+                        </p>
                       </div>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredUsers.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                            <span className="text-sm font-medium text-gray-700">
+                              {user.name.split(' ').map(n => n[0]).join('')}
+                            </span>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                            <div className="text-sm text-gray-500">{user.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleBadge(user.role)}`}>
+                          {user.role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                          active
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {formatDate(user.created_at)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div>
+                          <div>Active user</div>
+                          <div>Joined {formatDate(user.created_at)}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <button 
+                            onClick={() => handleEditUser(user)}
+                            className="text-blue-600 hover:text-blue-900 transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteUser(user)}
+                            className="text-red-600 hover:text-red-900 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -305,8 +321,14 @@ export default function AdminUsers() {
       {/* Add User Modal */}
       <AddUserModal 
         isOpen={showAddUser}
-        onClose={() => setShowAddUser(false)}
-        onUserAdded={fetchUsers}
+        onClose={() => {
+          setShowAddUser(false)
+          setEditingUser(null)
+        }}
+        onUserAdded={() => {
+          fetchUsers()
+          setEditingUser(null)
+        }}
       />
     </div>
   )

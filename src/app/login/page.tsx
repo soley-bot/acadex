@@ -80,13 +80,6 @@ function LoginForm() {
               {error && (
                 <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <Image
-                      src="/icons8/icons8-cancel-100.png"
-                      alt="Error"
-                      width={16}
-                      height={16}
-                      className="w-4 h-4"
-                    />
                     <p className="text-destructive text-sm font-medium">{error}</p>
                   </div>
                 </div>
@@ -137,13 +130,6 @@ function LoginForm() {
                 ) : (
                   <div className="flex items-center justify-center gap-2">
                     <span>Sign In</span>
-                    <Image
-                      src="/icons8/icons8-user-100.png"
-                      alt="Login"
-                      width={16}
-                      height={16}
-                      className="w-4 h-4"
-                    />
                   </div>
                 )}
               </button>

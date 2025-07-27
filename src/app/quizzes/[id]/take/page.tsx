@@ -200,7 +200,7 @@ export default function TakeQuizPage() {
             </div>
             <div className="flex items-center gap-6">
               <div className="text-lg font-mono font-bold text-brand">
-                ⏱️ {formatTime(timeLeft)}
+                {formatTime(timeLeft)}
               </div>
               <div className="text-sm text-gray-600">
                 Question {currentQuestionIndex + 1} of {questions.length}

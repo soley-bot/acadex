@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import SvgIcon from '@/components/ui/SvgIcon'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -66,8 +67,8 @@ export default function ContactPage() {
             <span className="block text-brand mt-2">We&apos;re Here to Help</span>
           </h1>
           <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-            Have questions, feedback, or need support? Our team is dedicated to helping you 
-            succeed in your learning journey.
+            Have questions about English learning, IELTS preparation, or need support? Our team is dedicated to helping you 
+            achieve English fluency and reach your language goals.
           </p>
         </div>
       </section>
@@ -83,13 +84,7 @@ export default function ContactPage() {
               {success && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                   <div className="flex items-center gap-2">
-                    <Image
-                      src="/icons8/icons8-done-100.png"
-                      alt="Success"
-                      width={20}
-                      height={20}
-                      className="w-5 h-5"
-                    />
+                    <SvgIcon icon="check" size={20} className="text-green-600" />
                     <p className="text-green-800 font-medium">
                       Thank you for your message! We&apos;ll get back to you within 24 hours.
                     </p>
@@ -100,13 +95,7 @@ export default function ContactPage() {
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                   <div className="flex items-center gap-2">
-                    <Image
-                      src="/icons8/icons8-cancel-100.png"
-                      alt="Error"
-                      width={20}
-                      height={20}
-                      className="w-5 h-5"
-                    />
+                    <SvgIcon icon="ban" size={20} className="text-red-600" />
                     <p className="text-red-800 font-medium">{error}</p>
                   </div>
                 </div>
@@ -160,12 +149,13 @@ export default function ContactPage() {
                     className="input"
                   >
                     <option value="">Select a subject</option>
-                    <option value="general">General Inquiry</option>
+                    <option value="general">General English Learning</option>
+                    <option value="ielts">IELTS Preparation</option>
                     <option value="technical">Technical Support</option>
-                    <option value="billing">Billing Question</option>
-                    <option value="course">Course Question</option>
-                    <option value="partnership">Partnership</option>
-                    <option value="feedback">Feedback</option>
+                    <option value="grammar">Grammar Questions</option>
+                    <option value="vocabulary">Vocabulary Building</option>
+                    <option value="course">Course Content</option>
+                    <option value="feedback">Feedback & Suggestions</option>
                   </select>
                 </div>
 
@@ -198,13 +188,7 @@ export default function ContactPage() {
                   ) : (
                     <div className="flex items-center justify-center gap-2">
                       <span>Send Message</span>
-                      <Image
-                        src="/icons8/icons8-share-100.png"
-                        alt="Send"
-                        width={16}
-                        height={16}
-                        className="w-4 h-4"
-                      />
+                      <SvgIcon icon="angleRight" variant="white" size={16} />
                     </div>
                   )}
                 </button>
@@ -216,8 +200,8 @@ export default function ContactPage() {
               <div>
                 <h2 className="text-2xl font-semibold tracking-tight mb-6">Get in Touch</h2>
                 <p className="text-muted-foreground mb-8 leading-relaxed">
-                  We&apos;re here to help and answer any questions you might have. 
-                  We look forward to hearing from you!
+                  We&apos;re here to support your English learning journey and answer any questions about our courses, 
+                  IELTS preparation, or platform features. We look forward to hearing from you!
                 </p>
               </div>
 
@@ -225,19 +209,13 @@ export default function ContactPage() {
                 <div className="card p-6 hover:shadow-lg transition-shadow duration-300">
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-brand/10 rounded-full">
-                      <Image
-                        src="/icons8/icons8-mailbox-100.png"
-                        alt="Email"
-                        width={24}
-                        height={24}
-                        className="w-6 h-6"
-                      />
+                      <SvgIcon icon="paperclip" size={24} className="text-brand" />
                     </div>
                     <div>
                       <h3 className="font-semibold mb-2">Email Us</h3>
                       <p className="text-muted-foreground mb-2">Send us an email anytime</p>
-                      <a href="mailto:support@acadex.com" className="text-brand hover:underline font-medium">
-                        support@acadex.com
+                      <a href="mailto:acadex@gmail.com" className="text-brand hover:underline font-medium">
+                        acadex@gmail.com
                       </a>
                     </div>
                   </div>
@@ -246,43 +224,15 @@ export default function ContactPage() {
                 <div className="card p-6 hover:shadow-lg transition-shadow duration-300">
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-brand/10 rounded-full">
-                      <Image
-                        src="/icons8/icons8-home-100.png"
-                        alt="Location"
-                        width={24}
-                        height={24}
-                        className="w-6 h-6"
-                      />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold mb-2">Our Office</h3>
-                      <p className="text-muted-foreground mb-2">Visit us at our headquarters</p>
-                      <p className="text-foreground">
-                        123 Education Street<br />
-                        Learning District, LD 12345<br />
-                        United States
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="card p-6 hover:shadow-lg transition-shadow duration-300">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-brand/10 rounded-full">
-                      <Image
-                        src="/icons8/icons8-clock-100.png"
-                        alt="Clock"
-                        width={24}
-                        height={24}
-                        className="w-6 h-6"
-                      />
+                      <SvgIcon icon="clock" size={24} className="text-brand" />
                     </div>
                     <div>
                       <h3 className="font-semibold mb-2">Support Hours</h3>
                       <p className="text-muted-foreground mb-2">We&apos;re available to help</p>
                       <p className="text-foreground">
-                        Monday - Friday: 9:00 AM - 6:00 PM PST<br />
-                        Weekend: 10:00 AM - 4:00 PM PST
+                        Monday - Friday: 9:00 AM - 6:00 PM ICT<br />
+                        Weekend: 10:00 AM - 4:00 PM ICT<br />
+                        <span className="text-sm text-muted-foreground">(Cambodia Time)</span>
                       </p>
                     </div>
                   </div>
@@ -307,34 +257,50 @@ export default function ContactPage() {
 
           <div className="space-y-6">
             <div className="card p-6">
-              <h3 className="font-semibold mb-3">How do I get started with Acadex?</h3>
+              <h3 className="font-semibold mb-3">How do I start learning English with ACADEX?</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Simply create a free account, browse our course catalog, and enroll in courses that interest you. 
-                You can also start with our free quizzes to test your knowledge.
+                Create a free account, take our English level assessment, and start with courses tailored to your level. 
+                Begin with our free IELTS practice tests and grammar quizzes to evaluate your current skills.
               </p>
             </div>
 
             <div className="card p-6">
-              <h3 className="font-semibold mb-3">What support do you offer?</h3>
+              <h3 className="font-semibold mb-3">What IELTS preparation resources do you offer?</h3>
               <p className="text-muted-foreground leading-relaxed">
-                We provide comprehensive support including email assistance, help documentation, 
-                video tutorials, and live chat during business hours.
+                We provide comprehensive IELTS preparation including 2,500+ authentic practice questions, 
+                complete mock tests, writing feedback, speaking practice, and proven strategies for all four skills.
               </p>
             </div>
 
             <div className="card p-6">
-              <h3 className="font-semibold mb-3">Are there any free courses available?</h3>
+              <h3 className="font-semibold mb-3">Are there free English learning resources available?</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Yes! We offer a selection of free courses and unlimited access to our quiz platform. 
-                Premium courses provide additional features and certification.
+                Yes! We offer free grammar quizzes, vocabulary tests, sample IELTS questions, and basic English lessons. 
+                Premium courses provide advanced features, personalized feedback, and certification.
               </p>
             </div>
 
             <div className="card p-6">
-              <h3 className="font-semibold mb-3">How can I become an instructor?</h3>
+              <h3 className="font-semibold mb-3">How long does it take to improve my English level?</h3>
               <p className="text-muted-foreground leading-relaxed">
-                We&apos;re always looking for qualified instructors. Contact us with your background and 
-                course proposal, and our team will review your application.
+                Progress varies by individual, but most students see improvement within 2-4 weeks of regular practice. 
+                Our adaptive learning system tracks your progress and adjusts to help you learn efficiently.
+              </p>
+            </div>
+
+            <div className="card p-6">
+              <h3 className="font-semibold mb-3">Do you provide certificates for course completion?</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Yes, we provide completion certificates for all our premium English courses. 
+                These certificates can be used to demonstrate your English proficiency to employers or educational institutions.
+              </p>
+            </div>
+
+            <div className="card p-6">
+              <h3 className="font-semibold mb-3">What English levels do your courses cover?</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Our courses cover all English levels from beginner (A1) to advanced (C2). 
+                We also offer specialized IELTS preparation for students targeting specific band scores (5.5-9.0).
               </p>
             </div>
           </div>

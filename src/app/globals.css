@@ -11,26 +11,26 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --foreground: 0 0% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 0 0% 10%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 94%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 10%;
     --radius: 0.5rem;
-    --brand: 0 78% 67%;
+    --brand: 0 100% 50%;
     --brand-foreground: 0 0% 98%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -40,26 +40,26 @@
   }
 
   .dark {
-    --background: 0 0% 3.9%;
+    --background: 0 0% 10%;
     --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
+    --card: 0 0% 10%;
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
+    --popover: 0 0% 10%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 0 0% 15%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --brand: 0 78% 67%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 0 0% 85%;
+    --brand: 0 100% 50%;
     --brand-foreground: 0 0% 98%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
@@ -84,19 +84,65 @@
   }
   
   h1 {
-    @apply text-3xl md:text-4xl lg:text-5xl;
+    @apply text-3xl md:text-4xl lg:text-5xl xl:text-6xl;
   }
   
   h2 {
-    @apply text-2xl md:text-3xl lg:text-4xl;
+    @apply text-2xl md:text-3xl lg:text-4xl xl:text-5xl;
   }
   
   h3 {
     @apply text-xl md:text-2xl lg:text-3xl;
   }
   
+  h4 {
+    @apply text-lg md:text-xl lg:text-2xl;
+  }
+  
+  h5 {
+    @apply text-base md:text-lg lg:text-xl;
+  }
+  
+  h6 {
+    @apply text-sm md:text-base lg:text-lg;
+  }
+  
   p {
-    @apply text-muted-foreground leading-7;
+    @apply text-muted-foreground leading-7 text-base md:text-lg;
+  }
+  
+  /* Optimized base text for better readability */
+  html {
+    @apply text-base;
+  }
+  
+  /* Icon sizing standards for consistent UI */
+  .icon-xs {
+    @apply w-3 h-3;
+  }
+  
+  .icon-sm {
+    @apply w-4 h-4;
+  }
+  
+  .icon-md {
+    @apply w-5 h-5;
+  }
+  
+  .icon-lg {
+    @apply w-6 h-6;
+  }
+  
+  .icon-xl {
+    @apply w-8 h-8;
+  }
+  
+  .icon-2xl {
+    @apply w-10 h-10;
+  }
+  
+  .icon-3xl {
+    @apply w-12 h-12;
   }
 }
 
@@ -116,23 +162,27 @@
 @layer components {
   /* Modern button styles matching admin aesthetic */
   .btn {
-    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-base font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
   
   .btn-default {
-    @apply btn bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2;
+    @apply btn bg-primary text-primary-foreground hover:bg-primary/90 h-10 md:h-11 px-4 md:px-6 py-2 text-sm md:text-base;
   }
   
   .btn-secondary {
-    @apply btn bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2;
+    @apply btn bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 md:h-11 px-4 md:px-6 py-2 text-sm md:text-base;
   }
   
   .btn-outline {
-    @apply btn border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2;
+    @apply btn border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 md:h-11 px-4 md:px-6 py-2 text-sm md:text-base;
   }
   
   .btn-ghost {
-    @apply btn hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2;
+    @apply btn hover:bg-accent hover:text-accent-foreground h-10 md:h-11 px-4 md:px-6 py-2 text-sm md:text-base;
+  }
+  
+  .btn-primary {
+    @apply btn bg-brand text-brand-foreground hover:bg-brand/90 h-10 md:h-11 px-4 md:px-6 py-2 text-sm md:text-base;
   }
   
   /* Card components */
@@ -149,21 +199,21 @@
   }
   
   .card-title {
-    @apply text-2xl font-semibold leading-none tracking-tight;
+    @apply text-xl md:text-2xl font-semibold leading-none tracking-tight;
   }
   
   .card-description {
-    @apply text-sm text-muted-foreground;
+    @apply text-sm md:text-base text-muted-foreground;
   }
   
   /* Input styles */
   .input {
-    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm md:text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
   
   /* Navigation styles */
   .nav-link {
-    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2;
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm md:text-base font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 md:h-11 px-4 md:px-6 py-2;
   }
   
   /* Glass effect with modern approach */
@@ -171,13 +221,13 @@
     @apply bg-background/80 backdrop-blur-sm border border-border/50;
   }
   
-  /* Animation utilities */
+  /* Animation utilities - Optimized */
   .animate-fade-in {
-    animation: fade-in 0.5s ease-out;
+    animation: fade-in 0.2s ease-out;
   }
   
   .animate-slide-up {
-    animation: slide-up 0.5s ease-out;
+    animation: slide-up 0.2s ease-out;
   }
   
   /* Section dividers */

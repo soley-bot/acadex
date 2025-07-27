@@ -88,8 +88,8 @@ export function getOptimizedImageUrl(
     quality?: number
   } = {}
 ): string {
-  // If no URL provided, return a proper placeholder URL
-  if (!url) {
+  // If no URL provided or empty string, return a proper placeholder URL
+  if (!url || url.trim() === '') {
     const width = options.width || 400
     const height = options.height || 300
     return `https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=${width}&h=${height}&fit=crop&crop=center&auto=format&q=${options.quality || 80}`

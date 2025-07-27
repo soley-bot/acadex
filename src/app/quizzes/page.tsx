@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { quizAPI } from '@/lib/database'
+import { Pagination } from '@/components/ui/Pagination'
 
 interface Quiz {
   id: string
@@ -14,111 +14,106 @@ interface Quiz {
   duration_minutes: number
   is_published: boolean
   created_at: string
-  question_count: number
+  total_questions: number
+}
+
+interface PaginationData {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+  hasMore: boolean
 }
 
 export default function QuizzesPage() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([])
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pagination, setPagination] = useState<PaginationData>({
+    page: 1,
+    limit: 9,
+    total: 0,
+    totalPages: 0,
+    hasMore: false
+  })
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all')
+
+  const fetchQuizzes = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      const filters = {
+        page: currentPage,
+        limit: 9,
+        ...(selectedCategory !== 'all' && { category: selectedCategory }),
+        ...(selectedDifficulty !== 'all' && { difficulty: selectedDifficulty })
+      }
+
+      const { data, error, pagination: paginationData } = await quizAPI.getQuizzes(filters)
+      
+      if (error) {
+        throw error
+      }
+      
+      setQuizzes(data || [])
+      setPagination(paginationData)
+    } catch (err) {
+      console.error('Failed to fetch quizzes:', err)
+      setError('Failed to load quizzes. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [currentPage, selectedCategory, selectedDifficulty])
 
   useEffect(() => {
-    loadQuizzes()
+    fetchQuizzes()
+  }, [fetchQuizzes])
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category)
+    setCurrentPage(1)
+  }
+
+  const handleDifficultyChange = (difficulty: string) => {
+    setSelectedDifficulty(difficulty)
+    setCurrentPage(1)
+  }
+
+  const getDifficultyColor = useMemo(() => {
+    return (difficulty: string) => {
+      switch (difficulty.toLowerCase()) {
+        case 'beginner':
+          return 'text-green-700 bg-green-50 border-green-200'
+        case 'intermediate':
+          return 'text-yellow-700 bg-yellow-50 border-yellow-200'
+        case 'advanced':
+          return 'text-red-700 bg-red-50 border-red-200'
+        default:
+          return 'text-gray-700 bg-gray-50 border-gray-200'
+      }
+    }
   }, [])
 
-  const loadQuizzes = async () => {
-    try {
-      const { data, error } = await quizAPI.getQuizzes()
-      if (error) {
-        console.error('Error loading quizzes:', error)
-      } else {
-        setQuizzes(data || [])
-      }
-    } catch (error) {
-      console.error('Error loading quizzes:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  // Removed icon mapping - using clean text-only design
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty?.toLowerCase()) {
-      case 'beginner':
-        return 'bg-emerald-100 text-emerald-700 border-emerald-200'
-      case 'intermediate':
-        return 'bg-amber-100 text-amber-700 border-amber-200'
-      case 'advanced':
-        return 'bg-red-100 text-red-700 border-red-200'
-      default:
-        return 'bg-muted text-muted-foreground border'
-    }
-  }
-
-  const getCategoryIcon = (category: string) => {
-    const iconMap: Record<string, string> = {
-      'Grammar': '/Icons8/icons8-document-50.png',
-      'Vocabulary': '/Icons8/icons8-puzzle-50.png', 
-      'Pronunciation': '/Icons8/icons8-mailbox-50.png',
-      'Speaking': '/Icons8/icons8-contacts-50.png',
-      'Business English': '/Icons8/icons8-services-50.png',
-      'Writing': '/Icons8/icons8-document-50.png',
-      'Literature': '/Icons8/icons8-document-50.png',
-      'Test Preparation': '/Icons8/icons8-checkmark-50.png',
-      'Science': '/Icons8/icons8-services-50.png',
-      'Math': '/Icons8/icons8-puzzle-50.png',
-      'History': '/Icons8/icons8-document-50.png',
-      'Geography': '/Icons8/icons8-info-50.png',
-    }
-    return iconMap[category] || '/Icons8/icons8-puzzle-50.png'
-  }
-
-  if (loading) {
+  if (isLoading && currentPage === 1) {
     return (
       <div className="min-h-screen bg-background">
-        {/* Hero Section */}
-        <section className="relative pt-24 pb-16 px-6 lg:px-8 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-secondary/5"></div>
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
-          
-          <div className="relative max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium mb-6 border">
-              <span className="w-2 h-2 bg-primary rounded-full"></span>
-              Interactive Quizzes
-            </div>
-            <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-6">
+        <section className="relative pt-24 pb-16 px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
               Test Your
-              <span className="block text-primary mt-2">Knowledge</span>
+              <span className="block text-primary mt-2">English Skills</span>
             </h1>
-            <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-              Challenge yourself with expertly crafted quizzes across multiple subjects. 
-              Track your progress and master new concepts with instant feedback.
-            </p>
-          </div>
-        </section>
-
-        {/* Loading Content */}
-        <section className="py-20 px-6 lg:px-8 border-t">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="card p-6 animate-pulse">
-                  <div className="h-48 bg-muted rounded-lg mb-4"></div>
-                  <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <div className="h-5 w-16 bg-muted rounded-full"></div>
-                      <div className="h-5 w-20 bg-muted rounded-full"></div>
-                    </div>
-                    <div className="h-6 bg-muted rounded"></div>
-                    <div className="h-4 bg-muted rounded w-3/4"></div>
-                    <div className="h-4 bg-muted rounded w-1/2"></div>
-                    <div className="flex justify-between items-center pt-2">
-                      <div className="h-5 w-24 bg-muted rounded"></div>
-                      <div className="h-10 w-28 bg-muted rounded-full"></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <p className="text-base md:text-lg text-muted-foreground">Loading English quizzes...</p>
           </div>
         </section>
       </div>
@@ -128,116 +123,171 @@ export default function QuizzesPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 px-6 lg:px-8 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-secondary/5"></div>
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
-        
-        <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium mb-6 border">
-            <span className="w-2 h-2 bg-primary rounded-full"></span>
-            Interactive Quizzes
-          </div>
-          <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-6">
+      <section className="relative pt-24 pb-16 px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
             Test Your
-            <span className="block text-primary mt-2">Knowledge</span>
+            <span className="block text-primary mt-2">English Skills</span>
           </h1>
-          <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-            Challenge yourself with expertly crafted quizzes across multiple subjects. 
-            Track your progress and master new concepts with instant feedback.
+          <p className="text-base md:text-lg text-muted-foreground">
+            Challenge yourself with interactive English quizzes covering grammar, vocabulary, and more.
           </p>
         </div>
       </section>
 
-      {/* Quizzes Grid Section */}
-      <section className="py-20 px-6 lg:px-8 border-t">
+      {/* Main Content */}
+      <section className="py-20 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {quizzes.map((quiz) => (
-              <div key={quiz.id} className="group">
-                <div className="card hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-                  {/* Quiz Icon */}
-                  <div className="h-48 bg-gradient-to-br from-brand/5 to-brand/10 flex items-center justify-center relative rounded-t-lg">
-                    <div className="w-20 h-20 bg-white/80 rounded-full flex items-center justify-center shadow-lg">
-                      <Image 
-                        src={getCategoryIcon(quiz.category)} 
-                        alt={quiz.category}
-                        width={40}
-                        height={40}
-                        className="w-10 h-10"
-                      />
-                    </div>
-                    <div className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium border">
-                      {quiz.question_count} questions
-                    </div>
-                  </div>
-
-                  <div className="p-8">
-                    {/* Category & Difficulty */}
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="px-3 py-1 bg-brand/10 text-brand text-xs font-semibold rounded-full border border-brand/20">
-                        {quiz.category}
-                      </span>
-                      <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getDifficultyColor(quiz.difficulty)}`}>
-                        {quiz.difficulty}
-                      </span>
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="text-xl font-semibold tracking-tight mb-3">
-                      {quiz.title}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-muted-foreground mb-6 line-clamp-2 leading-relaxed">
-                      {quiz.description}
-                    </p>
-
-                    {/* Quiz Info */}
-                    <div className="flex items-center gap-6 mb-6 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>{quiz.duration_minutes} min</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <span>{quiz.question_count} questions</span>
-                      </div>
-                    </div>
-
-                    {/* CTA Button */}
-                    <Link 
-                      href={`/quizzes/${quiz.id}/take`}
-                      className="btn-default w-full"
-                    >
-                      <span>Start Quiz</span>
-                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </Link>
-                  </div>
+          {/* Filters */}
+          <div className="mb-12 space-y-6">
+            <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold tracking-tight mb-2">English Quizzes</h2>
+                <p className="text-sm md:text-base text-muted-foreground">
+                  Showing {((currentPage - 1) * pagination.limit + 1)} - {Math.min(currentPage * pagination.limit, pagination.total)} of {pagination.total} quizzes
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="min-w-[160px]">
+                  <label htmlFor="category" className="block text-sm font-medium mb-2">Category</label>
+                  <select
+                    id="category"
+                    value={selectedCategory}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    className="input"
+                  >
+                    <option value="all">All Categories</option>
+                    <option value="Grammar">Grammar</option>
+                    <option value="Vocabulary">Vocabulary</option>
+                    <option value="Pronunciation">Pronunciation</option>
+                    <option value="Speaking">Speaking</option>
+                    <option value="Business English">Business English</option>
+                    <option value="Writing">Writing</option>
+                    <option value="Literature">Literature</option>
+                    <option value="Test Preparation">Test Preparation</option>
+                    <option value="Reading">Reading</option>
+                    <option value="Listening">Listening</option>
+                  </select>
+                </div>
+                
+                <div className="min-w-[160px]">
+                  <label htmlFor="difficulty" className="block text-sm font-medium mb-2">Difficulty</label>
+                  <select
+                    id="difficulty"
+                    value={selectedDifficulty}
+                    onChange={(e) => handleDifficultyChange(e.target.value)}
+                    className="input"
+                  >
+                    <option value="all">All Levels</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
 
-          {/* Empty State */}
-          {quizzes.length === 0 && (
-            <div className="text-center py-20">
-              <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-8">
-                <svg className="w-12 h-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+          {/* Error State */}
+          {error && (
+            <div className="text-center py-12">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+                <div className="text-red-800 mb-2">Error</div>
+                <p className="text-red-700 mb-4">{error}</p>
+                <button 
+                  onClick={fetchQuizzes}
+                  className="btn-default"
+                >
+                  Try Again
+                </button>
               </div>
-              <h3 className="text-xl font-semibold tracking-tight mb-4">No Quizzes Available</h3>
-              <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                We&apos;re working on adding more quizzes. Check back soon for new challenges!
-              </p>
             </div>
+          )}
+
+          {/* Loading State */}
+          {isLoading && (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading quizzes...</p>
+            </div>
+          )}
+
+          {/* Quizzes Grid */}
+          {!isLoading && !error && (
+            <>
+              {quizzes.length === 0 ? (
+                <div className="text-center py-12">
+                  <h3 className="text-xl font-semibold mb-2">No quizzes found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Try adjusting your filters or check back later for new quizzes.
+                  </p>
+                  <button 
+                    onClick={() => {
+                      setSelectedCategory('all')
+                      setSelectedDifficulty('all')
+                      setCurrentPage(1)
+                    }}
+                    className="btn-outline"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                  {quizzes.map((quiz, index) => (
+                    <div key={quiz.id} className="card group hover:shadow-lg transition-all duration-200 overflow-hidden animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
+                      <div className="p-8">
+                        <div className="flex items-center gap-2 mb-4">
+                          <span className="px-3 py-1 bg-brand/10 text-brand text-xs font-semibold rounded-full border border-brand/20">
+                            {quiz.category}
+                          </span>
+                          <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getDifficultyColor(quiz.difficulty)}`}>
+                            {quiz.difficulty}
+                          </span>
+                        </div>
+
+                        <h3 className="text-xl font-semibold tracking-tight mb-3">
+                          {quiz.title}
+                        </h3>
+
+                        <p className="text-muted-foreground mb-6 line-clamp-2 leading-relaxed">
+                          {quiz.description}
+                        </p>
+
+                        <div className="flex items-center justify-between text-sm text-muted-foreground mb-6">
+                          <div className="flex items-center gap-2">
+                            <span>{quiz.duration_minutes} min</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span>{quiz.total_questions} questions</span>
+                          </div>
+                        </div>
+
+                        <Link 
+                          href={`/quizzes/${quiz.id}/take`}
+                          className="btn-default w-full"
+                        >
+                          Start Quiz
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Pagination */}
+              {pagination.totalPages > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={pagination.totalPages}
+                  totalItems={pagination.total}
+                  itemsPerPage={pagination.limit}
+                  onPageChange={handlePageChange}
+                  isLoading={isLoading}
+                />
+              )}
+            </>
           )}
         </div>
       </section>

@@ -130,11 +130,9 @@ export default function QuizPage() {
           
           <div className="flex items-center gap-6 text-blue-100 mb-6">
             <div className="flex items-center gap-2">
-              <span>📝</span>
               <span>{quiz.question_count} questions</span>
             </div>
             <div className="flex items-center gap-2">
-              <span>⏱️</span>
               <span>{quiz.duration_minutes} minutes</span>
             </div>
           </div>

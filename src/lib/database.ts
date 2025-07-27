@@ -43,13 +43,41 @@ export const userAPI = {
 
 // Course Operations
 export const courseAPI = {
-  // Get all published courses
-  async getCourses(filters?: { category?: string; level?: string; search?: string }) {
+  // Get paginated published courses
+  async getCourses(filters?: { 
+    category?: string; 
+    level?: string; 
+    search?: string;
+    page?: number;
+    limit?: number
+  }) {
+    const page = filters?.page || 1
+    const limit = filters?.limit || 12
+    const from = (page - 1) * limit
+    const to = from + limit - 1
+
     let query = supabase
       .from('courses')
-      .select('*')
+      .select(`
+        id,
+        title,
+        description,
+        instructor_id,
+        instructor_name,
+        category,
+        level,
+        price,
+        duration,
+        image_url,
+        rating,
+        student_count,
+        is_published,
+        created_at,
+        updated_at
+      `, { count: 'exact' })
       .eq('is_published', true)
       .order('created_at', { ascending: false })
+      .range(from, to)
 
     if (filters?.category) {
       query = query.eq('category', filters.category)
@@ -63,8 +91,19 @@ export const courseAPI = {
       query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`)
     }
 
-    const { data, error } = await query
-    return { data, error }
+    const { data, error, count } = await query
+    
+    return { 
+      data, 
+      error, 
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / limit),
+        hasMore: (count || 0) > to + 1
+      }
+    }
   },
 
   // Get single course
@@ -117,13 +156,34 @@ export const courseAPI = {
 
 // Quiz Operations
 export const quizAPI = {
-  // Get all published quizzes
-  async getQuizzes(filters?: { category?: string; difficulty?: string }) {
+  // Get paginated published quizzes
+  async getQuizzes(filters?: { 
+    category?: string; 
+    difficulty?: string; 
+    page?: number; 
+    limit?: number 
+  }) {
+    const page = filters?.page || 1
+    const limit = filters?.limit || 12
+    const from = (page - 1) * limit
+    const to = from + limit - 1
+
     let query = supabase
       .from('quizzes')
-      .select('*')
+      .select(`
+        id,
+        title,
+        description,
+        category,
+        difficulty,
+        duration_minutes,
+        total_questions,
+        is_published,
+        created_at
+      `, { count: 'exact' })
       .eq('is_published', true)
       .order('created_at', { ascending: false })
+      .range(from, to)
 
     if (filters?.category) {
       query = query.eq('category', filters.category)
@@ -133,8 +193,19 @@ export const quizAPI = {
       query = query.eq('difficulty', filters.difficulty)
     }
 
-    const { data, error } = await query
-    return { data, error }
+    const { data, error, count } = await query
+    
+    return { 
+      data, 
+      error, 
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / limit),
+        hasMore: (count || 0) > to + 1
+      }
+    }
   },
 
   // Get single quiz with questions
