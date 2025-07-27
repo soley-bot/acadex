@@ -3,26 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { courseAPI } from '@/lib/database'
-import { Pagination } from '@/components/ui/Pagination'
-
-interface Course {
-  id: string
-  title: string
-  description: string
-  instructor_id: string
-  instructor_name: string
-  category: string
-  level: string
-  price: number
-  duration: string
-  image_url?: string
-  rating: number
-  student_count: number
-  is_published: boolean
-  created_at: string
-  updated_at: string
-}
+import { supabase, Course } from '@/lib/supabase'
+import { getCourses } from '@/lib/database-operations'
 
 interface PaginationData {
   page: number
@@ -36,16 +18,11 @@ export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pagination, setPagination] = useState<PaginationData>({
-    page: 1,
-    limit: 9,
-    total: 0,
-    totalPages: 0,
-    hasMore: false
-  })
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedLevel, setSelectedLevel] = useState<string>('all')
+
+  // Get unique categories from courses
+  const [categories, setCategories] = useState<string[]>([])
 
   const fetchCourses = useCallback(async () => {
     try {
@@ -53,37 +30,29 @@ export default function CoursesPage() {
       setError(null)
       
       const filters = {
-        page: currentPage,
-        limit: 9,
+        is_published: true,
         ...(selectedCategory !== 'all' && { category: selectedCategory }),
         ...(selectedLevel !== 'all' && { level: selectedLevel })
       }
 
-      const { data, error, pagination: paginationData } = await courseAPI.getCourses(filters)
+      const data = await getCourses(filters)
+      setCourses(data || [])
       
-      if (error) {
-        console.error('Error loading courses:', error)
-        setError('Failed to load courses')
-      } else {
-        setCourses(data || [])
-        setPagination(paginationData)
-      }
+      // Extract unique categories
+      const uniqueCategories = Array.from(new Set(data?.map(course => course.category) || []))
+      setCategories(uniqueCategories)
+      
     } catch (err) {
       console.error('Error fetching courses:', err)
       setError('Failed to load courses')
     } finally {
       setIsLoading(false)
     }
-  }, [currentPage, selectedCategory, selectedLevel])
+  }, [selectedCategory, selectedLevel])
 
   useEffect(() => {
     fetchCourses()
   }, [fetchCourses])
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
 
   const getLevelBadgeColor = (level: string) => {
     switch (level?.toLowerCase()) {
@@ -98,11 +67,15 @@ export default function CoursesPage() {
     return level.charAt(0).toUpperCase() + level.slice(1)
   }
 
-  if (isLoading && currentPage === 1) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <section className="relative pt-24 pb-16 px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
+        <section className="relative pt-24 pb-16 px-6 lg:px-8 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-secondary/5"></div>
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
+          
+          <div className="relative max-w-4xl mx-auto text-center">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
               Master English
               <span className="block text-primary mt-2">Step by Step</span>
@@ -117,8 +90,12 @@ export default function CoursesPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="relative pt-24 pb-16 px-6 lg:px-8 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-secondary/5"></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
+        
+        <div className="relative max-w-4xl mx-auto text-center">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
             Master English
             <span className="block text-primary mt-2">Step by Step</span>
@@ -130,7 +107,7 @@ export default function CoursesPage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-20 px-6 lg:px-8">
+      <section className="py-20 px-6 lg:px-8 border-t">
         <div className="max-w-7xl mx-auto">
           {/* Filters */}
           <div className="mb-12 space-y-6">
@@ -138,7 +115,7 @@ export default function CoursesPage() {
               <div>
                 <h2 className="text-xl md:text-2xl font-bold tracking-tight mb-2">English Courses</h2>
                 <p className="text-sm md:text-base text-muted-foreground">
-                  Showing {((currentPage - 1) * pagination.limit + 1)} - {Math.min(currentPage * pagination.limit, pagination.total)} of {pagination.total} courses
+                  Showing {courses.length} course{courses.length !== 1 ? 's' : ''}
                 </p>
               </div>
               
@@ -150,17 +127,13 @@ export default function CoursesPage() {
                     value={selectedCategory}
                     onChange={(e) => {
                       setSelectedCategory(e.target.value)
-                      setCurrentPage(1)
                     }}
                     className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   >
                     <option value="all">All Categories</option>
-                    <option value="Development">Development</option>
-                    <option value="Design">Design</option>
-                    <option value="Data Science">Data Science</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Cloud Computing">Cloud Computing</option>
-                    <option value="Mobile">Mobile</option>
+                    {categories.map(category => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -171,7 +144,6 @@ export default function CoursesPage() {
                     value={selectedLevel}
                     onChange={(e) => {
                       setSelectedLevel(e.target.value)
-                      setCurrentPage(1)
                     }}
                     className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   >
@@ -309,7 +281,6 @@ export default function CoursesPage() {
                     onClick={() => {
                       setSelectedCategory('all')
                       setSelectedLevel('all')
-                      setCurrentPage(1)
                     }}
                     className="btn-outline"
                   >
@@ -319,18 +290,6 @@ export default function CoursesPage() {
               </div>
             )}
           </div>
-
-          {/* Pagination */}
-          {!isLoading && courses.length > 0 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={pagination.totalPages}
-              totalItems={pagination.total}
-              itemsPerPage={pagination.limit}
-              onPageChange={handlePageChange}
-              isLoading={isLoading}
-            />
-          )}
         </div>
       </section>
     </div>

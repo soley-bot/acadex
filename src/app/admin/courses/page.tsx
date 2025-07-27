@@ -2,35 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { supabase } from '@/lib/supabase'
+import { supabase, Course } from '@/lib/supabase'
+import { getCourses } from '@/lib/database-operations'
 import { CourseForm } from '@/components/admin/CourseForm'
 import { EnhancedCourseForm } from '@/components/admin/EnhancedCourseForm'
 import { DeleteCourseModal } from '@/components/admin/DeleteCourseModal'
 import { CourseViewModal } from '@/components/admin/CourseViewModal'
 import SvgIcon from '@/components/ui/SvgIcon'
-
-interface Course {
-  id: string
-  title: string
-  description: string
-  instructor_name: string
-  price: number
-  original_price?: number
-  discount_percentage?: number
-  category: string
-  level: 'beginner' | 'intermediate' | 'advanced'
-  duration: string | null
-  image_url: string | null
-  video_preview_url?: string
-  tags?: string[]
-  prerequisites?: string[]
-  learning_objectives?: string[]
-  status?: string
-  student_count: number
-  is_published: boolean
-  is_free?: boolean
-  created_at: string
-}
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([])
@@ -47,59 +25,11 @@ export default function CoursesPage() {
   const [showViewModal, setShowViewModal] = useState(false)
   const [viewingCourse, setViewingCourse] = useState<Course | null>(null)
 
-  const fetchCourses = useCallback(async () => {
+  const loadCourses = useCallback(async () => {
     try {
       setLoading(true)
-      setError(null)
-      
-      const { data, error } = await supabase
-        .from('courses')
-        .select(`
-          id,
-          title,
-          description,
-          instructor_name,
-          price,
-          original_price,
-          discount_percentage,
-          category,
-          level,
-          duration,
-          image_url,
-          video_preview_url,
-          tags,
-          prerequisites,
-          learning_objectives,
-          status,
-          is_published,
-          is_free,
-          created_at
-        `)
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-
-      // Get enrollment counts separately
-      const courseIds = data.map(course => course.id)
-      const { data: enrollmentCounts, error: enrollmentError } = await supabase
-        .from('enrollments')
-        .select('course_id')
-        .in('course_id', courseIds)
-
-      if (enrollmentError) {
-        console.error('Error fetching enrollment counts:', enrollmentError)
-      }
-
-      // Transform data to include student count
-      const coursesWithStudentCount = data.map(course => {
-        const studentCount = enrollmentCounts?.filter(e => e.course_id === course.id).length || 0
-        return {
-          ...course,
-          student_count: studentCount
-        }
-      })
-
-      setCourses(coursesWithStudentCount)
+      const data = await getCourses()
+      setCourses(data || [])
     } catch (err) {
       console.error('Error fetching courses:', err)
       setError('Failed to load courses. Please try again.')
@@ -109,8 +39,8 @@ export default function CoursesPage() {
   }, [])
 
   useEffect(() => {
-    fetchCourses()
-  }, [fetchCourses])
+    loadCourses()
+  }, [loadCourses])
 
   // Filter courses based on search and category
   const filteredCourses = courses.filter(course => {
@@ -158,13 +88,13 @@ export default function CoursesPage() {
   }
 
   const handleFormSuccess = () => {
-    fetchCourses()
+    loadCourses()
     setShowCourseForm(false)
     setEditingCourse(null)
   }
 
   const handleDeleteSuccess = () => {
-    fetchCourses()
+    loadCourses()
     setShowDeleteModal(false)
     setDeletingCourse(null)
   }
@@ -219,7 +149,7 @@ export default function CoursesPage() {
         <div className="text-center">
           <p className="text-red-600 mb-2">{error}</p>
           <button 
-            onClick={fetchCourses}
+            onClick={loadCourses}
             className="mt-2 text-red-600 hover:text-red-700 underline"
           >
             Try again
@@ -249,47 +179,63 @@ export default function CoursesPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
-            <SvgIcon icon="book" size={16} className="text-gray-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{courseStats.total}</div>
-            <p className="text-xs text-gray-500">All courses on platform</p>
+        <Card className="hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Total Courses</p>
+                <p className="text-3xl font-bold text-foreground mb-1">{courseStats.total}</p>
+                <p className="text-xs text-muted-foreground">All courses on platform</p>
+              </div>
+              <div className="bg-blue-50 p-3 rounded-full ml-4 flex-shrink-0">
+                <SvgIcon icon="book" size={24} className="text-blue-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Published</CardTitle>
-            <SvgIcon icon="check" size={16} className="text-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{courseStats.published}</div>
-            <p className="text-xs text-gray-500">Live courses</p>
+        <Card className="hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Published</p>
+                <p className="text-3xl font-bold text-foreground mb-1">{courseStats.published}</p>
+                <p className="text-xs text-muted-foreground">Live courses</p>
+              </div>
+              <div className="bg-green-50 p-3 rounded-full ml-4 flex-shrink-0">
+                <SvgIcon icon="check" size={24} className="text-green-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Drafts</CardTitle>
-            <SvgIcon icon="edit" size={16} className="text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{courseStats.draft}</div>
-            <p className="text-xs text-gray-500">In development</p>
+        <Card className="hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Drafts</p>
+                <p className="text-3xl font-bold text-foreground mb-1">{courseStats.draft}</p>
+                <p className="text-xs text-muted-foreground">In development</p>
+              </div>
+              <div className="bg-yellow-50 p-3 rounded-full ml-4 flex-shrink-0">
+                <SvgIcon icon="edit" size={24} className="text-yellow-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <SvgIcon icon="users" size={16} className="text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{courseStats.totalStudents}</div>
-            <p className="text-xs text-gray-500">Enrolled learners</p>
+        <Card className="hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Total Students</p>
+                <p className="text-3xl font-bold text-foreground mb-1">{courseStats.totalStudents}</p>
+                <p className="text-xs text-muted-foreground">Enrolled learners</p>
+              </div>
+              <div className="bg-purple-50 p-3 rounded-full ml-4 flex-shrink-0">
+                <SvgIcon icon="contacts" size={24} className="text-purple-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

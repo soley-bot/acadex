@@ -3,25 +3,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Search, Plus, Brain, Clock, Users, BarChart3, Edit, Trash2, Eye } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { supabase, Quiz } from '@/lib/supabase'
 import { QuizForm } from '@/components/admin/QuizForm'
 import { DeleteQuizModal } from '@/components/admin/DeleteQuizModal'
 import { QuizViewModal } from '@/components/admin/QuizViewModal'
-
-interface Quiz {
-  id: string
-  title: string
-  description: string
-  category: string
-  difficulty: 'beginner' | 'intermediate' | 'advanced'
-  duration_minutes: number
-  total_questions: number
-  is_published: boolean
-  created_at: string
-  updated_at: string
-  attempt_count?: number
-  average_score?: number
-}
 
 export default function QuizzesPage() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([])
@@ -63,26 +48,7 @@ export default function QuizzesPage() {
         console.error('Error fetching quiz attempts:', attemptsError)
       }
 
-      // Calculate stats for each quiz
-      const quizzesWithStats = data.map(quiz => {
-        const quizAttempts = attempts?.filter(attempt => attempt.quiz_id === quiz.id) || []
-        const attemptCount = quizAttempts.length
-        const averageScore = attemptCount > 0
-          ? Math.round(
-              quizAttempts.reduce((sum, attempt) => 
-                sum + (attempt.score / attempt.total_questions * 100), 0
-              ) / attemptCount
-            )
-          : 0
-
-        return {
-          ...quiz,
-          attempt_count: attemptCount,
-          average_score: averageScore
-        }
-      })
-
-      setQuizzes(quizzesWithStats)
+      setQuizzes(data || [])
     } catch (err) {
       console.error('Error fetching quizzes:', err)
       setError('Failed to load quizzes. Please try again.')
@@ -109,9 +75,9 @@ export default function QuizzesPage() {
     total: quizzes.length,
     published: quizzes.filter(q => q.is_published).length,
     draft: quizzes.filter(q => !q.is_published).length,
-    totalAttempts: quizzes.reduce((sum, q) => sum + (q.attempt_count || 0), 0),
-    averageScore: quizzes.length > 0 
-      ? Math.round(quizzes.reduce((sum, q) => sum + (q.average_score || 0), 0) / quizzes.length)
+    totalQuestions: quizzes.reduce((sum, q) => sum + (q.total_questions || 0), 0),
+    averagePassingScore: quizzes.length > 0 
+      ? Math.round(quizzes.reduce((sum, q) => sum + (q.passing_score || 70), 0) / quizzes.length)
       : 0
   }
 
@@ -223,58 +189,78 @@ export default function QuizzesPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Quizzes</CardTitle>
-            <Brain className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{quizStats.total}</div>
-            <p className="text-xs text-gray-500">All quizzes</p>
+        <Card className="hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Total Quizzes</p>
+                <p className="text-3xl font-bold text-foreground mb-1">{quizStats.total}</p>
+                <p className="text-xs text-muted-foreground">All quizzes</p>
+              </div>
+              <div className="bg-blue-50 p-3 rounded-full ml-4 flex-shrink-0">
+                <Brain className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Published</CardTitle>
-            <Eye className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{quizStats.published}</div>
-            <p className="text-xs text-gray-500">Live quizzes</p>
+        <Card className="hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Published</p>
+                <p className="text-3xl font-bold text-foreground mb-1">{quizStats.published}</p>
+                <p className="text-xs text-muted-foreground">Live quizzes</p>
+              </div>
+              <div className="bg-green-50 p-3 rounded-full ml-4 flex-shrink-0">
+                <Eye className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Drafts</CardTitle>
-            <Edit className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{quizStats.draft}</div>
-            <p className="text-xs text-gray-500">In development</p>
+        <Card className="hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Drafts</p>
+                <p className="text-3xl font-bold text-foreground mb-1">{quizStats.draft}</p>
+                <p className="text-xs text-muted-foreground">In development</p>
+              </div>
+              <div className="bg-yellow-50 p-3 rounded-full ml-4 flex-shrink-0">
+                <Edit className="h-6 w-6 text-yellow-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Attempts</CardTitle>
-            <Users className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{quizStats.totalAttempts}</div>
-            <p className="text-xs text-gray-500">Student attempts</p>
+        <Card className="hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Total Questions</p>
+                <p className="text-3xl font-bold text-foreground mb-1">{quizStats.totalQuestions}</p>
+                <p className="text-xs text-muted-foreground">All questions</p>
+              </div>
+              <div className="bg-purple-50 p-3 rounded-full ml-4 flex-shrink-0">
+                <Users className="h-6 w-6 text-purple-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Score</CardTitle>
-            <BarChart3 className="h-4 w-4 text-indigo-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{quizStats.averageScore}%</div>
-            <p className="text-xs text-gray-500">Platform average</p>
+        <Card className="hover:shadow-lg transition-shadow duration-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Avg Passing Score</p>
+                <p className="text-3xl font-bold text-foreground mb-1">{quizStats.averagePassingScore}%</p>
+                <p className="text-xs text-muted-foreground">Required to pass</p>
+              </div>
+              <div className="bg-indigo-50 p-3 rounded-full ml-4 flex-shrink-0">
+                <BarChart3 className="h-6 w-6 text-indigo-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -357,11 +343,11 @@ export default function QuizzesPage() {
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-1 text-gray-500">
                     <Users className="h-4 w-4" />
-                    {quiz.attempt_count || 0} attempts
+                    {quiz.total_questions} questions
                   </div>
                   <div className="flex items-center gap-1 text-gray-500">
                     <BarChart3 className="h-4 w-4" />
-                    {quiz.average_score || 0}% avg
+                    {quiz.passing_score}% to pass
                   </div>
                 </div>
 

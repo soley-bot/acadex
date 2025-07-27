@@ -107,8 +107,12 @@ export default function QuizzesPage() {
   if (isLoading && currentPage === 1) {
     return (
       <div className="min-h-screen bg-background">
-        <section className="relative pt-24 pb-16 px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto text-center">
+        <section className="relative pt-24 pb-16 px-6 lg:px-8 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-secondary/5"></div>
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
+          
+          <div className="relative max-w-4xl mx-auto text-center">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
               Test Your
               <span className="block text-primary mt-2">English Skills</span>
@@ -123,8 +127,12 @@ export default function QuizzesPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="relative pt-24 pb-16 px-6 lg:px-8 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-secondary/5"></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
+        
+        <div className="relative max-w-4xl mx-auto text-center">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
             Test Your
             <span className="block text-primary mt-2">English Skills</span>
@@ -136,7 +144,7 @@ export default function QuizzesPage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-20 px-6 lg:px-8">
+      <section className="py-20 px-6 lg:px-8 border-t">
         <div className="max-w-7xl mx-auto">
           {/* Filters */}
           <div className="mb-12 space-y-6">

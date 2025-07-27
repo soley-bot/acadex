@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { supabase } from '@/lib/supabase'
 import type { User } from '@/lib/supabase'
 import AddUserModal from '@/components/admin/AddUserModal'
+import EditUserModal from '@/components/admin/EditUserModal'
+import DeleteUserModal from '@/components/admin/DeleteUserModal'
 import SvgIcon from '@/components/ui/SvgIcon'
 
 export default function AdminUsers() {
@@ -39,24 +41,11 @@ export default function AdminUsers() {
   }
 
   const handleEditUser = (user: User) => {
-    // For now, just show an alert since the modal doesn't support editing
-    alert(`Edit functionality for ${user.name} will be implemented soon.`)
+    setEditingUser(user)
   }
 
   const handleDeleteUser = async (user: User) => {
-    if (!confirm(`Are you sure you want to delete ${user.name}?`)) return
-
-    try {
-      const { error } = await supabase
-        .from('users')
-        .delete()
-        .eq('id', user.id)
-
-      if (error) throw error
-      await fetchUsers()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete user')
-    }
+    setDeletingUser(user)
   }
 
   const filteredUsers = users.filter(user => {
@@ -323,12 +312,34 @@ export default function AdminUsers() {
         isOpen={showAddUser}
         onClose={() => {
           setShowAddUser(false)
-          setEditingUser(null)
         }}
         onUserAdded={() => {
           fetchUsers()
+        }}
+      />
+
+      {/* Edit User Modal */}
+      <EditUserModal 
+        isOpen={!!editingUser}
+        onClose={() => {
           setEditingUser(null)
         }}
+        onUserUpdated={() => {
+          fetchUsers()
+        }}
+        user={editingUser}
+      />
+
+      {/* Delete User Modal */}
+      <DeleteUserModal 
+        isOpen={!!deletingUser}
+        onClose={() => {
+          setDeletingUser(null)
+        }}
+        onUserDeleted={() => {
+          fetchUsers()
+        }}
+        user={deletingUser}
       />
     </div>
   )

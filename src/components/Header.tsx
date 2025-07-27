@@ -73,13 +73,13 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 w-full glass border-b z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container-custom">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
             <span className="text-xl md:text-2xl font-inter tracking-tight group-hover:scale-105 transition-transform duration-200">
-              <span className="font-light text-black">ACAD</span>
-              <span className="font-bold text-[#ff5757]">EX</span>
+              <span className="font-light text-foreground">ACAD</span>
+              <span className="font-bold text-brand">EX</span>
             </span>
           </Link>
 

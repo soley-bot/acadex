@@ -48,13 +48,13 @@ export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) 
   }
 
   return (
-    <div className="w-64 bg-white shadow-lg flex flex-col h-full">
+    <div className="w-64 bg-background/80 backdrop-blur-sm border-r border-border shadow-lg flex flex-col h-full">
       {/* Mobile close button */}
       {onMobileClose && (
         <div className="lg:hidden flex justify-end p-4">
           <button
             onClick={onMobileClose}
-            className="p-2 rounded-md hover:bg-gray-100"
+            className="p-2 rounded-md hover:bg-muted/50"
             aria-label="Close menu"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,15 +65,15 @@ export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) 
       )}
 
       <div className="p-6">
-        <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Admin Panel</h1>
-        <p className="text-sm text-gray-600">Acadex Learning Platform</p>
+        <h1 className="text-xl lg:text-2xl font-bold text-foreground">Admin Panel</h1>
+        <p className="text-sm text-muted-foreground">Acadex Learning Platform</p>
       </div>
 
       {/* User Info */}
       {user && (
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-border">
           <div className="flex items-center">
-            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-brand rounded-full flex items-center justify-center">
               {user.avatar_url ? (
                 <Image src={user.avatar_url} alt={user.name} width={40} height={40} className="w-10 h-10 rounded-full" />
               ) : (
@@ -81,8 +81,8 @@ export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) 
               )}
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-gray-900">{user.name}</p>
-              <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+              <p className="text-sm font-medium text-foreground">{user.name}</p>
+              <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
             </div>
           </div>
         </div>
@@ -99,10 +99,10 @@ export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) 
                 href={item.href}
                 onClick={handleLinkClick}
                 className={cn(
-                  'group flex items-center px-3 py-3 lg:py-2 text-sm font-medium rounded-md mb-1',
+                  'group flex items-center px-3 py-3 lg:py-2 text-sm font-medium rounded-md mb-1 transition-colors',
                   isActive
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-brand/10 text-brand border border-brand/20'
+                    : 'text-foreground hover:bg-muted/50'
                 )}
               >
                 {item.title}
@@ -112,10 +112,10 @@ export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) 
         </div>
       </nav>
 
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-border">
         <button 
           onClick={handleSignOut}
-          className="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 bg-transparent transition-colors"
+          className="w-full flex items-center px-3 py-2 text-sm font-medium text-foreground border border-border rounded-md hover:bg-muted/50 bg-transparent transition-colors"
         >
           Sign Out
         </button>

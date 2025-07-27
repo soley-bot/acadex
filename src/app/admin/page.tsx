@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
+import SvgIcon from '@/components/ui/SvgIcon'
 
 interface DashboardStats {
   totalUsers: number
@@ -102,44 +103,61 @@ export default function AdminDashboard() {
       title: 'Total Users',
       value: stats.totalUsers.toLocaleString(),
       description: 'Registered users on the platform',
-      color: 'text-blue-600'
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+      icon: 'contacts'
     },
     {
       title: 'Total Courses',
       value: stats.totalCourses.toLocaleString(),
       description: `${stats.publishedCourses} published courses`,
-      color: 'text-green-600'
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
+      icon: 'briefcase'
     },
     {
       title: 'Total Quizzes',
       value: stats.totalQuizzes.toLocaleString(),
       description: 'Available quizzes',
-      color: 'text-purple-600'
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+      icon: 'cursor'
     },
     {
       title: 'Quiz Attempts',
       value: stats.totalAttempts.toLocaleString(),
       description: 'Total quiz attempts',
-      color: 'text-orange-600'
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+      icon: 'checkmark'
     }
   ]
 
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Welcome to the admin dashboard</p>
+        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground">Welcome to the admin dashboard</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {dashboardCards.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-gray-500">{stat.description}</p>
+          <Card key={stat.title} className="hover:shadow-lg transition-shadow duration-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-muted-foreground mb-1">{stat.title}</p>
+                  <p className="text-3xl font-bold text-foreground mb-1">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground">{stat.description}</p>
+                </div>
+                <div className={`${stat.bgColor} p-3 rounded-full ml-4 flex-shrink-0`}>
+                  <SvgIcon 
+                    icon={stat.icon} 
+                    size={24} 
+                    className={`${stat.color}`}
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
         ))}

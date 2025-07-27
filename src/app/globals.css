@@ -10,62 +10,76 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
+    /* Unified Color System */
+    --background: 0 0% 100%;        /* Pure white background */
+    --foreground: 0 0% 8%;          /* Almost black text */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 0 0% 8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 0 0% 10%;
+    --popover-foreground: 0 0% 8%;
+    --primary: 0 0% 8%;             /* Black for primary actions */
     --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 10%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 0 0% 94%;
-    --accent-foreground: 0 0% 10%;
-    --destructive: 0 84% 60%;
+    --secondary: 0 0% 96%;          /* Light gray */
+    --secondary-foreground: 0 0% 8%;
+    --muted: 0 0% 96%;              /* Subtle background */
+    --muted-foreground: 0 0% 45%;   /* Muted text */
+    --accent: 0 0% 94%;             /* Very light gray */
+    --accent-foreground: 0 0% 8%;
+    --destructive: 0 70% 55%;       /* Consistent red for errors */
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 0 0% 10%;
-    --radius: 0.5rem;
-    --brand: 0 100% 50%;
+    --border: 0 0% 90%;             /* Light border */
+    --input: 0 0% 94%;              /* Input background */
+    --ring: 0 70% 55%;              /* Focus ring uses brand red */
+    --radius: 0.75rem;              /* Consistent border radius */
+    --brand: 0 70% 55%;             /* Unified brand red #E53E3E */
     --brand-foreground: 0 0% 98%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --success: 142 76% 36%;         /* Green for success states */
+    --success-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;          /* Yellow for warnings */
+    --warning-foreground: 0 0% 8%;
+    
+    /* Chart colors - harmonized */
+    --chart-1: 0 70% 55%;           /* Brand red */
+    --chart-2: 142 76% 36%;         /* Success green */
+    --chart-3: 38 92% 50%;          /* Warning yellow */
+    --chart-4: 221 83% 53%;         /* Blue */
+    --chart-5: 262 83% 58%;         /* Purple */
   }
 
   .dark {
-    --background: 0 0% 10%;
-    --foreground: 0 0% 98%;
+    /* Dark mode with consistent hierarchy */
+    --background: 0 0% 8%;          /* Dark background */
+    --foreground: 0 0% 98%;         /* Light text */
     --card: 0 0% 10%;
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 10%;
+    --popover: 0 0% 8%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 10%;
-    --secondary: 0 0% 15%;
+    --primary: 0 0% 98%;            /* Light for primary in dark */
+    --primary-foreground: 0 0% 8%;
+    --secondary: 0 0% 15%;          /* Dark gray */
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 15%;
     --muted-foreground: 0 0% 65%;
     --accent: 0 0% 15%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 62% 50%;
+    --destructive: 0 62% 50%;       /* Darker red for dark mode */
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 15%;
     --input: 0 0% 15%;
-    --ring: 0 0% 85%;
-    --brand: 0 100% 50%;
+    --ring: 0 62% 50%;              /* Focus ring */
+    --brand: 0 62% 50%;             /* Consistent brand in dark */
     --brand-foreground: 0 0% 98%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --success: 142 70% 45%;
+    --success-foreground: 0 0% 98%;
+    --warning: 38 85% 60%;
+    --warning-foreground: 0 0% 8%;
+    
+    /* Dark mode chart colors */
+    --chart-1: 0 62% 50%;
+    --chart-2: 142 70% 45%;
+    --chart-3: 38 85% 60%;
+    --chart-4: 221 75% 60%;
+    --chart-5: 262 75% 65%;
   }
 }
 
@@ -183,6 +197,27 @@
   
   .btn-primary {
     @apply btn bg-brand text-brand-foreground hover:bg-brand/90 h-10 md:h-11 px-4 md:px-6 py-2 text-sm md:text-base;
+  }
+  
+  .btn-brand {
+    @apply btn bg-brand text-brand-foreground hover:bg-brand/90 h-10 px-6;
+  }
+  
+  /* Consistent Layout System */
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .section-padding {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+  
+  .section-divider {
+    @apply py-12 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-8;
+  }
+  
+  .section-accent {
+    @apply bg-muted/50;
   }
   
   /* Card components */

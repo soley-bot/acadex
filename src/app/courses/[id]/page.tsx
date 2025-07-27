@@ -4,26 +4,9 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { courseAPI, enrollmentAPI } from '@/lib/database'
+import { supabase, Course } from '@/lib/supabase'
+import { enrollUserInCourse } from '@/lib/database-operations'
 import { useAuth } from '@/contexts/AuthContext'
-
-interface Course {
-  id: string
-  title: string
-  description: string
-  instructor_id: string
-  instructor_name: string
-  category: string
-  level: string
-  price: number
-  duration: string
-  image_url?: string
-  rating: number
-  student_count: number
-  is_published: boolean
-  created_at: string
-  updated_at: string
-}
 
 export default function CoursePage() {
   const params = useParams()
@@ -39,10 +22,15 @@ export default function CoursePage() {
     const fetchCourse = async () => {
       try {
         setLoading(true)
-        const { data, error: fetchError } = await courseAPI.getCourse(params.id as string)
+        const { data, error: fetchError } = await supabase
+          .from('courses')
+          .select('*')
+          .eq('id', params.id)
+          .eq('is_published', true)
+          .single()
         
         if (fetchError) {
-          setError('Failed to load course')
+          setError('Course not found or not published')
           console.error('Error fetching course:', fetchError)
         } else {
           setCourse(data)
@@ -59,8 +47,14 @@ export default function CoursePage() {
       if (!user || !params.id) return
       
       try {
-        const { enrolled, error } = await enrollmentAPI.isEnrolled(user.id, params.id as string)
-        if (!error && enrolled) {
+        const { data, error } = await supabase
+          .from('enrollments')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('course_id', params.id)
+          .single()
+        
+        if (data && !error) {
           setIsEnrolled(true)
         }
       } catch (err) {
@@ -85,27 +79,20 @@ export default function CoursePage() {
     try {
       setEnrolling(true)
       setError(null)
-      console.log('Enrolling user:', user.id, 'in course:', course!.id)
-      const { error: enrollError } = await enrollmentAPI.enrollInCourse(user.id, course!.id)
       
-      if (enrollError) {
-        console.error('Enrollment error:', enrollError)
-        // Check if error indicates already enrolled
-        if (enrollError.message?.includes('already enrolled') || enrollError.code === '23505') {
-          setError('You are already enrolled in this course!')
-          setIsEnrolled(true)
-        } else {
-          setError('Failed to enroll in course. Please try again.')
-        }
-      } else {
-        console.log('Enrollment successful')
-        setIsEnrolled(true)
-        // Redirect to course study page
-        router.push(`/courses/${course!.id}/study`)
-      }
-    } catch (err) {
+      await enrollUserInCourse(user.id, course!.id)
+      setIsEnrolled(true)
+      // Redirect to course study page
+      router.push(`/courses/${course!.id}/study`)
+      
+    } catch (err: any) {
       console.error('Error enrolling in course:', err)
-      setError('Failed to enroll in course. Please try again.')
+      if (err.message?.includes('already enrolled')) {
+        setError('You are already enrolled in this course!')
+        setIsEnrolled(true)
+      } else {
+        setError('Failed to enroll in course. Please try again.')
+      }
     } finally {
       setEnrolling(false)
     }
@@ -189,28 +176,49 @@ export default function CoursePage() {
 
             <p className="text-lg text-gray-700 mb-8 leading-relaxed">{course.description}</p>
 
-            {/* Course Details */}
-            <div className="bg-gray-50 rounded-lg p-6 mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">What you&apos;ll learn</h2>
-              <ul className="space-y-2 text-gray-700">
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-1">✓</span>
-                  <span>Master the fundamentals of {course.category.toLowerCase()}</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-1">✓</span>
-                  <span>Build practical skills through hands-on exercises</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-1">✓</span>
-                  <span>Get personalized feedback from experienced instructors</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-green-600 mt-1">✓</span>
-                  <span>Access to exclusive course materials and resources</span>
-                </li>
-              </ul>
-            </div>
+            {/* What You'll Learn Section */}
+            {course.learning_objectives && course.learning_objectives.length > 0 && (
+              <div className="bg-gray-50 rounded-lg p-6 mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">What you&apos;ll learn</h2>
+                <ul className="space-y-2 text-gray-700">
+                  {course.learning_objectives.map((objective, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-green-600 mt-1">✓</span>
+                      <span>{objective}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Course Prerequisites */}
+            {course.prerequisites && course.prerequisites.length > 0 && (
+              <div className="bg-blue-50 rounded-lg p-6 mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Prerequisites</h2>
+                <ul className="space-y-2 text-gray-700">
+                  {course.prerequisites.map((prerequisite, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-blue-600 mt-1">•</span>
+                      <span>{prerequisite}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Course Tags */}
+            {course.tags && course.tags.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Tags</h3>
+                <div className="flex flex-wrap gap-2">
+                  {course.tags.map((tag, index) => (
+                    <span key={index} className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Instructor */}
             <div className="bg-white border rounded-lg p-6">

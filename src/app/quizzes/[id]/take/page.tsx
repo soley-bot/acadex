@@ -163,14 +163,14 @@ export default function TakeQuizPage() {
     return (
       <div className="min-h-screen bg-white">
         <div className="max-w-4xl mx-auto px-4 py-20 pt-24 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">{quiz.title}</h1>
-          <p className="text-gray-600 mb-8">You have {quiz.duration_minutes} minutes to complete this quiz</p>
+          <h1 className="font-bold text-gray-900 mb-4">{quiz.title}</h1>
+          <p className="text-secondary mb-8">You have {quiz.duration_minutes} minutes to complete this quiz</p>
           <button
             onClick={() => {
               setQuizStarted(true)
               setStartTime(new Date())
             }}
-            className="bg-brand text-brand-foreground px-8 py-4 rounded-lg font-semibold text-lg hover:bg-brand/90 transition-colors"
+            className="btn-primary"
           >
             Start Quiz
           </button>
@@ -196,7 +196,7 @@ export default function TakeQuizPage() {
                 </span>
               </Link>
               <span className="text-gray-300">|</span>
-              <h1 className="text-xl font-bold text-gray-900">{quiz.title}</h1>
+              <h1 className="font-bold text-gray-900">{quiz.title}</h1>
             </div>
             <div className="flex items-center gap-6">
               <div className="text-lg font-mono font-bold text-brand">
@@ -225,14 +225,14 @@ export default function TakeQuizPage() {
         <div className="bg-white rounded-lg shadow-sm border p-8 mb-8">
           {currentQuestion ? (
             <>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+              <h2 className="quiz-question mb-6">
                 {currentQuestion.question}
               </h2>
               <div className="space-y-4">
                 {currentQuestion?.options?.map((option, index) => (
                   <label
                     key={index}
-                    className={`flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition-colors ${
+                    className={`quiz-option flex items-start gap-4 p-4 border rounded-lg cursor-pointer transition-colors ${
                       answers[currentQuestion?.id ?? ''] === index
                         ? 'border-blue-600 bg-blue-50'
                         : 'border-gray-200 hover:border-gray-300'
@@ -261,7 +261,7 @@ export default function TakeQuizPage() {
           <button
             onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
             disabled={currentQuestionIndex === 0}
-            className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
           </button>
@@ -271,14 +271,14 @@ export default function TakeQuizPage() {
               <button
                 onClick={handleSubmitQuiz}
                 disabled={submitting}
-                className="px-8 py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? 'Submitting...' : 'Submit Quiz'}
               </button>
             ) : (
               <button
                 onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
-                className="px-6 py-3 bg-brand text-brand-foreground rounded-lg font-medium hover:bg-brand/90 transition-colors"
+                className="btn-primary"
               >
                 Next
               </button>
@@ -306,18 +306,18 @@ export default function TakeQuizPage() {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-6 mt-4 text-sm">
+          <div className="flex items-center gap-6 mt-4 small-text">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-brand rounded"></div>
-              <span className="text-gray-600">Current</span>
+              <span className="text-secondary">Current</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
-              <span className="text-gray-600">Answered</span>
+              <span className="text-secondary">Answered</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-gray-100 border border-gray-300 rounded"></div>
-              <span className="text-gray-600">Unanswered</span>
+              <span className="text-secondary">Unanswered</span>
             </div>
           </div>
         </div>

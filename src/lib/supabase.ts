@@ -5,12 +5,12 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Database Types
+// Database Types matching exact schema
 export interface User {
   id: string
   email: string
   name: string
-  avatar_url?: string
+  avatar_url?: string | null
   role: 'student' | 'instructor' | 'admin'
   created_at: string
   updated_at: string
@@ -22,22 +22,23 @@ export interface Course {
   description: string
   instructor_id: string
   instructor_name: string
-  price: number // numeric in DB, handled as number in JS
-  original_price?: number
-  discount_percentage?: number
-  is_free?: boolean
-  duration: string
-  level: 'beginner' | 'intermediate' | 'advanced'
   category: string
-  image_url?: string
-  video_preview_url?: string
-  tags?: string[]
-  prerequisites?: string[]
-  learning_objectives?: string[]
-  status?: 'draft' | 'review' | 'published' | 'archived'
-  published_at?: string
-  archived_at?: string
-  rating?: number // numeric in DB
+  level: 'beginner' | 'intermediate' | 'advanced'
+  price: number // numeric in DB, handled as number in JS
+  duration: string
+  image_url?: string | null
+  thumbnail_url?: string | null
+  video_preview_url?: string | null
+  tags?: string[] | null
+  prerequisites?: string[] | null
+  learning_objectives?: string[] | null
+  status: 'draft' | 'review' | 'published' | 'archived'
+  published_at?: string | null
+  archived_at?: string | null
+  original_price?: number | null
+  discount_percentage?: number | null
+  is_free: boolean
+  rating?: number | null // numeric in DB
   student_count: number // integer in DB
   is_published: boolean
   created_at: string
@@ -52,23 +53,29 @@ export interface Quiz {
   difficulty: 'beginner' | 'intermediate' | 'advanced'
   duration_minutes: number
   total_questions: number
+  course_id?: string | null
+  lesson_id?: string | null
+  passing_score: number
+  max_attempts: number
+  time_limit_minutes?: number | null
   is_published: boolean
   created_at: string
   updated_at: string
-  // Computed fields
-  question_count?: number
-  attempts?: number
-  avg_score?: number
 }
 
 export interface QuizQuestion {
   id: string
   quiz_id: string
   question: string
-  options: any[] // JSONB array
+  options: any // JSONB array
   correct_answer: number
-  explanation?: string
+  explanation?: string | null
   order_index: number
+  points: number
+  difficulty_level: 'easy' | 'medium' | 'hard'
+  image_url?: string | null
+  audio_url?: string | null
+  video_url?: string | null
 }
 
 export interface Question {
@@ -76,9 +83,9 @@ export interface Question {
   quiz_id: string
   question_text: string
   question_type: 'multiple_choice' | 'true_false' | 'fill_blank'
-  options?: any // JSONB
+  options?: any | null // JSONB
   correct_answer: string
-  explanation?: string
+  explanation?: string | null
   points: number
   created_at: string
 }
@@ -87,11 +94,14 @@ export interface QuizAttempt {
   id: string
   user_id: string
   quiz_id: string
-  score: number
   total_questions: number
+  answers: any // JSONB
+  score: number
   time_taken_seconds: number
-  answers: Record<string, number>
   completed_at: string
+  passed: boolean
+  percentage_score?: number | null
+  attempt_number: number
 }
 
 // Enhanced Course Content Types
@@ -162,6 +172,66 @@ export interface Enrollment {
   user_id: string
   course_id: string
   progress: number // integer with check constraint 0-100
-  completed_at?: string
   enrolled_at: string
+  completed_at?: string | null
+  last_accessed_at?: string | null
+  current_lesson_id?: string | null
+  total_watch_time_minutes: number
+  certificate_issued_at?: string | null
+}
+
+// Additional interfaces to match your schema
+export interface Certificate {
+  id: string
+  user_id: string
+  course_id: string
+  certificate_number: string
+  issued_at: string
+  expires_at?: string | null
+  pdf_url?: string | null
+  is_valid: boolean
+}
+
+export interface Notification {
+  id: string
+  user_id: string
+  title: string
+  message: string
+  type: 'enrollment' | 'assignment' | 'achievement' | 'announcement' | 'reminder'
+  action_url?: string | null
+  is_read: boolean
+  created_at: string
+}
+
+export interface Order {
+  id: string
+  user_id: string
+  total_amount: number
+  currency: string
+  status: 'pending' | 'completed' | 'failed' | 'cancelled' | 'refunded'
+  payment_method?: string | null
+  payment_intent_id?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface OrderItem {
+  id: string
+  order_id: string
+  course_id: string
+  price_paid: number
+  created_at: string
+}
+
+export interface AdminActivityLog {
+  id: string
+  admin_user_id: string
+  action: string
+  resource_type: string
+  resource_id: string
+  old_values?: any | null // JSONB
+  new_values?: any | null // JSONB
+  ip_address?: string | null
+  user_agent?: string | null
+  created_at: string
 }

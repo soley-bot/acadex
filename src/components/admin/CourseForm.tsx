@@ -3,22 +3,11 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { X, Save, Loader2, Upload, AlertCircle } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { supabase, Course } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface CourseFormProps {
-  course?: {
-    id: string
-    title: string
-    description: string
-    instructor_name: string
-    price: number
-    category: string
-    level: 'beginner' | 'intermediate' | 'advanced'
-    duration: string
-    image_url?: string
-    is_published: boolean
-  }
+  course?: Course
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void

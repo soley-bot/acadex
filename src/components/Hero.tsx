@@ -3,13 +3,13 @@ import SvgIcon from '@/components/ui/SvgIcon'
 
 export default function Hero() {
   return (
-    <section className="relative pt-24 pb-16 px-6 lg:px-8 overflow-hidden">
+    <section className="relative section-padding overflow-hidden">
       {/* Modern Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-secondary/5"></div>
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
       
-      <div className="relative max-w-7xl mx-auto">
+      <div className="container-custom relative">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Content */}
           <div className="max-w-2xl">
@@ -29,11 +29,11 @@ export default function Hero() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Link href="/courses" className="bg-brand text-brand-foreground hover:bg-brand/90 px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+              <Link href="/courses" className="btn-brand flex items-center justify-center gap-2">
                 <SvgIcon icon="book" size={20} variant="white" />
                 Explore Courses
               </Link>
-              <Link href="/quizzes" className="btn-outline border-brand/20 hover:bg-brand/5 hover:border-brand/40 transition-colors flex items-center justify-center gap-2">
+              <Link href="/quizzes" className="btn-outline flex items-center justify-center gap-2">
                 <SvgIcon icon="check" size={20} />
                 Start Practicing
               </Link>

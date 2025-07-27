@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { X, Plus, Trash2, Save, GripVertical, Eye } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { supabase, Quiz, QuizQuestion } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface Question {
@@ -12,19 +12,8 @@ interface Question {
   correct_answer: number
   explanation?: string
   order_index: number
-}
-
-interface Quiz {
-  id: string
-  title: string
-  description: string
-  category: string
-  difficulty: 'beginner' | 'intermediate' | 'advanced'
-  duration_minutes: number
-  total_questions: number
-  is_published: boolean
-  created_at: string
-  updated_at: string
+  points?: number
+  difficulty_level?: 'easy' | 'medium' | 'hard'
 }
 
 interface QuizFormProps {
@@ -364,16 +353,16 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Description *
                   </label>
                   <textarea
                     required
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    rows={5}
+                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent bg-background/50 backdrop-blur-sm resize-vertical"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Describe what this quiz covers..."
+                    placeholder="Describe what this quiz covers, difficulty level, and learning objectives..."
                   />
                 </div>
 
@@ -425,15 +414,15 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
 
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-foreground mb-2">
                           Question Text *
                         </label>
                         <textarea
-                          rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          rows={4}
+                          className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent bg-background/50 backdrop-blur-sm resize-vertical"
                           value={question.question}
                           onChange={(e) => updateQuestion(questionIndex, 'question', e.target.value)}
-                          placeholder="Enter your question..."
+                          placeholder="Enter your question clearly and concisely..."
                         />
                       </div>
 
@@ -465,15 +454,15 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-foreground mb-2">
                           Explanation (Optional)
                         </label>
                         <textarea
-                          rows={2}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          rows={3}
+                          className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent bg-background/50 backdrop-blur-sm resize-vertical"
                           value={question.explanation || ''}
                           onChange={(e) => updateQuestion(questionIndex, 'explanation', e.target.value)}
-                          placeholder="Explain why this is the correct answer..."
+                          placeholder="Explain why this is the correct answer and provide additional context..."
                         />
                       </div>
                     </div>

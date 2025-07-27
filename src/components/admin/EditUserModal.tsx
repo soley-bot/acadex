@@ -1,34 +1,46 @@
 'use client'
 
-import { useState } from 'react'
-import { X, User, Mail, Lock, UserCheck, Loader2 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { useState, useEffect } from 'react'
+import { X, User, Mail, UserCheck, Loader2 } from 'lucide-react'
+import { User as UserType } from '@/lib/supabase'
 
-interface AddUserModalProps {
+interface EditUserModalProps {
   isOpen: boolean
   onClose: () => void
-  onUserAdded: () => void
+  onUserUpdated: () => void
+  user: UserType | null
 }
 
-export default function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserModalProps) {
+export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: EditUserModalProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '',
     role: 'student'
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name,
+        email: user.email,
+        role: user.role
+      })
+    }
+  }, [user])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!user) return
+    
     setLoading(true)
     setError(null)
 
     try {
-      // Call our API route to create the user
-      const response = await fetch('/api/admin/users', {
-        method: 'POST',
+      // Call our API route to update the user
+      const response = await fetch(`/api/admin/users/${user.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -38,15 +50,14 @@ export default function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserMo
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to create user')
+        throw new Error(result.error || 'Failed to update user')
       }
 
-      // Reset form and close modal
-      setFormData({ name: '', email: '', password: '', role: 'student' })
-      onUserAdded()
+      // Close modal and refresh list
+      onUserUpdated()
       onClose()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create user')
+      setError(err instanceof Error ? err.message : 'Failed to update user')
     } finally {
       setLoading(false)
     }
@@ -59,7 +70,7 @@ export default function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserMo
     }))
   }
 
-  if (!isOpen) return null
+  if (!isOpen || !user) return null
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -71,8 +82,8 @@ export default function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserMo
               <User className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Add New User</h2>
-              <p className="text-sm text-gray-500">Create a new user account</p>
+              <h2 className="text-xl font-semibold text-gray-900">Edit User</h2>
+              <p className="text-sm text-gray-500">Update user information</p>
             </div>
           </div>
           <button
@@ -131,27 +142,6 @@ export default function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserMo
             </div>
           </div>
 
-          {/* Password Field */}
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-                minLength={6}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter password (min 6 characters)"
-              />
-            </div>
-          </div>
-
           {/* Role Field */}
           <div>
             <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
@@ -193,12 +183,12 @@ export default function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserMo
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Creating...
+                  Updating...
                 </>
               ) : (
                 <>
                   <User className="w-4 h-4" />
-                  Create User
+                  Update User
                 </>
               )}
             </button>

@@ -35,8 +35,8 @@ export default function Features() {
   ]
 
   return (
-    <section className="py-20 px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <section className="section-padding">
+      <div className="container-custom">
         {/* Section Header */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium mb-4 border">
