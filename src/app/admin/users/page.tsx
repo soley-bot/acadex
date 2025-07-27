@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Users, UserPlus, Search, Filter, UserCheck, Clock, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@/lib/supabase'
+import AddUserModal from '@/components/admin/AddUserModal'
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([])
@@ -12,6 +13,7 @@ export default function AdminUsers() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('all')
+  const [showAddUser, setShowAddUser] = useState(false)
 
   useEffect(() => {
     fetchUsers()
@@ -100,7 +102,10 @@ export default function AdminUsers() {
             <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
             <p className="text-gray-600">Manage and monitor all platform users</p>
           </div>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+          <button 
+            onClick={() => setShowAddUser(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          >
             <UserPlus className="h-4 w-4" />
             Add User
           </button>
@@ -155,12 +160,12 @@ export default function AdminUsers() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Instructors</CardTitle>
-            <Users className="h-4 w-4 text-purple-600" />
+            <CardTitle className="text-sm font-medium">Admins</CardTitle>
+            <Users className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">89</div>
-            <p className="text-xs text-gray-500">Course instructors</p>
+            <div className="text-2xl font-bold">{userStats.admins}</div>
+            <p className="text-xs text-gray-500">Admin accounts</p>
           </CardContent>
         </Card>
 
@@ -170,7 +175,14 @@ export default function AdminUsers() {
             <Clock className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">156</div>
+            <div className="text-2xl font-bold">
+              {users.filter(u => {
+                const userDate = new Date(u.created_at)
+                const now = new Date()
+                const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+                return userDate >= thisMonth
+              }).length}
+            </div>
             <p className="text-xs text-gray-500">New registrations</p>
           </CardContent>
         </Card>
@@ -289,6 +301,13 @@ export default function AdminUsers() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add User Modal */}
+      <AddUserModal 
+        isOpen={showAddUser}
+        onClose={() => setShowAddUser(false)}
+        onUserAdded={fetchUsers}
+      />
     </div>
   )
 }

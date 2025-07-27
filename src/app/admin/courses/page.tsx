@@ -2,8 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Search, Plus, Users, BookOpen, Star, Calendar } from 'lucide-react'
+import { Search, Plus, Users, BookOpen, Star, Calendar, Edit, Trash2, Eye, MoreVertical } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { CourseForm } from '@/components/admin/CourseForm'
+import { EnhancedCourseForm } from '@/components/admin/EnhancedCourseForm'
+import { DeleteCourseModal } from '@/components/admin/DeleteCourseModal'
+import { CourseViewModal } from '@/components/admin/CourseViewModal'
 
 interface Course {
   id: string
@@ -11,10 +15,20 @@ interface Course {
   description: string
   instructor_name: string
   price: number
+  original_price?: number
+  discount_percentage?: number
   category: string
+  level: 'beginner' | 'intermediate' | 'advanced'
   duration: string | null
+  image_url: string | null
+  video_preview_url?: string
+  tags?: string[]
+  prerequisites?: string[]
+  learning_objectives?: string[]
+  status?: string
   student_count: number
   is_published: boolean
+  is_free?: boolean
   created_at: string
 }
 
@@ -24,6 +38,14 @@ export default function CoursesPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  
+  // Modal states
+  const [showCourseForm, setShowCourseForm] = useState(false)
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deletingCourse, setDeletingCourse] = useState<Course | null>(null)
+  const [showViewModal, setShowViewModal] = useState(false)
+  const [viewingCourse, setViewingCourse] = useState<Course | null>(null)
 
   const fetchCourses = useCallback(async () => {
     try {
@@ -38,21 +60,44 @@ export default function CoursesPage() {
           description,
           instructor_name,
           price,
+          original_price,
+          discount_percentage,
           category,
+          level,
           duration,
+          image_url,
+          video_preview_url,
+          tags,
+          prerequisites,
+          learning_objectives,
+          status,
           is_published,
-          created_at,
-          enrollments(count)
+          is_free,
+          created_at
         `)
         .order('created_at', { ascending: false })
 
       if (error) throw error
 
+      // Get enrollment counts separately
+      const courseIds = data.map(course => course.id)
+      const { data: enrollmentCounts, error: enrollmentError } = await supabase
+        .from('enrollments')
+        .select('course_id')
+        .in('course_id', courseIds)
+
+      if (enrollmentError) {
+        console.error('Error fetching enrollment counts:', enrollmentError)
+      }
+
       // Transform data to include student count
-      const coursesWithStudentCount = data.map(course => ({
-        ...course,
-        student_count: course.enrollments?.length || 0
-      }))
+      const coursesWithStudentCount = data.map(course => {
+        const studentCount = enrollmentCounts?.filter(e => e.course_id === course.id).length || 0
+        return {
+          ...course,
+          student_count: studentCount
+        }
+      })
 
       setCourses(coursesWithStudentCount)
     } catch (err) {
@@ -90,6 +135,38 @@ export default function CoursesPage() {
     return isPublished 
       ? 'bg-green-100 text-green-800' 
       : 'bg-yellow-100 text-yellow-800'
+  }
+
+  const handleCreateCourse = () => {
+    setEditingCourse(null)
+    setShowCourseForm(true)
+  }
+
+  const handleEditCourse = (course: Course) => {
+    setEditingCourse(course)
+    setShowCourseForm(true)
+  }
+
+  const handleDeleteCourse = (course: Course) => {
+    setDeletingCourse(course)
+    setShowDeleteModal(true)
+  }
+
+  const handleViewCourse = (course: Course) => {
+    setViewingCourse(course)
+    setShowViewModal(true)
+  }
+
+  const handleFormSuccess = () => {
+    fetchCourses()
+    setShowCourseForm(false)
+    setEditingCourse(null)
+  }
+
+  const handleDeleteSuccess = () => {
+    fetchCourses()
+    setShowDeleteModal(false)
+    setDeletingCourse(null)
   }
 
   const formatDate = (dateString: string) => {
@@ -137,7 +214,10 @@ export default function CoursesPage() {
             <h1 className="text-3xl font-bold text-gray-900">Course Management</h1>
             <p className="text-gray-600">Create and manage all platform courses</p>
           </div>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+          <button 
+            onClick={handleCreateCourse}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          >
             <Plus className="h-4 w-4" />
             Add Course
           </button>
@@ -264,11 +344,26 @@ export default function CoursesPage() {
                 </div>
 
                 <div className="flex gap-2 pt-2">
-                  <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm transition-colors">
+                  <button 
+                    onClick={() => handleViewCourse(course)}
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center"
+                  >
+                    <Eye className="h-3 w-3 mr-1" />
+                    View
+                  </button>
+                  <button 
+                    onClick={() => handleEditCourse(course)}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center"
+                  >
+                    <Edit className="h-3 w-3 mr-1" />
                     Edit
                   </button>
-                  <button className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm transition-colors">
-                    View
+                  <button 
+                    onClick={() => handleDeleteCourse(course)}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center"
+                  >
+                    <Trash2 className="h-3 w-3 mr-1" />
+                    Delete
                   </button>
                 </div>
               </div>
@@ -291,7 +386,10 @@ export default function CoursesPage() {
                 }
               </p>
               {!searchTerm && selectedCategory === 'all' && (
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
+                <button 
+                  onClick={handleCreateCourse}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
+                >
                   Create Course
                 </button>
               )}
@@ -299,6 +397,58 @@ export default function CoursesPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Modals */}
+      <EnhancedCourseForm
+        course={editingCourse ? {
+          ...editingCourse,
+          duration: editingCourse.duration || '',
+          image_url: editingCourse.image_url || undefined,
+          video_preview_url: editingCourse.video_preview_url || undefined,
+          original_price: editingCourse.original_price || 0,
+          discount_percentage: editingCourse.discount_percentage || 0,
+          tags: editingCourse.tags || [],
+          prerequisites: editingCourse.prerequisites || [],
+          learning_objectives: editingCourse.learning_objectives || [],
+          status: editingCourse.status || 'draft',
+          is_free: editingCourse.is_free || false
+        } : undefined}
+        isOpen={showCourseForm}
+        onClose={() => setShowCourseForm(false)}
+        onSuccess={handleFormSuccess}
+      />
+
+      <DeleteCourseModal
+        course={deletingCourse}
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onSuccess={handleDeleteSuccess}
+      />
+
+      <CourseViewModal
+        course={viewingCourse ? {
+          id: viewingCourse.id,
+          title: viewingCourse.title,
+          description: viewingCourse.description,
+          instructor_name: viewingCourse.instructor_name,
+          price: viewingCourse.price,
+          category: viewingCourse.category,
+          level: viewingCourse.level,
+          duration: viewingCourse.duration || 'Not set',
+          image_url: viewingCourse.image_url || undefined,
+          is_published: viewingCourse.is_published,
+          created_at: viewingCourse.created_at,
+          student_count: viewingCourse.student_count
+        } : null}
+        isOpen={showViewModal}
+        onClose={() => setShowViewModal(false)}
+        onEdit={() => {
+          setShowViewModal(false)
+          if (viewingCourse) {
+            handleEditCourse(viewingCourse)
+          }
+        }}
+      />
     </div>
   )
 }

@@ -1,195 +1,195 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { courseAPI, enrollmentAPI } from '@/lib/database'
+import { ChevronDown, ChevronRight, PlayCircle, FileText, Download, Clock, CheckCircle, Lock } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
+import type { CourseModule, CourseLesson, CourseResource, LessonProgress } from '@/lib/supabase'
 
-interface Course {
-  id: string
-  title: string
-  description: string
-  instructor_name: string
-  category: string
-  level: string
-  duration: string
+interface ModuleWithContent extends CourseModule {
+  lessons: (CourseLesson & {
+    resources: CourseResource[]
+    progress?: LessonProgress
+  })[]
 }
 
-interface Lesson {
-  id: number
-  title: string
-  content: string
-  videoUrl?: string
-  duration: string
-  completed: boolean
+type LessonWithProgress = CourseLesson & {
+  resources: CourseResource[]
+  progress?: LessonProgress
 }
 
 export default function CourseStudyPage() {
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
-  const [course, setCourse] = useState<Course | null>(null)
-  const [lessons, setLessons] = useState<Lesson[]>([])
-  const [currentLesson, setCurrentLesson] = useState(0)
+  const [course, setCourse] = useState<any>(null)
+  const [modules, setModules] = useState<ModuleWithContent[]>([])
+  const [currentLesson, setCurrentLesson] = useState<LessonWithProgress | null>(null)
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [progress, setProgress] = useState(0)
+  const [isEnrolled, setIsEnrolled] = useState(false)
+
+  const loadCourseContent = useCallback(async () => {
+    try {
+      setLoading(true)
+      
+      // Check enrollment first
+      const { data: enrollmentData, error: enrollmentError } = await supabase
+        .from('enrollments')
+        .select('*')
+        .eq('user_id', user?.id)
+        .eq('course_id', params.id)
+        .single()
+
+      if (enrollmentError || !enrollmentData) {
+        setIsEnrolled(false)
+        setError('You are not enrolled in this course.')
+        return
+      }
+
+      setIsEnrolled(true)
+      
+      // Load course details
+      const { data: courseData, error: courseError } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('id', params.id)
+        .single()
+
+      if (courseError) throw courseError
+      setCourse(courseData)
+
+      // Check if user is enrolled
+      const { data: enrollment } = await supabase
+        .from('enrollments')
+        .select('*')
+        .eq('course_id', params.id)
+        .eq('user_id', user!.id)
+        .single()
+
+      setIsEnrolled(!!enrollment)
+
+      // Load course modules and lessons
+      const { data: modulesData, error: modulesError } = await supabase
+        .from('course_modules')
+        .select(`
+          *,
+          course_lessons (
+            *,
+            course_resources (*)
+          )
+        `)
+        .eq('course_id', params.id)
+        .eq('is_published', true)
+        .order('order_index')
+
+      if (modulesError) throw modulesError
+
+      // Load user progress if enrolled
+      let progressData = []
+      if (enrollment) {
+        const { data: progress } = await supabase
+          .from('lesson_progress')
+          .select('*')
+          .eq('user_id', user!.id)
+
+        progressData = progress || []
+      }
+
+      // Format modules with progress
+      const formattedModules = modulesData.map(module => ({
+        ...module,
+        lessons: module.course_lessons
+          .filter((lesson: any) => lesson.is_published || lesson.is_free_preview)
+          .sort((a: any, b: any) => a.order_index - b.order_index)
+          .map((lesson: any) => ({
+            ...lesson,
+            resources: lesson.course_resources || [],
+            progress: progressData.find((p: any) => p.lesson_id === lesson.id)
+          }))
+      }))
+
+      setModules(formattedModules)
+
+      // Auto-expand first module and select first lesson
+      if (formattedModules.length > 0) {
+        setExpandedModules(new Set([formattedModules[0].id]))
+        if (formattedModules[0].lessons.length > 0) {
+          setCurrentLesson(formattedModules[0].lessons[0])
+        }
+      }
+
+    } catch (err) {
+      console.error('Error loading course content:', err)
+      setError('Failed to load course content')
+    } finally {
+      setLoading(false)
+    }
+  }, [params.id, user])
 
   useEffect(() => {
     if (!user) {
       router.push('/login')
       return
     }
+    loadCourseContent()
+  }, [user, router, loadCourseContent])
 
-    const fetchCourseAndContent = async () => {
-      try {
-        setLoading(true)
-        
-        // Fetch course details
-        const { data: courseData, error: courseError } = await courseAPI.getCourse(params.id as string)
-        
-        if (courseError || !courseData) {
-          setError('Course not found')
-          return
-        }
-
-        setCourse(courseData)
-
-        // For now, create sample lessons. In a real app, these would come from the database
-        const sampleLessons: Lesson[] = [
-          {
-            id: 1,
-            title: 'Introduction to ' + courseData.title,
-            content: `Welcome to ${courseData.title}! In this comprehensive course, you'll learn everything you need to know about ${courseData.category.toLowerCase()}.
-
-This course is designed for ${courseData.level} level students and will take approximately ${courseData.duration} to complete.
-
-What you'll learn:
-• Fundamental concepts and principles
-• Practical skills and techniques  
-• Real-world applications
-• Best practices and industry standards
-
-Let's get started on your learning journey!`,
-            duration: '15 min',
-            completed: false
-          },
-          {
-            id: 2,
-            title: 'Core Concepts',
-            content: `In this lesson, we'll dive deep into the core concepts of ${courseData.category.toLowerCase()}.
-
-Key Topics:
-• Basic terminology and definitions
-• Fundamental principles
-• Common patterns and approaches
-• Industry best practices
-
-Understanding these concepts is crucial for building a solid foundation in ${courseData.category.toLowerCase()}.`,
-            duration: '25 min',
-            completed: false
-          },
-          {
-            id: 3,
-            title: 'Practical Applications',
-            content: `Now that you understand the theory, let's explore practical applications.
-
-In this lesson you'll learn:
-• How to apply concepts in real scenarios
-• Common use cases and examples
-• Problem-solving techniques
-• Tips and tricks from experts
-
-Practice exercises are included to help reinforce your learning.`,
-            duration: '30 min',
-            completed: false
-          },
-          {
-            id: 4,
-            title: 'Advanced Techniques',
-            content: `Ready to take your skills to the next level? This lesson covers advanced techniques and strategies.
-
-Advanced Topics:
-• Complex problem-solving approaches
-• Optimization techniques
-• Advanced tools and methods
-• Professional workflows
-
-These skills will help you stand out in your field.`,
-            duration: '35 min',
-            completed: false
-          },
-          {
-            id: 5,
-            title: 'Final Project & Assessment',
-            content: `Congratulations on making it to the final lesson! It's time to put everything together.
-
-In this final lesson:
-• Complete a comprehensive project
-• Apply all the skills you've learned
-• Get feedback on your work
-• Receive your completion certificate
-
-This project will serve as a portfolio piece to showcase your new skills.`,
-            duration: '45 min',
-            completed: false
-          }
-        ]
-
-        setLessons(sampleLessons)
-        
-        // Calculate progress (in a real app, this would come from the database)
-        const completedLessons = sampleLessons.filter(lesson => lesson.completed).length
-        const progressPercentage = (completedLessons / sampleLessons.length) * 100
-        setProgress(progressPercentage)
-
-      } catch (err) {
-        console.error('Error fetching course:', err)
-        setError('Failed to load course')
-      } finally {
-        setLoading(false)
-      }
+  const toggleModule = (moduleId: string) => {
+    const newExpanded = new Set(expandedModules)
+    if (newExpanded.has(moduleId)) {
+      newExpanded.delete(moduleId)
+    } else {
+      newExpanded.add(moduleId)
     }
-
-    if (params.id) {
-      fetchCourseAndContent()
-    }
-  }, [params.id, user, router])
-
-  const markLessonComplete = async () => {
-    const updatedLessons = [...lessons]
-    if (updatedLessons[currentLesson]) {
-      updatedLessons[currentLesson].completed = true
-      setLessons(updatedLessons)
-
-      // Calculate new progress
-      const completedLessons = updatedLessons.filter(lesson => lesson.completed).length
-      const progressPercentage = (completedLessons / updatedLessons.length) * 100
-      setProgress(progressPercentage)
-    }
-
-    // In a real app, you'd save this progress to the database
-    // await enrollmentAPI.updateProgress(enrollmentId, progressPercentage)
+    setExpandedModules(newExpanded)
   }
 
-  const nextLesson = () => {
-    if (currentLesson < lessons.length - 1) {
-      setCurrentLesson(currentLesson + 1)
+  const selectLesson = (lesson: LessonWithProgress) => {
+    // Check if lesson is accessible
+    if (!isEnrolled && !lesson.is_free_preview) {
+      return // Don't allow access to locked lessons
+    }
+    setCurrentLesson(lesson)
+  }
+
+  const markLessonComplete = async (lessonId: string) => {
+    if (!user || !isEnrolled) return
+
+    try {
+      await supabase
+        .from('lesson_progress')
+        .upsert({
+          user_id: user.id,
+          lesson_id: lessonId,
+          is_completed: true,
+          completed_at: new Date().toISOString()
+        })
+
+      // Reload progress
+      loadCourseContent()
+    } catch (err) {
+      console.error('Error marking lesson complete:', err)
     }
   }
 
-  const previousLesson = () => {
-    if (currentLesson > 0) {
-      setCurrentLesson(currentLesson - 1)
+  const formatDuration = (minutes: number) => {
+    if (minutes < 60) {
+      return `${minutes}m`
     }
+    const hours = Math.floor(minutes / 60)
+    const remainingMinutes = minutes % 60
+    return `${hours}h ${remainingMinutes}m`
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading course content...</p>
         </div>
       </div>
     )
@@ -197,16 +197,15 @@ This project will serve as a portfolio piece to showcase your new skills.`,
 
   if (error || !course) {
     return (
-      <div className="min-h-screen bg-white">
-        <div className="max-w-4xl mx-auto px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Course Not Found</h1>
-          <p className="text-gray-600 mb-8">{error}</p>
-          <Link
-            href="/dashboard"
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error || 'Course not found'}</p>
+          <button
+            onClick={() => router.push('/courses')}
+            className="text-blue-600 hover:text-blue-700"
           >
-            Back to Dashboard
-          </Link>
+            ← Back to Courses
+          </button>
         </div>
       </div>
     )
@@ -214,147 +213,204 @@ This project will serve as a portfolio piece to showcase your new skills.`,
 
   return (
     <div className="min-h-screen bg-gray-50">
-      
-      <div className="pt-16">
-        {/* Course Header */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 py-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <Link href="/dashboard" className="text-blue-600 hover:text-blue-700 text-sm font-medium mb-2 inline-block">
-                  ← Back to Dashboard
-                </Link>
-                <h1 className="text-2xl font-bold text-gray-900">{course.title}</h1>
-                <p className="text-gray-600">Instructor: {course.instructor_name}</p>
+      {/* Header */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <button
+                onClick={() => router.push('/courses')}
+                className="text-blue-600 hover:text-blue-700 mb-2 flex items-center"
+              >
+                ← Back to Courses
+              </button>
+              <h1 className="text-2xl font-bold text-gray-900">{course.title}</h1>
+              <p className="text-gray-600">{course.instructor_name}</p>
+            </div>
+            {!isEnrolled && (
+              <div className="text-center">
+                <p className="text-sm text-gray-500 mb-2">Not enrolled</p>
+                <button
+                  onClick={() => router.push(`/courses/${params.id}`)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                >
+                  Enroll Now
+                </button>
               </div>
-              <div className="text-right">
-                <div className="text-sm text-gray-600 mb-1">Progress</div>
-                <div className="w-32 bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${progress}%` }}
-                  ></div>
-                </div>
-                <div className="text-sm text-gray-600 mt-1">{Math.round(progress)}% Complete</div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Course Content Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-sm border">
+              <div className="p-4 border-b">
+                <h2 className="font-semibold text-gray-900">Course Content</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  {modules.reduce((total, module) => total + module.lessons.length, 0)} lessons
+                </p>
+              </div>
+              
+              <div className="max-h-96 overflow-y-auto">
+                {modules.map((module) => (
+                  <div key={module.id} className="border-b last:border-b-0">
+                    <button
+                      onClick={() => toggleModule(module.id)}
+                      className="w-full p-4 text-left hover:bg-gray-50 flex items-center justify-between"
+                    >
+                      <div>
+                        <h3 className="font-medium text-gray-900">{module.title}</h3>
+                        <p className="text-sm text-gray-500">{module.lessons.length} lessons</p>
+                      </div>
+                      {expandedModules.has(module.id) ? (
+                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-gray-400" />
+                      )}
+                    </button>
+                    
+                    {expandedModules.has(module.id) && (
+                      <div className="bg-gray-50">
+                        {module.lessons.map((lesson) => {
+                          const isLocked = !isEnrolled && !lesson.is_free_preview
+                          const isCompleted = lesson.progress?.is_completed
+                          const isCurrent = currentLesson?.id === lesson.id
+                          
+                          return (
+                            <button
+                              key={lesson.id}
+                              onClick={() => selectLesson(lesson)}
+                              disabled={isLocked}
+                              className={`w-full p-3 text-left hover:bg-gray-100 flex items-center gap-3 ${
+                                isCurrent ? 'bg-blue-50 border-r-2 border-blue-500' : ''
+                              } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                              <div className="flex-shrink-0">
+                                {isLocked ? (
+                                  <Lock className="w-4 h-4 text-gray-400" />
+                                ) : isCompleted ? (
+                                  <CheckCircle className="w-4 h-4 text-green-500" />
+                                ) : (
+                                  <PlayCircle className="w-4 h-4 text-gray-400" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                  {lesson.title}
+                                </p>
+                                <div className="flex items-center gap-2 text-xs text-gray-500">
+                                  <Clock className="w-3 h-3" />
+                                  {formatDuration(lesson.duration_minutes)}
+                                  {lesson.is_free_preview && (
+                                    <span className="bg-green-100 text-green-800 px-1 rounded">Free</span>
+                                  )}
+                                </div>
+                              </div>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Lesson Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Course Content</h2>
-                <div className="space-y-3">
-                  {lessons.map((lesson, index) => (
-                    <button
-                      key={lesson.id}
-                      onClick={() => setCurrentLesson(index)}
-                      className={`w-full text-left p-3 rounded-lg transition-colors ${
-                        currentLesson === index
-                          ? 'bg-blue-50 border-blue-200 border'
-                          : 'hover:bg-gray-50 border border-transparent'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
-                          lesson.completed
-                            ? 'bg-green-100 text-green-700'
-                            : currentLesson === index
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'bg-gray-100 text-gray-600'
-                        }`}>
-                          {lesson.completed ? '✓' : index + 1}
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-sm font-medium text-gray-900">{lesson.title}</div>
-                          <div className="text-xs text-gray-500">{lesson.duration}</div>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="lg:col-span-3">
+          {/* Main Content Area */}
+          <div className="lg:col-span-2">
+            {currentLesson ? (
               <div className="bg-white rounded-lg shadow-sm border">
-                {/* Lesson Header */}
                 <div className="p-6 border-b">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start justify-between">
                     <div>
-                      <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                        {lessons[currentLesson]?.title}
-                      </h2>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span>Lesson {currentLesson + 1} of {lessons.length}</span>
-                        <span>•</span>
-                        <span>{lessons[currentLesson]?.duration}</span>
-                        {lessons[currentLesson]?.completed && (
-                          <>
-                            <span>•</span>
-                            <span className="text-green-600 font-medium">Completed ✓</span>
-                          </>
-                        )}
-                      </div>
+                      <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                        {currentLesson.title}
+                      </h1>
+                      <p className="text-gray-600">{currentLesson.description}</p>
                     </div>
-                    {!lessons[currentLesson]?.completed && (
+                    {isEnrolled && !currentLesson.progress?.is_completed && (
                       <button
-                        onClick={markLessonComplete}
-                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                        onClick={() => markLessonComplete(currentLesson.id)}
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
                       >
+                        <CheckCircle className="w-4 h-4" />
                         Mark Complete
                       </button>
                     )}
                   </div>
                 </div>
 
-                {/* Lesson Content */}
                 <div className="p-6">
-                  <div className="prose max-w-none">
-                    <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                      {lessons[currentLesson]?.content}
+                  {/* Video Player */}
+                  {currentLesson.video_url && (
+                    <div className="mb-6">
+                      <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden">
+                        <video
+                          src={currentLesson.video_url}
+                          controls
+                          className="w-full h-full"
+                        />
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  )}
 
-                {/* Navigation */}
-                <div className="p-6 border-t bg-gray-50">
-                  <div className="flex items-center justify-between">
-                    <button
-                      onClick={previousLesson}
-                      disabled={currentLesson === 0}
-                      className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      ← Previous Lesson
-                    </button>
-                    
-                    {currentLesson === lessons.length - 1 ? (
-                      <Link
-                        href="/dashboard"
-                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                      >
-                        Complete Course
-                      </Link>
-                    ) : (
-                      <button
-                        onClick={nextLesson}
-                        className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                      >
-                        Next Lesson →
-                      </button>
-                    )}
-                  </div>
+                  {/* Lesson Content */}
+                  {currentLesson.content && (
+                    <div className="prose max-w-none mb-6">
+                      <div className="whitespace-pre-wrap">{currentLesson.content}</div>
+                    </div>
+                  )}
+
+                  {/* Resources */}
+                  {currentLesson.resources && currentLesson.resources.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Resources</h3>
+                      <div className="space-y-3">
+                        {currentLesson.resources.map((resource) => (
+                          <div key={resource.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <FileText className="w-5 h-5 text-gray-400" />
+                              <div>
+                                <h4 className="font-medium text-gray-900">{resource.title}</h4>
+                                {resource.description && (
+                                  <p className="text-sm text-gray-600">{resource.description}</p>
+                                )}
+                              </div>
+                            </div>
+                            {resource.is_downloadable && (
+                              <a
+                                href={resource.file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                              >
+                                <Download className="w-4 h-4" />
+                                Download
+                              </a>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
+                <PlayCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Select a Lesson</h2>
+                <p className="text-gray-600">Choose a lesson from the sidebar to start learning</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
-
     </div>
   )
 }
+
+  

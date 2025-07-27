@@ -42,11 +42,12 @@ export default function AdminAnalytics() {
       }
 
       // Fetch analytics data from multiple tables with optimized queries
-      const [usersResult, coursesResult, quizzesResult, enrollmentsResult] = await Promise.all([
-        supabase.from('users').select('id, created_at').limit(1000),
-        supabase.from('courses').select('id, price, created_at').limit(1000),
-        supabase.from('quizzes').select('id').limit(1000),
-        supabase.from('enrollments').select('id').limit(1000)
+      const [usersResult, coursesResult, quizzesResult, enrollmentsResult, attemptsResult] = await Promise.all([
+        supabase.from('users').select('id, created_at'),
+        supabase.from('courses').select('id, price, created_at'),
+        supabase.from('quizzes').select('id, created_at'),
+        supabase.from('enrollments').select('id, enrolled_at'),
+        supabase.from('quiz_attempts').select('id, completed_at')
       ])
 
       // Handle individual query errors gracefully
@@ -54,12 +55,14 @@ export default function AdminAnalytics() {
       const courses = coursesResult.data || []
       const quizzes = quizzesResult.data || []
       const enrollments = enrollmentsResult.data || []
+      const attempts = attemptsResult.data || []
 
       // Log any errors but don't fail completely
       if (usersResult.error) console.warn('Users query error:', usersResult.error)
       if (coursesResult.error) console.warn('Courses query error:', coursesResult.error)
       if (quizzesResult.error) console.warn('Quizzes query error:', quizzesResult.error)
       if (enrollmentsResult.error) console.warn('Enrollments query error:', enrollmentsResult.error)
+      if (attemptsResult.error) console.warn('Attempts query error:', attemptsResult.error)
 
       // Calculate this month's new additions
       const now = new Date()
@@ -69,7 +72,8 @@ export default function AdminAnalytics() {
         new Date(user.created_at) >= thisMonth
       ).length
 
-      const totalRevenue = courses.reduce((sum, course) => sum + (course.price || 0), 0)
+      // Calculate total revenue from course prices (note: this is potential revenue, not actual payments)
+      const totalRevenue = courses.reduce((sum, course) => sum + (Number(course.price) || 0), 0)
 
       const analyticsData = {
         totalUsers: users.length,

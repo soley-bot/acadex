@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { courseAPI } from '@/lib/database'
 import type { Course } from '@/lib/supabase'
+import { CourseImage } from '@/components/OptimizedImage'
 
 // Static fallback courses for better performance
 const STATIC_COURSES: Course[] = [
@@ -22,7 +23,7 @@ const STATIC_COURSES: Course[] = [
     updated_at: '2024-01-01',
     student_count: 1250,
     rating: 4.8,
-    image_url: undefined
+    image_url: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop'
   },
   {
     id: 'static-2',
@@ -39,7 +40,7 @@ const STATIC_COURSES: Course[] = [
     updated_at: '2024-01-01',
     student_count: 980,
     rating: 4.9,
-    image_url: undefined
+    image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop'
   },
   {
     id: 'static-3',
@@ -56,7 +57,7 @@ const STATIC_COURSES: Course[] = [
     updated_at: '2024-01-01',
     student_count: 750,
     rating: 4.7,
-    image_url: undefined
+    image_url: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop'
   }
 ]
 
@@ -118,22 +119,24 @@ export default function PopularCourses() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => (
             <div key={course.id} className="card hover:shadow-lg transition-shadow duration-300">
-              {/* Course Image/Icon */}
-              <div className="h-48 bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center relative rounded-t-lg">
-                <span className="text-6xl">{getCategoryEmoji(course.category)}</span>
+              {/* Course Image */}
+              <div className="h-48 relative rounded-t-lg overflow-hidden">
+                <CourseImage
+                  src={course.image_url}
+                  alt={course.title}
+                  size="medium"
+                  className="w-full h-full"
+                />
                 <div className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium border">
                   {course.level}
+                </div>
+                {/* Category overlay */}
+                <div className="absolute bottom-3 left-3 px-3 py-1 bg-primary/90 text-white text-xs font-semibold rounded-full">
+                  {course.category}
                 </div>
               </div>
 
               <div className="p-6">
-                {/* Category */}
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full border">
-                    {course.category}
-                  </span>
-                </div>
-
                 {/* Title */}
                 <h3 className="text-xl font-semibold tracking-tight mb-3">
                   {course.title}

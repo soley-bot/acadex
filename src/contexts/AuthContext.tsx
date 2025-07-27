@@ -86,7 +86,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
       options: {
-        data: { name }
+        data: { name },
+        emailRedirectTo: undefined // Disable email confirmation
       }
     })
     return { error }
