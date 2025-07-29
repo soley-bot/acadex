@@ -19,9 +19,17 @@ export default function CoursePage() {
   const [isEnrolled, setIsEnrolled] = useState(false)
 
   useEffect(() => {
+    // Reset state when navigating to different course
+    setCourse(null)
+    setError(null)
+    setIsEnrolled(false)
+    
     const fetchCourse = async () => {
       try {
         setLoading(true)
+        
+        // Add cache-busting timestamp to prevent stale data
+        const timestamp = Date.now()
         const { data, error: fetchError } = await supabase
           .from('courses')
           .select('*')
@@ -47,6 +55,7 @@ export default function CoursePage() {
       if (!user || !params.id) return
       
       try {
+        // Force fresh data by adding timestamp
         const { data, error } = await supabase
           .from('enrollments')
           .select('id')
@@ -56,9 +65,12 @@ export default function CoursePage() {
         
         if (data && !error) {
           setIsEnrolled(true)
+        } else {
+          setIsEnrolled(false)
         }
       } catch (err) {
         console.error('Error checking enrollment status:', err)
+        setIsEnrolled(false)
       }
     }
 

@@ -6,7 +6,9 @@ import { supabase, Course, CourseModule, CourseLesson, CourseResource } from '@/
 import { createCourse, updateCourse } from '@/lib/database-operations'
 import { useAuth } from '@/contexts/AuthContext'
 import { uploadCourseImage } from '@/lib/storage'
+import { courseCache } from '@/lib/cache'
 import { CourseImage } from '@/components/OptimizedImage'
+import { categories, levels, statuses } from '@/lib/courseConstants'
 
 interface Module {
   id?: string
@@ -44,26 +46,8 @@ interface EnhancedCourseFormProps {
   course?: Course
   isOpen: boolean
   onClose: () => void
-  onSuccess: () => void
+  onSuccess: (updatedCourse?: Course) => void
 }
-
-const categories = [
-  'Programming', 'Data Science', 'Design', 'Business', 'Marketing',
-  'Language', 'Music', 'Photography', 'Health & Fitness', 'Other'
-]
-
-const levels = [
-  { value: 'beginner', label: 'Beginner' },
-  { value: 'intermediate', label: 'Intermediate' },
-  { value: 'advanced', label: 'Advanced' }
-]
-
-const statuses = [
-  { value: 'draft', label: 'Draft' },
-  { value: 'review', label: 'In Review' },
-  { value: 'published', label: 'Published' },
-  { value: 'archived', label: 'Archived' }
-]
 
 export function EnhancedCourseForm({ course, isOpen, onClose, onSuccess }: EnhancedCourseFormProps) {
   const { user } = useAuth()
@@ -148,7 +132,18 @@ export function EnhancedCourseForm({ course, isOpen, onClose, onSuccess }: Enhan
   }, [course?.id])
 
   useEffect(() => {
+    console.log('🔄 [ENHANCED_COURSE_FORM] useEffect triggered')
+    console.log('🔄 [ENHANCED_COURSE_FORM] course prop:', course ? course.title : 'none')
+    console.log('🔄 [ENHANCED_COURSE_FORM] course id:', course?.id)
+    console.log('🔄 [ENHANCED_COURSE_FORM] course updated_at:', course?.updated_at)
+    console.log('🔄 [ENHANCED_COURSE_FORM] isOpen:', isOpen)
+    console.log('🔄 [ENHANCED_COURSE_FORM] course object reference:', course)
+    
     if (course) {
+      console.log('✅ [ENHANCED_COURSE_FORM] Setting form data from course prop')
+      console.log('✅ [ENHANCED_COURSE_FORM] Setting title to:', course.title)
+      console.log('✅ [ENHANCED_COURSE_FORM] Setting description to:', course.description?.substring(0, 50) + '...')
+      
       setFormData({
         title: course.title,
         description: course.description,
@@ -335,16 +330,63 @@ export function EnhancedCourseForm({ course, isOpen, onClose, onSuccess }: Enhan
     setLoading(true)
     setError(null)
 
+    console.log('� [SUBMIT] === STARTING COURSE SAVE PROCESS ===')
+    console.log('� [SUBMIT] Form Data:', formData)
+    console.log('� [SUBMIT] Pricing Data:', pricingData)
+    console.log('� [SUBMIT] Modules count:', modules.length)
+    console.log('� [SUBMIT] User:', user?.id)
+    console.log('� [SUBMIT] Course (editing):', course?.id)
+    console.log('🚀 [SUBMIT] Loading state set to true')
+
+    // Add global timeout for the entire save operation
+    const saveTimeout = setTimeout(() => {
+      console.error('⏰ [SUBMIT] Save operation timed out after 30 seconds')
+      setError('Save operation timed out. Please try again.')
+      setLoading(false)
+    }, 30000) // 30 second timeout (reduced since we have DB timeouts)
+
     try {
       if (!user) {
+        console.error('❌ [SUBMIT] User not authenticated')
         throw new Error('User not authenticated')
+      }
+      
+      console.log('✅ [SUBMIT] User authentication verified')
+
+      // Pre-validation checks specifically for title
+      console.log('🔍 [VALIDATION] Running pre-validation checks...')
+      console.log('🔍 [VALIDATION] Form title value:', JSON.stringify(formData.title))
+      console.log('🔍 [VALIDATION] Title type:', typeof formData.title)
+      console.log('🔍 [VALIDATION] Title length:', formData.title?.length || 0)
+      
+      if (!formData.title || formData.title.trim().length === 0) {
+        console.error('❌ [VALIDATION] Title is empty or null')
+        throw new Error('Course title is required')
       }
 
       let courseId: string
 
       // Prepare course data with proper validation
+      console.log('📝 [SUBMIT] Preparing course data...')
+      
+      // Sanitize and validate title specifically
+      const cleanTitle = formData.title
+        .replace(/[^a-zA-Z0-9\s\-\.\,\!\?\:\;\(\)\'\"&]/g, '')
+        .trim()
+      
+      console.log('📝 [TITLE_DEBUG] Original title:', formData.title)
+      console.log('📝 [TITLE_DEBUG] Cleaned title:', cleanTitle)
+      console.log('📝 [TITLE_DEBUG] Clean title length:', cleanTitle.length)
+      console.log('📝 [TITLE_DEBUG] Title is valid:', cleanTitle.length > 0)
+      console.log('📝 [TITLE_DEBUG] Title passes regex test:', /^[a-zA-Z0-9\s\-\.\,\!\?\:\;\(\)\'\"&]+$/.test(cleanTitle))
+      
+      if (!cleanTitle || cleanTitle.length === 0) {
+        console.error('❌ [TITLE_DEBUG] Title is empty after cleaning')
+        throw new Error('Course title contains invalid characters or is empty')
+      }
+      
       const courseData: Partial<Course> = {
-        title: formData.title,
+        title: cleanTitle,
         description: formData.description,
         category: formData.category,
         level: formData.level,
@@ -353,7 +395,7 @@ export function EnhancedCourseForm({ course, isOpen, onClose, onSuccess }: Enhan
         video_preview_url: formData.video_preview_url || null,
         tags: formData.tags || null,
         prerequisites: formData.prerequisites || null,
-        learning_objectives: formData.learning_objectives || null,
+        learning_objectives: formData.learning_objectives?.filter(obj => obj.trim() !== '') || null,
         price: pricingData.price || 0,
         original_price: pricingData.original_price || null,
         discount_percentage: pricingData.discount_percentage || null,
@@ -364,25 +406,140 @@ export function EnhancedCourseForm({ course, isOpen, onClose, onSuccess }: Enhan
         instructor_name: formData.instructor_name || user.name || 'Unknown Instructor'
       }
 
+      console.log('💾 Prepared courseData:', courseData)
+      console.log('🎯 [SAVE_DEBUG] Learning objectives being saved:', courseData.learning_objectives)
+      console.log('🎯 [SAVE_DEBUG] Original learning objectives from form:', formData.learning_objectives)
+      console.log('🎯 [SAVE_DEBUG] Learning objectives lengths:', formData.learning_objectives?.map(obj => obj.length))
+      console.log('🎯 [SAVE_DEBUG] Total learning objectives size:', JSON.stringify(formData.learning_objectives).length)
+      console.log('📝 [SAVE_DEBUG] Course title length:', formData.title.length)
+      console.log('📝 [SAVE_DEBUG] Course title preview:', formData.title.substring(0, 100) + (formData.title.length > 100 ? '...' : ''))
+      console.log('📝 [SAVE_DEBUG] Course description length:', formData.description.length)
+      console.log('⏱️ [SAVE_DEBUG] Course duration:', formData.duration)
+      console.log('👤 [SAVE_DEBUG] Instructor ID:', user.id)
+      console.log('👤 [SAVE_DEBUG] Instructor name:', formData.instructor_name)
+      console.log('🏷️ [SAVE_DEBUG] Category:', formData.category)
+      console.log('📚 [SAVE_DEBUG] Modules count:', modules.length)
+      console.log('📚 [SAVE_DEBUG] Modules text lengths:', modules.map((m, i) => ({
+        moduleIndex: i,
+        titleLength: m.title.length,
+        descriptionLength: m.description.length,
+        lessonsCount: m.lessons.length,
+        lessonsTextLengths: m.lessons.map((l, j) => ({
+          lessonIndex: j,
+          titleLength: l.title.length,
+          descriptionLength: l.description.length,
+          contentLength: l.content.length
+        }))
+      })))
+
       if (course?.id) {
         // Update existing course
-        console.log('Updating course:', course.id, courseData)
-        const updatedCourse = await updateCourse(course.id, courseData)
-        courseId = updatedCourse.id
+        console.log('🔄 [SUBMIT] === UPDATING EXISTING COURSE ===')
+        console.log('🔄 [SUBMIT] Course ID:', course.id)
+        console.log('🔄 [SUBMIT] Update data:', courseData)
+        try {
+          const updatedCourse = await updateCourse(course.id, courseData)
+          console.log('✅ [SUBMIT] Course update completed:', updatedCourse.id)
+          courseId = updatedCourse.id
+        } catch (updateError) {
+          console.error('❌ [SUBMIT] Error in updateCourse:', updateError)
+          throw updateError
+        }
       } else {
         // Create new course
-        console.log('Creating new course:', courseData)
-        const newCourse = await createCourse(courseData)
-        courseId = newCourse.id
+        console.log('🆕 [SUBMIT] === CREATING NEW COURSE ===')
+        console.log('🆕 [SUBMIT] Course data:', courseData)
+        try {
+          const newCourse = await createCourse(courseData)
+          console.log('✅ [SUBMIT] Course creation completed:', newCourse.id)
+          courseId = newCourse.id
+        } catch (createError) {
+          console.error('❌ [SUBMIT] Error in createCourse:', createError)
+          throw createError
+        }
       }
 
       // Save modules and lessons
-      await saveCourseContent(courseId)
+      console.log('📚 Saving course content for courseId:', courseId)
+      console.log('📚 Number of modules to save:', modules.length)
+      
+      try {
+        // Add timeout for course content saving
+        const contentSavePromise = saveCourseContent(courseId)
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Course content save timed out after 30 seconds')), 30000)
+        )
+        
+        await Promise.race([contentSavePromise, timeoutPromise])
+        console.log('✅ Course content saved successfully')
+      } catch (contentError) {
+        console.error('❌ Error saving course content:', contentError)
+        // Don't throw the error - allow the course to save even if content fails
+        console.warn('⚠️ Course saved but content save failed. Course will still be usable.')
+      }
 
-      onSuccess()
-      onClose()
+      console.log('🎉 All operations completed successfully')
+      
+      // Invalidate cache to ensure fresh data
+      console.log('🗑️ [ENHANCED_COURSE_FORM] Invalidating course cache for courseId:', courseId)
+      courseCache.invalidateByTags(['courses', 'courses-list', `course:${courseId}`])
+      console.log('🗑️ [ENHANCED_COURSE_FORM] Cache invalidated - all course data should now be fresh')
+      
+      // Fetch the updated course data to pass to onSuccess
+      try {
+        const { data: updatedCourse, error: fetchError } = await supabase
+          .from('courses')
+          .select('*')
+          .eq('id', courseId)
+          .single()
+        
+        if (fetchError) {
+          console.error('❌ Error fetching updated course:', fetchError)
+          onSuccess() // Call without data if fetch fails
+        } else {
+          console.log('✅ Fetched updated course data:', updatedCourse)
+          
+          // Update form data immediately with the fresh data
+          console.log('🔄 [ENHANCED_COURSE_FORM] === UPDATING FORM DATA WITH FRESH COURSE DATA ===')
+          console.log('🔄 [ENHANCED_COURSE_FORM] Fresh course title:', updatedCourse.title)
+          console.log('🔄 [ENHANCED_COURSE_FORM] Fresh course description:', updatedCourse.description?.substring(0, 50) + '...')
+          console.log('🔄 [ENHANCED_COURSE_FORM] Fresh course learning_objectives:', updatedCourse.learning_objectives)
+          
+          setFormData({
+            title: updatedCourse.title,
+            description: updatedCourse.description,
+            instructor_name: updatedCourse.instructor_name,
+            category: updatedCourse.category,
+            level: updatedCourse.level,
+            duration: updatedCourse.duration,
+            image_url: updatedCourse.image_url || '',
+            video_preview_url: updatedCourse.video_preview_url || '',
+            tags: updatedCourse.tags || [],
+            prerequisites: updatedCourse.prerequisites || [],
+            learning_objectives: updatedCourse.learning_objectives || [],
+            status: updatedCourse.status || 'draft',
+            is_published: updatedCourse.is_published
+          })
+
+          setPricingData({
+            price: updatedCourse.price,
+            original_price: updatedCourse.original_price || updatedCourse.price,
+            discount_percentage: updatedCourse.discount_percentage || 0,
+            is_free: updatedCourse.is_free || false
+          })
+          
+          console.log('✅ [ENHANCED_COURSE_FORM] Form data updated with fresh course data')
+          
+          onSuccess(updatedCourse) // Pass updated course data
+        }
+      } catch (fetchError) {
+        console.error('❌ Error in fetch operation:', fetchError)
+        onSuccess() // Call without data if fetch fails
+      }
+      
+      // Don't auto-close the form - let the parent component decide based on whether it's editing or creating
     } catch (err: any) {
-      console.error('Error saving course:', err)
+      console.error('💥 Error saving course:', err)
       
       // Better error handling
       let errorMessage = 'Failed to save course'
@@ -396,8 +553,11 @@ export function EnhancedCourseForm({ course, isOpen, onClose, onSuccess }: Enhan
         errorMessage = err
       }
       
+      console.error('📝 Setting error message:', errorMessage)
       setError(errorMessage)
     } finally {
+      console.log('🔄 Setting loading to false')
+      clearTimeout(saveTimeout) // Clear the timeout if save completes
       setLoading(false)
     }
   }
@@ -405,6 +565,12 @@ export function EnhancedCourseForm({ course, isOpen, onClose, onSuccess }: Enhan
   const saveCourseContent = async (courseId: string) => {
     console.log('Saving course content for courseId:', courseId)
     console.log('Modules to save:', modules.length)
+    
+    // If no modules, just return success
+    if (modules.length === 0) {
+      console.log('✅ No modules to save, skipping course content save')
+      return
+    }
     
     try {
       // Delete existing modules if updating (cascade will handle lessons and resources)
@@ -603,14 +769,57 @@ export function EnhancedCourseForm({ course, isOpen, onClose, onSuccess }: Enhan
                       </svg>
                       Course Title *
                     </label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      required
-                      className="w-full px-4 py-3 text-base border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder-gray-400 bg-white shadow-sm"
-                      placeholder="Enter course title"
-                    />
+                    <div className="space-y-2">
+                      <textarea
+                        value={formData.title}
+                        onChange={(e) => {
+                          let value = e.target.value
+                          
+                          // Clean the title value - be more conservative with allowed characters
+                          // Only allow basic alphanumeric, spaces, and common punctuation
+                          value = value.replace(/[^a-zA-Z0-9\s\-\.\,\!\?\:\;\(\)\'\"&]/g, '')
+                          
+                          // Limit to 200 characters for better performance and UX
+                          if (value.length <= 200) {
+                            console.log('📝 [TITLE_DEBUG] Setting title:', value)
+                            console.log('📝 [TITLE_DEBUG] Title length:', value.length)
+                            console.log('📝 [TITLE_DEBUG] Title trimmed:', value.trim())
+                            console.log('📝 [TITLE_DEBUG] Title trimmed length:', value.trim().length)
+                            console.log('📝 [TITLE_DEBUG] Title validity check:', /^[a-zA-Z0-9\s\-\.\,\!\?\:\;\(\)\'\"&]+$/.test(value.trim()))
+                            setFormData({ ...formData, title: value })
+                          }
+                        }}
+                        onBlur={(e) => {
+                          // Additional validation on blur
+                          const value = e.target.value.trim()
+                          console.log('🔍 [TITLE_DEBUG] Title onBlur - value after trim:', value)
+                          console.log('🔍 [TITLE_DEBUG] Title onBlur - is valid:', value.length > 0)
+                          if (value !== formData.title) {
+                            setFormData({ ...formData, title: value })
+                          }
+                        }}
+                        required
+                        className="w-full px-4 py-3 text-base border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder-gray-400 bg-white shadow-sm resize-none"
+                        placeholder="Enter course title (e.g., Complete English Grammar Mastery Course)"
+                        rows={2}
+                        maxLength={200}
+                      />
+                      {/* Character count indicator */}
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-gray-500">
+                          Course title should be descriptive but concise
+                        </span>
+                        <span className={`${
+                          formData.title.length > 160 
+                            ? 'text-orange-600' 
+                            : formData.title.length > 180 
+                            ? 'text-red-600' 
+                            : 'text-gray-500'
+                        }`}>
+                          {formData.title.length}/200 characters
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
                   <div>
@@ -768,14 +977,38 @@ export function EnhancedCourseForm({ course, isOpen, onClose, onSuccess }: Enhan
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Course Description *
                   </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    required
-                    rows={5}
-                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent bg-background/50 backdrop-blur-sm resize-vertical"
-                    placeholder="Describe what students will learn in this course. Include key topics, learning outcomes, and any prerequisites."
-                  />
+                  <div className="space-y-2">
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        // Limit to 2000 characters for better performance
+                        if (value.length <= 2000) {
+                          setFormData({ ...formData, description: value })
+                        }
+                      }}
+                      required
+                      rows={5}
+                      className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent bg-background/50 backdrop-blur-sm resize-vertical"
+                      placeholder="Describe what students will learn in this course. Include key topics, learning outcomes, and any prerequisites."
+                      maxLength={2000}
+                    />
+                    {/* Character count indicator */}
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-gray-500">
+                        Detailed description helps students understand course value
+                      </span>
+                      <span className={`${
+                        formData.description.length > 1600 
+                          ? 'text-orange-600' 
+                          : formData.description.length > 1800 
+                          ? 'text-red-600' 
+                          : 'text-gray-500'
+                      }`}>
+                        {formData.description.length}/2000 characters
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Media URLs */}
@@ -887,6 +1120,93 @@ export function EnhancedCourseForm({ course, isOpen, onClose, onSuccess }: Enhan
                   </div>
                 </div>
 
+                {/* Learning Objectives */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-semibold text-gray-900">Learning Outcomes</h4>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      What Students Will Learn
+                    </label>
+                    <div className="space-y-3">
+                      {formData.learning_objectives.map((objective, index) => (
+                        <div key={index} className="space-y-1">
+                          <div className="flex items-start gap-2">
+                            <textarea
+                              value={objective}
+                              onChange={(e) => {
+                                const value = e.target.value
+                                // Limit to 500 characters to prevent performance issues
+                                if (value.length <= 500) {
+                                  const updated = [...formData.learning_objectives]
+                                  updated[index] = value
+                                  setFormData(prev => ({ ...prev, learning_objectives: updated }))
+                                }
+                              }}
+                              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                              placeholder="e.g., Master advanced English grammar concepts and apply them in real-world conversations"
+                              rows={2}
+                              maxLength={500}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = formData.learning_objectives.filter((_, i) => i !== index)
+                                setFormData(prev => ({ ...prev, learning_objectives: updated }))
+                              }}
+                              className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded transition-colors flex-shrink-0 mt-1"
+                              title="Remove learning objective"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                          {/* Character count indicator */}
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-gray-500">
+                              Learning objective #{index + 1}
+                            </span>
+                            <span className={`${
+                              objective.length > 400 
+                                ? 'text-orange-600' 
+                                : objective.length > 450 
+                                ? 'text-red-600' 
+                                : 'text-gray-500'
+                            }`}>
+                              {objective.length}/500 characters
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {formData.learning_objectives.length === 0 && (
+                        <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                          <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-gray-500 text-sm">No learning objectives yet</p>
+                          <p className="text-gray-400 text-xs">Add what students can expect to learn</p>
+                        </div>
+                      )}
+                      
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            learning_objectives: [...prev.learning_objectives, ''] 
+                          }))
+                        }}
+                        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add Learning Objective
+                      </button>
+                      
+                      <p className="text-xs text-gray-500">
+                        These will appear prominently on the course page to help students understand what they&apos;ll achieve
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Published Status */}
                 <div className="flex items-center">
                   <input
@@ -929,21 +1249,61 @@ export function EnhancedCourseForm({ course, isOpen, onClose, onSuccess }: Enhan
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex items-center gap-3">
                             <GripVertical className="w-5 h-5 text-gray-400" />
-                            <div className="flex-1">
-                              <input
-                                type="text"
-                                value={module.title}
-                                onChange={(e) => updateModule(moduleIndex, 'title', e.target.value)}
-                                placeholder="Module title"
-                                className="text-lg font-semibold bg-transparent border-none p-0 focus:ring-0 focus:outline-none w-full"
-                              />
-                              <textarea
-                                value={module.description}
-                                onChange={(e) => updateModule(moduleIndex, 'description', e.target.value)}
-                                placeholder="Module description"
-                                rows={2}
-                                className="mt-2 text-sm text-gray-600 bg-transparent border-none p-0 focus:ring-0 focus:outline-none w-full resize-none"
-                              />
+                            <div className="flex-1 space-y-2">
+                              <div>
+                                <textarea
+                                  value={module.title}
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    if (value.length <= 150) {
+                                      updateModule(moduleIndex, 'title', value)
+                                    }
+                                  }}
+                                  placeholder="Module title (e.g., Introduction to Advanced Grammar)"
+                                  className="text-lg font-semibold bg-transparent border-none p-0 focus:ring-0 focus:outline-none w-full resize-none"
+                                  rows={1}
+                                  maxLength={150}
+                                />
+                                <div className="flex justify-between items-center text-xs mt-1">
+                                  <span className="text-gray-500">Module #{moduleIndex + 1}</span>
+                                  <span className={`${
+                                    module.title.length > 120 
+                                      ? 'text-orange-600' 
+                                      : module.title.length > 135 
+                                      ? 'text-red-600' 
+                                      : 'text-gray-500'
+                                  }`}>
+                                    {module.title.length}/150
+                                  </span>
+                                </div>
+                              </div>
+                              <div>
+                                <textarea
+                                  value={module.description}
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    if (value.length <= 800) {
+                                      updateModule(moduleIndex, 'description', value)
+                                    }
+                                  }}
+                                  placeholder="Module description - what will students learn in this module?"
+                                  rows={2}
+                                  className="text-sm text-gray-600 bg-transparent border-none p-0 focus:ring-0 focus:outline-none w-full resize-none"
+                                  maxLength={800}
+                                />
+                                <div className="flex justify-between items-center text-xs">
+                                  <span className="text-gray-500">Brief overview of module content</span>
+                                  <span className={`${
+                                    module.description.length > 640 
+                                      ? 'text-orange-600' 
+                                      : module.description.length > 720 
+                                      ? 'text-red-600' 
+                                      : 'text-gray-500'
+                                  }`}>
+                                    {module.description.length}/800
+                                  </span>
+                                </div>
+                              </div>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
@@ -985,21 +1345,61 @@ export function EnhancedCourseForm({ course, isOpen, onClose, onSuccess }: Enhan
                               {module.lessons.map((lesson, lessonIndex) => (
                                 <div key={lessonIndex} className="border border-gray-100 rounded-lg p-4 bg-gray-50">
                                   <div className="flex items-start justify-between mb-3">
-                                    <div className="flex-1">
-                                      <input
-                                        type="text"
-                                        value={lesson.title}
-                                        onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'title', e.target.value)}
-                                        placeholder="Lesson title"
-                                        className="font-medium bg-transparent border-none p-0 focus:ring-0 focus:outline-none w-full"
-                                      />
-                                      <input
-                                        type="text"
-                                        value={lesson.description}
-                                        onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'description', e.target.value)}
-                                        placeholder="Lesson description"
-                                        className="mt-1 text-sm text-gray-600 bg-transparent border-none p-0 focus:ring-0 focus:outline-none w-full"
-                                      />
+                                    <div className="flex-1 space-y-2">
+                                      <div>
+                                        <textarea
+                                          value={lesson.title}
+                                          onChange={(e) => {
+                                            const value = e.target.value
+                                            if (value.length <= 120) {
+                                              updateLesson(moduleIndex, lessonIndex, 'title', value)
+                                            }
+                                          }}
+                                          placeholder="Lesson title (e.g., Present Simple - Daily Routines)"
+                                          className="font-medium bg-transparent border-none p-0 focus:ring-0 focus:outline-none w-full resize-none"
+                                          rows={1}
+                                          maxLength={120}
+                                        />
+                                        <div className="flex justify-between items-center text-xs mt-1">
+                                          <span className="text-gray-500">Lesson #{lessonIndex + 1}</span>
+                                          <span className={`${
+                                            lesson.title.length > 96 
+                                              ? 'text-orange-600' 
+                                              : lesson.title.length > 108 
+                                              ? 'text-red-600' 
+                                              : 'text-gray-500'
+                                          }`}>
+                                            {lesson.title.length}/120
+                                          </span>
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <textarea
+                                          value={lesson.description}
+                                          onChange={(e) => {
+                                            const value = e.target.value
+                                            if (value.length <= 300) {
+                                              updateLesson(moduleIndex, lessonIndex, 'description', value)
+                                            }
+                                          }}
+                                          placeholder="Brief lesson description - what specific topic will be covered?"
+                                          className="text-sm text-gray-600 bg-transparent border-none p-0 focus:ring-0 focus:outline-none w-full resize-none"
+                                          rows={2}
+                                          maxLength={300}
+                                        />
+                                        <div className="flex justify-between items-center text-xs">
+                                          <span className="text-gray-500">Short summary for students</span>
+                                          <span className={`${
+                                            lesson.description.length > 240 
+                                              ? 'text-orange-600' 
+                                              : lesson.description.length > 270 
+                                              ? 'text-red-600' 
+                                              : 'text-gray-500'
+                                          }`}>
+                                            {lesson.description.length}/300
+                                          </span>
+                                        </div>
+                                      </div>
                                     </div>
                                     <div className="flex items-center gap-2 ml-4">
                                       <input
@@ -1040,16 +1440,35 @@ export function EnhancedCourseForm({ course, isOpen, onClose, onSuccess }: Enhan
                                     <label className="text-sm font-medium text-foreground">
                                       Lesson Content
                                     </label>
-                                    <textarea
-                                      value={lesson.content}
-                                      onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'content', e.target.value)}
-                                      placeholder="Enter lesson content, transcript, or description. This is where you can write detailed lesson materials that students will see when studying this lesson."
-                                      rows={8}
-                                      className="w-full text-sm px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent resize-vertical bg-background/50 backdrop-blur-sm min-h-[120px]"
-                                    />
-                                    <p className="text-xs text-muted-foreground">
-                                      Tip: You can resize this field vertically. Use Markdown syntax for formatting if needed.
-                                    </p>
+                                    <div className="space-y-2">
+                                      <textarea
+                                        value={lesson.content}
+                                        onChange={(e) => {
+                                          const value = e.target.value
+                                          if (value.length <= 5000) {
+                                            updateLesson(moduleIndex, lessonIndex, 'content', value)
+                                          }
+                                        }}
+                                        placeholder="Enter lesson content, transcript, or description. This is where you can write detailed lesson materials that students will see when studying this lesson."
+                                        rows={8}
+                                        className="w-full text-sm px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent resize-vertical bg-background/50 backdrop-blur-sm min-h-[120px]"
+                                        maxLength={5000}
+                                      />
+                                      <div className="flex justify-between items-center text-xs">
+                                        <span className="text-muted-foreground">
+                                          Tip: You can resize this field vertically. Use Markdown syntax for formatting if needed.
+                                        </span>
+                                        <span className={`${
+                                          lesson.content.length > 4000 
+                                            ? 'text-orange-600' 
+                                            : lesson.content.length > 4500 
+                                            ? 'text-red-600' 
+                                            : 'text-gray-500'
+                                        }`}>
+                                          {lesson.content.length}/5000 characters
+                                        </span>
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
                               ))}

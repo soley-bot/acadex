@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const path = require('path')
+
 const nextConfig = {
   // App Router is now stable in Next.js 15, no experimental flag needed
   eslint: {
@@ -8,6 +10,25 @@ const nextConfig = {
   typescript: {
     // Enable TypeScript checking during builds
     ignoreBuildErrors: false,
+  },
+  // Webpack configuration for better cache handling
+  webpack: (config, { dev, isServer }) => {
+    if (dev) {
+      // Improve cache reliability in development
+      config.cache = {
+        type: 'filesystem',
+        buildDependencies: {
+          config: [__filename],
+        },
+        cacheDirectory: path.resolve(process.cwd(), '.next/cache/webpack'),
+      }
+    }
+    return config
+  },
+  // Experimental features for better performance
+  experimental: {
+    // Improve Fast Refresh reliability
+    optimizePackageImports: ['@/components', '@/lib'],
   },
   images: {
     remotePatterns: [

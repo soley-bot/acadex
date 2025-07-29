@@ -4,42 +4,118 @@ import { validateCourse, validateQuiz, prepareCourseForDatabase, COURSE_FIELDS, 
 
 // Course operations
 export async function createCourse(courseData: Partial<Course>): Promise<Course> {
+  console.log('📊 [DB_CREATE] Starting course creation with data:', courseData)
+  console.log('📊 [DB_CREATE] Title value:', JSON.stringify(courseData.title))
+  console.log('📊 [DB_CREATE] Title type:', typeof courseData.title)
+  
   const errors = validateCourse(courseData)
+  console.log('📊 [DB_CREATE] Validation errors:', errors)
+  
   if (errors.length > 0) {
+    console.error('❌ [DB_CREATE] Validation failed:', errors)
     throw new Error(`Validation errors: ${errors.join(', ')}`)
   }
 
   const preparedData = prepareCourseForDatabase(courseData)
+  console.log('📊 [DB_CREATE] Prepared data:', preparedData)
+  console.log('📊 [DB_CREATE] Prepared title:', JSON.stringify(preparedData.title))
   
-  const { data, error } = await supabase
+  // Add timeout wrapper to prevent hanging
+  console.log('📊 [DB_CREATE] Starting database operation with 15 second timeout...')
+  const createPromise = supabase
     .from('courses')
     .insert(preparedData)
     .select(COURSE_FIELDS.join(','))
     .single()
 
-  if (error) throw error
-  if (!data) throw new Error('No data returned from course creation')
-  return data as unknown as Course
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => {
+      console.error('⏰ [DB_CREATE] Database operation timed out after 15 seconds')
+      reject(new Error('Database operation timed out - please try again'))
+    }, 15000)
+  })
+
+  try {
+    const { data, error } = await Promise.race([createPromise, timeoutPromise]) as any
+
+    console.log('📊 [DB_CREATE] Database response - error:', error)
+    console.log('📊 [DB_CREATE] Database response - data:', data)
+
+    if (error) {
+      console.error('❌ [DB_CREATE] Database error:', error)
+      throw error
+    }
+    if (!data) {
+      console.error('❌ [DB_CREATE] No data returned')
+      throw new Error('No data returned from course creation')
+    }
+    
+    const course = data as unknown as Course
+    console.log('✅ [DB_CREATE] Course created successfully:', course.id)
+    return course
+  } catch (error) {
+    console.error('❌ [DB_CREATE] Create operation failed:', error)
+    throw error
+  }
 }
 
 export async function updateCourse(id: string, updates: Partial<Course>): Promise<Course> {
-  const errors = validateCourse(updates)
-  if (errors.length > 0) {
-    throw new Error(`Validation errors: ${errors.join(', ')}`)
-  }
-
-  const preparedData = prepareCourseForDatabase(updates)
+  console.log('📊 [DB_UPDATE] === STARTING SIMPLIFIED UPDATE ===')
+  console.log('📊 [DB_UPDATE] Course ID:', id)  
+  console.log('📊 [DB_UPDATE] Updates:', updates)
   
-  const { data, error } = await supabase
-    .from('courses')
-    .update(preparedData)
-    .eq('id', id)
-    .select(COURSE_FIELDS.join(','))
-    .single()
+  try {
+    // Step 1: Basic validation
+    const errors = validateCourse(updates)
+    if (errors.length > 0) {
+      throw new Error(`Validation errors: ${errors.join(', ')}`)
+    }
 
-  if (error) throw error
-  if (!data) throw new Error('No data returned from course update')
-  return data as unknown as Course
+    // Step 2: Prepare data for database
+    const preparedData = prepareCourseForDatabase(updates)
+    console.log('📊 [DB_UPDATE] Prepared data for DB:', preparedData)
+
+    // Step 3: Simple update (no select, no timeout complexity)
+    console.log('📊 [DB_UPDATE] Executing simple update...')
+    const updateResult = await supabase
+      .from('courses')
+      .update(preparedData)
+      .eq('id', id)
+
+    console.log('📊 [DB_UPDATE] Update result:', updateResult)
+
+    if (updateResult.error) {
+      console.error('❌ [DB_UPDATE] Update failed:', updateResult.error)
+      throw updateResult.error
+    }
+
+    // Step 4: Fetch updated course
+    console.log('📊 [DB_UPDATE] Fetching updated course...')
+    const fetchResult = await supabase
+      .from('courses')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    console.log('📊 [DB_UPDATE] Fetch result:', fetchResult)
+
+    if (fetchResult.error) {
+      console.error('❌ [DB_UPDATE] Fetch failed:', fetchResult.error)
+      throw fetchResult.error
+    }
+
+    if (!fetchResult.data) {
+      throw new Error('Course not found after update')
+    }
+
+    const updatedCourse = fetchResult.data as unknown as Course
+    console.log('✅ [DB_UPDATE] SUCCESS! Course updated:', updatedCourse.id)
+    return updatedCourse
+
+  } catch (error) {
+    console.error('❌ [DB_UPDATE] FAILED:', error)
+    throw error
+  }
 }
 
 export async function getCourses(filters?: {

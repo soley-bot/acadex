@@ -6,6 +6,7 @@ import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ConditionalLayout } from '@/components/ConditionalLayout'
 import DevBanner from '@/components/DevBanner'
+import CacheMonitor from '@/components/CacheMonitor'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -90,6 +91,7 @@ html {
           <ConditionalLayout>
             {children}
           </ConditionalLayout>
+          <CacheMonitor />
         </AuthProvider>
       </body>
     </html>

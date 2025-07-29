@@ -23,55 +23,119 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null)
   const [loading, setLoading] = useState(true)
+  const [initializing, setInitializing] = useState(true)
 
   useEffect(() => {
-    // Get initial session
-    getInitialSession()
+    let mounted = true
+
+    // Get initial session with timeout
+    const initializeAuth = async () => {
+      try {
+        // Set a timeout for initial session check
+        const sessionPromise = supabase.auth.getSession()
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Session timeout')), 5000)
+        )
+
+        const { data: { session } } = await Promise.race([
+          sessionPromise,
+          timeoutPromise
+        ]) as any
+
+        if (!mounted) return
+
+        if (session?.user) {
+          setSupabaseUser(session.user)
+          
+          // Try to get user profile with timeout
+          try {
+            const userPromise = userAPI.getCurrentUser()
+            const userTimeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('User fetch timeout')), 3000)
+            )
+            
+            const userResult = await Promise.race([
+              userPromise,
+              userTimeoutPromise
+            ]) as any
+
+            if (userResult?.data && mounted) {
+              setUser(userResult.data)
+            }
+          } catch (userError) {
+            console.warn('Failed to fetch user profile, using basic session data')
+            // Fallback to basic user data from session
+            if (mounted) {
+              setUser({
+                id: session.user.id,
+                email: session.user.email!,
+                name: session.user.user_metadata?.name || session.user.email!.split('@')[0],
+                role: session.user.email === 'admin01@acadex.com' ? 'admin' : 'student',
+                created_at: session.user.created_at,
+                updated_at: session.user.updated_at || session.user.created_at
+              })
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('Session initialization failed:', error)
+      } finally {
+        if (mounted) {
+          setLoading(false)
+          setInitializing(false)
+        }
+      }
+    }
+
+    initializeAuth()
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return
+
         if (session?.user) {
           setSupabaseUser(session.user)
-          // Get or create user profile
-          const userResult = await userAPI.getCurrentUser()
-          if (userResult?.data) {
-            setUser(userResult.data)
-          } else {
-            // Create profile if it doesn't exist
-            const { data: newProfile } = await userAPI.upsertProfile({
-              id: session.user.id,
-              email: session.user.email!,
-              name: session.user.user_metadata?.name || session.user.email!.split('@')[0],
-              // DEV MODE: Make admin01@acadex.com automatically admin
-              role: session.user.email === 'admin01@acadex.com' ? 'admin' : 'student'
-            })
-            setUser(newProfile)
+          
+          // Only fetch profile if not initializing to avoid double calls
+          if (!initializing) {
+            try {
+              const userResult = await userAPI.getCurrentUser()
+              if (userResult?.data && mounted) {
+                setUser(userResult.data)
+              }
+            } catch (error) {
+              // Fallback to session data if profile fetch fails
+              if (mounted) {
+                setUser({
+                  id: session.user.id,
+                  email: session.user.email!,
+                  name: session.user.user_metadata?.name || session.user.email!.split('@')[0],
+                  role: session.user.email === 'admin01@acadex.com' ? 'admin' : 'student',
+                  created_at: session.user.created_at,
+                  updated_at: session.user.updated_at || session.user.created_at
+                })
+              }
+            }
           }
         } else {
           setUser(null)
           setSupabaseUser(null)
         }
-        setLoading(false)
+        
+        if (mounted) {
+          setLoading(false)
+        }
       }
     )
 
     return () => {
+      mounted = false
       subscription.unsubscribe()
     }
-  }, [])
+  }, [initializing])
 
-  const getInitialSession = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (session?.user) {
-      setSupabaseUser(session.user)
-      const userResult = await userAPI.getCurrentUser()
-      if (userResult?.data) {
-        setUser(userResult.data)
-      }
-    }
-    setLoading(false)
-  }
+  // Remove the separate getInitialSession function as it's now inline
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -124,7 +188,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {loading ? (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your session...</p>
+          </div>
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   )
 }

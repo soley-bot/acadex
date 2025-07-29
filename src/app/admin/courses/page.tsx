@@ -2,15 +2,16 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { supabase, Course } from '@/lib/supabase'
-import { getCourses } from '@/lib/database-operations'
-import { CourseForm } from '@/components/admin/CourseForm'
-import { EnhancedCourseForm } from '@/components/admin/EnhancedCourseForm'
+import { Course } from '@/lib/supabase'
+import { APICourseForm } from '@/components/admin/APICourseForm'
+import { EnhancedAPICourseForm } from '@/components/admin/EnhancedAPICourseForm'
 import { DeleteCourseModal } from '@/components/admin/DeleteCourseModal'
 import { CourseViewModal } from '@/components/admin/CourseViewModal'
 import SvgIcon from '@/components/ui/SvgIcon'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function CoursesPage() {
+  const { user } = useAuth()
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -25,27 +26,35 @@ export default function CoursesPage() {
   const [showViewModal, setShowViewModal] = useState(false)
   const [viewingCourse, setViewingCourse] = useState<Course | null>(null)
 
-  const loadCourses = useCallback(async () => {
+  // Fetch courses using API route
+  const fetchCourses = useCallback(async () => {
     try {
       setLoading(true)
-      const data = await getCourses()
-      setCourses(data || [])
-    } catch (err) {
-      console.error('Error fetching courses:', err)
-      setError('Failed to load courses. Please try again.')
+      setError(null)
+      
+      const response = await fetch('/api/admin/courses')
+      const result = await response.json()
+      
+      if (result.success) {
+        setCourses(result.data || [])
+      } else {
+        setError(result.error || 'Failed to fetch courses')
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch courses')
     } finally {
       setLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    loadCourses()
-  }, [loadCourses])
+    fetchCourses()
+  }, [fetchCourses])
 
   // Filter courses based on search and category
   const filteredCourses = courses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         course.instructor_name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course.instructor_name?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory
     return matchesSearch && matchesCategory
   })
@@ -55,7 +64,7 @@ export default function CoursesPage() {
     total: courses.length,
     published: courses.filter(c => c.is_published).length,
     draft: courses.filter(c => !c.is_published).length,
-    totalStudents: courses.reduce((sum, c) => sum + c.student_count, 0)
+    totalStudents: courses.reduce((sum, c) => sum + (c.student_count || 0), 0)
   }
 
   // Get unique categories
@@ -88,25 +97,40 @@ export default function CoursesPage() {
   }
 
   const handleFormSuccess = () => {
-    loadCourses()
-    setShowCourseForm(false)
-    setEditingCourse(null)
+    fetchCourses() // Refresh courses after successful form submission
+    // Don't auto-close the form - let users choose when to close
+    // setShowCourseForm(false)
+    // setEditingCourse(null)
   }
 
   const handleDeleteSuccess = () => {
-    loadCourses()
+    fetchCourses() // Refresh courses after successful deletion
     setShowDeleteModal(false)
     setDeletingCourse(null)
   }
 
   const handleTogglePublish = async (course: Course) => {
     try {
-      const { error } = await supabase
-        .from('courses')
-        .update({ is_published: !course.is_published })
-        .eq('id', course.id)
+      const response = await fetch('/api/admin/courses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          courseData: {
+            id: course.id,
+            is_published: !course.is_published
+          },
+          action: 'update',
+          userId: user?.id
+        })
+      })
 
-      if (error) throw error
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update course')
+      }
 
       // Update local state
       setCourses(prevCourses => 
@@ -116,9 +140,9 @@ export default function CoursesPage() {
             : c
         )
       )
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error toggling publish status:', err)
-      setError('Failed to update course status. Please try again.')
+      setError(err.message || 'Failed to update course status. Please try again.')
     }
   }
 
@@ -128,6 +152,21 @@ export default function CoursesPage() {
       month: 'short',
       day: 'numeric'
     })
+  }
+
+  // Check if user is admin (after all hooks)
+  if (!user || user.role !== 'admin') {
+    return (
+      <div className="p-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
+          <p className="text-gray-600">Only administrators can access course management.</p>
+          <p className="text-sm text-gray-500 mt-2">
+            Current role: {user?.role || 'Not logged in'}
+          </p>
+        </div>
+      </div>
+    )
   }
 
   if (loading) {
@@ -149,7 +188,7 @@ export default function CoursesPage() {
         <div className="text-center">
           <p className="text-red-600 mb-2">{error}</p>
           <button 
-            onClick={loadCourses}
+            onClick={() => fetchCourses()}
             className="mt-2 text-red-600 hover:text-red-700 underline"
           >
             Try again
@@ -172,7 +211,7 @@ export default function CoursesPage() {
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
           >
             <SvgIcon icon="plus" size={16} variant="white" />
-            Add Course
+            Add Enhanced Course
           </button>
         </div>
       </div>
@@ -378,7 +417,7 @@ export default function CoursesPage() {
               {!searchTerm && selectedCategory === 'all' && (
                 <button 
                   onClick={handleCreateCourse}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2 mx-auto"
                 >
                   <SvgIcon icon="plus" size={16} variant="white" />
                   Create Course
@@ -390,22 +429,13 @@ export default function CoursesPage() {
       )}
 
       {/* Modals */}
-      <EnhancedCourseForm
-        course={editingCourse ? {
-          ...editingCourse,
-          duration: editingCourse.duration || '',
-          image_url: editingCourse.image_url || undefined,
-          video_preview_url: editingCourse.video_preview_url || undefined,
-          original_price: editingCourse.original_price || 0,
-          discount_percentage: editingCourse.discount_percentage || 0,
-          tags: editingCourse.tags || [],
-          prerequisites: editingCourse.prerequisites || [],
-          learning_objectives: editingCourse.learning_objectives || [],
-          status: editingCourse.status || 'draft',
-          is_free: editingCourse.is_free || false
-        } : undefined}
+      <EnhancedAPICourseForm
+        course={editingCourse || undefined}
         isOpen={showCourseForm}
-        onClose={() => setShowCourseForm(false)}
+        onClose={() => {
+          setShowCourseForm(false)
+          setEditingCourse(null)
+        }}
         onSuccess={handleFormSuccess}
       />
 

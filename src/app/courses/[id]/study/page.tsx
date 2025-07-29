@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ChevronDown, ChevronRight, PlayCircle, FileText, Download, Clock, CheckCircle, Lock } from 'lucide-react'
+import { ChevronDown, ChevronRight, PlayCircle, FileText, Download, Clock, CheckCircle, Lock, Circle } from 'lucide-react'
 import { supabase, Course, CourseModule, CourseLesson, CourseResource, LessonProgress } from '@/lib/supabase'
 import { getCourseWithModulesAndLessons, updateEnrollmentProgress } from '@/lib/database-operations'
 import { useAuth } from '@/contexts/AuthContext'
@@ -119,23 +119,64 @@ export default function CourseStudyPage() {
     setCurrentLesson(lesson)
   }
 
-  const markLessonComplete = async (lessonId: string) => {
+  const toggleLessonCompletion = async (lessonId: string) => {
     if (!user || !isEnrolled) return
 
-    try {
-      await supabase
-        .from('lesson_progress')
-        .upsert({
-          user_id: user.id,
-          lesson_id: lessonId,
-          is_completed: true,
-          completed_at: new Date().toISOString()
-        })
+    // Get current completion status
+    const currentProgress = currentLesson?.progress
+    const isCurrentlyCompleted = currentProgress?.is_completed || false
+    const newCompletionStatus = !isCurrentlyCompleted
 
-      // Reload progress
-      loadCourseContent()
+    try {
+      // Step 1: Check if record exists
+      const { data: existingRecord, error: checkError } = await supabase
+        .from('lesson_progress')
+        .select('id, is_completed')
+        .eq('user_id', user.id)
+        .eq('lesson_id', lessonId)
+        .maybeSingle()
+
+      if (checkError) {
+        console.error('Error checking existing record:', checkError)
+        throw checkError
+      }
+
+      let result
+      if (existingRecord) {
+        // Step 2a: Update existing record
+        console.log('Updating existing lesson progress record')
+        result = await supabase
+          .from('lesson_progress')
+          .update({
+            is_completed: newCompletionStatus,
+            completed_at: newCompletionStatus ? new Date().toISOString() : null
+          })
+          .eq('id', existingRecord.id)
+      } else {
+        // Step 2b: Create new record
+        console.log('Creating new lesson progress record')
+        result = await supabase
+          .from('lesson_progress')
+          .insert({
+            user_id: user.id,
+            lesson_id: lessonId,
+            is_completed: newCompletionStatus,
+            completed_at: newCompletionStatus ? new Date().toISOString() : null
+          })
+      }
+
+      if (result.error) {
+        console.error('Lesson progress operation failed:', result.error)
+        throw result.error
+      }
+
+      console.log('Lesson progress updated successfully')
+      // Reload progress to reflect changes
+      await loadCourseContent()
+      
     } catch (err) {
-      console.error('Error marking lesson complete:', err)
+      console.error('Error toggling lesson completion:', err)
+      alert('Failed to update lesson progress. Please try again.')
     }
   }
 
@@ -297,13 +338,26 @@ export default function CourseStudyPage() {
                       </h1>
                       <p className="text-sm text-gray-600">{currentLesson.description}</p>
                     </div>
-                    {isEnrolled && !currentLesson.progress?.is_completed && (
+                    {isEnrolled && (
                       <button
-                        onClick={() => markLessonComplete(currentLesson.id)}
-                        className="btn-primary flex items-center gap-2"
+                        onClick={() => toggleLessonCompletion(currentLesson.id)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                          currentLesson.progress?.is_completed
+                            ? 'bg-green-100 text-green-700 hover:bg-green-200 border border-green-200'
+                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                        }`}
                       >
-                        <CheckCircle className="w-4 h-4" />
-                        Mark Complete
+                        {currentLesson.progress?.is_completed ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            Completed ✓
+                          </>
+                        ) : (
+                          <>
+                            <Circle className="w-4 h-4" />
+                            Mark Complete
+                          </>
+                        )}
                       </button>
                     )}
                   </div>

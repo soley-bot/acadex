@@ -2,40 +2,25 @@
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { X, Save, Loader2, Upload, AlertCircle } from 'lucide-react'
-import { supabase, Course } from '@/lib/supabase'
+import { X, Save, Loader2, Upload, AlertCircle, Plus, Trash2, BookOpen } from 'lucide-react'
+import { Course } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
+import { useCourseMutations } from '@/lib/cachedOperations'
+import { categories, levels } from '@/lib/courseConstants'
 
 interface CourseFormProps {
   course?: Course
   isOpen: boolean
   onClose: () => void
-  onSuccess: () => void
+  onSuccess: (updatedCourse?: Course) => void
 }
-
-const categories = [
-  'Programming',
-  'Data Science',
-  'Design',
-  'Business',
-  'Marketing',
-  'Language',
-  'Music',
-  'Photography',
-  'Health & Fitness',
-  'Other'
-]
-
-const levels = [
-  { value: 'beginner', label: 'Beginner' },
-  { value: 'intermediate', label: 'Intermediate' },
-  { value: 'advanced', label: 'Advanced' }
-]
 
 export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormProps) {
   const { user } = useAuth()
-  const [loading, setLoading] = useState(false)
+  const { createCourse, updateCourse, isCreating, isUpdating, error: mutationError } = useCourseMutations()
+  
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
   
   const [formData, setFormData] = useState({
     title: '',
@@ -46,11 +31,45 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
     level: 'beginner' as 'beginner' | 'intermediate' | 'advanced',
     duration: '',
     image_url: '',
-    is_published: false
+    is_published: false,
+    learning_objectives: [] as string[]
   })
 
+  const isLoading = isCreating || isUpdating
+
+  // Helper function to handle form field changes and clear success message
+  const handleFieldChange = (field: string, value: any) => {
+    if (successMessage) {
+      setSuccessMessage(null) // Clear success message when user makes changes
+    }
+    setFormData({ ...formData, [field]: value })
+  }
+
+  // Track loading state changes
   useEffect(() => {
+    console.log('🔧 [COURSE_FORM] Loading state changed:')
+    console.log('🔧 [COURSE_FORM] isCreating:', isCreating)
+    console.log('🔧 [COURSE_FORM] isUpdating:', isUpdating)
+    console.log('🔧 [COURSE_FORM] isLoading:', isLoading)
+  }, [isCreating, isUpdating, isLoading])
+
+  // Update error state when mutation error changes
+  useEffect(() => {
+    console.log('🔧 [COURSE_FORM] Mutation error changed:', mutationError)
+    if (mutationError) {
+      console.log('❌ [COURSE_FORM] Setting error from mutation:', mutationError.message)
+      setError(mutationError.message)
+    }
+  }, [mutationError])
+
+  useEffect(() => {
+    console.log('🔄 [COURSE_FORM] Form opened/course changed')
+    console.log('🔄 [COURSE_FORM] Course prop:', course?.id, course?.title)
+    console.log('🔄 [COURSE_FORM] User:', user?.id, user?.email)
+    console.log('🔄 [COURSE_FORM] Form open:', isOpen)
+    
     if (course) {
+      console.log('📝 [COURSE_FORM] Setting form data from course:', course.title)
       setFormData({
         title: course.title,
         description: course.description,
@@ -60,9 +79,11 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
         level: course.level,
         duration: course.duration,
         image_url: course.image_url || '',
-        is_published: course.is_published
+        is_published: course.is_published,
+        learning_objectives: course.learning_objectives || []
       })
     } else {
+      console.log('📝 [COURSE_FORM] Resetting form for new course')
       // Reset form for new course
       setFormData({
         title: '',
@@ -73,62 +94,112 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
         level: 'beginner',
         duration: '',
         image_url: '',
-        is_published: false
+        is_published: false,
+        learning_objectives: []
       })
     }
     setError(null)
+    setSuccessMessage(null) // Clear success message when form opens/changes
   }, [course, user, isOpen])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     setError(null)
+    setSuccessMessage(null) // Clear previous success message
+
+    console.log('🔄 [COURSE_FORM] === STARTING COURSE SUBMISSION ===')
+    console.log('🔄 [COURSE_FORM] Form submitted at:', new Date().toISOString())
+    console.log('📝 [COURSE_FORM] Form Data:', JSON.stringify(formData, null, 2))
+    console.log('👤 [COURSE_FORM] User:', user?.id, user?.email)
+    console.log('📚 [COURSE_FORM] Course being edited:', course?.id, course?.title)
+    console.log('🔧 [COURSE_FORM] isCreating:', isCreating)
+    console.log('🔧 [COURSE_FORM] isUpdating:', isUpdating)
+    console.log('🔧 [COURSE_FORM] isLoading:', isLoading)
+
+    const courseData = {
+      title: formData.title,
+      description: formData.description,
+      instructor_name: formData.instructor_name,
+      price: formData.price,
+      category: formData.category,
+      level: formData.level,
+      duration: formData.duration,
+      image_url: formData.image_url || null,
+      is_published: formData.is_published,
+      learning_objectives: formData.learning_objectives.filter(obj => obj.trim() !== ''),
+      instructor_id: user?.id,
+    }
+
+    console.log('💾 [COURSE_FORM] Prepared courseData:', JSON.stringify(courseData, null, 2))
 
     try {
-      const courseData = {
-        title: formData.title,
-        description: formData.description,
-        instructor_name: formData.instructor_name,
-        price: formData.price,
-        category: formData.category,
-        level: formData.level,
-        duration: formData.duration,
-        image_url: formData.image_url || null,
-        is_published: formData.is_published,
-        instructor_id: user?.id,
-        updated_at: new Date().toISOString()
-      }
-
+      console.log('🚀 [COURSE_FORM] About to call mutation...')
+      
+      let result: Course
+      
       if (course?.id) {
-        // Update existing course
-        const { error } = await supabase
-          .from('courses')
-          .update(courseData)
-          .eq('id', course.id)
-
-        if (error) throw error
+        console.log('✏️ [COURSE_FORM] UPDATING existing course:', course.id)
+        console.log('✏️ [COURSE_FORM] Calling updateCourse with:', { id: course.id, updates: courseData })
+        
+        result = await updateCourse({ id: course.id, updates: courseData })
+        
+        console.log('✅ [COURSE_FORM] updateCourse returned:', result)
+        console.log('✅ [COURSE_FORM] Course updated successfully')
       } else {
-        // Create new course
-        const { error } = await supabase
-          .from('courses')
-          .insert([{
-            ...courseData,
-            created_at: new Date().toISOString()
-          }])
-
-        if (error) throw error
+        console.log('🆕 [COURSE_FORM] CREATING new course')
+        console.log('🆕 [COURSE_FORM] Calling createCourse with:', courseData)
+        
+        result = await createCourse(courseData)
+        
+        console.log('✅ [COURSE_FORM] createCourse returned:', result)
+        console.log('✅ [COURSE_FORM] Course created successfully')
       }
 
-      onSuccess()
-      onClose()
+      console.log('🎉 [COURSE_FORM] Operation completed successfully, calling callbacks...')
+      
+      if (course?.id) {
+        // For updates, show success message and keep form open
+        console.log('🎉 [COURSE_FORM] This is an UPDATE - keeping form open')
+        console.log('🎉 [COURSE_FORM] Updated course data:', JSON.stringify(result, null, 2))
+        
+        // Set success message first
+        setSuccessMessage('Course updated successfully!')
+        
+        // Then call success callback with updated data - DO NOT CLOSE FORM
+        console.log('🎉 [COURSE_FORM] Calling onSuccess with result')
+        onSuccess(result)
+        console.log('🎉 [COURSE_FORM] Form should stay OPEN for updates')
+        
+      } else {
+        // For new courses, close the form
+        console.log('🎉 [COURSE_FORM] This is a NEW COURSE - closing form')
+        onSuccess()
+        console.log('🎉 [COURSE_FORM] Calling onClose()...')
+        onClose()
+      }
+      
+      console.log('🎉 [COURSE_FORM] === SUBMISSION COMPLETE ===')
+      
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save course')
-    } finally {
-      setLoading(false)
+      console.error('💥 [COURSE_FORM] === ERROR IN SUBMISSION ===')
+      console.error('💥 [COURSE_FORM] Error occurred at:', new Date().toISOString())
+      console.error('💥 [COURSE_FORM] Error details:', err)
+      console.error('💥 [COURSE_FORM] Error message:', err instanceof Error ? err.message : 'Unknown error')
+      console.error('💥 [COURSE_FORM] Error stack:', err instanceof Error ? err.stack : 'No stack trace')
+      
+      setError(err instanceof Error ? err.message : 'An error occurred while saving the course')
+      console.log('💥 [COURSE_FORM] Error state set, form should show error now')
     }
   }
 
-  if (!isOpen) return null
+  if (!isOpen) {
+    console.log('🚫 [COURSE_FORM] Form not rendering - isOpen is false')
+    return null
+  }
+
+  console.log('📺 [COURSE_FORM] Form rendering - isOpen is true')
+  console.log('📺 [COURSE_FORM] Current course:', course?.id, course?.title)
+  console.log('📺 [COURSE_FORM] Form data title:', formData.title)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -143,7 +214,10 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
             </p>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => {
+              console.log('❌ [COURSE_FORM] X button clicked - closing form')
+              onClose()
+            }}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <X className="h-5 w-5" />
@@ -158,6 +232,15 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
             </div>
           )}
 
+          {successMessage && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center">
+              <svg className="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="text-green-700">{successMessage}</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -167,7 +250,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
                 type="text"
                 required
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => handleFieldChange('title', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter course title"
               />
@@ -181,7 +264,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
                 required
                 rows={4}
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) => handleFieldChange('description', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Describe what students will learn in this course"
               />
@@ -276,6 +359,66 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
               />
             </div>
 
+            {/* Learning Objectives */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Learning Outcomes
+              </label>
+              <div className="space-y-2">
+                {formData.learning_objectives.map((objective, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={objective}
+                      onChange={(e) => {
+                        const updated = [...formData.learning_objectives]
+                        updated[index] = e.target.value
+                        setFormData({ ...formData, learning_objectives: updated })
+                      }}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g., Master advanced programming concepts"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = formData.learning_objectives.filter((_, i) => i !== index)
+                        setFormData({ ...formData, learning_objectives: updated })
+                      }}
+                      className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded transition-colors"
+                      title="Remove learning objective"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+                
+                {formData.learning_objectives.length === 0 && (
+                  <div className="text-center py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                    <BookOpen className="w-6 h-6 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-500 text-sm">No learning objectives yet</p>
+                  </div>
+                )}
+                
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData({ 
+                      ...formData, 
+                      learning_objectives: [...formData.learning_objectives, ''] 
+                    })
+                  }}
+                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Learning Objective
+                </button>
+                
+                <p className="text-xs text-gray-500">
+                  These will appear on the course page to help students understand what they&apos;ll learn
+                </p>
+              </div>
+            </div>
+
             <div className="md:col-span-2">
               <label className="flex items-center">
                 <input
@@ -294,20 +437,28 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
           <div className="flex justify-end space-x-3 pt-6 border-t">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => {
+                console.log('❌ [COURSE_FORM] Cancel button clicked - closing form')
+                onClose()
+              }}
               className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={isLoading}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center"
+              onClick={() => {
+                console.log('🖱️ [COURSE_FORM] Submit button clicked')
+                console.log('🖱️ [COURSE_FORM] isLoading at click:', isLoading)
+                console.log('🖱️ [COURSE_FORM] Button disabled:', isLoading)
+              }}
             >
-              {loading ? (
+              {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
+                  {course ? 'Updating...' : 'Creating...'}
                 </>
               ) : (
                 <>

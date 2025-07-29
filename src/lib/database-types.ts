@@ -7,26 +7,59 @@ import { Course, CourseModule, CourseLesson, Quiz, User, Enrollment } from './su
 export function validateCourse(course: Partial<Course>): string[] {
   const errors: string[] = []
   
-  if (!course.title?.trim()) errors.push('Title is required')
-  if (!course.description?.trim()) errors.push('Description is required')
-  if (!course.instructor_id?.trim()) errors.push('Instructor ID is required')
-  if (!course.instructor_name?.trim()) errors.push('Instructor name is required')
-  if (!course.category?.trim()) errors.push('Category is required')
-  if (!course.duration?.trim()) errors.push('Duration is required')
+  console.log('🔍 [VALIDATION] Validating course data:', course)
+  console.log('🔍 [VALIDATION] Title check - raw value:', JSON.stringify(course.title))
+  console.log('🔍 [VALIDATION] Title check - type:', typeof course.title)
+  console.log('🔍 [VALIDATION] Title check - trimmed:', course.title?.trim())
+  console.log('🔍 [VALIDATION] Title check - is valid:', !!(course.title?.trim()))
+  
+  if (!course.title?.trim()) {
+    console.error('❌ [VALIDATION] Title validation failed')
+    errors.push('Title is required')
+  }
+  
+  if (!course.description?.trim()) {
+    console.error('❌ [VALIDATION] Description validation failed')
+    errors.push('Description is required')
+  }
+  
+  if (!course.instructor_id?.trim()) {
+    console.error('❌ [VALIDATION] Instructor ID validation failed')
+    errors.push('Instructor ID is required')
+  }
+  
+  if (!course.instructor_name?.trim()) {
+    console.error('❌ [VALIDATION] Instructor name validation failed')
+    errors.push('Instructor name is required')
+  }
+  
+  if (!course.category?.trim()) {
+    console.error('❌ [VALIDATION] Category validation failed')
+    errors.push('Category is required')
+  }
+  
+  if (!course.duration?.trim()) {
+    console.error('❌ [VALIDATION] Duration validation failed')
+    errors.push('Duration is required')
+  }
   
   if (course.level && !['beginner', 'intermediate', 'advanced'].includes(course.level)) {
+    console.error('❌ [VALIDATION] Level validation failed:', course.level)
     errors.push('Level must be beginner, intermediate, or advanced')
   }
   
   if (course.status && !['draft', 'review', 'published', 'archived'].includes(course.status)) {
+    console.error('❌ [VALIDATION] Status validation failed:', course.status)
     errors.push('Status must be draft, review, published, or archived')
   }
   
   if (course.price !== undefined && course.price < 0) {
+    console.error('❌ [VALIDATION] Price validation failed:', course.price)
     errors.push('Price cannot be negative')
   }
   
   if (course.rating !== undefined && course.rating !== null && (course.rating < 0 || course.rating > 5)) {
+    console.error('❌ [VALIDATION] Rating validation failed:', course.rating)
     errors.push('Rating must be between 0 and 5')
   }
   
@@ -35,6 +68,7 @@ export function validateCourse(course: Partial<Course>): string[] {
     errors.push('Discount percentage must be between 0 and 100')
   }
   
+  console.log('🔍 [VALIDATION] Validation complete - errors:', errors)
   return errors
 }
 
@@ -95,17 +129,29 @@ export function validateEnrollment(enrollment: Partial<Enrollment>): string[] {
 
 // Helper functions for data transformation
 export function prepareCourseForDatabase(course: Partial<Course>): Partial<Course> {
-  return {
-    ...course,
-    is_free: course.price === 0 || course.is_free === true,
-    status: course.status || 'draft',
-    student_count: course.student_count || 0,
-    is_published: course.is_published || false,
-    rating: course.rating || 0,
-    learning_objectives: course.learning_objectives || null,
-    tags: course.tags || null,
-    prerequisites: course.prerequisites || null,
-  }
+  // Only include fields that actually exist in the database
+  const prepared: Partial<Course> = {}
+  
+  // Core required fields
+  if (course.title) prepared.title = course.title
+  if (course.description) prepared.description = course.description
+  if (course.instructor_id) prepared.instructor_id = course.instructor_id
+  if (course.instructor_name) prepared.instructor_name = course.instructor_name
+  if (course.category) prepared.category = course.category
+  if (course.duration) prepared.duration = course.duration
+  
+  // Optional fields that exist in database
+  if (course.level) prepared.level = course.level
+  if (course.price !== undefined) prepared.price = course.price
+  if (course.image_url) prepared.image_url = course.image_url
+  if (course.rating !== undefined) prepared.rating = course.rating || 0
+  if (course.student_count !== undefined) prepared.student_count = course.student_count || 0
+  if (course.is_published !== undefined) prepared.is_published = course.is_published || false
+  
+  console.log('🔧 [PREPARE] Original course data:', course)
+  console.log('🔧 [PREPARE] Prepared database data:', prepared)
+  
+  return prepared
 }
 
 export function prepareQuizForDatabase(quiz: Partial<Quiz>): Partial<Quiz> {
@@ -118,14 +164,12 @@ export function prepareQuizForDatabase(quiz: Partial<Quiz>): Partial<Quiz> {
   }
 }
 
-// Database field mapping constants
+// Database field mapping constants - match actual database schema
 export const COURSE_FIELDS = [
   'id', 'title', 'description', 'instructor_id', 'instructor_name',
-  'category', 'level', 'price', 'duration', 'image_url', 'thumbnail_url',
-  'video_preview_url', 'tags', 'prerequisites', 'learning_objectives',
-  'status', 'published_at', 'archived_at', 'original_price', 
-  'discount_percentage', 'is_free', 'rating', 'student_count',
-  'is_published', 'created_at', 'updated_at'
+  'category', 'level', 'price', 'duration', 'image_url', 
+  'rating', 'student_count', 'is_published', 
+  'created_at', 'updated_at'
 ] as const
 
 export const QUIZ_FIELDS = [
