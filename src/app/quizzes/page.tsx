@@ -91,13 +91,13 @@ export default function QuizzesPage() {
     return (difficulty: string) => {
       switch (difficulty.toLowerCase()) {
         case 'beginner':
-          return 'text-green-700 bg-green-50 border-green-200'
+          return 'text-success bg-success/10 border-success/20'
         case 'intermediate':
-          return 'text-yellow-700 bg-yellow-50 border-yellow-200'
+          return 'text-warning bg-warning/10 border-warning/20'
         case 'advanced':
-          return 'text-red-700 bg-red-50 border-red-200'
+          return 'text-destructive bg-destructive/10 border-destructive/20'
         default:
-          return 'text-gray-700 bg-gray-50 border-gray-200'
+          return 'text-gray-600 bg-gray-100 border-gray-200'
       }
     }
   }, [])
@@ -106,18 +106,19 @@ export default function QuizzesPage() {
 
   if (isLoading && currentPage === 1) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-white">
         <section className="relative pt-24 pb-16 px-6 lg:px-8 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-secondary/5"></div>
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
+          <div className="absolute inset-0 bg-white"></div>
           
           <div className="relative max-w-4xl mx-auto text-center">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight mb-6 text-black">
               Test Your
-              <span className="block text-primary mt-2">English Skills</span>
+              <span className="block text-red-600 mt-2">Knowledge</span>
             </h1>
-            <p className="text-base md:text-lg text-muted-foreground">Loading English quizzes...</p>
+            <p className="text-base md:text-lg text-gray-600">Loading quizzes...</p>
+            <div className="mt-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            </div>
           </div>
         </section>
       </div>
@@ -125,45 +126,45 @@ export default function QuizzesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 px-6 lg:px-8 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-secondary/5"></div>
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
-        
-        <div className="relative max-w-4xl mx-auto text-center">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
-            Test Your
-            <span className="block text-primary mt-2">English Skills</span>
+      <section className="text-center py-24 px-6 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 bg-gray-100 text-black px-4 py-2 rounded-full text-sm font-medium mb-8 border border-gray-200">
+            <span className="w-2 h-2 bg-red-600 rounded-full"></span>
+            Quiz Platform
+          </div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-black mb-6 leading-tight">
+            Test Your Knowledge
+            <span className="block text-red-600 mt-2">Challenge Yourself</span>
           </h1>
-          <p className="text-base md:text-lg text-muted-foreground">
-            Challenge yourself with interactive English quizzes covering grammar, vocabulary, and more.
+          <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-light">
+            Comprehensive quizzes across multiple subjects to assess and improve your skills
           </p>
         </div>
       </section>
 
       {/* Main Content */}
-      <section className="py-20 px-6 lg:px-8 border-t">
+      <section className="py-16 px-6 lg:px-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           {/* Filters */}
           <div className="mb-12 space-y-6">
             <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
               <div>
-                <h2 className="text-xl md:text-2xl font-bold tracking-tight mb-2">English Quizzes</h2>
-                <p className="text-sm md:text-base text-muted-foreground">
+                <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3 text-black">Available Quizzes</h2>
+                <p className="text-base md:text-lg text-gray-600">
                   Showing {((currentPage - 1) * pagination.limit + 1)} - {Math.min(currentPage * pagination.limit, pagination.total)} of {pagination.total} quizzes
                 </p>
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <div className="min-w-[160px]">
-                  <label htmlFor="category" className="block text-sm font-medium mb-2">Category</label>
+                <div className="min-w-[180px]">
+                  <label htmlFor="category" className="block text-sm font-bold mb-2 text-black">Category</label>
                   <select
                     id="category"
                     value={selectedCategory}
                     onChange={(e) => handleCategoryChange(e.target.value)}
-                    className="input"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black font-medium focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600"
                   >
                     <option value="all">All Categories</option>
                     <option value="Grammar">Grammar</option>
@@ -179,13 +180,13 @@ export default function QuizzesPage() {
                   </select>
                 </div>
                 
-                <div className="min-w-[160px]">
-                  <label htmlFor="difficulty" className="block text-sm font-medium mb-2">Difficulty</label>
+                <div className="min-w-[180px]">
+                  <label htmlFor="difficulty" className="block text-sm font-bold mb-2 text-black">Difficulty</label>
                   <select
                     id="difficulty"
                     value={selectedDifficulty}
                     onChange={(e) => handleDifficultyChange(e.target.value)}
-                    className="input"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-black font-medium focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600"
                   >
                     <option value="all">All Levels</option>
                     <option value="beginner">Beginner</option>
@@ -200,12 +201,12 @@ export default function QuizzesPage() {
           {/* Error State */}
           {error && (
             <div className="text-center py-12">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
-                <div className="text-red-800 mb-2">Error</div>
-                <p className="text-red-700 mb-4">{error}</p>
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-8 max-w-md mx-auto shadow-sm">
+                <div className="text-red-600 mb-3 text-lg font-bold">Error</div>
+                <p className="text-red-700 mb-6 text-base">{error}</p>
                 <button 
                   onClick={fetchQuizzes}
-                  className="btn-default"
+                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-colors"
                 >
                   Try Again
                 </button>
@@ -216,8 +217,8 @@ export default function QuizzesPage() {
           {/* Loading State */}
           {isLoading && (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading quizzes...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+              <p className="text-gray-600 text-lg">Loading quizzes...</p>
             </div>
           )}
 
@@ -225,9 +226,9 @@ export default function QuizzesPage() {
           {!isLoading && !error && (
             <>
               {quizzes.length === 0 ? (
-                <div className="text-center py-12">
-                  <h3 className="text-xl font-semibold mb-2">No quizzes found</h3>
-                  <p className="text-muted-foreground mb-4">
+                <div className="text-center py-16">
+                  <h3 className="text-2xl font-bold mb-4 text-black">No quizzes found</h3>
+                  <p className="text-gray-600 mb-8 text-lg max-w-md mx-auto">
                     Try adjusting your filters or check back later for new quizzes.
                   </p>
                   <button 
@@ -236,7 +237,7 @@ export default function QuizzesPage() {
                       setSelectedDifficulty('all')
                       setCurrentPage(1)
                     }}
-                    className="btn-outline"
+                    className="border-2 border-black text-black hover:bg-black hover:text-white px-6 py-3 rounded-lg font-bold transition-colors"
                   >
                     Clear Filters
                   </button>
@@ -244,37 +245,47 @@ export default function QuizzesPage() {
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
                   {quizzes.map((quiz, index) => (
-                    <div key={quiz.id} className="card group hover:shadow-lg transition-all duration-200 overflow-hidden animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
-                      <div className="p-8">
+                    <div key={quiz.id} className="bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group hover:-translate-y-1" style={{ animationDelay: `${index * 100}ms` }}>
+                      {/* Header with category and difficulty */}
+                      <div className="bg-black p-6 text-white">
                         <div className="flex items-center gap-2 mb-4">
-                          <span className="px-3 py-1 bg-brand/10 text-brand text-xs font-semibold rounded-full border border-brand/20">
+                          <span className="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-full">
                             {quiz.category}
                           </span>
-                          <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getDifficultyColor(quiz.difficulty)}`}>
+                          <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                            quiz.difficulty.toLowerCase() === 'beginner' ? 'bg-green-100 text-green-800' :
+                            quiz.difficulty.toLowerCase() === 'intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
                             {quiz.difficulty}
                           </span>
                         </div>
 
-                        <h3 className="text-xl font-semibold tracking-tight mb-3">
+                        <h3 className="text-xl font-bold text-white leading-tight group-hover:text-red-300 transition-colors">
                           {quiz.title}
                         </h3>
+                      </div>
 
-                        <p className="text-muted-foreground mb-6 line-clamp-2 leading-relaxed">
+                      {/* Content */}
+                      <div className="p-6">
+                        <p className="text-gray-600 mb-6 line-clamp-2 leading-relaxed">
                           {quiz.description}
                         </p>
 
-                        <div className="flex items-center justify-between text-sm text-muted-foreground mb-6">
+                        <div className="flex items-center justify-between text-sm text-gray-500 mb-6 bg-gray-50 rounded-lg p-3">
                           <div className="flex items-center gap-2">
-                            <span>{quiz.duration_minutes} min</span>
+                            <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                            <span className="font-medium">{quiz.duration_minutes} min</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span>{quiz.total_questions} questions</span>
+                            <div className="w-2 h-2 bg-black rounded-full"></div>
+                            <span className="font-medium">{quiz.total_questions} questions</span>
                           </div>
                         </div>
 
                         <Link 
                           href={`/quizzes/${quiz.id}/take`}
-                          className="btn-default w-full"
+                          className="block w-full text-center bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-bold transition-colors group-hover:shadow-lg"
                         >
                           Start Quiz
                         </Link>

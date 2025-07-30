@@ -75,17 +75,17 @@ export default function AdminSettings() {
   ]
 
   return (
-    <div className="p-8">
+    <div className="min-h-screen">
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-            <p className="text-gray-600">Manage platform configuration and preferences</p>
+            <p className="text-gray-600 mt-1">Manage platform configuration and preferences</p>
           </div>
           <button 
             onClick={handleSave}
             disabled={saving}
-            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-bold shadow-md hover:shadow-lg"
           >
             <Save className="h-4 w-4" />
             {saving ? 'Saving...' : 'Save Changes'}
@@ -96,17 +96,17 @@ export default function AdminSettings() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Settings Navigation */}
         <div className="lg:col-span-1">
-          <Card>
+          <Card className="bg-white border-gray-200 shadow-md">
             <CardContent className="p-0">
               <nav className="space-y-1">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center px-4 py-3 text-sm font-medium text-left hover:bg-gray-50 ${
+                    className={`w-full flex items-center px-4 py-3 text-sm font-bold text-left hover:bg-gray-50 ${
                       activeTab === tab.id
-                        ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600'
-                        : 'text-gray-700'
+                        ? 'bg-red-50 text-red-700 border-r-2 border-red-600'
+                        : 'text-black'
                     }`}
                   >
                     <tab.icon className="h-4 w-4 mr-3" />

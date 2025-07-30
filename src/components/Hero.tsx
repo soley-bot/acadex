@@ -1,137 +1,132 @@
 import Link from 'next/link'
-import SvgIcon from '@/components/ui/SvgIcon'
+
+// Modern geometric elements for visual appeal
+const GeometricPattern = () => (
+  <div className="absolute inset-0 opacity-5 pointer-events-none">
+    <div className="absolute top-20 left-10 w-32 h-32 border border-black transform rotate-45" />
+    <div className="absolute top-40 right-20 w-24 h-24 bg-red-600 transform rotate-12 opacity-20" />
+    <div className="absolute bottom-32 left-1/4 w-16 h-16 border-2 border-gray-300 rounded-full" />
+    <div className="absolute bottom-20 right-1/3 w-20 h-20 bg-black transform rotate-45 opacity-10" />
+  </div>
+)
 
 export default function Hero() {
   return (
-    <section className="relative section-padding overflow-hidden">
-      {/* Modern Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-secondary/5"></div>
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl"></div>
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white">
+      <GeometricPattern />
       
-      <div className="container-custom relative">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Content */}
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-brand/10 text-brand px-3 py-1.5 rounded-full text-sm font-medium mb-6 border border-brand/20">
-              <span className="w-2 h-2 bg-brand rounded-full"></span>
-              #1 English Learning Platform
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16 md:py-24">
+        <div className="mx-auto max-w-4xl text-center">
+          <div className="inline-flex items-center gap-2 bg-gray-100 text-black px-4 py-2 rounded-full text-sm font-medium mb-8 border border-gray-200">
+            <span className="w-2 h-2 bg-red-600 rounded-full"></span>
+            #1 Learning Platform
+          </div>
+          
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 text-black">
+            Master Any Subject with
+            <span className="block text-red-600 mt-2">
+              Interactive Learning
+            </span>
+            <span className="block text-black">
+              & Expert Courses
+            </span>
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed max-w-3xl mx-auto font-light">
+            From languages and academics to professional skills and test preparation. 
+            Discover personalized learning paths designed by industry experts.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
+            <Link 
+              href="/courses" 
+              className="bg-red-600 text-white hover:bg-red-700 px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              Explore Courses
+              <span aria-hidden="true" className="text-2xl">→</span>
+            </Link>
+            <Link 
+              href="/quizzes" 
+              className="border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center gap-3 transform hover:-translate-y-1"
+            >
+              Start Practicing
+              <span aria-hidden="true" className="text-2xl">📝</span>
+            </Link>
+          </div>
+          
+          {/* Stats Section */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto mb-20">
+            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+              <div className="text-4xl md:text-5xl font-black text-red-600 mb-2">10K+</div>
+              <div className="text-sm font-medium text-gray-600 uppercase tracking-wide">Active Learners</div>
             </div>
-            
-            <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight mb-6">
-              Master English with
-              <span className="block text-primary mt-2">Interactive Quizzes & Expert-Led Lessons</span>
-            </h1>
-            
-            <p className="text-base md:text-lg text-muted-foreground mb-8 leading-relaxed max-w-lg">
-              Prepare for IELTS, improve your grammar, and build vocabulary with personalized 
-              practice designed by English language experts.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Link href="/courses" className="btn-brand flex items-center justify-center gap-2">
-                <SvgIcon icon="book" size={20} variant="white" />
-                Explore Courses
-              </Link>
-              <Link href="/quizzes" className="btn-outline flex items-center justify-center gap-2">
-                <SvgIcon icon="check" size={20} />
-                Start Practicing
-              </Link>
+            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+              <div className="text-4xl md:text-5xl font-black text-black mb-2">500+</div>
+              <div className="text-sm font-medium text-gray-600 uppercase tracking-wide">Practice Questions</div>
             </div>
-            
-            {/* Updated Stats for English Learning */}
-            <div className="grid grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-brand mb-1">500+</div>
-                <div className="text-xs md:text-sm text-muted-foreground">Practice Questions</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-brand mb-1">New</div>
-                <div className="text-xs md:text-sm text-muted-foreground">Platform Launch</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-brand mb-1">Adaptive</div>
-                <div className="text-xs md:text-sm text-muted-foreground">Feedback System</div>
-              </div>
+            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+              <div className="text-4xl md:text-5xl font-black text-black mb-2">50+</div>
+              <div className="text-sm font-medium text-gray-600 uppercase tracking-wide">Expert Courses</div>
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+              <div className="text-4xl md:text-5xl font-black text-red-600 mb-2">95%</div>
+              <div className="text-sm font-medium text-gray-600 uppercase tracking-wide">Success Rate</div>
             </div>
           </div>
-
-          {/* Learning Dashboard Illustration */}
-          <div className="relative animate-slide-up">
-            {/* Main Dashboard Card */}
-            <div className="card p-6 transform hover:scale-105 transition-all duration-500 shadow-2xl bg-gradient-to-br from-card to-card/80">
+        </div>
+        
+        {/* Learning Dashboard Preview */}
+        <div className="mt-16 flow-root">
+          <div className="mx-auto max-w-5xl">
+            <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 transform hover:scale-105 transition-all duration-500">
               {/* Dashboard Header */}
-              <div className="flex items-center justify-between mb-6 pb-4 border-b">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                    <SvgIcon icon="chart" size={16} variant="white" />
+              <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-red-600 rounded-xl flex items-center justify-center">
+                    <span className="text-white text-2xl">🎯</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-sm md:text-base">English Progress</h3>
-                    <p className="text-xs text-muted-foreground">Learning Dashboard</p>
+                    <h3 className="font-bold text-xl text-black">Learning Dashboard</h3>
+                    <p className="text-gray-600">Your personalized learning journey</p>
                   </div>
                 </div>
-                <div className="text-xs text-muted-foreground">Today</div>
+                <div className="text-sm text-gray-500 font-medium">Today</div>
               </div>
               
-              {/* Course Progress */}
-              <div className="space-y-4 mb-6">
-                <div className="p-3 bg-primary/5 rounded-lg border border-primary/10">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Grammar Fundamentals</span>
-                    <span className="text-xs text-primary font-semibold">85%</span>
+              {/* Course Progress Grid */}
+              <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 hover:shadow-lg transition-shadow duration-300">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-bold text-black">Web Development</span>
+                    <span className="text-sm text-red-600 font-bold bg-red-50 px-3 py-1 rounded-full">85%</span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2">
-                    <div className="bg-primary h-2 rounded-full" style={{ width: '85%' }}></div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div className="bg-red-600 h-3 rounded-full transition-all duration-500" style={{ width: '85%' }}></div>
                   </div>
                 </div>
                 
-                <div className="p-3 bg-secondary/5 rounded-lg border border-secondary/10">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Vocabulary Building</span>
-                    <span className="text-xs text-secondary font-semibold">92%</span>
+                <div className="p-6 bg-gray-50 rounded-xl border border-gray-200 hover:shadow-lg transition-shadow duration-300">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-bold text-black">Data Science</span>
+                    <span className="text-sm text-red-600 font-bold bg-red-50 px-3 py-1 rounded-full">72%</span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2">
-                    <div className="bg-secondary h-2 rounded-full" style={{ width: '92%' }}></div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div className="bg-red-600 h-3 rounded-full transition-all duration-500" style={{ width: '72%' }}></div>
                   </div>
                 </div>
               </div>
               
-              {/* Achievement Badge */}
-              <div className="card p-4 border-l-4 border-green-500 bg-green-500/10">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                    <SvgIcon icon="check" size={20} variant="white" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-sm">Lesson Completed!</div>
-                    <div className="text-xs text-muted-foreground">You earned 50 points</div>
-                  </div>
+              {/* Achievement Section */}
+              <div className="flex items-center gap-4 p-6 bg-black rounded-xl text-white">
+                <div className="w-14 h-14 bg-red-600 rounded-full flex items-center justify-center">
+                  <span className="text-white text-2xl">🏆</span>
+                </div>
+                <div>
+                  <div className="font-bold text-lg">Congratulations!</div>
+                  <div className="text-gray-300">You completed 5 lessons this week</div>
                 </div>
               </div>
             </div>
-            
-            {/* Floating Study Elements */}
-            <div className="absolute -top-4 -right-4 card p-3 shadow-lg animate-bounce">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-xs font-medium">7 Day Streak!</span>
-              </div>
-            </div>
-            
-            <div className="absolute -bottom-4 -left-4 card p-3 shadow-lg animate-pulse">
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                </svg>
-                <span className="text-xs font-medium">Intermediate</span>
-              </div>
-            </div>
-            
-            {/* Background Elements */}
-            <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-pulse"></div>
-            <div className="absolute -bottom-8 -left-8 w-28 h-28 bg-secondary/10 rounded-full blur-2xl animate-pulse delay-75"></div>
-            <div className="absolute top-1/2 -right-12 w-16 h-16 bg-accent/20 rounded-2xl blur-sm animate-pulse delay-150"></div>
           </div>
         </div>
       </div>

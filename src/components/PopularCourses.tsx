@@ -11,60 +11,60 @@ import SvgIcon from '@/components/ui/SvgIcon'
 const STATIC_COURSES: Course[] = [
   {
     id: 'static-1',
-    title: 'IELTS Complete Preparation Course',
-    description: 'Comprehensive IELTS preparation covering all four skills: Reading, Writing, Listening, and Speaking.',
-    category: 'IELTS',
+    title: 'Full Stack Web Development',
+    description: 'Learn to build modern web applications with React, Node.js, and databases from scratch.',
+    category: 'Programming',
     level: 'intermediate',
-    duration: '12 weeks',
-    price: 149.99,
+    duration: '16 weeks',
+    price: 199.99,
     instructor_id: 'instructor-1',
-    instructor_name: 'Dr. Emily Watson',
+    instructor_name: 'Sarah Chen',
     status: 'published',
     is_free: false,
     is_published: true,
     created_at: '2024-01-01',
     updated_at: '2024-01-01',
-    student_count: 2850,
+    student_count: 4200,
     rating: 4.9,
-    image_url: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop'
+    image_url: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=300&fit=crop'
   },
   {
     id: 'static-2',
-    title: 'English Grammar Mastery',
-    description: 'Master all English grammar rules from basics to advanced with practical exercises and examples.',
-    category: 'Grammar',
+    title: 'Data Science with Python',
+    description: 'Master data analysis, machine learning, and visualization with Python and popular libraries.',
+    category: 'Data Science',
     level: 'beginner',
-    duration: '8 weeks',
-    price: 79.99,
+    duration: '12 weeks',
+    price: 149.99,
     instructor_id: 'instructor-2',
-    instructor_name: 'James Richardson',
+    instructor_name: 'Dr. Michael Rodriguez',
     status: 'published',
     is_free: false,
     is_published: true,
     created_at: '2024-01-01',
     updated_at: '2024-01-01',
-    student_count: 3200,
+    student_count: 3800,
     rating: 4.8,
-    image_url: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop'
+    image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop'
   },
   {
     id: 'static-3',
-    title: 'Advanced Vocabulary Builder',
-    description: 'Expand your vocabulary with 3000+ essential English words, idioms, and phrases.',
-    category: 'Vocabulary',
-    level: 'intermediate',
+    title: 'Digital Marketing Mastery',
+    description: 'Complete guide to SEO, social media marketing, content creation, and paid advertising.',
+    category: 'Marketing',
+    level: 'beginner',
     duration: '10 weeks',
     price: 99.99,
     instructor_id: 'instructor-3',
-    instructor_name: 'Sarah Collins',
+    instructor_name: 'Emma Thompson',
     status: 'published',
     is_free: false,
     is_published: true,
     created_at: '2024-01-01',
     updated_at: '2024-01-01',
-    student_count: 1920,
+    student_count: 2900,
     rating: 4.7,
-    image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop'
+    image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop'
   }
 ]
 
@@ -113,19 +113,20 @@ export default function PopularCourses() {
   // Loading state
   if (loading) {
     return (
-      <section className="section-padding">
-        <div className="container-custom">
+      <section className="py-24 px-6 lg:px-8 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
           {/* Section Header */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-brand/10 text-brand px-3 py-1.5 rounded-full small-text font-medium mb-4 border border-brand/20">
-              <span className="w-2 h-2 bg-brand rounded-full"></span>
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-gray-100 text-black px-4 py-2 rounded-full text-sm font-medium mb-6 border border-gray-200">
+              <span className="w-2 h-2 bg-red-600 rounded-full"></span>
               Featured Courses
             </div>
-            <h2 className="font-bold tracking-tight mb-4">
-              Popular English Learning Courses
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6 text-black">
+              Popular Learning
+              <span className="block text-red-600 mt-2">Courses</span>
             </h2>
-            <p className="large-text text-muted-foreground max-w-2xl mx-auto">
-              Join thousands of students mastering English with our expert-designed courses for IELTS, grammar, and vocabulary.
+            <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto font-light leading-relaxed">
+              Join thousands of learners advancing their skills with our expert-designed courses across various subjects and disciplines.
             </p>
           </div>
 
@@ -153,90 +154,99 @@ export default function PopularCourses() {
   }
 
   return (
-    <section className="section-padding">
-      <div className="container-custom">
+    <section className="py-24 px-6 lg:px-8 bg-gray-50">
+      <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-brand/10 text-brand px-3 py-1.5 rounded-full small-text font-medium mb-4 border border-brand/20">
-            <span className="w-2 h-2 bg-brand rounded-full"></span>
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 bg-gray-100 text-black px-4 py-2 rounded-full text-sm font-medium mb-6 border border-gray-200">
+            <span className="w-2 h-2 bg-red-600 rounded-full"></span>
             Featured Courses
           </div>
-          <h2 className="font-bold tracking-tight mb-4">
-            Popular English Learning Courses
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6 text-black">
+            Popular Learning
+            <span className="block text-red-600 mt-2">Courses</span>
           </h2>
-          <p className="large-text text-muted-foreground max-w-2xl mx-auto">
-            Join thousands of students mastering English with our expert-designed courses for IELTS, grammar, and vocabulary.
+          <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto font-light leading-relaxed">
+            Join thousands of learners advancing their skills with our expert-designed courses across various subjects and disciplines.
           </p>
         </div>
 
         {/* Courses Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {courses.map((course) => (
-            <div key={course.id} className="card hover:shadow-lg transition-shadow duration-300">
+            <div key={course.id} className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 overflow-hidden hover:-translate-y-2">
               {/* Course Image */}
-              <div className="h-48 relative rounded-t-lg overflow-hidden">
+              <div className="h-48 relative overflow-hidden">
                 <CourseImage
                   src={course.image_url}
                   alt={course.title}
                   size="medium"
-                  className="w-full h-full"
+                  className="w-full h-full group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full small-text font-medium border">
+                <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-2 rounded-full text-sm font-bold border shadow-lg">
                   {course.level}
                 </div>
                 {/* Category overlay */}
-                <div className="absolute bottom-3 left-3 px-3 py-1 bg-primary/90 text-white small-text font-semibold rounded-full flex items-center gap-1">
+                <div className="absolute bottom-4 left-4 px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-full shadow-lg">
                   {course.category}
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="p-8">
                 {/* Title */}
-                <h3 className="card-title">
+                <h3 className="text-2xl font-bold text-black mb-3 group-hover:text-red-600 transition-colors leading-tight">
                   {course.title}
                 </h3>
 
                 {/* Description */}
-                <p className="card-description mb-4 line-clamp-2">
+                <p className="text-gray-600 mb-6 line-clamp-2 leading-relaxed text-lg">
                   {course.description}
                 </p>
 
                 {/* Instructor */}
-                <p className="small-text text-muted-foreground mb-6 font-medium">
+                <p className="text-sm text-gray-500 mb-6 font-medium">
                   by {course.instructor_name}
                 </p>
 
                 {/* Stats */}
-                <div className="flex items-center gap-6 mb-6 small-text text-muted-foreground">
+                <div className="flex items-center gap-6 mb-8 text-sm text-gray-500">
                   <div className="flex items-center gap-2">
-                    <div className="flex text-yellow-500">
+                    <div className="flex text-red-500">
                       {[...Array(5)].map((_, i) => (
-                        <svg key={i} className="icon-sm fill-current" viewBox="0 0 20 20">
+                        <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
                           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                         </svg>
                       ))}
                     </div>
-                    <span className="font-medium">{course.rating}</span>
+                    <span className="font-bold text-black">{course.rating}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <svg className="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                     </svg>
-                    <span>{course.student_count.toLocaleString()}</span>
+                    <span className="font-bold text-black">{course.student_count.toLocaleString()}</span>
                   </div>
                 </div>
 
                 {/* Price & CTA */}
                 <div className="flex items-center justify-between">
-                  <div className="large-text font-bold tracking-tight">
-                    <span className="text-muted-foreground font-normal">$</span>{course.price}
+                  <div className="text-3xl font-black text-black">
+                    {course.is_free ? (
+                      <span className="text-green-600">Free</span>
+                    ) : (
+                      <>
+                        <span className="text-gray-400 text-xl font-normal">$</span>{course.price}
+                      </>
+                    )}
                   </div>
                   <Link 
                     href={`/courses/${course.id}`}
-                    className="btn-default"
+                    className="inline-flex items-center px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                   >
                     <span>Enroll Now</span>
-                    <SvgIcon icon="angleRight" size={16} className="ml-2" />
+                    <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </Link>
                 </div>
               </div>

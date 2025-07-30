@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import SvgIcon from '@/components/ui/SvgIcon'
 
 interface QuizStat {
   title: string
@@ -15,36 +14,36 @@ export default function QuizPreview() {
 
   const features = [
     {
-      title: 'IELTS Practice Tests',
-      description: 'Complete IELTS mock tests with authentic questions and scoring system',
-      preview: 'Real IELTS exam simulation with detailed feedback'
+      title: 'Interactive Practice Tests',
+      description: 'Comprehensive practice tests across multiple subjects with real-time scoring',
+      preview: 'Simulate real exam conditions with detailed feedback'
     },
     {
-      title: 'Grammar Assessment',
-      description: 'Targeted grammar quizzes covering all English grammar rules and exceptions',
-      preview: 'Identify and improve your grammar weaknesses'
+      title: 'Skill Assessment',
+      description: 'Targeted assessments to identify strengths and areas for improvement',
+      preview: 'Personalized learning paths based on your performance'
     },
     {
-      title: 'Vocabulary Testing',
-      description: 'Build your vocabulary with contextual word tests and meaning exercises',
-      preview: 'Learn new words through interactive challenges'
+      title: 'Progress Tracking',
+      description: 'Track your learning journey with detailed analytics and insights',
+      preview: 'Visual progress reports and achievement milestones'
     }
   ]
 
   const stats: QuizStat[] = [
     {
-      title: 'IELTS Questions',
-      value: '2,500+',
-      description: 'Authentic practice questions'
+      title: 'Practice Questions',
+      value: '10,000+',
+      description: 'Across all subjects'
     },
     {
       title: 'Success Rate',
-      value: '92%',
-      description: 'Students improve scores'
+      value: '95%',
+      description: 'Students improve performance'
     },
     {
-      title: 'Grammar Topics',
-      value: '150+',
+      title: 'Subject Areas',
+      value: '50+',
       description: 'Comprehensive coverage'
     },
     {
@@ -55,30 +54,30 @@ export default function QuizPreview() {
   ]
 
   return (
-    <section className="section-padding bg-gradient-to-br from-background via-brand/5 to-background">
-      <div className="container-custom">
+    <section className="py-24 px-6 lg:px-8 bg-white">
+      <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 bg-brand/10 text-brand px-4 py-2 rounded-full text-sm md:text-base font-medium mb-8 border border-brand/20">
-            <SvgIcon icon="bolt" size={20} className="text-brand" />
-            English Quiz Platform
+          <div className="inline-flex items-center gap-2 bg-gray-100 text-black px-4 py-2 rounded-full text-sm font-medium mb-8 border border-gray-200">
+            <span className="w-2 h-2 bg-red-600 rounded-full"></span>
+            Quiz Platform
           </div>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight mb-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6 text-black">
             Test Your Skills with Our 
-            <span className="text-brand"> Quiz System</span>
+            <span className="block text-red-600 mt-2">Quiz System</span>
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Practice IELTS, grammar, vocabulary, and reading comprehension with our adaptive quiz platform designed for English learners.
+          <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light">
+            Practice across multiple subjects with our adaptive quiz platform designed for comprehensive skill assessment.
           </p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
           {stats.map((stat, index) => (
-            <div key={index} className="text-center p-6 card hover:shadow-lg transition-shadow">
-              <div className="text-2xl md:text-3xl font-bold text-brand mb-2">{stat.value}</div>
-              <div className="font-semibold text-sm md:text-base mb-1">{stat.title}</div>
-              <div className="text-xs md:text-sm text-muted-foreground">{stat.description}</div>
+            <div key={index} className="text-center p-8 bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <div className="text-4xl md:text-5xl font-black text-red-600 mb-3">{stat.value}</div>
+              <div className="font-bold text-lg mb-2 text-black">{stat.title}</div>
+              <div className="text-sm text-gray-600 font-medium uppercase tracking-wide">{stat.description}</div>
             </div>
           ))}
         </div>
@@ -87,7 +86,7 @@ export default function QuizPreview() {
         <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
           {/* Feature Navigation */}
           <div>
-            <h3 className="text-3xl font-bold tracking-tight mb-8">
+            <h3 className="text-3xl md:text-4xl font-black tracking-tight mb-8 text-black">
               Why Students Love Our Quiz System
             </h3>
             <div className="space-y-4">
@@ -95,25 +94,25 @@ export default function QuizPreview() {
                 <button
                   key={index}
                   onClick={() => setActiveFeature(index)}
-                  className={`w-full text-left p-6 rounded-lg border transition-all ${
+                  className={`w-full text-left p-6 rounded-xl border-2 transition-all duration-300 ${
                     activeFeature === index
-                      ? 'border-brand bg-brand/5 shadow-md'
-                      : 'border-border hover:border-brand/50 hover:bg-brand/2'
+                      ? 'border-red-600 bg-red-50 shadow-lg'
+                      : 'border-gray-200 bg-white hover:border-red-300 hover:shadow-md'
                   }`}
                 >
                   <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                      activeFeature === index ? 'bg-brand/20' : 'bg-muted'
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
+                      activeFeature === index 
+                        ? 'bg-red-600 text-white' 
+                        : 'bg-gray-100 text-gray-600'
                     }`}>
-                    <span className="text-xl font-bold">{index + 1}</span>
-                  </div>
+                      {index + 1}
+                    </div>
                     <div className="flex-1">
-                      <h4 className={`text-lg font-semibold mb-2 ${
-                        activeFeature === index ? 'text-brand' : 'text-foreground'
-                      }`}>
+                      <h4 className="font-bold text-lg mb-2 text-black">
                         {feature.title}
                       </h4>
-                      <p className="text-muted-foreground leading-relaxed">
+                      <p className="text-gray-600 leading-relaxed">
                         {feature.description}
                       </p>
                     </div>
@@ -124,46 +123,46 @@ export default function QuizPreview() {
           </div>
 
           {/* Feature Preview */}
-          <div className="card p-8 bg-gradient-to-br from-card to-brand/5">
+          <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-200">
             <div className="text-center mb-8">
-                            <div className="w-20 h-20 mx-auto mb-4 bg-brand/20 rounded-full flex items-center justify-center">
-                <span className="text-4xl font-bold text-brand">{activeFeature + 1}</span>
+              <div className="w-20 h-20 mx-auto mb-6 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-3xl font-black text-white">{activeFeature + 1}</span>
               </div>
-              <h4 className="text-2xl font-bold text-foreground mb-4">
+              <h4 className="text-2xl font-bold text-black mb-4">
                 {features[activeFeature]?.title || 'Feature'}
               </h4>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-lg text-gray-600 leading-relaxed">
                 {features[activeFeature]?.preview || 'Feature preview'}
               </p>
             </div>
 
             {/* Mock Interface Preview */}
-            <div className="bg-background rounded-lg p-6 border">
+            <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-muted-foreground">Question 3 of 10</span>
-                <span className="text-sm font-medium text-brand">85% Complete</span>
+                <span className="text-sm font-medium text-gray-600">Question 3 of 10</span>
+                <span className="text-sm font-bold text-red-600">85% Complete</span>
               </div>
-              <div className="w-full bg-muted rounded-full h-2 mb-6">
-                <div className="bg-brand h-2 rounded-full w-[85%]"></div>
+              <div className="w-full bg-gray-200 rounded-full h-3 mb-6">
+                <div className="bg-red-600 h-3 rounded-full transition-all duration-500" style={{ width: '85%' }}></div>
               </div>
               
-              <h5 className="text-lg font-semibold text-foreground mb-4">
+              <h5 className="text-lg font-bold text-black mb-4">
                 Which sentence uses the present perfect tense correctly?
               </h5>
               
               <div className="space-y-3">
-                <div className="p-3 rounded-lg border border-brand bg-brand/10 text-brand">
+                <div className="p-4 rounded-lg border-2 border-red-600 bg-red-50 text-red-700 font-medium">
                   I have lived in London for five years.
                 </div>
-                <div className="p-3 rounded-lg border border-border text-muted-foreground">
+                <div className="p-4 rounded-lg border border-gray-200 text-gray-600 hover:border-gray-300 transition-colors">
                   I am living in London for five years.
                 </div>
-                <div className="p-3 rounded-lg border border-border text-muted-foreground">
+                <div className="p-4 rounded-lg border border-gray-200 text-gray-600 hover:border-gray-300 transition-colors">
                   I live in London for five years.
                 </div>
               </div>
               
-              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm text-green-800">
                   <strong>Correct!</strong> Present perfect uses &quot;have/has + past participle&quot; for actions starting in the past and continuing to the present.
                 </p>
@@ -174,20 +173,20 @@ export default function QuizPreview() {
 
         {/* Call to Action */}
         <div className="text-center">
-          <div className="card p-12 bg-gradient-to-r from-brand/10 via-brand/5 to-brand/10 border-brand/20">
-            <h3 className="text-3xl font-bold text-foreground mb-4">
+          <div className="bg-black rounded-2xl p-12 text-white shadow-2xl">
+            <h3 className="text-3xl md:text-4xl font-black text-white mb-4">
               Ready to Test Your Skills?
             </h3>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Join thousands of students who are improving their English skills with our interactive quiz platform.
+            <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto font-light">
+              Join thousands of students who are improving their skills with our interactive quiz platform.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/quizzes" className="btn-primary text-lg px-8 flex items-center justify-center gap-2">
-                <SvgIcon icon="check" size={20} variant="white" />
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Link href="/quizzes" className="inline-flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                <span>✓</span>
                 Start Free Quiz
               </Link>
-              <Link href="/courses" className="btn-outline text-lg px-8 flex items-center justify-center gap-2">
-                <SvgIcon icon="book" size={20} />
+              <Link href="/courses" className="inline-flex items-center justify-center gap-3 border-2 border-white text-white hover:bg-white hover:text-black px-8 py-4 rounded-lg font-bold text-lg transition-all duration-200 transform hover:-translate-y-1">
+                <span>📚</span>
                 Explore Courses
               </Link>
             </div>

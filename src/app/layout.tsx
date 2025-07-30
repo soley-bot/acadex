@@ -5,8 +5,6 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ConditionalLayout } from '@/components/ConditionalLayout'
-import DevBanner from '@/components/DevBanner'
-import CacheMonitor from '@/components/CacheMonitor'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -74,24 +72,22 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#3b82f6" />
+        <meta name="theme-color" content="#171717" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <style>{`
 html {
-  font-family: ${GeistSans.style.fontFamily};
+  font-family: ${inter.style.fontFamily}, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   --font-sans: ${GeistSans.variable};
   --font-mono: ${GeistMono.variable};
   --font-inter: ${inter.style.fontFamily};
 }
         `}</style>
       </head>
-      <body className={`${GeistSans.variable} ${GeistMono.variable} ${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} font-sans antialiased`}>
         <AuthProvider>
-          <DevBanner />
           <ConditionalLayout>
             {children}
           </ConditionalLayout>
-          <CacheMonitor />
         </AuthProvider>
       </body>
     </html>

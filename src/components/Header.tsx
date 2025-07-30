@@ -72,81 +72,84 @@ export default function Header() {
   }, [isMenuOpen])
 
   return (
-    <header className="fixed top-0 w-full glass border-b z-50">
-      <div className="container-custom">
+    <header className="fixed top-0 w-full bg-white/95 backdrop-blur-md border-b border-gray-200 z-50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
-            <span className="text-xl md:text-2xl font-inter tracking-tight group-hover:scale-105 transition-transform duration-200">
-              <span className="font-light text-foreground">ACAD</span>
-              <span className="font-bold text-brand">EX</span>
+            <span className="text-2xl md:text-3xl font-black tracking-tight group-hover:scale-105 transition-transform duration-200">
+              <span className="text-black">ACAD</span>
+              <span className="text-red-600">E</span>
+              <span className="text-black">X</span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
-            <Link href="/courses" className="nav-link hover:text-brand transition-colors flex items-center gap-2">
-              <SvgIcon icon="book" size={16} />
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link href="/courses" className="text-black hover:text-red-600 font-medium transition-colors duration-200 text-lg">
               Courses
             </Link>
-            <Link href="/quizzes" className="nav-link hover:text-brand transition-colors flex items-center gap-2">
-              <SvgIcon icon="check" size={16} />
+            <Link href="/quizzes" className="text-black hover:text-red-600 font-medium transition-colors duration-200 text-lg">
               Quizzes
             </Link>
-            <Link href="/about" className="nav-link hover:text-brand transition-colors flex items-center gap-2">
-              <SvgIcon icon="info" size={16} />
+            <Link href="/about" className="text-black hover:text-red-600 font-medium transition-colors duration-200 text-lg">
               About
             </Link>
-            <Link href="/contact" className="nav-link hover:text-brand transition-colors flex items-center gap-2">
-              <SvgIcon icon="heart" size={16} />
+            <Link href="/contact" className="text-black hover:text-red-600 font-medium transition-colors duration-200 text-lg">
               Contact
             </Link>
           </nav>
 
           {/* CTA Buttons */}
-          <div className="hidden md:flex items-center space-x-3">
+          <div className="hidden md:flex items-center space-x-4">
             {loading ? (
-              <div className="w-24 h-10 bg-muted animate-pulse rounded-md"></div>
+              <div className="w-24 h-10 bg-gray-200 animate-pulse rounded-lg"></div>
             ) : user ? (
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-3 bg-card border rounded-lg px-3 py-2 hover:bg-accent transition-colors"
+                  className="flex items-center space-x-3 bg-white border border-gray-200 rounded-lg px-4 py-2 hover:bg-gray-50 transition-colors shadow-sm"
                 >
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <span className="text-primary-foreground font-semibold text-sm">{user.name?.charAt(0).toUpperCase()}</span>
+                  <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">{user.name?.charAt(0).toUpperCase()}</span>
                   </div>
-                  <span className="text-foreground font-medium text-sm">Welcome, {user.name}</span>
-                  <svg className={`w-4 h-4 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="text-black font-medium">Welcome, {user.name}</span>
+                  <svg className={`w-4 h-4 transition-transform text-gray-600 ${isUserMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
 
                 {/* User Dropdown Menu */}
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-card border rounded-lg shadow-lg py-1 z-50 animate-in slide-in-from-top-2 fade-in duration-200">
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-50">
                     <Link
                       href="/dashboard"
-                      className="flex items-center gap-3 px-4 py-2 hover:bg-accent transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-black"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <SvgIcon icon="home" size={16} />
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      </svg>
                       Dashboard
                     </Link>
                     <Link
                       href="/profile"
-                      className="flex items-center gap-3 px-4 py-2 hover:bg-accent transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-black"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <SvgIcon icon="user" size={16} />
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
                       Profile
                     </Link>
-                    <div className="border-t my-1"></div>
+                    <div className="border-t border-gray-200 my-1"></div>
                     <button
                       onClick={handleSignOut}
-                      className="flex items-center gap-3 px-4 py-2 hover:bg-accent transition-colors w-full text-left text-muted-foreground hover:text-destructive"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors w-full text-left text-gray-600 hover:text-red-600"
                     >
-                      <SvgIcon icon="signOut" size={16} />
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
                       Sign Out
                     </button>
                   </div>
@@ -154,16 +157,10 @@ export default function Header() {
               </div>
             ) : (
               <>
-                <Link href="/login" className="btn-ghost hover:text-brand transition-colors inline-flex items-center gap-2">
-                  {loading ? (
-                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                  ) : null}
+                <Link href="/login" className="text-black hover:text-red-600 font-medium transition-colors duration-200 px-4 py-2 text-lg">
                   Sign In
                 </Link>
-                <Link href="/signup" className="bg-brand text-brand-foreground hover:bg-brand/90 px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center gap-2">
-                  {loading ? (
-                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                  ) : null}
+                <Link href="/signup" className="bg-red-600 text-white hover:bg-red-700 px-6 py-2 rounded-lg font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                   Get Started
                 </Link>
               </>
@@ -173,21 +170,21 @@ export default function Header() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-md hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
             aria-label="Toggle mobile menu"
           >
             <div className="w-6 h-6 relative flex flex-col justify-center items-center">
-              <span className={`block w-6 h-0.5 bg-current transition-all duration-300 ${
+              <span className={`block w-6 h-0.5 bg-black transition-all duration-300 ${
                 isMenuOpen 
                   ? 'rotate-45 translate-y-0' 
                   : '-translate-y-1.5'
               }`} />
-              <span className={`block w-6 h-0.5 bg-current transition-all duration-300 ${
+              <span className={`block w-6 h-0.5 bg-black transition-all duration-300 ${
                 isMenuOpen 
                   ? 'opacity-0' 
                   : 'opacity-100'
               }`} />
-              <span className={`block w-6 h-0.5 bg-current transition-all duration-300 ${
+              <span className={`block w-6 h-0.5 bg-black transition-all duration-300 ${
                 isMenuOpen 
                   ? '-rotate-45 -translate-y-0.5' 
                   : 'translate-y-1.5'
@@ -201,92 +198,88 @@ export default function Header() {
           <>
             {/* Backdrop Overlay */}
             <div 
-              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
               onClick={() => setIsMenuOpen(false)}
             />
             
             {/* Mobile Menu */}
-            <div className="mobile-menu fixed top-16 left-0 w-full bg-background border-b shadow-lg z-50 md:hidden animate-in slide-in-from-top-2 fade-in duration-300">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-                <div className="flex flex-col space-y-1">
+            <div className="mobile-menu fixed top-16 left-0 w-full bg-white border-b border-gray-200 shadow-xl z-50 md:hidden">
+              <div className="max-w-7xl mx-auto px-6 py-6">
+                <div className="flex flex-col space-y-2">
                   <Link 
                     href="/courses" 
-                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center gap-3"
+                    className="text-black hover:text-red-600 hover:bg-gray-50 py-4 px-4 rounded-lg font-medium transition-colors text-lg"
                     onClick={handleMobileNavClick}
                   >
-                    <SvgIcon icon="book" size={18} />
                     Courses
                   </Link>
                   <Link 
                     href="/quizzes" 
-                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center gap-3"
+                    className="text-black hover:text-red-600 hover:bg-gray-50 py-4 px-4 rounded-lg font-medium transition-colors text-lg"
                     onClick={handleMobileNavClick}
                   >
-                    <SvgIcon icon="check" size={18} />
                     Quizzes
                   </Link>
                   <Link 
                     href="/about" 
-                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center gap-3"
+                    className="text-black hover:text-red-600 hover:bg-gray-50 py-4 px-4 rounded-lg font-medium transition-colors text-lg"
                     onClick={handleMobileNavClick}
                   >
-                    <SvgIcon icon="info" size={18} />
                     About
                   </Link>
                   <Link 
                     href="/contact" 
-                    className="nav-link justify-start py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center gap-3"
+                    className="text-black hover:text-red-600 hover:bg-gray-50 py-4 px-4 rounded-lg font-medium transition-colors text-lg"
                     onClick={handleMobileNavClick}
                   >
-                    <SvgIcon icon="heart" size={18} />
                     Contact
                   </Link>
                   
                   {/* Mobile User Section */}
-                  <div className="flex flex-col space-y-2 pt-4 border-t">
+                  <div className="flex flex-col space-y-3 pt-6 border-t border-gray-200">
                     {loading ? (
-                      <div className="w-full h-12 bg-muted animate-pulse rounded-md"></div>
+                      <div className="w-full h-12 bg-gray-200 animate-pulse rounded-lg"></div>
                     ) : user ? (
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-3 bg-card border rounded-lg px-4 py-3">
-                          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                            <span className="text-primary-foreground font-semibold">{user.name?.charAt(0).toUpperCase()}</span>
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-3 bg-gray-50 border border-gray-200 rounded-lg px-4 py-4">
+                          <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
+                            <span className="text-white font-bold">{user.name?.charAt(0).toUpperCase()}</span>
                           </div>
-                          <span className="text-foreground font-medium">Welcome, {user.name}</span>
+                          <span className="text-black font-medium">Welcome, {user.name}</span>
                         </div>
                         <Link 
                           href="/dashboard" 
-                          className="nav-link justify-start w-full py-3 px-4 rounded-lg hover:bg-accent transition-colors" 
+                          className="text-black hover:text-red-600 hover:bg-gray-50 py-3 px-4 rounded-lg font-medium transition-colors w-full text-left block" 
                           onClick={handleMobileNavClick}
                         >
                           Dashboard
                         </Link>
                         <Link 
                           href="/profile" 
-                          className="nav-link justify-start w-full py-3 px-4 rounded-lg hover:bg-accent transition-colors" 
+                          className="text-black hover:text-red-600 hover:bg-gray-50 py-3 px-4 rounded-lg font-medium transition-colors w-full text-left block" 
                           onClick={handleMobileNavClick}
                         >
                           Profile
                         </Link>
                         <button
                           onClick={handleSignOut}
-                          className="btn-secondary w-full py-3 justify-center"
+                          className="bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600 px-4 py-3 rounded-lg font-medium transition-colors w-full"
                         >
                           Sign Out
                         </button>
                       </div>
                     ) : (
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <Link 
                           href="/login" 
-                          className="btn-outline w-full justify-center py-3"
+                          className="border-2 border-red-600 bg-white hover:bg-red-50 text-red-600 px-4 py-3 rounded-lg font-semibold transition-colors w-full text-center block"
                           onClick={handleMobileNavClick}
                         >
                           Sign In
                         </Link>
                         <Link 
                           href="/signup" 
-                          className="btn-default w-full justify-center py-3"
+                          className="bg-red-600 text-white hover:bg-red-700 px-4 py-3 rounded-lg font-semibold transition-colors w-full text-center block shadow-lg"
                           onClick={handleMobileNavClick}
                         >
                           Get Started

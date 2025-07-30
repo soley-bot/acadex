@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Course } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import SvgIcon from '@/components/ui/SvgIcon'
+import { RichTextFormatGuide } from './RichTextFormatGuide'
 
 interface Module {
   id?: string
@@ -846,12 +847,14 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                                 />
                               </div>
 
+                              <RichTextFormatGuide />
+
                               <textarea
-                                rows={3}
+                                rows={6}
                                 value={lesson.content}
                                 onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'content', e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-3"
-                                placeholder="Lesson content and description"
+                                placeholder="Lesson content and description. You can use formatting like **bold**, *italic*, ==highlight==, and {{red:colored text}}."
                               />
 
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

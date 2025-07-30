@@ -79,8 +79,11 @@ export default function QuizResultsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="flex items-center justify-center py-20 pt-32">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 text-lg">Loading results...</p>
+          </div>
         </div>
       </div>
     )
@@ -89,12 +92,12 @@ export default function QuizResultsPage() {
   if (error || !results) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="max-w-4xl mx-auto px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Results Not Found</h1>
-          <p className="text-gray-600 mb-8">{error || 'The quiz results could not be found.'}</p>
+        <div className="max-w-2xl mx-auto pt-32 text-center px-6">
+          <h1 className="text-4xl font-black text-black mb-6">Results Not Found</h1>
+          <p className="text-gray-600 mb-12 text-xl">{error || 'The quiz results could not be found.'}</p>
           <Link
             href="/quizzes"
-            className="bg-gray-900 text-white px-6 py-3 rounded-lg hover:bg-black transition-colors"
+            className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors inline-block"
           >
             Back to Quizzes
           </Link>
@@ -106,93 +109,85 @@ export default function QuizResultsPage() {
   const scoreMessage = getScoreMessage(results.score)
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       
-      <div className="max-w-4xl mx-auto px-4 py-8 pt-24">
-        {/* Header with ACADEX logo */}
-        <div className="text-center mb-8">
-          <Link href="/">
-            <span className="text-2xl font-inter tracking-tight inline-block mb-4">
-              <span className="font-light text-black">ACAD</span>
-              <span className="font-bold text-[#ff5757]">EX</span>
-            </span>
-          </Link>
-        </div>
+      <div className="max-w-6xl mx-auto pt-28 pb-12 px-6">
 
         {/* Results Header */}
-        <div className="bg-white rounded-lg shadow-sm border p-8 mb-8">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-xl p-12 mb-12">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Quiz Complete!</h1>
-            <h2 className="text-xl text-gray-600 mb-6">{results.quiz_title}</h2>
+            <h1 className="text-4xl font-black text-black mb-4">Quiz Complete!</h1>
+            <h2 className="text-xl text-gray-600 mb-8">{results.quiz_title}</h2>
             
-            <div className={`text-6xl font-bold mb-4 ${getScoreColor(results.score)}`}>
+            <div className={`text-6xl font-black mb-6 ${
+              results.score >= 80 ? 'text-green-600' : 
+              results.score >= 60 ? 'text-yellow-600' : 'text-red-600'
+            }`}>
               {results.score}%
             </div>
             
-            <p className="text-lg text-gray-700 mb-6">{scoreMessage.message}</p>
+            <p className="text-lg text-gray-600 mb-8 font-medium">{scoreMessage.message}</p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">{results.correct_answers}</div>
-                <div className="text-sm text-gray-600">Correct Answers</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-2xl mx-auto">
+              <div className="text-center bg-gray-50 rounded-xl p-6">
+                <div className="text-3xl font-black text-black">{results.correct_answers}</div>
+                <div className="text-sm font-bold text-gray-600 uppercase tracking-wide">Correct Answers</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">{results.total_questions}</div>
-                <div className="text-sm text-gray-600">Total Questions</div>
+              <div className="text-center bg-gray-50 rounded-xl p-6">
+                <div className="text-3xl font-black text-black">{results.total_questions}</div>
+                <div className="text-sm font-bold text-gray-600 uppercase tracking-wide">Total Questions</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">{results.time_taken_minutes}</div>
-                <div className="text-sm text-gray-600">Minutes</div>
+              <div className="text-center bg-gray-50 rounded-xl p-6">
+                <div className="text-3xl font-black text-black">{results.time_taken_minutes}</div>
+                <div className="text-sm font-bold text-gray-600 uppercase tracking-wide">Minutes</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Detailed Results */}
-        <div className="bg-white rounded-lg shadow-sm border mb-8">
-          <div className="p-6 border-b">
-            <h2 className="text-2xl font-bold text-gray-900">Detailed Results</h2>
-            <p className="text-gray-600 mt-1">Review your answers and learn from explanations</p>
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-lg mb-12">
+          <div className="p-8 border-b border-gray-200 bg-black rounded-t-2xl">
+            <h2 className="text-3xl font-black text-white">Detailed Results</h2>
+            <p className="text-gray-300 mt-2 text-lg">Review your answers and learn from explanations</p>
           </div>
           
-          <div className="p-6">
-            <div className="space-y-6">
+          <div className="p-8">
+            <div className="space-y-8">
               {results.answers.map((answer, index) => (
                 <div
                   key={index}
-                  className={`border rounded-lg p-6 ${
-                    answer.is_correct ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+                  className={`border-2 rounded-2xl p-8 ${
+                    answer.is_correct 
+                      ? 'border-green-200 bg-green-50' 
+                      : 'border-red-200 bg-red-50'
                   }`}
                 >
-                  <div className="flex items-start gap-3 mb-4">
-                    <span className={`text-2xl ${answer.is_correct ? 'text-green-600' : 'text-red-600'}`}>
-                      {answer.is_correct ? (
-                        <SvgIcon icon="check" variant="default" size={16} className="text-green-600" />
-                      ) : (
-                        <SvgIcon icon="ban" variant="default" size={16} className="text-red-600" />
-                      )}
+                  <div className="flex items-start gap-6 mb-6">
+                    <span className={`text-3xl ${answer.is_correct ? 'text-green-600' : 'text-red-600'}`}>
+                      {answer.is_correct ? '✓' : '✗'}
                     </span>
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                      <h3 className="text-xl font-bold text-black mb-6">
                         Question {index + 1}: {answer.question}
                       </h3>
                       
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-600">Your answer:</span>
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-4">
+                          <span className="text-sm font-bold text-black">Your answer:</span>
+                          <span className={`px-4 py-2 rounded-full text-sm font-bold border-2 ${
                             answer.is_correct 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
+                              ? 'bg-green-100 text-green-800 border-green-300' 
+                              : 'bg-red-100 text-red-800 border-red-300'
                           }`}>
                             {answer.user_answer}
                           </span>
                         </div>
                         
                         {!answer.is_correct && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-gray-600">Correct answer:</span>
-                            <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                          <div className="flex items-center gap-4">
+                            <span className="text-sm font-bold text-black">Correct answer:</span>
+                            <span className="px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-800 border-2 border-green-300">
                               {answer.correct_answer}
                             </span>
                           </div>
@@ -200,9 +195,9 @@ export default function QuizResultsPage() {
                       </div>
                       
                       {answer.explanation && (
-                        <div className="mt-4 p-4 bg-white rounded-lg border">
-                          <h4 className="font-medium text-gray-900 mb-2">💡 Explanation:</h4>
-                          <p className="text-gray-700 text-sm">{answer.explanation}</p>
+                        <div className="mt-6 p-6 bg-blue-50 border-2 border-blue-200 rounded-xl">
+                          <h4 className="font-bold text-blue-900 mb-3 text-base">💡 Explanation:</h4>
+                          <p className="text-blue-800 leading-relaxed">{answer.explanation}</p>
                         </div>
                       )}
                     </div>
@@ -214,41 +209,108 @@ export default function QuizResultsPage() {
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
           <Link
             href={`/quizzes/${params.id}`}
-            className="bg-brand text-brand-foreground px-8 py-3 rounded-lg font-semibold hover:bg-brand/90 transition-colors text-center"
+            className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors text-center shadow-lg hover:shadow-xl"
           >
             Retake Quiz
           </Link>
           <Link
             href="/quizzes"
-            className="bg-gray-100 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors text-center"
+            className="border-2 border-black text-black hover:bg-black hover:text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors text-center"
           >
             Browse More Quizzes
           </Link>
           <Link
             href="/dashboard"
-            className="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors text-center"
+            className="bg-black hover:bg-gray-800 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors text-center"
           >
             View Dashboard
           </Link>
         </div>
 
         {/* Performance Tips */}
-        <div className="mt-8 bg-brand/5 border border-brand/20 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-brand mb-3">💡 Tips for Improvement</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-            <ul className="space-y-2 text-sm">
-              <li>• Review the explanations for incorrect answers</li>
-              <li>• Take notes on topics you found challenging</li>
-              <li>• Practice similar quizzes to reinforce learning</li>
-            </ul>
-            <ul className="space-y-2 text-sm">
-              <li>• Consider enrolling in related courses</li>
-              <li>• Join study groups or discussion forums</li>
-              <li>• Set regular practice schedules</li>
-            </ul>
+        <div className="bg-black rounded-2xl p-12 text-white shadow-2xl">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-red-600 rounded-full mb-6 shadow-lg">
+              <span className="text-white text-2xl">💡</span>
+            </div>
+            <h3 className="text-3xl font-black text-white mb-4">Tips for Improvement</h3>
+            <p className="text-gray-300 text-lg font-light">Enhance your learning journey with these proven strategies</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="space-y-6">
+              <h4 className="font-bold text-red-400 text-sm uppercase tracking-wide">Learning Strategies</h4>
+              <div className="space-y-4">
+                <div className="flex items-start gap-4 p-6 bg-gray-900 rounded-xl border border-gray-800">
+                  <span className="text-red-400 text-lg font-bold mt-1">📝</span>
+                  <div>
+                    <p className="text-white font-bold text-base">Review explanations carefully</p>
+                    <p className="text-gray-400 text-sm">Focus on understanding why answers are correct</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-6 bg-gray-900 rounded-xl border border-gray-800">
+                  <span className="text-red-400 text-lg font-bold mt-1">📚</span>
+                  <div>
+                    <p className="text-white font-bold text-base">Take detailed notes</p>
+                    <p className="text-gray-400 text-sm">Document challenging topics for future review</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-6 bg-gray-900 rounded-xl border border-gray-800">
+                  <span className="text-red-400 text-lg font-bold mt-1">🔄</span>
+                  <div>
+                    <p className="text-white font-bold text-base">Practice regularly</p>
+                    <p className="text-gray-400 text-sm">Reinforce learning with similar quizzes</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              <h4 className="font-bold text-red-400 text-sm uppercase tracking-wide">Growth Actions</h4>
+              <div className="space-y-4">
+                <div className="flex items-start gap-4 p-6 bg-gray-900 rounded-xl border border-gray-800">
+                  <span className="text-red-400 text-lg font-bold mt-1">🎓</span>
+                  <div>
+                    <p className="text-white font-bold text-base">Explore related courses</p>
+                    <p className="text-gray-400 text-sm">Deepen knowledge with structured learning</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-6 bg-gray-900 rounded-xl border border-gray-800">
+                  <span className="text-red-400 text-lg font-bold mt-1">👥</span>
+                  <div>
+                    <p className="text-white font-bold text-base">Join study communities</p>
+                    <p className="text-gray-400 text-sm">Connect with other learners for support</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-6 bg-gray-900 rounded-xl border border-gray-800">
+                  <span className="text-red-400 text-lg font-bold mt-1">📅</span>
+                  <div>
+                    <p className="text-white font-bold text-base">Create study schedule</p>
+                    <p className="text-gray-400 text-sm">Set consistent practice routines</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-10 pt-8 border-t border-gray-800">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/courses"
+                className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors text-center shadow-lg hover:shadow-xl"
+              >
+                Browse Courses
+              </Link>
+              <Link
+                href="/quizzes"
+                className="border-2 border-white text-white hover:bg-white hover:text-black px-8 py-4 rounded-lg font-bold text-lg transition-colors text-center"
+              >
+                More Quizzes
+              </Link>
+            </div>
           </div>
         </div>
       </div>

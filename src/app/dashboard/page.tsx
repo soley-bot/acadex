@@ -76,24 +76,24 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="pt-24 p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Loading your learning progress...</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {[1, 2, 3, 4].map((i) => (
-            <Card key={i}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Loading...</CardTitle>
-                <div className="w-4 h-4 animate-spin border-2 border-gray-300 border-t-gray-600 rounded-full"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">--</div>
-                <p className="text-xs text-gray-600">Please wait...</p>
-              </CardContent>
-            </Card>
-          ))}
+      <div className="min-h-screen bg-white pt-24">
+        <div className="max-w-6xl mx-auto px-6 pb-12">
+          <div className="mb-12">
+            <h1 className="text-4xl font-black text-black mb-2">Dashboard</h1>
+            <p className="text-gray-600 text-lg">Loading your learning progress...</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8">
+                <div className="text-3xl font-black text-gray-300">--</div>
+                <div className="text-sm font-bold text-gray-300 mt-2">Loading...</div>
+                <div className="text-sm text-gray-300">Please wait...</div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          </div>
         </div>
       </div>
     )
@@ -101,241 +101,254 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="pt-24 p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">There was an error loading your dashboard</p>
-        </div>
-        <Card>
-          <CardContent className="p-6">
+      <div className="min-h-screen bg-white pt-24">
+        <div className="max-w-6xl mx-auto px-6 pb-12">
+          <div className="mb-12">
+            <h1 className="text-4xl font-black text-black mb-2">Dashboard</h1>
+            <p className="text-gray-600 text-lg">There was an error loading your dashboard</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-12">
             <div className="text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-red-600 text-2xl font-bold">!</span>
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-red-600 text-3xl font-bold">!</span>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Something went wrong</h3>
-              <p className="text-gray-600 mb-6">{error}</p>
+              <h3 className="text-2xl font-bold text-black mb-4">Something went wrong</h3>
+              <p className="text-gray-600 mb-8 text-lg">{error}</p>
               <button
                 onClick={() => window.location.reload()}
-                className="bg-brand text-brand-foreground px-4 py-2 rounded-lg hover:bg-brand/90 transition-colors"
+                className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors"
               >
                 Try Again
               </button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="pt-24 p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Welcome back, {(user as any)?.user_metadata?.full_name || user?.email}</p>
-      </div>
+    <div className="min-h-screen bg-white pt-24">
+      <div className="max-w-6xl mx-auto px-6 pb-12">
+        <div className="mb-12">
+          <h1 className="text-4xl font-black text-black mb-2">Dashboard</h1>
+          <p className="text-gray-600 text-lg">Welcome back, {(user as any)?.user_metadata?.full_name || user?.email}</p>
+        </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {[
-          {
-            title: 'Total Courses',
-            value: progress?.courses_enrolled || '0',
-            description: 'Enrolled courses'
-          },
-          {
-            title: 'Completed',
-            value: progress?.courses_completed || '0',
-            description: 'Courses finished'
-          },
-          {
-            title: 'Quiz Attempts',
-            value: progress?.quizzes_taken || '0',
-            description: 'Total quiz attempts'
-          },
-          {
-            title: 'Avg Score',
-            value: progress?.average_score ? `${Math.round(progress.average_score)}%` : '0%',
-            description: 'Quiz performance'
-          }
-        ].map((stat, index) => (
-          <Card key={index}>
-            <CardContent className="p-6">
-              <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-              <div className="text-sm font-medium text-gray-900">{stat.title}</div>
-              <div className="text-sm text-gray-600">{stat.description}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {[
+            {
+              title: 'Total Courses',
+              value: progress?.courses_enrolled || '0',
+              description: 'Enrolled courses',
+              color: 'bg-red-600'
+            },
+            {
+              title: 'Completed',
+              value: progress?.courses_completed || '0',
+              description: 'Courses finished',
+              color: 'bg-green-600'
+            },
+            {
+              title: 'Quiz Attempts',
+              value: progress?.quizzes_taken || '0',
+              description: 'Total quiz attempts',
+              color: 'bg-blue-600'
+            },
+            {
+              title: 'Avg Score',
+              value: progress?.average_score ? `${Math.round(progress.average_score)}%` : '0%',
+              description: 'Quiz performance',
+              color: 'bg-purple-600'
+            }
+          ].map((stat, index) => (
+            <div key={index} className="bg-white rounded-2xl border border-gray-200 shadow-lg p-8 hover:shadow-xl transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`w-12 h-12 rounded-full ${stat.color} flex items-center justify-center`}>
+                  <div className="w-3 h-3 bg-white rounded-full"></div>
+                </div>
+                <div className="text-3xl font-black text-black">{stat.value}</div>
+              </div>
+              <div className="text-lg font-bold text-black">{stat.title}</div>
+              <div className="text-sm text-gray-600 font-medium">{stat.description}</div>
+            </div>
+          ))}
+        </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Current Courses */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Current Courses</CardTitle>
-            <CardDescription>Your enrolled courses and progress</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {courses.length > 0 ? (
-              <div className="space-y-4">
-                {courses.slice(0, 5).map((course) => (
-                  <div key={course.id} className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{course.title}</p>
-                          <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-                            <div 
-                              className="bg-brand h-2 rounded-full" 
-                              style={{ width: `${course.progress_percentage}%` }}
-                            />
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Current Courses */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg">
+            <div className="p-8 border-b border-gray-200 bg-black rounded-t-2xl">
+              <h2 className="text-2xl font-bold text-white">Current Courses</h2>
+              <p className="text-gray-300 text-base">Your enrolled courses and progress</p>
+            </div>
+            <div className="p-8">
+              {courses.length > 0 ? (
+                <div className="space-y-6">
+                  {courses.slice(0, 5).map((course) => (
+                    <div key={course.id} className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 bg-red-600 rounded-full mr-4"></div>
+                          <div className="flex-1">
+                            <p className="text-base font-bold text-black">{course.title}</p>
+                            <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
+                              <div 
+                                className="bg-red-600 h-3 rounded-full transition-all duration-500" 
+                                style={{ width: `${course.progress_percentage}%` }}
+                              />
+                            </div>
+                            <p className="text-sm text-gray-600 mt-2 font-medium">
+                              {course.progress_percentage}% complete
+                            </p>
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {course.progress_percentage}% complete
-                          </p>
                         </div>
                       </div>
+                      <Link
+                        href={`/courses/${course.id}/study`}
+                        className="ml-6 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+                      >
+                        Continue
+                      </Link>
                     </div>
+                  ))}
+                  {courses.length > 5 && (
                     <Link
-                      href={`/courses/${course.id}/study`}
-                      className="ml-4 bg-brand text-brand-foreground px-3 py-1 rounded text-xs hover:bg-brand/90 transition-colors"
+                      href="/courses"
+                      className="block text-center text-black hover:text-red-600 text-base font-bold pt-4 transition-colors"
                     >
-                      Continue
+                      View all courses →
                     </Link>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <span className="text-gray-400 text-2xl">📚</span>
                   </div>
-                ))}
-                {courses.length > 5 && (
+                  <h3 className="text-xl font-bold text-black mb-4">No courses yet</h3>
+                  <p className="text-gray-600 mb-6 text-base">Start your learning journey by enrolling in a course</p>
                   <Link
                     href="/courses"
-                    className="block text-center text-blue-600 hover:text-blue-700 text-sm font-medium pt-2"
+                    className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-colors"
                   >
-                    View all courses →
+                    Browse Courses
                   </Link>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Image src="/Icons8/icons8-document-50.png" alt="No courses" width={56} height={56} className="w-14 h-14 opacity-40 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No courses yet</h3>
-                <p className="text-gray-600 mb-4">Start your learning journey by enrolling in a course</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Recent Quiz Results */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg">
+            <div className="p-8 border-b border-gray-200 bg-black rounded-t-2xl">
+              <h2 className="text-2xl font-bold text-white">Recent Quiz Results</h2>
+              <p className="text-gray-300 text-base">Your latest quiz performances</p>
+            </div>
+            <div className="p-8">
+              {quizAttempts.length > 0 ? (
+                <div className="space-y-6">
+                  {quizAttempts.slice(0, 5).map((attempt) => (
+                    <div key={attempt.id} className="flex items-center">
+                      <div className={`w-3 h-3 rounded-full mr-4 ${
+                        attempt.score >= 80 ? 'bg-green-500' : 
+                        attempt.score >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                      }`}></div>
+                      <div className="flex-1">
+                        <p className="text-base font-bold text-black">{attempt.quiz_title}</p>
+                        <p className="text-sm text-gray-600 font-medium">
+                          {new Date(attempt.completed_at).toLocaleDateString()} • {attempt.time_taken_minutes} min
+                        </p>
+                      </div>
+                      <div className={`text-lg font-black ${
+                        attempt.score >= 80 ? 'text-green-600' : 
+                        attempt.score >= 60 ? 'text-yellow-600' : 'text-red-600'
+                      }`}>
+                        {attempt.score}%
+                      </div>
+                    </div>
+                  ))}
+                  {quizAttempts.length > 5 && (
+                    <Link
+                      href="/dashboard/results"
+                      className="block text-center text-black hover:text-red-600 text-base font-bold pt-4 transition-colors"
+                    >
+                      View all results →
+                    </Link>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <span className="text-gray-400 text-2xl">🧩</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-black mb-4">No quizzes taken yet</h3>
+                  <p className="text-gray-600 mb-6 text-base">Test your knowledge with our interactive quizzes</p>
+                  <Link
+                    href="/quizzes"
+                    className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-colors"
+                  >
+                    Take a Quiz
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mt-12">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg">
+            <div className="p-8 border-b border-gray-200 bg-black rounded-t-2xl">
+              <h2 className="text-2xl font-bold text-white">Quick Actions</h2>
+              <p className="text-gray-300 text-base">Common learning activities</p>
+            </div>
+            <div className="p-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Link
                   href="/courses"
-                  className="bg-brand text-brand-foreground px-4 py-2 rounded-lg hover:bg-brand/90 transition-colors"
+                  className="flex items-center p-6 rounded-xl border-2 border-gray-200 hover:border-red-600 hover:bg-red-50 transition-all duration-300 group"
                 >
-                  Browse Courses
-                </Link>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Recent Quiz Results */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Quiz Results</CardTitle>
-            <CardDescription>Your latest quiz performances</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {quizAttempts.length > 0 ? (
-              <div className="space-y-4">
-                {quizAttempts.slice(0, 5).map((attempt) => (
-                  <div key={attempt.id} className="flex items-center">
-                    <div className={`w-2 h-2 rounded-full mr-3 ${
-                      attempt.score >= 80 ? 'bg-green-500' : 
-                      attempt.score >= 60 ? 'bg-yellow-500' : 'bg-red-500'
-                    }`}></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{attempt.quiz_title}</p>
-                      <p className="text-xs text-gray-500">
-                        {new Date(attempt.completed_at).toLocaleDateString()} • {attempt.time_taken_minutes} min
-                      </p>
-                    </div>
-                    <div className={`text-sm font-bold ${
-                      attempt.score >= 80 ? 'text-green-600' : 
-                      attempt.score >= 60 ? 'text-yellow-600' : 'text-red-600'
-                    }`}>
-                      {attempt.score}%
-                    </div>
+                  <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center mr-6 group-hover:bg-red-700 transition-colors">
+                    <span className="text-white text-xl">📚</span>
                   </div>
-                ))}
-                {quizAttempts.length > 5 && (
-                  <Link
-                    href="/dashboard/results"
-                    className="block text-center text-gray-900 hover:text-black text-sm font-medium pt-2"
-                  >
-                    View all results →
-                  </Link>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Image src="/Icons8/icons8-puzzle-50.png" alt="No quizzes" width={56} height={56} className="w-14 h-14 opacity-40 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No quizzes taken yet</h3>
-                <p className="text-gray-600 mb-4">Test your knowledge with our interactive quizzes</p>
+                  <div>
+                    <div className="font-bold text-black text-lg">Browse Courses</div>
+                    <div className="text-sm text-gray-600">Discover new learning opportunities</div>
+                  </div>
+                </Link>
+                
                 <Link
                   href="/quizzes"
-                  className="bg-brand text-brand-foreground px-4 py-2 rounded-lg hover:bg-brand/90 transition-colors"
+                  className="flex items-center p-6 rounded-xl border-2 border-gray-200 hover:border-red-600 hover:bg-red-50 transition-all duration-300 group"
                 >
-                  Take a Quiz
+                  <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center mr-6 group-hover:bg-red-700 transition-colors">
+                    <span className="text-white text-xl">🧩</span>
+                  </div>
+                  <div>
+                    <div className="font-bold text-black text-lg">Take a Quiz</div>
+                    <div className="text-sm text-gray-600">Test your knowledge and skills</div>
+                  </div>
+                </Link>
+                
+                <Link
+                  href="/profile"
+                  className="flex items-center p-6 rounded-xl border-2 border-gray-200 hover:border-red-600 hover:bg-red-50 transition-all duration-300 group"
+                >
+                  <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center mr-6 group-hover:bg-red-700 transition-colors">
+                    <span className="text-white text-xl">👤</span>
+                  </div>
+                  <div>
+                    <div className="font-bold text-black text-lg">Update Profile</div>
+                    <div className="text-sm text-gray-600">Manage your account settings</div>
+                  </div>
                 </Link>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="mt-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common learning activities</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Link
-                href="/courses"
-                className="flex items-center p-4 rounded-lg border hover:bg-gray-50 transition-colors group"
-              >
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4 group-hover:bg-blue-200 transition-colors">
-                  <Image src="/Icons8/icons8-document-50.png" alt="Browse Courses" width={20} height={20} className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="font-medium">Browse Courses</div>
-                  <div className="text-sm text-gray-500">Discover new learning opportunities</div>
-                </div>
-              </Link>
-              
-              <Link
-                href="/quizzes"
-                className="flex items-center p-4 rounded-lg border hover:bg-gray-50 transition-colors group"
-              >
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-4 group-hover:bg-purple-200 transition-colors">
-                  <Image src="/Icons8/icons8-puzzle-50.png" alt="Take a Quiz" width={20} height={20} className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="font-medium">Take a Quiz</div>
-                  <div className="text-sm text-gray-500">Test your knowledge and skills</div>
-                </div>
-              </Link>
-              
-              <Link
-                href="/profile"
-                className="flex items-center p-4 rounded-lg border hover:bg-gray-50 transition-colors group"
-              >
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-4 group-hover:bg-green-200 transition-colors">
-                  <Image src="/Icons8/icons8-user-50.png" alt="User profile" width={22} height={22} className="w-[22px] h-[22px]" />
-                </div>
-                <div>
-                  <div className="font-medium">Update Profile</div>
-                  <div className="text-sm text-gray-500">Manage your account settings</div>
-                </div>
-              </Link>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

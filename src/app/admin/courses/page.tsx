@@ -72,8 +72,8 @@ export default function CoursesPage() {
 
   const getStatusBadge = (isPublished: boolean) => {
     return isPublished 
-      ? 'bg-green-100 text-green-800' 
-      : 'bg-yellow-100 text-yellow-800'
+      ? 'bg-red-100 text-red-800' 
+      : 'bg-red-100 text-red-800'
   }
 
   const handleCreateCourse = () => {
@@ -157,10 +157,10 @@ export default function CoursesPage() {
   // Check if user is admin (after all hooks)
   if (!user || user.role !== 'admin') {
     return (
-      <div className="p-8">
+      <div className="min-h-screen bg-gray-50 p-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
-          <p className="text-gray-600">Only administrators can access course management.</p>
+          <p className="text-gray-700">Only administrators can access course management.</p>
           <p className="text-sm text-gray-500 mt-2">
             Current role: {user?.role || 'Not logged in'}
           </p>
@@ -171,11 +171,11 @@ export default function CoursesPage() {
 
   if (loading) {
     return (
-      <div className="p-8">
+      <div className="min-h-screen bg-gray-50 p-8">
         <div className="flex items-center justify-center min-h-96">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading courses...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+            <p className="text-gray-700">Loading courses...</p>
           </div>
         </div>
       </div>
@@ -184,12 +184,12 @@ export default function CoursesPage() {
 
   if (error) {
     return (
-      <div className="p-8">
+      <div className="min-h-screen bg-gray-50 p-8">
         <div className="text-center">
           <p className="text-red-600 mb-2">{error}</p>
           <button 
             onClick={() => fetchCourses()}
-            className="mt-2 text-red-600 hover:text-red-700 underline"
+            className="mt-2 text-red-600 hover:text-red-700 underline font-bold"
           >
             Try again
           </button>
@@ -199,80 +199,82 @@ export default function CoursesPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="min-h-screen">
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Course Management</h1>
-            <p className="text-gray-600">Create and manage all platform courses</p>
+            <p className="text-gray-600 mt-1">Create and manage all platform courses</p>
           </div>
-          <button 
-            onClick={handleCreateCourse}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-          >
-            <SvgIcon icon="plus" size={16} variant="white" />
-            Add Enhanced Course
-          </button>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handleCreateCourse}
+              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-bold shadow-md hover:shadow-lg"
+            >
+              <SvgIcon icon="plus" size={16} variant="white" />
+              Add Enhanced Course
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card className="hover:shadow-lg transition-shadow duration-200">
+        <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow duration-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Total Courses</p>
-                <p className="text-3xl font-bold text-foreground mb-1">{courseStats.total}</p>
-                <p className="text-xs text-muted-foreground">All courses on platform</p>
+                <p className="text-sm font-bold text-gray-600 mb-1">Total Courses</p>
+                <p className="text-3xl font-bold text-gray-900 mb-1">{courseStats.total}</p>
+                <p className="text-xs text-gray-500">All courses on platform</p>
               </div>
-              <div className="bg-blue-50 p-3 rounded-full ml-4 flex-shrink-0">
-                <SvgIcon icon="book" size={24} className="text-blue-600" />
+              <div className="bg-red-50 p-3 rounded-full ml-4 flex-shrink-0">
+                <SvgIcon icon="book" size={24} className="text-red-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="hover:shadow-lg transition-shadow duration-200">
+        <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow duration-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Published</p>
-                <p className="text-3xl font-bold text-foreground mb-1">{courseStats.published}</p>
-                <p className="text-xs text-muted-foreground">Live courses</p>
+                <p className="text-sm font-bold text-gray-600 mb-1">Published</p>
+                <p className="text-3xl font-bold text-gray-900 mb-1">{courseStats.published}</p>
+                <p className="text-xs text-gray-500">Live courses</p>
               </div>
-              <div className="bg-green-50 p-3 rounded-full ml-4 flex-shrink-0">
-                <SvgIcon icon="check" size={24} className="text-green-600" />
+              <div className="bg-red-50 p-3 rounded-full ml-4 flex-shrink-0">
+                <SvgIcon icon="check" size={24} className="text-red-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="hover:shadow-lg transition-shadow duration-200">
+        <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow duration-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Drafts</p>
-                <p className="text-3xl font-bold text-foreground mb-1">{courseStats.draft}</p>
-                <p className="text-xs text-muted-foreground">In development</p>
+                <p className="text-sm font-bold text-gray-600 mb-1">Drafts</p>
+                <p className="text-3xl font-bold text-gray-900 mb-1">{courseStats.draft}</p>
+                <p className="text-xs text-gray-500">In development</p>
               </div>
-              <div className="bg-yellow-50 p-3 rounded-full ml-4 flex-shrink-0">
-                <SvgIcon icon="edit" size={24} className="text-yellow-600" />
+              <div className="bg-red-50 p-3 rounded-full ml-4 flex-shrink-0">
+                <SvgIcon icon="edit" size={24} className="text-red-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="hover:shadow-lg transition-shadow duration-200">
+        <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow duration-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Total Students</p>
-                <p className="text-3xl font-bold text-foreground mb-1">{courseStats.totalStudents}</p>
-                <p className="text-xs text-muted-foreground">Enrolled learners</p>
+                <p className="text-sm font-bold text-gray-600 mb-1">Total Students</p>
+                <p className="text-3xl font-bold text-gray-900 mb-1">{courseStats.totalStudents}</p>
+                <p className="text-xs text-gray-500">Enrolled learners</p>
               </div>
-              <div className="bg-purple-50 p-3 rounded-full ml-4 flex-shrink-0">
-                <SvgIcon icon="contacts" size={24} className="text-purple-600" />
+              <div className="bg-red-50 p-3 rounded-full ml-4 flex-shrink-0">
+                <SvgIcon icon="contacts" size={24} className="text-red-600" />
               </div>
             </div>
           </CardContent>
@@ -280,7 +282,7 @@ export default function CoursesPage() {
       </div>
 
       {/* Search and Filter */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+      <div className="mb-8 flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <SvgIcon 
             icon="search" 
@@ -290,13 +292,13 @@ export default function CoursesPage() {
           <input
             type="text"
             placeholder="Search courses or instructors..."
-            className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white shadow-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <select
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white shadow-sm"
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
@@ -309,13 +311,13 @@ export default function CoursesPage() {
       </div>
 
       {/* Courses Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredCourses.map((course) => (
-          <Card key={course.id} className="hover:shadow-lg transition-shadow">
+          <Card key={course.id} className="hover:shadow-lg transition-shadow bg-white border-gray-200">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-lg">{course.title}</CardTitle>
+                  <CardTitle className="text-lg text-gray-900">{course.title}</CardTitle>
                   <CardDescription className="mt-1">{course.description}</CardDescription>
                 </div>
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(course.is_published)}`}>

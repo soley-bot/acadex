@@ -47,3 +47,6 @@ logs
 # Admin folder build files  
 adminacadex/.next/
 adminacadex/node_modules/
+
+# Reference materials (not to be committed)
+open-saas-main/

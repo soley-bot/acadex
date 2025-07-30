@@ -105,9 +105,9 @@ export default function AdminAnalytics() {
     return (
       <div className="p-8">
         <div className="flex items-center justify-center min-h-96">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading analytics...</p>
+          <div className="text-center bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+            <p className="text-gray-700 font-medium">Loading analytics...</p>
           </div>
         </div>
       </div>
@@ -117,11 +117,11 @@ export default function AdminAnalytics() {
   if (error) {
     return (
       <div className="p-8">
-        <div className="text-center">
-          <p className="text-red-600 mb-2">{error}</p>
+        <div className="text-center bg-white p-8 rounded-xl shadow-lg border border-gray-200 max-w-md mx-auto">
+          <p className="text-red-600 mb-4 font-bold">{error}</p>
           <button 
             onClick={fetchAnalytics}
-            className="mt-2 text-red-600 hover:text-red-700 underline"
+            className="text-red-600 hover:text-red-700 underline font-bold bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors"
           >
             Try again
           </button>
@@ -131,12 +131,12 @@ export default function AdminAnalytics() {
   }
   
   return (
-    <div className="p-8">
+    <div className="min-h-screen">
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-            <p className="text-gray-600">Track your platform performance and user engagement</p>
+            <p className="text-gray-600 mt-1">Track your platform performance and user engagement</p>
           </div>
           <div className="flex items-center gap-3">
             <button 
@@ -144,7 +144,7 @@ export default function AdminAnalytics() {
                 adminCache.invalidate('admin:analytics')
                 fetchAnalytics()
               }}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg flex items-center gap-2 transition-colors font-bold shadow-md hover:shadow-lg"
               disabled={loading}
             >
               <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />

@@ -107,23 +107,23 @@ export default function ProfilePage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       
       <div className="max-w-4xl mx-auto px-4 py-8 pt-24">
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="p-6 border-b">
-            <h1 className="text-2xl font-bold text-gray-900">Profile Settings</h1>
+        <div className="bg-white rounded-lg shadow-lg border-gray-800">
+          <div className="p-6 border-b border-gray-200">
+            <h1 className="text-2xl font-bold text-black">Profile Settings</h1>
             <p className="text-gray-600 mt-1">Manage your account information and preferences</p>
           </div>
 
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
             {/* Basic Information */}
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+              <h2 className="text-lg font-bold text-black mb-4">Basic Information</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="name" className="block text-sm font-bold text-black mb-2">
                     Full Name
                   </label>
                   <input
@@ -132,13 +132,13 @@ export default function ProfilePage() {
                     name="name"
                     value={profile.name}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="email" className="block text-sm font-bold text-black mb-2">
                     Email Address
                   </label>
                   <input
@@ -147,7 +147,7 @@ export default function ProfilePage() {
                     name="email"
                     value={profile.email}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
+                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600 bg-gray-50"
                     disabled
                   />
                   <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
@@ -155,7 +155,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="mt-6">
-                <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="bio" className="block text-sm font-bold text-black mb-2">
                   Bio
                 </label>
                 <textarea
@@ -165,17 +165,17 @@ export default function ProfilePage() {
                   value={profile.bio}
                   onChange={handleInputChange}
                   placeholder="Tell us a bit about yourself..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600"
                 />
               </div>
             </div>
 
             {/* Learning Preferences */}
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Learning Preferences</h2>
+              <h2 className="text-lg font-bold text-black mb-4">Learning Preferences</h2>
               
               <div className="mb-6">
-                <label htmlFor="learning_goals" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="learning_goals" className="block text-sm font-bold text-black mb-2">
                   Learning Goals
                 </label>
                 <textarea
@@ -185,12 +185,12 @@ export default function ProfilePage() {
                   value={profile.learning_goals}
                   onChange={handleInputChange}
                   placeholder="What do you want to achieve with your learning?"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-bold text-black mb-3">
                   Preferred Subjects
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -203,9 +203,9 @@ export default function ProfilePage() {
                         type="checkbox"
                         checked={profile.preferred_subjects?.includes(subject) || false}
                         onChange={() => handleSubjectToggle(subject)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-gray-300 text-red-600 focus:ring-red-600"
                       />
-                      <span className="text-sm text-gray-700">{subject}</span>
+                      <span className="text-sm text-black">{subject}</span>
                     </label>
                   ))}
                 </div>
@@ -214,13 +214,13 @@ export default function ProfilePage() {
 
             {/* Profile Picture */}
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Profile Picture</h2>
+              <h2 className="text-lg font-bold text-black mb-4">Profile Picture</h2>
               <div className="flex items-center space-x-6">
-                <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
                   {profile.name ? profile.name.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <div>
-                  <label htmlFor="avatar_url" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="avatar_url" className="block text-sm font-bold text-black mb-2">
                     Avatar URL
                   </label>
                   <input
@@ -230,7 +230,7 @@ export default function ProfilePage() {
                     value={profile.avatar_url}
                     onChange={handleInputChange}
                     placeholder="https://example.com/avatar.jpg"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600"
                   />
                   <p className="text-xs text-gray-500 mt-1">Enter a URL for your profile picture</p>
                 </div>
@@ -251,18 +251,18 @@ export default function ProfilePage() {
             )}
 
             {/* Submit Button */}
-            <div className="flex items-center justify-end space-x-4 pt-6 border-t">
+            <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
               <button
                 type="button"
                 onClick={() => router.push('/dashboard')}
-                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-6 py-2 border-2 border-gray-800 rounded-lg text-black hover:bg-gray-100 transition-colors font-bold"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-bold"
               >
                 {loading ? 'Saving...' : 'Save Changes'}
               </button>

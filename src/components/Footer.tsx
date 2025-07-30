@@ -16,82 +16,79 @@ export default function Footer() {
   const displayYear = isClient ? new Date().getFullYear() : 2025
 
   return (
-    <footer className="relative bg-card border-t overflow-hidden">
+    <footer className="relative bg-black overflow-hidden">
       {/* Background Elements */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-red-600/10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
       
       {/* Main Footer */}
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-16">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center space-x-3 mb-6 group">
-              <span className="text-2xl font-inter font-bold tracking-tight">
-                <span className="text-foreground font-light">ACAD</span>
-                <span className="text-brand font-bold">EX</span>
+              <span className="text-3xl font-black tracking-tight">
+                <span className="text-white">ACAD</span>
+                <span className="text-red-600">E</span>
+                <span className="text-white">X</span>
               </span>
             </Link>
-            <p className="text-gray-600 mb-6 leading-relaxed">
-              Join thousands of students who are already mastering English with our innovative platform.
+            <p className="text-gray-300 mb-8 leading-relaxed text-lg">
+              Join thousands of students who are already mastering skills with our innovative platform.
             </p>
-            <div className="flex space-x-3">
-              {/* Facebook - available */}
+            <div className="flex space-x-4">
+              {/* Social Links */}
               <a 
                 href="https://facebook.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-md border bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-all duration-200"
+                className="w-12 h-12 rounded-lg bg-gray-800 hover:bg-red-600 flex items-center justify-center text-white transition-all duration-200 font-bold text-lg"
                 aria-label="Facebook"
               >
-                <SvgIcon icon="about" size={16} />
+                f
               </a>
               
-              {/* Twitter - using alternative icon */}
               <a 
                 href="#" 
-                className="w-10 h-10 rounded-md border bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-all duration-200"
+                className="w-12 h-12 rounded-lg bg-gray-800 hover:bg-red-600 flex items-center justify-center text-white transition-all duration-200 font-bold text-lg"
                 aria-label="Twitter"
               >
-                <SvgIcon icon="code" size={16} />
+                t
               </a>
               
-              {/* LinkedIn - using briefcase icon */}
               <a 
                 href="#" 
-                className="w-10 h-10 rounded-md border bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-all duration-200"
+                className="w-12 h-12 rounded-lg bg-gray-800 hover:bg-red-600 flex items-center justify-center text-white transition-all duration-200 font-bold text-sm"
                 aria-label="LinkedIn"
               >
-                <SvgIcon icon="briefcase" size={16} />
+                in
               </a>
               
-              {/* Contact/Email */}
               <a 
                 href="mailto:contact@acadex.com" 
-                className="w-10 h-10 rounded-md border bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-all duration-200"
+                className="w-12 h-12 rounded-lg bg-gray-800 hover:bg-red-600 flex items-center justify-center text-white transition-all duration-200 font-bold text-lg"
                 aria-label="Contact Us"
               >
-                <SvgIcon icon="paperclip" size={16} />
+                @
               </a>
             </div>
           </div>
 
-          {/* English Courses */}
+          {/* Courses */}
           <div>
-            <h3 className="text-sm font-semibold mb-4">English Courses</h3>
-            <ul className="space-y-3">
+            <h3 className="text-lg font-bold mb-6 text-white">Popular Courses</h3>
+            <ul className="space-y-4">
               {[
-                { name: "Grammar Mastery", href: "/courses/grammar", icon: "document" },
-                { name: "Vocabulary Builder", href: "/courses/vocabulary", icon: "dictionary" },
-                { name: "Pronunciation Training", href: "/courses/pronunciation", icon: "microphone" },
-                { name: "Business English", href: "/courses/business-english", icon: "briefcase" }
+                { name: "Web Development", href: "/courses/web-development" },
+                { name: "Data Science", href: "/courses/data-science" },
+                { name: "Digital Marketing", href: "/courses/digital-marketing" },
+                { name: "Business Skills", href: "/courses/business-skills" }
               ].map((link) => (
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="text-gray-600 hover:text-gray-900 transition-colors duration-200 text-sm flex items-center gap-2"
+                    className="text-gray-300 hover:text-red-400 transition-colors duration-200 text-base"
                   >
-                    <SvgIcon icon={link.icon} size={14} />
                     {link.name}
                   </Link>
                 </li>
@@ -101,21 +98,20 @@ export default function Footer() {
 
           {/* Support */}
           <div>
-            <h3 className="text-sm font-semibold mb-4">Support</h3>
-            <ul className="space-y-3">
+            <h3 className="text-lg font-bold mb-6 text-white">Support</h3>
+            <ul className="space-y-4">
               {[
-                { name: "Help Center", href: "/help", icon: "info" },
-                { name: "Contact Us", href: "/contact", icon: "connect" },
-                { name: "Community", href: "/community", icon: "users" },
-                { name: "Blog", href: "/blog", icon: "document" },
-                { name: "Careers", href: "/careers", icon: "briefcase" }
+                { name: "Help Center", href: "/help" },
+                { name: "Contact Us", href: "/contact" },
+                { name: "Community", href: "/community" },
+                { name: "Blog", href: "/blog" },
+                { name: "Careers", href: "/careers" }
               ].map((link) => (
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="text-gray-600 hover:text-gray-900 transition-colors duration-200 text-sm flex items-center gap-2"
+                    className="text-gray-300 hover:text-red-400 transition-colors duration-200 text-base"
                   >
-                    <SvgIcon icon={link.icon} size={14} />
                     {link.name}
                   </Link>
                 </li>
@@ -125,21 +121,20 @@ export default function Footer() {
 
           {/* Company */}
           <div>
-            <h3 className="text-sm font-semibold mb-4">Company</h3>
-            <ul className="space-y-3">
+            <h3 className="text-lg font-bold mb-6 text-white">Company</h3>
+            <ul className="space-y-4">
               {[
-                { name: "About Us", href: "/about", icon: "info" },
-                { name: "Privacy Policy", href: "/privacy", icon: "document" },
-                { name: "Terms of Service", href: "/terms", icon: "document" },
-                { name: "Cookie Policy", href: "/cookie-policy", icon: "document" },
-                { name: "Accessibility", href: "/accessibility", icon: "connect" }
+                { name: "About Us", href: "/about" },
+                { name: "Privacy Policy", href: "/privacy" },
+                { name: "Terms of Service", href: "/terms" },
+                { name: "Cookie Policy", href: "/cookie-policy" },
+                { name: "Accessibility", href: "/accessibility" }
               ].map((link) => (
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="text-gray-600 hover:text-gray-900 transition-colors duration-200 text-sm flex items-center gap-2"
+                    className="text-gray-300 hover:text-red-400 transition-colors duration-200 text-base"
                   >
-                    <SvgIcon icon={link.icon} size={14} />
                     {link.name}
                   </Link>
                 </li>
@@ -150,21 +145,20 @@ export default function Footer() {
       </div>
 
       {/* Newsletter Section */}
-      <div className="relative border-t">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+      <div className="relative border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h3 className="text-lg font-semibold mb-3 text-gray-900">Join Our English Learning Community</h3>
-            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Get IELTS tips, grammar guides, vocabulary lessons, and exclusive English learning resources delivered to your inbox.
+            <h3 className="text-2xl md:text-3xl font-black mb-4 text-white">Join Our Learning Community</h3>
+            <p className="text-gray-300 mb-8 max-w-3xl mx-auto text-lg leading-relaxed">
+              Get tips, guides, lessons, and exclusive learning resources delivered to your inbox.
             </p>
-            <div className="max-w-md mx-auto flex gap-3">
+            <div className="max-w-lg mx-auto flex gap-4">
               <input 
                 type="email" 
                 placeholder="Enter your email"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 px-6 py-4 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder-gray-400"
               />
-              <button className="bg-blue-600 text-white hover:bg-blue-700 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2">
-                <SvgIcon icon="angleRight" variant="white" size={14} />
+              <button className="bg-red-600 text-white hover:bg-red-700 px-8 py-4 rounded-lg font-bold transition-all duration-200 shadow-lg hover:shadow-xl">
                 Subscribe
               </button>
             </div>
@@ -173,24 +167,23 @@ export default function Footer() {
       </div>
 
       {/* Bottom Footer */}
-      <div className="relative border-t">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-600 text-sm">
-              © {displayYear} ACADEX. All rights reserved. Made with <SvgIcon icon="heart" size={16} className="inline text-red-500" /> for learners worldwide.
+      <div className="relative border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <p className="text-gray-400 text-base">
+              © {displayYear} ACADEX. All rights reserved. Made with ❤️ for learners worldwide.
             </p>
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-8">
               {[
-                { name: "Sitemap", href: "/sitemap", icon: "settings" },
-                { name: "Status", href: "/status", icon: "check" },
-                { name: "Security", href: "/security", icon: "lock" }
+                { name: "Sitemap", href: "/sitemap" },
+                { name: "Status", href: "/status" },
+                { name: "Security", href: "/security" }
               ].map((link) => (
                 <Link 
                   key={link.name}
                   href={link.href} 
-                  className="text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200 flex items-center gap-1"
+                  className="text-gray-400 hover:text-red-400 text-base transition-colors duration-200"
                 >
-                  <SvgIcon icon={link.icon} size={12} />
                   {link.name}
                 </Link>
               ))}

@@ -144,9 +144,9 @@ export default function QuizzesPage() {
     return (
       <div className="p-8">
         <div className="flex items-center justify-center min-h-96">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading quizzes...</p>
+          <div className="text-center bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+            <p className="text-gray-700 font-medium">Loading quizzes...</p>
           </div>
         </div>
       </div>
@@ -156,11 +156,11 @@ export default function QuizzesPage() {
   if (error) {
     return (
       <div className="p-8">
-        <div className="text-center">
-          <p className="text-red-600 mb-2">{error}</p>
+        <div className="text-center bg-white p-8 rounded-xl shadow-lg border border-gray-200 max-w-md mx-auto">
+          <p className="text-red-600 mb-4 font-bold">{error}</p>
           <button 
             onClick={fetchQuizzes}
-            className="mt-2 text-red-600 hover:text-red-700 underline"
+            className="text-red-600 hover:text-red-700 underline font-bold bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors"
           >
             Try again
           </button>
@@ -170,18 +170,18 @@ export default function QuizzesPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="min-h-screen">
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Quiz Management</h1>
-            <p className="text-gray-600">Create and manage interactive quizzes</p>
+            <p className="text-gray-600 mt-1">Create and manage quizzes for the platform</p>
           </div>
-          <button 
+          <button
             onClick={handleCreateQuiz}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-bold shadow-md hover:shadow-lg"
           >
-            <Plus className="h-4 w-4" />
+            <Plus size={16} />
             Create Quiz
           </button>
         </div>
@@ -189,15 +189,15 @@ export default function QuizzesPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-        <Card className="hover:shadow-lg transition-shadow duration-200">
+        <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow duration-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Total Quizzes</p>
-                <p className="text-3xl font-bold text-foreground mb-1">{quizStats.total}</p>
-                <p className="text-xs text-muted-foreground">All quizzes</p>
+                <p className="text-sm font-medium text-gray-600 mb-1">Total Quizzes</p>
+                <p className="text-3xl font-bold text-gray-900 mb-1">{quizStats.total}</p>
+                <p className="text-xs text-gray-500">All quizzes</p>
               </div>
-              <div className="bg-blue-50 p-3 rounded-full ml-4 flex-shrink-0">
+              <div className="bg-red-50 p-3 rounded-full ml-4 flex-shrink-0">
                 <Brain className="h-6 w-6 text-blue-600" />
               </div>
             </div>
@@ -208,9 +208,9 @@ export default function QuizzesPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Published</p>
-                <p className="text-3xl font-bold text-foreground mb-1">{quizStats.published}</p>
-                <p className="text-xs text-muted-foreground">Live quizzes</p>
+                <p className="text-sm font-medium text-gray-600 mb-1">Published</p>
+                <p className="text-3xl font-bold text-gray-900 mb-1">{quizStats.published}</p>
+                <p className="text-xs text-gray-500">Live quizzes</p>
               </div>
               <div className="bg-green-50 p-3 rounded-full ml-4 flex-shrink-0">
                 <Eye className="h-6 w-6 text-green-600" />
@@ -223,9 +223,9 @@ export default function QuizzesPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Drafts</p>
-                <p className="text-3xl font-bold text-foreground mb-1">{quizStats.draft}</p>
-                <p className="text-xs text-muted-foreground">In development</p>
+                <p className="text-sm font-medium text-gray-600 mb-1">Drafts</p>
+                <p className="text-3xl font-bold text-gray-900 mb-1">{quizStats.draft}</p>
+                <p className="text-xs text-gray-500">In development</p>
               </div>
               <div className="bg-yellow-50 p-3 rounded-full ml-4 flex-shrink-0">
                 <Edit className="h-6 w-6 text-yellow-600" />
@@ -238,9 +238,9 @@ export default function QuizzesPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Total Questions</p>
-                <p className="text-3xl font-bold text-foreground mb-1">{quizStats.totalQuestions}</p>
-                <p className="text-xs text-muted-foreground">All questions</p>
+                <p className="text-sm font-medium text-gray-600 mb-1">Total Questions</p>
+                <p className="text-3xl font-bold text-gray-900 mb-1">{quizStats.totalQuestions}</p>
+                <p className="text-xs text-gray-500">All questions</p>
               </div>
               <div className="bg-purple-50 p-3 rounded-full ml-4 flex-shrink-0">
                 <Users className="h-6 w-6 text-purple-600" />
@@ -253,9 +253,9 @@ export default function QuizzesPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Avg Passing Score</p>
-                <p className="text-3xl font-bold text-foreground mb-1">{quizStats.averagePassingScore}%</p>
-                <p className="text-xs text-muted-foreground">Required to pass</p>
+                <p className="text-sm font-medium text-gray-600 mb-1">Avg Passing Score</p>
+                <p className="text-3xl font-bold text-gray-900 mb-1">{quizStats.averagePassingScore}%</p>
+                <p className="text-xs text-gray-500">Required to pass</p>
               </div>
               <div className="bg-indigo-50 p-3 rounded-full ml-4 flex-shrink-0">
                 <BarChart3 className="h-6 w-6 text-indigo-600" />
