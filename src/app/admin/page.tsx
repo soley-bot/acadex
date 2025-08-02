@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
+import { logger } from '@/lib/logger'
 import SvgIcon from '@/components/ui/SvgIcon'
 
 interface DashboardStats {
@@ -26,22 +27,35 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchDashboardStats()
-  }, [])
-
-  const fetchDashboardStats = async () => {
+  const fetchDashboardStats = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
 
-      // Fetch all stats in parallel
-      const [usersResult, coursesResult, quizzesResult, attemptsResult] = await Promise.all([
-        supabase.from('users').select('id'),
-        supabase.from('courses').select('id, price, is_published'),
-        supabase.from('quizzes').select('id'),
-        supabase.from('quiz_attempts').select('id')
+      logger.info('Fetching dashboard statistics', { component: 'AdminDashboard' })
+
+      // Fetch all stats in parallel with timeout
+      const timeout = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout after 15 seconds')), 15000)
+      )
+
+      const dataPromise = Promise.all([
+        supabase.from('users').select('id').limit(1000),
+        supabase.from('courses').select('id, price, is_published').limit(1000),
+        supabase.from('quizzes').select('id').limit(1000),
+        supabase.from('quiz_attempts').select('id').limit(1000)
       ])
+
+      const [usersResult, coursesResult, quizzesResult, attemptsResult] = await Promise.race([
+        dataPromise,
+        timeout
+      ]) as any[]
+
+      // Handle potential errors in results
+      if (usersResult.error) throw usersResult.error
+      if (coursesResult.error) throw coursesResult.error
+      if (quizzesResult.error) throw quizzesResult.error
+      if (attemptsResult.error) throw attemptsResult.error
 
       const users = usersResult.data || []
       const courses = coursesResult.data || []
@@ -49,32 +63,46 @@ export default function AdminDashboard() {
       const attempts = attemptsResult.data || []
 
       // Calculate revenue from courses
-      const totalRevenue = courses.reduce((sum, course) => sum + (Number(course.price) || 0), 0)
-      const publishedCourses = courses.filter(course => course.is_published).length
+      const totalRevenue = courses.reduce((sum: number, course: any) => sum + (Number(course.price) || 0), 0)
+      const publishedCourses = courses.filter((course: any) => course.is_published).length
 
-      setStats({
+      const newStats = {
         totalUsers: users.length,
         totalCourses: courses.length,
         totalQuizzes: quizzes.length,
         totalAttempts: attempts.length,
         totalRevenue,
         publishedCourses
-      })
+      }
 
-    } catch (err) {
-      console.error('Error fetching dashboard stats:', err)
-      setError('Failed to load dashboard statistics')
+      setStats(newStats)
+      logger.info('Dashboard statistics loaded successfully', newStats)
+
+    } catch (err: any) {
+      logger.error('Dashboard stats error:', err)
+      setError(err.message || 'Failed to load dashboard statistics')
+      logger.error('Failed to fetch dashboard stats', err)
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchDashboardStats()
+  }, [fetchDashboardStats])
 
   if (loading) {
     return (
-      <div className="min-h-screen">
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading dashboard...</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
+              <div className="absolute inset-0 rounded-full h-16 w-16 border-4 border-blue-100 opacity-25 mx-auto"></div>
+            </div>
+            <p className="text-gray-600 font-medium">Loading dashboard...</p>
+            <p className="text-sm text-gray-500 mt-2">Gathering latest statistics</p>
+          </div>
         </div>
       </div>
     )
@@ -82,15 +110,20 @@ export default function AdminDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen">
-        <div className="text-center py-12 bg-white rounded-lg shadow-lg mx-6">
-          <p className="text-red-600 mb-2 font-bold">{error}</p>
-          <button 
-            onClick={fetchDashboardStats}
-            className="text-red-600 hover:text-red-700 underline font-bold bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors"
-          >
-            Try again
-          </button>
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center bg-white p-8 rounded-2xl shadow-xl border border-gray-200 max-w-md mx-auto">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <SvgIcon icon="ban" size={24} className="text-red-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to Load Dashboard</h3>
+            <p className="text-red-600 mb-4 text-sm">{error}</p>
+            <button 
+              onClick={fetchDashboardStats}
+              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-md hover:shadow-lg"
+            >
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -100,58 +133,82 @@ export default function AdminDashboard() {
     {
       title: 'Total Users',
       value: stats.totalUsers.toLocaleString(),
-      description: 'Registered users on the platform',
-      color: 'text-red-600',
-      bgColor: 'bg-red-50',
-      icon: 'contacts'
+      description: 'Registered learners',
+      icon: 'contacts',
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50'
     },
     {
       title: 'Total Courses',
       value: stats.totalCourses.toLocaleString(),
-      description: `${stats.publishedCourses} published courses`,
-      color: 'text-red-600',
-      bgColor: 'bg-red-50',
-      icon: 'briefcase'
+      description: 'Educational content',
+      icon: 'learning',
+      color: 'text-green-600',
+      bgColor: 'bg-green-50'
+    },
+    {
+      title: 'Published Courses',
+      value: stats.publishedCourses.toLocaleString(),
+      description: 'Active learning paths',
+      icon: 'check',
+      color: 'text-emerald-600',
+      bgColor: 'bg-emerald-50'
     },
     {
       title: 'Total Quizzes',
       value: stats.totalQuizzes.toLocaleString(),
-      description: 'Available quizzes',
-      color: 'text-red-600',
-      bgColor: 'bg-red-50',
-      icon: 'cursor'
+      description: 'Assessment tools',
+      icon: 'quiz',
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50'
     },
     {
       title: 'Quiz Attempts',
       value: stats.totalAttempts.toLocaleString(),
-      description: 'Total quiz attempts',
+      description: 'Learning assessments',
+      icon: 'assignment',
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50'
+    },
+    {
+      title: 'Total Revenue',
+      value: `$${stats.totalRevenue.toLocaleString()}`,
+      description: 'Platform earnings',
+      icon: 'monetization_on',
       color: 'text-red-600',
-      bgColor: 'bg-red-50',
-      icon: 'checkmark'
+      bgColor: 'bg-red-50'
     }
   ]
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+      {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Welcome to the admin dashboard</p>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+            Admin Dashboard
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Welcome back! Here&apos;s what&apos;s happening on your platform.
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* Statistics Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {dashboardCards.map((stat) => (
-          <Card key={stat.title} className="bg-white border-gray-200 hover:shadow-lg transition-shadow duration-200">
+          <Card key={stat.title} className="bg-white border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-bold text-gray-600 mb-1">{stat.title}</p>
+                  <p className="text-sm font-semibold text-gray-600 mb-2">{stat.title}</p>
                   <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
-                  <p className="text-xs text-gray-500">{stat.description}</p>
+                  <p className="text-sm text-gray-500">{stat.description}</p>
                 </div>
-                <div className={`${stat.bgColor} p-3 rounded-full ml-4 flex-shrink-0`}>
+                <div className={`${stat.bgColor} p-4 rounded-xl ml-4 flex-shrink-0`}>
                   <SvgIcon 
                     icon={stat.icon} 
-                    size={24} 
+                    size={28} 
                     className={`${stat.color}`}
                   />
                 </div>
@@ -161,32 +218,36 @@ export default function AdminDashboard() {
         ))}
       </div>
 
+      {/* Additional Dashboard Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="bg-white border-gray-200 shadow-md">
+        <Card className="bg-white border-gray-200 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-gray-900 font-bold">Recent Activity</CardTitle>
+            <CardTitle className="text-gray-900 font-bold flex items-center">
+              <SvgIcon icon="timeline" size={20} className="text-blue-600 mr-2" />
+              Recent Activity
+            </CardTitle>
             <CardDescription>Latest platform activities</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-red-600 rounded-full mr-3"></div>
+              <div className="flex items-center p-3 rounded-lg bg-blue-50 border border-blue-100">
+                <div className="w-3 h-3 bg-blue-600 rounded-full mr-4"></div>
                 <div className="flex-1">
-                  <p className="text-sm font-bold text-gray-900">New user registered</p>
+                  <p className="text-sm font-semibold text-gray-900">New user registered</p>
                   <p className="text-xs text-gray-500">2 minutes ago</p>
                 </div>
               </div>
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-red-600 rounded-full mr-3"></div>
+              <div className="flex items-center p-3 rounded-lg bg-green-50 border border-green-100">
+                <div className="w-3 h-3 bg-green-600 rounded-full mr-4"></div>
                 <div className="flex-1">
-                  <p className="text-sm font-bold text-gray-900">Course published</p>
+                  <p className="text-sm font-semibold text-gray-900">Course published</p>
                   <p className="text-xs text-gray-500">1 hour ago</p>
                 </div>
               </div>
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-red-600 rounded-full mr-3"></div>
+              <div className="flex items-center p-3 rounded-lg bg-purple-50 border border-purple-100">
+                <div className="w-3 h-3 bg-purple-600 rounded-full mr-4"></div>
                 <div className="flex-1">
-                  <p className="text-sm font-bold text-gray-900">Quiz completed</p>
+                  <p className="text-sm font-semibold text-gray-900">Quiz completed</p>
                   <p className="text-xs text-gray-500">3 hours ago</p>
                 </div>
               </div>
@@ -194,24 +255,50 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-gray-200 shadow-md">
+        <Card className="bg-white border-gray-200 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-gray-900 font-bold">Quick Actions</CardTitle>
+            <CardTitle className="text-gray-900 font-bold flex items-center">
+              <SvgIcon icon="dashboard" size={20} className="text-red-600 mr-2" />
+              Quick Actions
+            </CardTitle>
             <CardDescription>Commonly used admin functions</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <button className="w-full text-left p-3 rounded-lg border-2 border-gray-800 hover:bg-gray-50 transition-colors">
-                <div className="font-bold text-black">Add New User</div>
-                <div className="text-sm text-gray-500">Create a new user account</div>
+              <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 group">
+                <div className="flex items-center">
+                  <div className="bg-blue-100 p-2 rounded-lg mr-3 group-hover:bg-blue-200 transition-colors">
+                    <SvgIcon icon="person_add" size={20} className="text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900">Add New User</div>
+                    <div className="text-sm text-gray-500">Create a new user account</div>
+                  </div>
+                </div>
               </button>
-              <button className="w-full text-left p-3 rounded-lg border-2 border-gray-800 hover:bg-gray-50 transition-colors">
-                <div className="font-bold text-black">Create Course</div>
-                <div className="text-sm text-gray-500">Add a new course to the platform</div>
+              
+              <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200 group">
+                <div className="flex items-center">
+                  <div className="bg-green-100 p-2 rounded-lg mr-3 group-hover:bg-green-200 transition-colors">
+                    <SvgIcon icon="add" size={20} className="text-green-600" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900">Create Course</div>
+                    <div className="text-sm text-gray-500">Add a new course to the platform</div>
+                  </div>
+                </div>
               </button>
-              <button className="w-full text-left p-3 rounded-lg border-2 border-gray-800 hover:bg-gray-50 transition-colors">
-                <div className="font-bold text-black">Create Quiz</div>
-                <div className="text-sm text-gray-500">Design a new quiz</div>
+              
+              <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200 group">
+                <div className="flex items-center">
+                  <div className="bg-purple-100 p-2 rounded-lg mr-3 group-hover:bg-purple-200 transition-colors">
+                    <SvgIcon icon="quiz" size={20} className="text-purple-600" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900">Create Quiz</div>
+                    <div className="text-sm text-gray-500">Design a new quiz</div>
+                  </div>
+                </div>
               </button>
             </div>
           </CardContent>

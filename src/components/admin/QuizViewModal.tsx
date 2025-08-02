@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { useState, useEffect, useCallback } from 'react'
 import { X, Eye, Edit, Clock, Users, BarChart3, CheckCircle, XCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -99,7 +101,7 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
       })
 
     } catch (err) {
-      console.error('Error loading quiz data:', err)
+      logger.error('Error loading quiz data:', err)
     } finally {
       setLoading(false)
     }

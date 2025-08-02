@@ -1,6 +1,8 @@
 import { supabase } from './supabase'
 import type { User, Course, Quiz, QuizQuestion, QuizAttempt, Enrollment } from './supabase'
 
+import { logger } from '@/lib/logger'
+
 // User Operations
 export const userAPI = {
   // Get current user profile
@@ -441,7 +443,7 @@ export async function getQuizzes(filters?: { category?: string; difficulty?: str
   const { data, error } = await query.order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching quizzes:', error)
+    logger.error('Error fetching quizzes:', error)
     return []
   }
 
@@ -463,7 +465,7 @@ export async function getRandomQuizQuestions(limit: number = 3) {
     .limit(limit)
 
   if (error) {
-    console.error('Error fetching random quiz questions:', error)
+    logger.error('Error fetching random quiz questions:', error)
     return []
   }
 
@@ -693,7 +695,7 @@ export const getQuizResults = async (resultId: string) => {
     .single()
 
   if (attemptError || !attempt) {
-    console.error('Error fetching quiz attempt:', attemptError)
+    logger.error('Error fetching quiz attempt:', attemptError)
     return { data: null, error: attemptError }
   }
 
@@ -705,7 +707,7 @@ export const getQuizResults = async (resultId: string) => {
     .order('order_index')
 
   if (questionsError || !questions) {
-    console.error('Error fetching quiz questions:', questionsError)
+    logger.error('Error fetching quiz questions:', questionsError)
     return { data: null, error: questionsError }
   }
 

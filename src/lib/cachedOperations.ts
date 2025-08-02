@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger'
+
 /**
  * Enhanced Database Operations with Advanced Caching
  * Integrates the new cache system with database operations
@@ -126,10 +128,10 @@ export const cachedCourseAPI = {
 
   // Update course with cache invalidation
   updateCourse: async (id: string, updates: Partial<Course>): Promise<Course> => {
-    console.log('🔄 [DATABASE_API] === STARTING DATABASE UPDATE ===')
-    console.log('🔄 [DATABASE_API] Timestamp:', new Date().toISOString())
-    console.log('🔄 [DATABASE_API] Course ID:', id)
-    console.log('� [DATABASE_API] Updates to apply:', JSON.stringify(updates, null, 2))
+    logger.debug('🔄 [DATABASE_API] === STARTING DATABASE UPDATE ===')
+    logger.debug('🔄 [DATABASE_API] Timestamp:', new Date().toISOString())
+    logger.debug('🔄 [DATABASE_API] Course ID:', id)
+    logger.debug('� [DATABASE_API] Updates to apply:', JSON.stringify(updates, null, 2))
 
     try {
       const updateData = {
@@ -137,8 +139,8 @@ export const cachedCourseAPI = {
         updated_at: new Date().toISOString()
       }
       
-      console.log('📝 [DATABASE_API] Final update data:', JSON.stringify(updateData, null, 2))
-      console.log('🌐 [DATABASE_API] Calling Supabase update...')
+      logger.debug('📝 [DATABASE_API] Final update data:', JSON.stringify(updateData, null, 2))
+      logger.debug('🌐 [DATABASE_API] Calling Supabase update...')
 
       const { data, error } = await supabase
         .from('courses')
@@ -147,51 +149,51 @@ export const cachedCourseAPI = {
         .select()
         .single()
 
-      console.log('🌐 [DATABASE_API] Supabase response received')
-      console.log('🌐 [DATABASE_API] Error:', error)
-      console.log('🌐 [DATABASE_API] Data:', data)
+      logger.debug('🌐 [DATABASE_API] Supabase response received')
+      logger.debug('🌐 [DATABASE_API] Error:', error)
+      logger.debug('🌐 [DATABASE_API] Data:', data)
 
       if (error) {
-        console.error('❌ [DATABASE_API] Database error occurred:')
-        console.error('❌ [DATABASE_API] Error code:', error.code)
-        console.error('❌ [DATABASE_API] Error message:', error.message)
-        console.error('❌ [DATABASE_API] Error details:', JSON.stringify(error, null, 2))
+        logger.error('❌ [DATABASE_API] Database error occurred:')
+        logger.error('❌ [DATABASE_API] Error code:', error.code)
+        logger.error('❌ [DATABASE_API] Error message:', error.message)
+        logger.error('❌ [DATABASE_API] Error details:', JSON.stringify(error, null, 2))
         throw error
       }
 
       if (!data) {
-        console.error('❌ [DATABASE_API] No data returned from update')
-        console.error('❌ [DATABASE_API] This might indicate the course was not found')
+        logger.error('❌ [DATABASE_API] No data returned from update')
+        logger.error('❌ [DATABASE_API] This might indicate the course was not found')
         throw new Error('No data returned from database - course may not exist')
       }
 
       const course = data as Course
-      console.log('✅ [DATABASE_API] Database update successful')
-      console.log('✅ [DATABASE_API] Updated course title:', course.title)
-      console.log('✅ [DATABASE_API] Updated course data:', JSON.stringify(course, null, 2))
+      logger.debug('✅ [DATABASE_API] Database update successful')
+      logger.debug('✅ [DATABASE_API] Updated course title:', course.title)
+      logger.debug('✅ [DATABASE_API] Updated course data:', JSON.stringify(course, null, 2))
       
-      console.log('🗄️ [DATABASE_API] Updating cache...')
+      logger.debug('🗄️ [DATABASE_API] Updating cache...')
       courseCache.set(`course:${id}`, course, ['courses', `course-${id}`])
-      console.log('🗄️ [DATABASE_API] Course cached successfully')
+      logger.debug('🗄️ [DATABASE_API] Course cached successfully')
       
-      console.log('🗑️ [DATABASE_API] Invalidating course lists...')
+      logger.debug('🗑️ [DATABASE_API] Invalidating course lists...')
       courseCache.invalidateByTags(['courses-list'])
-      console.log('🗑️ [DATABASE_API] Course lists invalidated')
+      logger.debug('🗑️ [DATABASE_API] Course lists invalidated')
       
-      console.log('✅ [DATABASE_API] === DATABASE UPDATE COMPLETE ===')
+      logger.debug('✅ [DATABASE_API] === DATABASE UPDATE COMPLETE ===')
       return course
     } catch (error) {
-      console.error('💥 [DATABASE_API] === DATABASE UPDATE FAILED ===')
-      console.error('💥 [DATABASE_API] Error timestamp:', new Date().toISOString())
-      console.error('💥 [DATABASE_API] Course ID that failed:', id)
-      console.error('💥 [DATABASE_API] Updates that failed:', JSON.stringify(updates, null, 2))
-      console.error('💥 [DATABASE_API] Error details:', error)
-      console.error('💥 [DATABASE_API] Error type:', typeof error)
-      console.error('💥 [DATABASE_API] Error constructor:', error?.constructor?.name)
+      logger.error('💥 [DATABASE_API] === DATABASE UPDATE FAILED ===')
+      logger.error('💥 [DATABASE_API] Error timestamp:', new Date().toISOString())
+      logger.error('💥 [DATABASE_API] Course ID that failed:', id)
+      logger.error('💥 [DATABASE_API] Updates that failed:', JSON.stringify(updates, null, 2))
+      logger.error('💥 [DATABASE_API] Error details:', error)
+      logger.error('💥 [DATABASE_API] Error type:', typeof error)
+      logger.error('💥 [DATABASE_API] Error constructor:', error?.constructor?.name)
       
       if (error instanceof Error) {
-        console.error('💥 [DATABASE_API] Error message:', error.message)
-        console.error('💥 [DATABASE_API] Error stack:', error.stack)
+        logger.error('💥 [DATABASE_API] Error message:', error.message)
+        logger.error('💥 [DATABASE_API] Error stack:', error.stack)
       }
       
       throw error
@@ -396,20 +398,20 @@ export function useCourseMutations() {
       invalidateTags: ['courses-list'],
       cache: courseCache,
       onSuccess: (data) => {
-        console.log('✅ Course created successfully:', data.title)
+        logger.debug('✅ Course created successfully:', data.title)
       },
       onError: (error) => {
-        console.error('❌ Failed to create course:', error.message)
+        logger.error('❌ Failed to create course:', error.message)
       }
     }
   )
 
   const updateMutation = useCacheMutation(
     ({ id, updates }: { id: string; updates: Partial<Course> }) => {
-      console.log('🔄 [COURSE_MUTATIONS] === UPDATE MUTATION STARTED ===')
-      console.log('🔄 [COURSE_MUTATIONS] Course ID:', id)
-      console.log('🔄 [COURSE_MUTATIONS] Updates:', JSON.stringify(updates, null, 2))
-      console.log('🔄 [COURSE_MUTATIONS] Calling cachedCourseAPI.updateCourse...')
+      logger.debug('🔄 [COURSE_MUTATIONS] === UPDATE MUTATION STARTED ===')
+      logger.debug('🔄 [COURSE_MUTATIONS] Course ID:', id)
+      logger.debug('🔄 [COURSE_MUTATIONS] Updates:', JSON.stringify(updates, null, 2))
+      logger.debug('🔄 [COURSE_MUTATIONS] Calling cachedCourseAPI.updateCourse...')
       
       return cachedCourseAPI.updateCourse(id, updates)
     },
@@ -417,14 +419,14 @@ export function useCourseMutations() {
       invalidateTags: ['courses-list'],
       cache: courseCache,
       onSuccess: (data) => {
-        console.log('✅ [COURSE_MUTATIONS] UPDATE SUCCESS')
-        console.log('✅ [COURSE_MUTATIONS] Updated course:', data.title)
-        console.log('✅ [COURSE_MUTATIONS] Full course data:', JSON.stringify(data, null, 2))
+        logger.debug('✅ [COURSE_MUTATIONS] UPDATE SUCCESS')
+        logger.debug('✅ [COURSE_MUTATIONS] Updated course:', data.title)
+        logger.debug('✅ [COURSE_MUTATIONS] Full course data:', JSON.stringify(data, null, 2))
       },
       onError: (error) => {
-        console.error('❌ [COURSE_MUTATIONS] UPDATE ERROR')
-        console.error('❌ [COURSE_MUTATIONS] Error message:', error.message)
-        console.error('❌ [COURSE_MUTATIONS] Full error:', error)
+        logger.error('❌ [COURSE_MUTATIONS] UPDATE ERROR')
+        logger.error('❌ [COURSE_MUTATIONS] Error message:', error.message)
+        logger.error('❌ [COURSE_MUTATIONS] Full error:', error)
       }
     }
   )
@@ -435,10 +437,10 @@ export function useCourseMutations() {
       invalidateTags: ['courses-list'],
       cache: courseCache,
       onSuccess: () => {
-        console.log('✅ Course deleted successfully')
+        logger.debug('✅ Course deleted successfully')
       },
       onError: (error) => {
-        console.error('❌ Failed to delete course:', error.message)
+        logger.error('❌ Failed to delete course:', error.message)
       }
     }
   )
@@ -498,12 +500,12 @@ export function useUserProfile(id: string | null) {
 export const cachePreloader = {
   // Preload popular courses
   preloadPopularCourses: async () => {
-    console.log('🔄 Preloading popular courses...')
+    logger.debug('🔄 Preloading popular courses...')
     try {
       await cachedCourseAPI.getCourses({ is_published: true })
-      console.log('✅ Popular courses preloaded')
+      logger.debug('✅ Popular courses preloaded')
     } catch (error) {
-      console.warn('⚠️ Failed to preload popular courses:', error)
+      logger.warn('⚠️ Failed to preload popular courses:', error)
     }
   },
 
@@ -512,22 +514,22 @@ export const cachePreloader = {
     try {
       await cachedCourseAPI.getCourse(id)
     } catch (error) {
-      console.warn(`⚠️ Failed to preload course ${id}:`, error)
+      logger.warn(`⚠️ Failed to preload course ${id}:`, error)
     }
   },
 
   // Preload user dashboard data
   preloadDashboard: async (userId: string) => {
-    console.log('🔄 Preloading dashboard data...')
+    logger.debug('🔄 Preloading dashboard data...')
     try {
       await Promise.all([
         cachedCourseAPI.getCourses({ instructor_id: userId }),
         cachedUserAPI.getUserProfile(userId),
         cachedQuizAPI.getQuizzes()
       ])
-      console.log('✅ Dashboard data preloaded')
+      logger.debug('✅ Dashboard data preloaded')
     } catch (error) {
-      console.warn('⚠️ Failed to preload dashboard data:', error)
+      logger.warn('⚠️ Failed to preload dashboard data:', error)
     }
   }
 }
@@ -537,14 +539,14 @@ export const cachePreloader = {
 // ==============================================
 
 export const initializeCache = async () => {
-  console.log('🚀 Initializing cache system...')
+  logger.debug('🚀 Initializing cache system...')
   
   // Preload critical data
   try {
     await cachePreloader.preloadPopularCourses()
-    console.log('✅ Cache system initialized successfully')
+    logger.debug('✅ Cache system initialized successfully')
   } catch (error) {
-    console.warn('⚠️ Cache initialization warning:', error)
+    logger.warn('⚠️ Cache initialization warning:', error)
   }
 }
 

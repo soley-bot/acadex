@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.52.1",
+    "@tailwindcss/line-clamp": "^0.4.4",
     "@types/jszip": "^3.4.0",
     "@types/papaparse": "^5.3.16",
     "@types/uuid": "^10.0.0",

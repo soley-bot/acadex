@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -38,7 +40,7 @@ export default function TakeQuizPage() {
 
   useEffect(() => {
     if (!user) {
-      router.push('/login')
+      router.push('/auth/login')
       return
     }
 
@@ -49,14 +51,14 @@ export default function TakeQuizPage() {
         
         if (fetchError) {
           setError('Failed to load quiz questions')
-          console.error('Error fetching quiz questions:', fetchError)
+          logger.error('Error fetching quiz questions:', fetchError)
         } else {
           setQuestions(data.questions || [])
           setQuiz(data.quiz)
           setTimeLeft(data.quiz.duration_minutes * 60) // Convert to seconds
         }
       } catch (err) {
-        console.error('Error fetching quiz questions:', err)
+        logger.error('Error fetching quiz questions:', err)
         setError('Failed to load quiz questions')
       } finally {
         setLoading(false)
@@ -84,13 +86,13 @@ export default function TakeQuizPage() {
       })
       if (submitError) {
         setError('Failed to submit quiz')
-        console.error('Error submitting quiz:', submitError)
+        logger.error('Error submitting quiz:', submitError)
       } else {
         // Redirect to results page
         router.push(`/quizzes/${params.id}/results/${data.id}`)
       }
     } catch (err) {
-      console.error('Error submitting quiz:', err)
+      logger.error('Error submitting quiz:', err)
       setError('Failed to submit quiz')
     } finally {
       setSubmitting(false)
@@ -148,12 +150,12 @@ export default function TakeQuizPage() {
   if (error || !quiz || questions.length === 0) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="max-w-2xl mx-auto py-20 pt-24 text-center px-6">
-          <h1 className="text-3xl font-black text-black mb-4">Unable to Load Quiz</h1>
-          <p className="text-lg text-gray-600 mb-8">{error || 'The quiz questions could not be loaded.'}</p>
+        <div className="max-w-2xl mx-auto py-12 sm:py-20 pt-20 sm:pt-24 text-center px-4 sm:px-6">
+          <h1 className="text-2xl sm:text-3xl font-black text-black mb-3 sm:mb-4">Unable to Load Quiz</h1>
+          <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8">{error || 'The quiz questions could not be loaded.'}</p>
           <button
             onClick={() => router.push('/quizzes')}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-colors"
+            className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white px-4 sm:px-6 py-3 rounded-lg font-bold transition-colors"
           >
             Back to Quizzes
           </button>
@@ -165,16 +167,16 @@ export default function TakeQuizPage() {
   if (!quizStarted) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="max-w-2xl mx-auto py-20 pt-24 text-center px-6">
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-xl p-12">
-            <h1 className="text-4xl font-black text-black mb-6">{quiz.title}</h1>
-            <p className="text-xl text-gray-600 mb-8">You have <span className="font-bold text-red-600">{quiz.duration_minutes} minutes</span> to complete this quiz</p>
+        <div className="max-w-2xl mx-auto py-12 sm:py-20 pt-20 sm:pt-24 text-center px-4 sm:px-6">
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-xl p-6 sm:p-8 lg:p-12">
+            <h1 className="text-3xl sm:text-4xl font-black text-black mb-4 sm:mb-6">{quiz.title}</h1>
+            <p className="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8">You have <span className="font-bold text-red-600">{quiz.duration_minutes} minutes</span> to complete this quiz</p>
             <button
               onClick={() => {
                 setQuizStarted(true)
                 setStartTime(new Date())
               }}
-              className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold text-base sm:text-lg transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
               Start Quiz
             </button>
@@ -191,19 +193,19 @@ export default function TakeQuizPage() {
       
       {/* Quiz Header */}
       <div className="bg-black border-b border-gray-200 pt-16 shadow-lg">
-        <div className="max-w-6xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-red-600 rounded-full"></div>
-                <h1 className="text-xl font-bold text-white">{quiz.title}</h1>
+                <h1 className="text-lg sm:text-xl font-bold text-white truncate">{quiz.title}</h1>
               </div>
             </div>
-            <div className="flex items-center gap-6">
-              <div className="text-lg font-mono font-bold text-red-600 bg-red-50 px-4 py-2 rounded-lg border border-red-200">
+            <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
+              <div className="text-base sm:text-lg font-mono font-bold text-red-600 bg-red-50 px-3 sm:px-4 py-2 rounded-lg border border-red-200 flex-shrink-0">
                 {formatTime(timeLeft)}
               </div>
-              <div className="text-sm text-gray-300 bg-gray-800 px-4 py-2 rounded-lg">
+              <div className="text-xs sm:text-sm text-gray-300 bg-gray-800 px-3 sm:px-4 py-2 rounded-lg whitespace-nowrap">
                 Question {currentQuestionIndex + 1} of {questions.length}
               </div>
             </div>
@@ -211,13 +213,13 @@ export default function TakeQuizPage() {
           
           {/* Progress Bar */}
           <div className="mt-6">
-            <div className="flex items-center justify-between text-xs text-gray-300 mb-2">
-              <span>Progress</span>
-              <span>{Math.round(getProgressPercentage())}% Complete</span>
+            <div className="flex items-center justify-between text-sm text-gray-200 mb-3">
+              <span className="font-medium">Progress</span>
+              <span className="font-bold">{Math.round(getProgressPercentage())}% Complete</span>
             </div>
-            <div className="w-full bg-gray-800 rounded-full h-3 border border-gray-700">
+            <div className="w-full bg-gray-700 rounded-full h-4 border border-gray-600 shadow-inner">
               <div 
-                className="bg-red-600 h-3 rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-red-500 to-red-600 h-4 rounded-full transition-all duration-500 shadow-sm"
                 style={{ width: `${getProgressPercentage()}%` }}
               />
             </div>
@@ -225,21 +227,21 @@ export default function TakeQuizPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Current Question */}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-lg p-8 mb-8">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
           {currentQuestion ? (
             <>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-red-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
                   {currentQuestionIndex + 1}
                 </div>
-                <span className="text-sm font-medium text-gray-500">
+                <span className="text-xs sm:text-sm font-medium text-gray-500">
                   Question {currentQuestionIndex + 1} of {questions.length}
                 </span>
               </div>
               
-              <h2 className="text-2xl font-bold text-black mb-8 leading-relaxed">
+              <h2 className="text-xl sm:text-2xl font-bold text-black mb-6 sm:mb-8 leading-relaxed">
                 {currentQuestion.question}
               </h2>
               
@@ -283,28 +285,28 @@ export default function TakeQuizPage() {
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 sm:mb-8">
           <button
             onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
             disabled={currentQuestionIndex === 0}
-            className="border-2 border-black text-black hover:bg-black hover:text-white px-6 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-black"
+            className="w-full sm:w-auto border-2 border-black text-black hover:bg-black hover:text-white px-6 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-black min-w-[120px]"
           >
             Previous
           </button>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 w-full sm:w-auto">
             {currentQuestionIndex === questions.length - 1 ? (
               <button
                 onClick={handleSubmitQuiz}
                 disabled={submitting}
-                className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl min-w-[120px]"
               >
                 {submitting ? 'Submitting...' : 'Submit Quiz'}
               </button>
             ) : (
               <button
                 onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
-                className="bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-bold transition-colors"
+                className="w-full sm:w-auto bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-bold transition-colors min-w-[120px]"
               >
                 Next
               </button>
@@ -313,19 +315,19 @@ export default function TakeQuizPage() {
         </div>
 
         {/* Question Navigator */}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-lg p-8">
-          <h3 className="text-xl font-bold text-black mb-6 flex items-center gap-3">
-            <div className="w-5 h-5 bg-red-600 rounded-full flex items-center justify-center">
-              <div className="w-2 h-2 bg-white rounded-full"></div>
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8">
+          <h3 className="text-lg sm:text-xl font-bold text-black mb-4 sm:mb-6 flex items-center gap-3">
+            <div className="w-4 h-4 sm:w-5 sm:h-5 bg-red-600 rounded-full flex items-center justify-center">
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"></div>
             </div>
             Question Navigator
           </h3>
-          <div className="grid grid-cols-8 sm:grid-cols-10 md:grid-cols-12 gap-3">
+          <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2 sm:gap-3">
             {questions.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentQuestionIndex(index)}
-                className={`w-12 h-12 rounded-lg font-bold text-sm transition-all duration-200 border-2 ${
+                className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg font-bold text-xs sm:text-sm transition-all duration-200 border-2 ${
                   index === currentQuestionIndex
                     ? 'bg-red-600 text-white shadow-lg transform scale-105 border-red-600 z-10 relative'
                     : answers[questions[index]?.id ?? ''] !== undefined
@@ -337,19 +339,19 @@ export default function TakeQuizPage() {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-8 mt-6 text-sm bg-gray-50 rounded-lg p-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 mt-4 sm:mt-6 text-xs sm:text-sm bg-gray-50 rounded-lg p-3 sm:p-4">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-red-600 rounded-lg shadow-sm flex items-center justify-center">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
+              <div className="w-4 h-4 sm:w-5 sm:h-5 bg-red-600 rounded-lg shadow-sm flex items-center justify-center">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"></div>
               </div>
               <span className="text-gray-700 font-medium">Current</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-green-50 border-2 border-green-300 rounded-lg"></div>
+              <div className="w-4 h-4 sm:w-5 sm:h-5 bg-green-50 border-2 border-green-300 rounded-lg"></div>
               <span className="text-gray-700 font-medium">Answered</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-gray-50 border-2 border-gray-300 rounded-lg"></div>
+              <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gray-50 border-2 border-gray-300 rounded-lg"></div>
               <span className="text-gray-700 font-medium">Unanswered</span>
             </div>
           </div>

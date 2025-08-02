@@ -1,12 +1,14 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Course } from '@/lib/supabase'
-import { APICourseForm } from '@/components/admin/APICourseForm'
 import { EnhancedAPICourseForm } from '@/components/admin/EnhancedAPICourseForm'
 import { DeleteCourseModal } from '@/components/admin/DeleteCourseModal'
 import { CourseViewModal } from '@/components/admin/CourseViewModal'
+import { CategoryManagement } from '@/components/admin/CategoryManagement'
 import SvgIcon from '@/components/ui/SvgIcon'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -25,6 +27,7 @@ export default function CoursesPage() {
   const [deletingCourse, setDeletingCourse] = useState<Course | null>(null)
   const [showViewModal, setShowViewModal] = useState(false)
   const [viewingCourse, setViewingCourse] = useState<Course | null>(null)
+  const [showCategoryManagement, setShowCategoryManagement] = useState(false)
 
   // Fetch courses using API route
   const fetchCourses = useCallback(async () => {
@@ -72,8 +75,8 @@ export default function CoursesPage() {
 
   const getStatusBadge = (isPublished: boolean) => {
     return isPublished 
-      ? 'bg-red-100 text-red-800' 
-      : 'bg-red-100 text-red-800'
+      ? 'bg-emerald-100 text-emerald-800' 
+      : 'bg-orange-100 text-orange-800'
   }
 
   const handleCreateCourse = () => {
@@ -141,7 +144,7 @@ export default function CoursesPage() {
         )
       )
     } catch (err: any) {
-      console.error('Error toggling publish status:', err)
+      logger.error('Error toggling publish status:', err)
       setError(err.message || 'Failed to update course status. Please try again.')
     }
   }
@@ -157,13 +160,18 @@ export default function CoursesPage() {
   // Check if user is admin (after all hooks)
   if (!user || user.role !== 'admin') {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
-          <p className="text-gray-700">Only administrators can access course management.</p>
-          <p className="text-sm text-gray-500 mt-2">
-            Current role: {user?.role || 'Not logged in'}
-          </p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+        <div className="flex items-center justify-center min-h-screen p-6">
+          <div className="bg-white rounded-2xl shadow-lg border border-red-200 p-8 max-w-md w-full text-center">
+            <div className="bg-red-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+              <SvgIcon icon="block" size={24} className="text-red-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-3">Access Denied</h1>
+            <p className="text-gray-700 mb-2">Only administrators can access course management.</p>
+            <p className="text-sm text-gray-500">
+              Current role: {user?.role || 'Not logged in'}
+            </p>
+          </div>
         </div>
       </div>
     )
@@ -171,11 +179,15 @@ export default function CoursesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="flex items-center justify-center min-h-96">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+        <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-            <p className="text-gray-700">Loading courses...</p>
+            <div className="relative mb-6">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
+              <div className="absolute inset-0 rounded-full h-16 w-16 border-4 border-blue-100 opacity-25 mx-auto"></div>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading courses...</h2>
+            <p className="text-gray-600">Fetching the latest course data</p>
           </div>
         </div>
       </div>
@@ -184,219 +196,243 @@ export default function CoursesPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="text-center">
-          <p className="text-red-600 mb-2">{error}</p>
-          <button 
-            onClick={() => fetchCourses()}
-            className="mt-2 text-red-600 hover:text-red-700 underline font-bold"
-          >
-            Try again
-          </button>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+        <div className="flex items-center justify-center min-h-screen p-6">
+          <div className="bg-white rounded-2xl shadow-lg border border-red-200 p-8 max-w-md w-full text-center">
+            <div className="bg-red-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+              <SvgIcon icon="error" size={24} className="text-red-600" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-3">Failed to load courses</h2>
+            <p className="text-red-600 mb-6 font-medium">{error}</p>
+            <button 
+              onClick={() => fetchCourses()}
+              className="bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-lg transition-colors font-semibold w-full flex items-center justify-center gap-2"
+            >
+              <SvgIcon icon="refresh" size={16} variant="white" />
+              Try Again
+            </button>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+      {/* Header Section - Enhanced with better design */}
       <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Course Management</h1>
-            <p className="text-gray-600 mt-1">Create and manage all platform courses</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={handleCreateCourse}
-              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-bold shadow-md hover:shadow-lg"
-            >
-              <SvgIcon icon="plus" size={16} variant="white" />
-              Add Enhanced Course
-            </button>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-2">Course Management</h1>
+              <p className="text-gray-600 text-lg">Create, edit, and manage all educational content on your platform</p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <button 
+                onClick={handleCreateCourse}
+                className="bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <SvgIcon icon="add" size={20} variant="white" />
+                <span className="sm:hidden">Add Course</span>
+                <span className="hidden sm:inline">Create New Course</span>
+              </button>
+              <button
+                onClick={() => setShowCategoryManagement(true)}
+                className="bg-gray-700 border border-gray-600 hover:bg-gray-800 text-white px-6 py-3 sm:px-6 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold hover:shadow-md"
+              >
+                <SvgIcon icon="settings" size={20} />
+                <span>Categories</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow duration-200">
+      {/* Statistics Cards - Enhanced design */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <Card className="bg-white border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-bold text-gray-600 mb-1">Total Courses</p>
-                <p className="text-3xl font-bold text-gray-900 mb-1">{courseStats.total}</p>
-                <p className="text-xs text-gray-500">All courses on platform</p>
-              </div>
-              <div className="bg-red-50 p-3 rounded-full ml-4 flex-shrink-0">
-                <SvgIcon icon="book" size={24} className="text-red-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow duration-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-bold text-gray-600 mb-1">Published</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-600 mb-2">Published Courses</p>
                 <p className="text-3xl font-bold text-gray-900 mb-1">{courseStats.published}</p>
-                <p className="text-xs text-gray-500">Live courses</p>
+                <p className="text-sm text-emerald-600 font-medium">Active & Live</p>
               </div>
-              <div className="bg-red-50 p-3 rounded-full ml-4 flex-shrink-0">
-                <SvgIcon icon="check" size={24} className="text-red-600" />
+              <div className="bg-emerald-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-emerald-200 transition-colors">
+                <SvgIcon icon="check" size={24} className="text-emerald-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow duration-200">
+        <Card className="bg-white border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-bold text-gray-600 mb-1">Drafts</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-600 mb-2">Draft Courses</p>
                 <p className="text-3xl font-bold text-gray-900 mb-1">{courseStats.draft}</p>
-                <p className="text-xs text-gray-500">In development</p>
+                <p className="text-sm text-orange-600 font-medium">In Progress</p>
               </div>
-              <div className="bg-red-50 p-3 rounded-full ml-4 flex-shrink-0">
-                <SvgIcon icon="edit" size={24} className="text-red-600" />
+              <div className="bg-orange-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-orange-200 transition-colors">
+                <SvgIcon icon="edit" size={24} className="text-orange-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow duration-200">
+        <Card className="bg-white border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group sm:col-span-2 lg:col-span-1">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-bold text-gray-600 mb-1">Total Students</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-600 mb-2">Total Students</p>
                 <p className="text-3xl font-bold text-gray-900 mb-1">{courseStats.totalStudents}</p>
-                <p className="text-xs text-gray-500">Enrolled learners</p>
+                <p className="text-sm text-blue-600 font-medium">Enrolled Learners</p>
               </div>
-              <div className="bg-red-50 p-3 rounded-full ml-4 flex-shrink-0">
-                <SvgIcon icon="contacts" size={24} className="text-red-600" />
+              <div className="bg-blue-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-blue-200 transition-colors">
+                <SvgIcon icon="contacts" size={24} className="text-blue-600" />
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Search and Filter */}
-      <div className="mb-8 flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <SvgIcon 
-            icon="search" 
-            size={20} 
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
-          />
-          <input
-            type="text"
-            placeholder="Search courses or instructors..."
-            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white shadow-sm"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {/* Search and Filter - Enhanced design */}
+      <div className="mb-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
+              <SvgIcon 
+                icon="search" 
+                size={20} 
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" 
+              />
+              <input
+                type="text"
+                placeholder="Search courses by title or instructor..."
+                className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors text-base"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="w-full sm:w-64">
+              <select
+                className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors text-base font-medium"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
+                {categories.map(category => (
+                  <option key={category} value={category}>
+                    {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
-        <select
-          className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white shadow-sm"
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-        >
-          {categories.map(category => (
-            <option key={category} value={category}>
-              {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
-            </option>
-          ))}
-        </select>
       </div>
 
-      {/* Courses Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* Courses Grid - Enhanced card design */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredCourses.map((course) => (
-          <Card key={course.id} className="hover:shadow-lg transition-shadow bg-white border-gray-200">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg text-gray-900">{course.title}</CardTitle>
-                  <CardDescription className="mt-1">{course.description}</CardDescription>
+          <Card key={course.id} className="hover:shadow-xl transition-all duration-300 bg-white border-gray-200 transform hover:-translate-y-1 group">
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <CardTitle className="text-lg font-bold text-gray-900 leading-tight mb-2">{course.title}</CardTitle>
+                  <CardDescription className="text-gray-600 line-clamp-2">{course.description}</CardDescription>
                 </div>
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(course.is_published)}`}>
-                  {course.is_published ? 'published' : 'draft'}
+                <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full flex-shrink-0 ${
+                  course.is_published 
+                    ? 'bg-emerald-100 text-emerald-800' 
+                    : 'bg-orange-100 text-orange-800'
+                }`}>
+                  {course.is_published ? 'Live' : 'Draft'}
                 </span>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Instructor:</span>
-                  <span className="font-medium">{course.instructor_name}</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Students:</span>
-                  <span className="font-medium">{course.student_count}</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Duration:</span>
-                  <span className="font-medium">{course.duration || 'Not set'}</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Price:</span>
-                  <span className="font-medium">${course.price}</span>
+            <CardContent className="pt-0">
+              <div className="space-y-4 mb-6">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-3">
+                    <div className="flex flex-col">
+                      <span className="text-gray-500 text-xs font-medium mb-1">Instructor</span>
+                      <span className="font-semibold text-gray-900 truncate">{course.instructor_name}</span>
+                    </div>
+                    
+                    <div className="flex flex-col">
+                      <span className="text-gray-500 text-xs font-medium mb-1">Students</span>
+                      <span className="font-semibold text-blue-600">{course.student_count}</span>
+                    </div>
+                    
+                    <div className="flex flex-col">
+                      <span className="text-gray-500 text-xs font-medium mb-1">Duration</span>
+                      <span className="font-semibold text-gray-900">{course.duration || 'Not set'}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex flex-col">
+                      <span className="text-gray-500 text-xs font-medium mb-1">Price</span>
+                      <span className="font-bold text-green-600 text-lg">${course.price}</span>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <span className="text-gray-500 text-xs font-medium mb-1">Category</span>
+                      <span className="font-semibold text-gray-900 capitalize truncate">{course.category}</span>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <span className="text-gray-500 text-xs font-medium mb-1">Created</span>
+                      <span className="font-medium text-gray-700 text-xs">{formatDate(course.created_at)}</span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Category:</span>
-                  <span className="font-medium capitalize">{course.category}</span>
-                </div>
-
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Created:</span>
-                  <span className="font-medium">{formatDate(course.created_at)}</span>
-                </div>
-
-                <div className="flex gap-2 pt-2">
-                  <button 
-                    onClick={() => handleViewCourse(course)}
-                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
-                  >
-                    <SvgIcon icon="eye" size={16} />
-                    View
-                  </button>
-                  <button 
-                    onClick={() => handleTogglePublish(course)}
-                    className={`flex-1 px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 ${
-                      course.is_published
-                        ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                        : 'bg-green-600 hover:bg-green-700 text-white'
-                    }`}
-                  >
-                    <SvgIcon 
-                      icon={course.is_published ? "eye" : "check"} 
-                      size={16} 
-                      variant="white" 
-                    />
-                    {course.is_published ? 'Unpublish' : 'Publish'}
-                  </button>
-                </div>
-                
-                <div className="flex gap-2 pt-2">
-                  <button 
-                    onClick={() => handleEditCourse(course)}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
-                  >
-                    <SvgIcon icon="edit" size={16} variant="white" />
-                    Edit
-                  </button>
-                  <button 
-                    onClick={() => handleDeleteCourse(course)}
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
-                  >
-                    <SvgIcon icon="ban" size={16} variant="white" />
-                    Delete
-                  </button>
+                {/* Action Buttons - Enhanced design */}
+                <div className="space-y-3 pt-2 border-t border-gray-100">
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleViewCourse(course)}
+                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
+                    >
+                      <SvgIcon icon="eye" size={16} />
+                      <span>View</span>
+                    </button>
+                    <button 
+                      onClick={() => handleTogglePublish(course)}
+                      className={`flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md ${
+                        course.is_published
+                          ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                          : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                      }`}
+                    >
+                      <SvgIcon 
+                        icon={course.is_published ? "visibility_off" : "check"} 
+                        size={16} 
+                        variant="white" 
+                      />
+                      <span>
+                        {course.is_published ? 'Unpublish' : 'Publish'}
+                      </span>
+                    </button>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleEditCourse(course)}
+                      className="flex-1 bg-gray-800 hover:bg-gray-900 text-white px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
+                    >
+                      <SvgIcon icon="edit" size={16} variant="white" />
+                      <span>Edit</span>
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteCourse(course)}
+                      className="flex-1 bg-red-700 hover:bg-red-800 text-white px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
+                    >
+                      <SvgIcon icon="delete" size={16} variant="white" />
+                      <span>Delete</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -404,30 +440,35 @@ export default function CoursesPage() {
         ))}
       </div>
 
-      {/* Empty State */}
+      {/* Empty State - Enhanced design */}
       {filteredCourses.length === 0 && !loading && (
-        <Card className="mt-8 border-2 border-dashed border-gray-300">
-          <CardContent className="p-8">
-            <div className="text-center">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No courses found</h3>
-              <p className="text-gray-500 mb-4">
-                {searchTerm || selectedCategory !== 'all' 
-                  ? 'Try adjusting your search or filter criteria'
-                  : 'Start building engaging content for your students'
-                }
-              </p>
-              {!searchTerm && selectedCategory === 'all' && (
-                <button 
-                  onClick={handleCreateCourse}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2 mx-auto"
-                >
-                  <SvgIcon icon="plus" size={16} variant="white" />
-                  Create Course
-                </button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="mt-12">
+          <Card className="border-2 border-dashed border-gray-300 bg-gray-50">
+            <CardContent className="p-12">
+              <div className="text-center">
+                <div className="bg-gray-200 p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                  <SvgIcon icon="school" size={32} className="text-gray-400" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">No courses found</h3>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto text-lg">
+                  {searchTerm || selectedCategory !== 'all' 
+                    ? 'Try adjusting your search criteria or browse all categories'
+                    : 'Start creating engaging educational content for your students'
+                  }
+                </p>
+                {!searchTerm && selectedCategory === 'all' && (
+                  <button 
+                    onClick={handleCreateCourse}
+                    className="bg-gray-800 hover:bg-gray-900 text-white px-8 py-4 rounded-xl transition-all duration-300 flex items-center gap-3 mx-auto font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    <SvgIcon icon="add" size={20} variant="white" />
+                    Create Your First Course
+                  </button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* Modals */}
@@ -470,6 +511,15 @@ export default function CoursesPage() {
           if (viewingCourse) {
             handleEditCourse(viewingCourse)
           }
+        }}
+      />
+
+      <CategoryManagement
+        isOpen={showCategoryManagement}
+        onClose={() => setShowCategoryManagement(false)}
+        onCategoryCreated={() => {
+          // Refresh courses when new categories are created
+          fetchCourses()
         }}
       />
     </div>

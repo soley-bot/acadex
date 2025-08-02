@@ -4,72 +4,68 @@
 import { Course, CourseModule, CourseLesson, Quiz, User, Enrollment } from './supabase'
 
 // Validation functions to ensure data matches database constraints
-export function validateCourse(course: Partial<Course>): string[] {
+import { logger } from './logger'
+
+export function validateCourseData(course: any): { isValid: boolean; errors: string[] } {
+  logger.debug('Validating course data', { title: course.title, hasDescription: !!course.description })
+  
   const errors: string[] = []
-  
-  console.log('🔍 [VALIDATION] Validating course data:', course)
-  console.log('🔍 [VALIDATION] Title check - raw value:', JSON.stringify(course.title))
-  console.log('🔍 [VALIDATION] Title check - type:', typeof course.title)
-  console.log('🔍 [VALIDATION] Title check - trimmed:', course.title?.trim())
-  console.log('🔍 [VALIDATION] Title check - is valid:', !!(course.title?.trim()))
-  
+
   if (!course.title?.trim()) {
-    console.error('❌ [VALIDATION] Title validation failed')
+    logger.validation('title', false, course.title)
     errors.push('Title is required')
   }
-  
+
   if (!course.description?.trim()) {
-    console.error('❌ [VALIDATION] Description validation failed')
+    logger.validation('description', false, course.description)
     errors.push('Description is required')
   }
-  
+
   if (!course.instructor_id?.trim()) {
-    console.error('❌ [VALIDATION] Instructor ID validation failed')
+    logger.validation('instructor_id', false, course.instructor_id)
     errors.push('Instructor ID is required')
   }
-  
+
   if (!course.instructor_name?.trim()) {
-    console.error('❌ [VALIDATION] Instructor name validation failed')
+    logger.validation('instructor_name', false, course.instructor_name)
     errors.push('Instructor name is required')
   }
-  
+
   if (!course.category?.trim()) {
-    console.error('❌ [VALIDATION] Category validation failed')
+    logger.validation('category', false, course.category)
     errors.push('Category is required')
   }
-  
-  if (!course.duration?.trim()) {
-    console.error('❌ [VALIDATION] Duration validation failed')
+
+  if (!course.duration || course.duration === '') {
+    logger.validation('duration', false, course.duration)
     errors.push('Duration is required')
   }
-  
-  if (course.level && !['beginner', 'intermediate', 'advanced'].includes(course.level)) {
-    console.error('❌ [VALIDATION] Level validation failed:', course.level)
-    errors.push('Level must be beginner, intermediate, or advanced')
+
+  if (!course.level || !['beginner', 'intermediate', 'advanced'].includes(course.level)) {
+    logger.validation('level', false, course.level)
+    errors.push('Valid level is required (beginner, intermediate, advanced)')
   }
-  
-  if (course.status && !['draft', 'review', 'published', 'archived'].includes(course.status)) {
-    console.error('❌ [VALIDATION] Status validation failed:', course.status)
-    errors.push('Status must be draft, review, published, or archived')
+
+  if (!course.status || !['draft', 'published', 'archived'].includes(course.status)) {
+    logger.validation('status', false, course.status)
+    errors.push('Valid status is required (draft, published, archived)')
   }
-  
-  if (course.price !== undefined && course.price < 0) {
-    console.error('❌ [VALIDATION] Price validation failed:', course.price)
-    errors.push('Price cannot be negative')
+
+  if (course.price !== null && (isNaN(Number(course.price)) || Number(course.price) < 0)) {
+    logger.validation('price', false, course.price)
+    errors.push('Price must be a valid positive number or null')
   }
-  
-  if (course.rating !== undefined && course.rating !== null && (course.rating < 0 || course.rating > 5)) {
-    console.error('❌ [VALIDATION] Rating validation failed:', course.rating)
-    errors.push('Rating must be between 0 and 5')
+
+  if (course.rating !== null && (isNaN(Number(course.rating)) || Number(course.rating) < 0 || Number(course.rating) > 5)) {
+    logger.validation('rating', false, course.rating)
+    errors.push('Rating must be between 0 and 5 or null')
   }
-  
-  if (course.discount_percentage !== undefined && course.discount_percentage !== null && 
-      (course.discount_percentage < 0 || course.discount_percentage > 100)) {
-    errors.push('Discount percentage must be between 0 and 100')
-  }
-  
-  console.log('🔍 [VALIDATION] Validation complete - errors:', errors)
-  return errors
+
+  const isValid = errors.length === 0
+
+  logger.debug('Validation complete', { isValid, errorCount: errors.length, errors })
+
+  return { isValid, errors }
 }
 
 export function validateQuiz(quiz: Partial<Quiz>): string[] {
@@ -128,29 +124,28 @@ export function validateEnrollment(enrollment: Partial<Enrollment>): string[] {
 }
 
 // Helper functions for data transformation
-export function prepareCourseForDatabase(course: Partial<Course>): Partial<Course> {
-  // Only include fields that actually exist in the database
-  const prepared: Partial<Course> = {}
+export function prepareCourseForDatabase(course: any): any {
+  logger.debug('Preparing course for database', { title: course.title, hasModules: !!course.modules })
   
-  // Core required fields
-  if (course.title) prepared.title = course.title
-  if (course.description) prepared.description = course.description
-  if (course.instructor_id) prepared.instructor_id = course.instructor_id
-  if (course.instructor_name) prepared.instructor_name = course.instructor_name
-  if (course.category) prepared.category = course.category
-  if (course.duration) prepared.duration = course.duration
-  
-  // Optional fields that exist in database
-  if (course.level) prepared.level = course.level
-  if (course.price !== undefined) prepared.price = course.price
-  if (course.image_url) prepared.image_url = course.image_url
-  if (course.rating !== undefined) prepared.rating = course.rating || 0
-  if (course.student_count !== undefined) prepared.student_count = course.student_count || 0
-  if (course.is_published !== undefined) prepared.is_published = course.is_published || false
-  
-  console.log('🔧 [PREPARE] Original course data:', course)
-  console.log('🔧 [PREPARE] Prepared database data:', prepared)
-  
+  const prepared = {
+    title: course.title,
+    description: course.description,
+    instructor_id: course.instructor_id,
+    instructor_name: course.instructor_name,
+    category: course.category,
+    level: course.level,
+    price: course.price === '' || course.price === null ? null : Number(course.price),
+    duration: course.duration || null,
+    image_url: course.image_url || null,
+    learning_objectives: course.learning_objectives || [],
+    is_published: course.is_published || false,
+    student_count: course.student_count || 0,
+    status: course.status || (course.is_published ? 'published' : 'draft'),
+    rating: course.rating === '' || course.rating === null ? null : Number(course.rating),
+    updated_at: new Date().toISOString()
+  }
+
+  logger.debug('Database preparation complete', { title: prepared.title, status: prepared.status })
   return prepared
 }
 

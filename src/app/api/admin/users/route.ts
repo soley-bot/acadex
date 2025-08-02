@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
+import { logger } from '@/lib/logger'
+
 // Create admin client with service role key
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -37,7 +39,7 @@ export async function POST(request: NextRequest) {
     // Check if user already exists in auth.users
     const { data: existingUsers, error: checkError } = await supabaseAdmin.auth.admin.listUsers()
     if (checkError) {
-      console.error('Error checking existing users:', checkError)
+      logger.error('Error checking existing users:', checkError)
       return NextResponse.json(
         { error: 'Failed to check existing users' },
         { status: 500 }
@@ -64,7 +66,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (authError) {
-      console.error('Auth error:', authError)
+      logger.error('Auth error:', authError)
       return NextResponse.json(
         { error: authError.message || 'Failed to create user account' },
         { status: 400 }
@@ -89,13 +91,13 @@ export async function POST(request: NextRequest) {
       })
 
     if (profileError) {
-      console.error('Profile error:', profileError)
+      logger.error('Profile error:', profileError)
       
       // If profile creation fails, clean up the auth user
       try {
         await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
       } catch (cleanupError) {
-        console.error('Failed to cleanup auth user:', cleanupError)
+        logger.error('Failed to cleanup auth user:', cleanupError)
       }
       
       return NextResponse.json(
@@ -118,7 +120,7 @@ export async function POST(request: NextRequest) {
     )
 
   } catch (error) {
-    console.error('Unexpected error:', error)
+    logger.error('Unexpected error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

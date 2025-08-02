@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateUserProfile } from '@/lib/database'
@@ -31,7 +33,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!user) {
-      router.push('/login')
+      router.push('/auth/login')
       return
     }
 
@@ -74,7 +76,7 @@ export default function ProfilePage() {
       
       if (updateError) {
         setError('Failed to update profile')
-        console.error('Error updating profile:', updateError)
+        logger.error('Error updating profile:', updateError)
       } else {
         setMessage('Profile updated successfully!')
         // Update the user context with new data
@@ -86,7 +88,7 @@ export default function ProfilePage() {
         }
       }
     } catch (err) {
-      console.error('Error updating profile:', err)
+      logger.error('Error updating profile:', err)
       setError('Failed to update profile')
     } finally {
       setLoading(false)

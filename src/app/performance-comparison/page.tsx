@@ -1,4 +1,6 @@
-'use client';
+'use client'
+
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -85,7 +87,7 @@ export default function PerformanceComparisonPage() {
       testResults.searchQuery = { time: Math.round(searchTime), count: searchQuery.data?.length || 0 };
 
     } catch (error) {
-      console.error('Performance test error:', error);
+      logger.error('Performance test error:', error);
     }
 
     setResults(testResults);

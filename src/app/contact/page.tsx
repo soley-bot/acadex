@@ -3,6 +3,10 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import SvgIcon from '@/components/ui/SvgIcon'
+import { Button } from '@/components/ui/Button'
+import { Container, Section } from '@/components/ui/Layout'
+import { ElevatedCard } from '@/components/ui/ElevatedCard'
+import { SectionHeading, HeroHeading, Badge } from '@/components/ui/Typography'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -52,32 +56,30 @@ export default function ContactPage() {
     <div className="min-h-screen bg-white">
       
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-6 lg:px-8 overflow-hidden">
-        <div className="absolute inset-0 bg-gray-50"></div>
-        
-        <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-gray-100 text-black px-4 py-2 rounded-full text-sm font-medium mb-8 border border-gray-200">
+      <Section variant="muted" spacing="lg">
+        <Container className="text-center pt-16 md:pt-20">
+          <Badge className="mb-8">
             <span className="w-2 h-2 bg-red-600 rounded-full"></span>
             Contact Us
-          </div>
-          <h1 className="text-4xl lg:text-6xl font-black tracking-tight mb-8 text-black">
+          </Badge>
+          <HeroHeading className="mb-8">
             Get in Touch
             <span className="block text-red-600 mt-2">We&apos;re Here to Help</span>
-          </h1>
+          </HeroHeading>
           <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
             Have questions about English learning, IELTS preparation, or need support? Our team is dedicated to helping you 
             achieve English fluency and reach your language goals.
           </p>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       {/* Contact Form and Info */}
-      <section className="py-20 px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <Section>
+        <Container>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             {/* Contact Form */}
-            <div className="bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-xl">
-              <h2 className="text-2xl font-bold tracking-tight mb-6 text-black">Send us a Message</h2>
+            <ElevatedCard>
+              <SectionHeading size="lg" className="mb-6">Send us a Message</SectionHeading>
               
               {success && (
                 <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-6">
@@ -173,10 +175,10 @@ export default function ContactPage() {
                   />
                 </div>
 
-                <button
+                <Button
                   type="submit"
                   disabled={loading}
-                  className="bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3 rounded-lg font-bold transition-all duration-200 w-full shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                  className="w-full"
                 >
                   {loading ? (
                     <div className="flex items-center justify-center gap-2">
@@ -186,14 +188,14 @@ export default function ContactPage() {
                   ) : (
                     'Send Message'
                   )}
-                </button>
+                </Button>
               </form>
-            </div>
+            </ElevatedCard>
 
             {/* Contact Information */}
             <div className="space-y-8">
               <div>
-                <h2 className="text-2xl font-bold tracking-tight mb-6 text-black">Get in Touch</h2>
+                <SectionHeading size="lg" className="mb-6">Get in Touch</SectionHeading>
                 <p className="text-gray-600 mb-8 leading-relaxed">
                   We&apos;re here to support your English learning journey and answer any questions about our courses, 
                   IELTS preparation, or platform features. We look forward to hearing from you!
@@ -201,7 +203,7 @@ export default function ContactPage() {
               </div>
 
               <div className="space-y-6">
-                <div className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <ElevatedCard className="hover:-translate-y-1">
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-red-100 rounded-full">
                       <span className="text-red-600 text-xl">📧</span>
@@ -214,9 +216,9 @@ export default function ContactPage() {
                       </a>
                     </div>
                   </div>
-                </div>
+                </ElevatedCard>
 
-                <div className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <ElevatedCard className="hover:-translate-y-1">
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-red-100 rounded-full">
                       <span className="text-red-600 text-xl">🕒</span>
@@ -231,9 +233,9 @@ export default function ContactPage() {
                       </p>
                     </div>
                   </div>
-                </div>
+                </ElevatedCard>
 
-                <div className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <ElevatedCard className="hover:-translate-y-1">
                   <div className="flex items-start gap-4">
                     <div className="p-3 bg-red-100 rounded-full">
                       <span className="text-red-600 text-xl">💬</span>
@@ -244,76 +246,76 @@ export default function ContactPage() {
                       <p className="text-black font-bold">Within 24 hours</p>
                     </div>
                   </div>
-                </div>
+                </ElevatedCard>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       {/* FAQ Section */}
-      <section className="py-20 px-6 lg:px-8 bg-gray-50 border-t border-gray-200">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-black tracking-tight mb-6 text-black">
+      <Section variant="muted">
+        <Container size="lg" className="text-center">
+          <div className="mb-16">
+            <SectionHeading className="mb-6">
               Frequently Asked Questions
-            </h2>
+            </SectionHeading>
             <p className="text-xl text-gray-600 leading-relaxed">
               Quick answers to common questions. Can&apos;t find what you&apos;re looking for? Contact us directly.
             </p>
           </div>
 
-          <div className="space-y-6">
-            <div className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div className="space-y-6 text-left">
+            <ElevatedCard className="hover:-translate-y-1">
               <h3 className="font-bold mb-3 text-black">How do I start learning English with ACADEX?</h3>
               <p className="text-gray-600 leading-relaxed">
                 Create a free account, take our English level assessment, and start with courses tailored to your level. 
                 Begin with our free IELTS practice tests and grammar quizzes to evaluate your current skills.
               </p>
-            </div>
+            </ElevatedCard>
 
-            <div className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <ElevatedCard className="hover:-translate-y-1">
               <h3 className="font-bold mb-3 text-black">What IELTS preparation resources do you offer?</h3>
               <p className="text-gray-600 leading-relaxed">
                 We provide comprehensive IELTS preparation including 2,500+ authentic practice questions, 
                 complete mock tests, writing feedback, speaking practice, and proven strategies for all four skills.
               </p>
-            </div>
+            </ElevatedCard>
 
-            <div className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <ElevatedCard className="hover:-translate-y-1">
               <h3 className="font-bold mb-3 text-black">Are there free English learning resources available?</h3>
               <p className="text-gray-600 leading-relaxed">
                 Yes! We offer free grammar quizzes, vocabulary tests, sample IELTS questions, and basic English lessons. 
                 Premium courses provide advanced features, personalized feedback, and certification.
               </p>
-            </div>
+            </ElevatedCard>
 
-            <div className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <ElevatedCard className="hover:-translate-y-1">
               <h3 className="font-bold mb-3 text-black">How long does it take to improve my English level?</h3>
               <p className="text-gray-600 leading-relaxed">
                 Progress varies by individual, but most students see improvement within 2-4 weeks of regular practice. 
                 Our adaptive learning system tracks your progress and adjusts to help you learn efficiently.
               </p>
-            </div>
+            </ElevatedCard>
 
-            <div className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <ElevatedCard className="hover:-translate-y-1">
               <h3 className="font-bold mb-3 text-black">Do you provide certificates for course completion?</h3>
               <p className="text-gray-600 leading-relaxed">
                 Yes, we provide completion certificates for all our premium English courses. 
                 These certificates can be used to demonstrate your English proficiency to employers or educational institutions.
               </p>
-            </div>
+            </ElevatedCard>
 
-            <div className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <ElevatedCard className="hover:-translate-y-1">
               <h3 className="font-bold mb-3 text-black">What English levels do your courses cover?</h3>
               <p className="text-gray-600 leading-relaxed">
                 Our courses cover all English levels from beginner (A1) to advanced (C2). 
                 We also offer specialized IELTS preparation for students targeting specific band scores (5.5-9.0).
               </p>
-            </div>
+            </ElevatedCard>
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
     </div>
   )

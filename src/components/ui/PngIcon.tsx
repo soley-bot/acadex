@@ -1,6 +1,8 @@
 import React from 'react'
 import Image from 'next/image'
 
+import { logger } from '@/lib/logger'
+
 interface PngIconProps {
   src: string
   alt: string
@@ -46,7 +48,7 @@ const PngIcon: React.FC<PngIconProps> = ({
       className={`inline-block ${className}`}
       style={getFilterStyle()}
       onError={(e) => {
-        console.warn(`Failed to load icon: ${src}`)
+        logger.warn(`Failed to load icon: ${src}`)
         e.currentTarget.style.display = 'none'
       }}
     />

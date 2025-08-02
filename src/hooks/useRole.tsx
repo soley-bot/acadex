@@ -36,7 +36,7 @@ export function RoleGuard({ allowedRoles, children, fallback = null }: RoleGuard
 export function withRoleProtection<T extends {}>(
   Component: React.ComponentType<T>,
   allowedRoles: Array<'admin' | 'instructor' | 'student'>,
-  redirectPath = '/login'
+  redirectPath = '/auth/login'
 ) {
   return function ProtectedComponent(props: T) {
     const { hasAnyRole, user } = useRole()

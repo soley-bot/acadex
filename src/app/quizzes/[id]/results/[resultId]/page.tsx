@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -34,7 +36,7 @@ export default function QuizResultsPage() {
 
   useEffect(() => {
     if (!user) {
-      router.push('/login')
+      router.push('/auth/login')
       return
     }
 
@@ -45,12 +47,12 @@ export default function QuizResultsPage() {
         
         if (fetchError) {
           setError('Failed to load quiz results')
-          console.error('Error fetching quiz results:', fetchError)
+          logger.error('Error fetching quiz results:', fetchError)
         } else {
           setResults(data)
         }
       } catch (err) {
-        console.error('Error fetching quiz results:', err)
+        logger.error('Error fetching quiz results:', err)
         setError('Failed to load quiz results')
       } finally {
         setLoading(false)

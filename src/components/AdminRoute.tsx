@@ -16,7 +16,7 @@ export default function AdminRoute({ children }: AdminRouteProps) {
     if (!loading) {
       if (!user) {
         // Not logged in - redirect to login
-        router.push('/login?redirect=/admin')
+        router.push('/auth/login?redirect=/admin')
         return
       }
       

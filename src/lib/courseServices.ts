@@ -2,6 +2,8 @@ import { courseCache } from './cache'
 import { supabase } from './supabase'
 import type { Course, CourseModule, CourseLesson } from './supabase'
 
+import { logger } from '@/lib/logger'
+
 export interface BatchCourseRequest {
   courseIds: string[]
   includeLessons?: boolean
@@ -43,7 +45,7 @@ class CoursePreloadingService {
     try {
       await this.batchLoadCourses(batch)
     } catch (error) {
-      console.warn('Batch preload failed:', error)
+      logger.warn('Batch preload failed:', error)
     }
 
     // Continue processing if more items in queue
@@ -91,7 +93,7 @@ class CoursePreloadingService {
         this.preloadCourses(relatedCourses.map(c => c.id))
       }
     } catch (error) {
-      console.warn('Related course preloading failed:', error)
+      logger.warn('Related course preloading failed:', error)
     }
   }
 
@@ -166,7 +168,7 @@ class CourseSearchService {
 
       return results
     } catch (error) {
-      console.error('Course search failed:', error)
+      logger.error('Course search failed:', error)
       return []
     }
   }
@@ -214,7 +216,7 @@ class CourseOptimizationService {
       
       return result
     } catch (error) {
-      console.error('Failed to load course modules:', error)
+      logger.error('Failed to load course modules:', error)
       return []
     }
   }
@@ -240,7 +242,7 @@ class CourseOptimizationService {
       courseCache.set(cacheKey, lesson, ['lessons', `lesson:${lessonId}`])
       return lesson
     } catch (error) {
-      console.error('Failed to load lesson:', error)
+      logger.error('Failed to load lesson:', error)
       return null
     }
   }
@@ -271,7 +273,7 @@ class CourseOptimizationService {
       }
     } catch (error) {
       // Silently fail for prefetching
-      console.debug('Prefetch failed:', error)
+      logger.debug('Prefetch failed:', error)
     }
   }
 }
@@ -318,7 +320,7 @@ export const courseUtils = {
       courseCache.set(cacheKey, course, ['courses', `course:${id}`])
       return course
     } catch (error) {
-      console.error('Failed to get course:', error)
+      logger.error('Failed to get course:', error)
       return null
     }
   },
@@ -342,7 +344,7 @@ export const courseUtils = {
         coursePreloader.preloadCourses(popular.map(c => c.id))
       }
     } catch (error) {
-      console.warn('Failed to warm up popular courses:', error)
+      logger.warn('Failed to warm up popular courses:', error)
     }
   }
 }

@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -42,7 +44,7 @@ export default function Dashboard() {
   useEffect(() => {
     async function loadDashboardData() {
       if (!user) {
-        router.push('/login')
+        router.push('/auth/login')
         return
       }
 
@@ -50,7 +52,7 @@ export default function Dashboard() {
         setLoading(true)
         setError(null)
         
-        console.log('Loading dashboard data for user:', user.id)
+        logger.debug('Loading dashboard data for user:', user.id)
         
         const [progressData, coursesData, attemptsData] = await Promise.all([
           getUserProgress(user.id),
@@ -58,13 +60,13 @@ export default function Dashboard() {
           getUserQuizAttempts(user.id, 10) // Get last 10 attempts
         ])
 
-        console.log('Dashboard data loaded:', { progressData, coursesData, attemptsData })
+        logger.debug('Dashboard data loaded:', { progressData, coursesData, attemptsData })
 
         setProgress(progressData.data)
         setCourses(coursesData.data || [])
         setQuizAttempts(attemptsData.data || [])
       } catch (err) {
-        console.error('Error loading dashboard data:', err)
+        logger.error('Error loading dashboard data:', err)
         setError('Failed to load dashboard data. Please try again.')
       } finally {
         setLoading(false)

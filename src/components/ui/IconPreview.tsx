@@ -1,6 +1,8 @@
 import React from 'react'
 import Image from 'next/image'
 
+import { logger } from '@/lib/logger'
+
 interface IconPreviewProps {
   src: string
   name: string
@@ -26,7 +28,7 @@ const IconPreview: React.FC<IconPreviewProps> = ({
           filter: 'brightness(0) saturate(100%)',
           opacity: 0.8 
         }}
-        onError={() => console.log(`Failed to load icon: ${src}`)}
+        onError={() => logger.debug(`Failed to load icon: ${src}`)}
       />
       <span className="text-sm text-gray-600 text-center">{name}</span>
       <span className="text-xs text-gray-400">{size}px</span>

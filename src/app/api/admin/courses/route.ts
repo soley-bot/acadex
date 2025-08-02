@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger'
+
 // Option 3: Direct Database API Calls
 // Create API routes that handle database operations server-side
 
@@ -22,9 +24,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { courseData, action, userId } = body
 
-    console.log('🚀 Server-side course operation:', action)
-    console.log('📊 Course data:', courseData)
-    console.log('👤 User ID:', userId)
+    logger.debug('🚀 Server-side course operation:', action)
+    logger.debug('📊 Course data:', courseData)
+    logger.debug('👤 User ID:', userId)
 
     // Verify user is admin (extra security check)
     if (userId) {
@@ -65,7 +67,7 @@ export async function POST(request: NextRequest) {
       result = data
     }
 
-    console.log('✅ Server operation successful:', result.id)
+    logger.debug('✅ Server operation successful:', result.id)
 
     return NextResponse.json({
       success: true,
@@ -73,7 +75,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('❌ Server operation failed:', error)
+    logger.error('❌ Server operation failed:', error)
     
     // Provide helpful error messages
     let errorMessage = error.message

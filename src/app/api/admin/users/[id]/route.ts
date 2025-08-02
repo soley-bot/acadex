@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+import { logger } from '@/lib/logger'
+
 // Use service role key for admin operations
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -89,7 +91,7 @@ export async function PUT(
       .single()
 
     if (error) {
-      console.error('Database error:', error)
+      logger.error('Database error:', error)
       return NextResponse.json(
         { error: 'Failed to update user in database' },
         { status: 500 }
@@ -110,7 +112,7 @@ export async function PUT(
       )
 
       if (authError) {
-        console.error('Auth update error:', authError)
+        logger.error('Auth update error:', authError)
         // Don't fail the request if auth update fails, just log it
         // The database update was successful
       }
@@ -127,7 +129,7 @@ export async function PUT(
       )
 
       if (authError) {
-        console.error('Auth metadata update error:', authError)
+        logger.error('Auth metadata update error:', authError)
         // Don't fail the request if auth update fails
       }
     }
@@ -138,7 +140,7 @@ export async function PUT(
     })
 
   } catch (error) {
-    console.error('Update user error:', error)
+    logger.error('Update user error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -189,7 +191,7 @@ export async function DELETE(
       .eq('id', id)
 
     if (deleteError) {
-      console.error('Database delete error:', deleteError)
+      logger.error('Database delete error:', deleteError)
       return NextResponse.json(
         { error: 'Failed to delete user from database' },
         { status: 500 }
@@ -200,7 +202,7 @@ export async function DELETE(
     const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(id)
 
     if (authDeleteError) {
-      console.error('Auth delete error:', authDeleteError)
+      logger.error('Auth delete error:', authDeleteError)
       // User was deleted from database but not from auth
       // This is okay - the auth user will be orphaned but harmless
     }
@@ -210,7 +212,7 @@ export async function DELETE(
     })
 
   } catch (error) {
-    console.error('Delete user error:', error)
+    logger.error('Delete user error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

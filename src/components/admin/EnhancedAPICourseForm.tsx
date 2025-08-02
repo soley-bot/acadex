@@ -1,10 +1,16 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { useState, useEffect } from 'react'
-import { Course } from '@/lib/supabase'
+import { Course, Question } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import SvgIcon from '@/components/ui/SvgIcon'
+import { CategorySelector } from '@/components/admin/CategorySelector'
+import { CategoryManagement } from '@/components/admin/CategoryManagement'
 import { RichTextFormatGuide } from './RichTextFormatGuide'
+import { ImageUpload } from '@/components/ui/ImageUpload'
+import { uploadCourseImage } from '@/lib/storage'
 
 interface Module {
   id?: string
@@ -65,6 +71,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('basic')
+  const [showCategoryManagement, setShowCategoryManagement] = useState(false)
 
   const [formData, setFormData] = useState<EnhancedCourseData>({
     title: '',
@@ -173,7 +180,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
             })
           }
         } catch (error) {
-          console.error('Error loading course data:', error)
+          logger.error('Error loading course data:', error)
         } finally {
           setDataLoading(false)
         }
@@ -386,6 +393,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
         body: JSON.stringify({
           courseData: {
             ...formData,
+            instructor_id: user.id, // Add this line to set the instructor_id
             id: course?.id
           },
           action: course ? 'update' : 'create',
@@ -427,65 +435,75 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-hidden">
-        <div className="p-6 border-b">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">
-              {course ? 'Edit Course' : 'Create New Course'}
-            </h2>
+      <div className="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-xl border border-gray-200">
+        <div className="flex items-center justify-between p-6 sm:p-8 border-b bg-gradient-to-r from-gray-50 via-white to-purple-50">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg">
+              <SvgIcon icon="book" size={24} variant="white" />
+            </div>
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
+                {course ? 'Edit Course' : 'Create New Course'}
+              </h2>
+              <p className="text-gray-600 text-lg mt-1">
+                {course ? 'Update your course content and settings' : 'Build engaging educational content for your students'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-white/50 rounded-lg"
+          >
+            <SvgIcon icon="close" size={24} className="text-gray-400" />
+          </button>
+        </div>
+        
+        {/* Tab Navigation */}
+        <div className="flex border-b bg-gray-50">
+          {tabs.map(tab => (
             <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 p-2"
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-6 sm:px-8 py-4 text-base font-semibold transition-all duration-200 ${
+                activeTab === tab.id
+                  ? 'text-purple-700 border-b-3 border-purple-600 bg-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+              }`}
             >
-              <SvgIcon icon="close" size={20} />
+              <SvgIcon icon={tab.icon} size={16} className={activeTab === tab.id ? 'text-purple-600' : 'text-gray-600'} />
+              <span className="hidden sm:inline">{tab.label}</span>
             </button>
-          </div>
-          
-          {/* Tab Navigation */}
-          <div className="flex space-x-1 mt-4 bg-gray-100 p-1 rounded-lg">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <SvgIcon icon={tab.icon} size={16} />
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
 
         <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(90vh-180px)]">
           <div className="p-6">
             {/* Data Loading Indicator */}
             {dataLoading && (
-              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-xl">
                 <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                  <span className="text-blue-800">Loading course data...</span>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-purple-300 border-t-purple-600 mr-3"></div>
+                  <span className="text-purple-800 font-medium">Loading course data...</span>
                 </div>
               </div>
             )}
 
             {/* Success Message */}
             {success && (
-              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="mb-6 p-4 bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <SvgIcon icon="check" size={20} className="text-green-600 mr-2" />
-                    <span className="text-green-800">{success}</span>
+                    <div className="bg-emerald-500 p-1 rounded-full mr-3">
+                      <SvgIcon icon="check" size={16} variant="white" />
+                    </div>
+                    <span className="text-emerald-800 font-semibold">{success}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-sm">
-                    <span className="text-green-700">You can continue editing or close the form.</span>
+                  <div className="flex items-center space-x-3">
+                    <span className="text-emerald-700 text-sm">You can continue editing or close the form.</span>
                     <button
                       type="button"
                       onClick={() => setSuccess(null)}
-                      className="text-green-600 hover:text-green-800 ml-2"
+                      className="text-emerald-600 hover:text-emerald-800 p-1 rounded-lg hover:bg-emerald-200 transition-colors"
                     >
                       <SvgIcon icon="close" size={16} />
                     </button>
@@ -556,21 +574,14 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Category *
                     </label>
-                    <select
-                      required
+                    <CategorySelector
                       value={formData.category}
-                      onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="english">English</option>
-                      <option value="grammar">Grammar</option>
-                      <option value="vocabulary">Vocabulary</option>
-                      <option value="speaking">Speaking</option>
-                      <option value="writing">Writing</option>
-                      <option value="listening">Listening</option>
-                      <option value="business">Business English</option>
-                      <option value="academic">Academic English</option>
-                    </select>
+                      onChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+                      type="course"
+                      onManageCategories={() => setShowCategoryManagement(true)}
+                      placeholder="Select a category"
+                      className="w-full"
+                    />
                   </div>
 
                   <div>
@@ -622,14 +633,21 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Course Image URL
+                      Course Image
                     </label>
-                    <input
-                      type="url"
+                    <ImageUpload
                       value={formData.image_url || ''}
-                      onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="https://example.com/image.jpg"
+                      onChange={(url) => setFormData(prev => ({ ...prev, image_url: url || '' }))}
+                      onFileUpload={async (file) => {
+                        // We'll use a temporary ID for new courses
+                        const tempId = course?.id || 'temp-' + Date.now()
+                        const result = await uploadCourseImage(file, tempId)
+                        if (result.error) {
+                          throw new Error(result.error)
+                        }
+                        return result.url!
+                      }}
+                      placeholder="Upload course image or enter URL"
                     />
                   </div>
                 </div>
@@ -640,7 +658,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                     id="is_published"
                     checked={formData.is_published}
                     onChange={(e) => setFormData(prev => ({ ...prev, is_published: e.target.checked }))}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                   />
                   <label htmlFor="is_published" className="ml-2 text-sm text-gray-700">
                     Publish course immediately
@@ -658,7 +676,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                     <button
                       type="button"
                       onClick={addLearningOutcome}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2"
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2"
                     >
                       <SvgIcon icon="plus" size={16} variant="white" />
                       Add Outcome
@@ -747,7 +765,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                   <button
                     type="button"
                     onClick={addModule}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                   >
                     <SvgIcon icon="plus" size={16} variant="white" />
                     Add Module
@@ -871,7 +889,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                                     id={`preview-${moduleIndex}-${lessonIndex}`}
                                     checked={lesson.is_preview}
                                     onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'is_preview', e.target.checked)}
-                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                                   />
                                   <label htmlFor={`preview-${moduleIndex}-${lessonIndex}`} className="ml-2 text-sm text-gray-700">
                                     Free preview
@@ -967,7 +985,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                     id="certificate_enabled"
                     checked={formData.certificate_enabled}
                     onChange={(e) => setFormData(prev => ({ ...prev, certificate_enabled: e.target.checked }))}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                   />
                   <label htmlFor="certificate_enabled" className="ml-2 text-sm text-gray-700">
                     Enable certificate of completion
@@ -978,34 +996,47 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
           </div>
 
           {/* Form Actions */}
-          <div className="border-t p-6 bg-gray-50 flex items-center justify-end gap-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <SvgIcon icon="check" size={16} variant="white" />
-                  {course ? 'Update Course' : 'Create Course'}
-                </>
-              )}
-            </button>
+          <div className="border-t bg-gradient-to-r from-gray-50 to-gray-100 p-6 flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              {course ? 'Update your course information' : 'Create a new course to start teaching'}
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-300 border-t-white"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <SvgIcon icon="check" size={16} variant="white" />
+                    {course ? 'Update Course' : 'Create Course'}
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </div>
+
+      <CategoryManagement
+        isOpen={showCategoryManagement}
+        onClose={() => setShowCategoryManagement(false)}
+        onCategoryCreated={() => {
+          // Categories will be refreshed automatically by CategorySelector
+        }}
+      />
     </div>
   )
 }

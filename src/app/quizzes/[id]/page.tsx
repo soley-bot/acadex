@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -34,12 +36,12 @@ export default function QuizPage() {
         
         if (fetchError) {
           setError('Failed to load quiz')
-          console.error('Error fetching quiz:', fetchError)
+          logger.error('Error fetching quiz:', fetchError)
         } else {
           setQuiz(data)
         }
       } catch (err) {
-        console.error('Error fetching quiz:', err)
+        logger.error('Error fetching quiz:', err)
         setError('Failed to load quiz')
       } finally {
         setLoading(false)
@@ -66,11 +68,11 @@ export default function QuizPage() {
 
   const handleStartQuiz = () => {
     if (!user) {
-      console.log('No user found, redirecting to login')
-      router.push('/login')
+      logger.debug('No user found, redirecting to login')
+      router.push('/auth/login')
       return
     }
-    console.log('Starting quiz:', params.id)
+    logger.debug('Starting quiz:', params.id)
     router.push(`/quizzes/${params.id}/take`)
   }
 

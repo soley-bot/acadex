@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import type { UserRole } from './auth-security'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -28,7 +29,7 @@ export interface User {
   email: string
   name: string
   avatar_url?: string | null
-  role: 'student' | 'instructor' | 'admin'
+  role: UserRole
   created_at: string
   updated_at: string
 }
@@ -75,6 +76,7 @@ export interface Quiz {
   passing_score: number
   max_attempts: number
   time_limit_minutes?: number | null
+  image_url?: string | null
   is_published: boolean
   created_at: string
   updated_at: string

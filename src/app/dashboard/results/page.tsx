@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -23,7 +25,7 @@ export default function AllResultsPage() {
 
   useEffect(() => {
     if (!user) {
-      router.push('/login')
+      router.push('/auth/login')
       return
     }
 
@@ -34,12 +36,12 @@ export default function AllResultsPage() {
         
         if (fetchError) {
           setError('Failed to load quiz results')
-          console.error('Error fetching quiz attempts:', fetchError)
+          logger.error('Error fetching quiz attempts:', fetchError)
         } else {
           setQuizAttempts((data || []) as QuizAttempt[])
         }
       } catch (err) {
-        console.error('Error fetching quiz attempts:', err)
+        logger.error('Error fetching quiz attempts:', err)
         setError('Failed to load quiz results')
       } finally {
         setLoading(false)

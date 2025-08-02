@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { useState } from 'react'
 import { X, AlertTriangle, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -38,7 +40,7 @@ export function DeleteQuizModal({ quiz, isOpen, onClose, onSuccess }: DeleteQuiz
       if (error) throw error
       setAttemptCount(count || 0)
     } catch (err: any) {
-      console.error('Error checking quiz usage:', err)
+      logger.error('Error checking quiz usage:', err)
       setAttemptCount(0)
     }
   }
@@ -68,7 +70,7 @@ export function DeleteQuizModal({ quiz, isOpen, onClose, onSuccess }: DeleteQuiz
 
       onSuccess()
     } catch (err: any) {
-      console.error('Error deleting quiz:', err)
+      logger.error('Error deleting quiz:', err)
       setError(err.message || 'Failed to delete quiz')
     } finally {
       setLoading(false)

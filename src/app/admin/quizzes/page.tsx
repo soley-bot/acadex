@@ -1,12 +1,16 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { logger } from '@/lib/logger'
+
+import { useState, useEffect, useCallback, useRef } from 'react'
+import Image from 'next/image'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Search, Plus, Brain, Clock, Users, BarChart3, Edit, Trash2, Eye } from 'lucide-react'
+import { Search, Plus, Brain, Clock, Users, BarChart3, Edit, Trash2, Eye, ChevronDown, Settings } from 'lucide-react'
 import { supabase, Quiz } from '@/lib/supabase'
 import { QuizForm } from '@/components/admin/QuizForm'
 import { DeleteQuizModal } from '@/components/admin/DeleteQuizModal'
 import { QuizViewModal } from '@/components/admin/QuizViewModal'
+import { CategoryManagement } from '@/components/admin/CategoryManagement'
 
 export default function QuizzesPage() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([])
@@ -14,6 +18,8 @@ export default function QuizzesPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
   const [selectedDifficulty, setSelectedDifficulty] = useState('all')
   
   // Modal states
@@ -23,6 +29,10 @@ export default function QuizzesPage() {
   const [deletingQuiz, setDeletingQuiz] = useState<Quiz | null>(null)
   const [showViewModal, setShowViewModal] = useState(false)
   const [viewingQuiz, setViewingQuiz] = useState<Quiz | null>(null)
+  const [showCategoryManagement, setShowCategoryManagement] = useState(false)
+
+  // Refs for click outside
+  const categoryDropdownRef = useRef<HTMLDivElement>(null)
 
   const fetchQuizzes = useCallback(async () => {
     try {
@@ -45,12 +55,12 @@ export default function QuizzesPage() {
         .in('quiz_id', quizIds)
 
       if (attemptsError) {
-        console.error('Error fetching quiz attempts:', attemptsError)
+        logger.error('Error fetching quiz attempts:', attemptsError)
       }
 
       setQuizzes(data || [])
     } catch (err) {
-      console.error('Error fetching quizzes:', err)
+      logger.error('Error fetching quizzes:', err)
       setError('Failed to load quizzes. Please try again.')
     } finally {
       setLoading(false)
@@ -61,11 +71,23 @@ export default function QuizzesPage() {
     fetchQuizzes()
   }, [fetchQuizzes])
 
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+        setShowCategoryDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   // Filter quizzes based on search and filters
   const filteredQuizzes = quizzes.filter(quiz => {
     const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          quiz.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || quiz.category === selectedCategory
+    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(quiz.category)
     const matchesDifficulty = selectedDifficulty === 'all' || quiz.difficulty === selectedDifficulty
     return matchesSearch && matchesCategory && matchesDifficulty
   })
@@ -170,94 +192,106 @@ export default function QuizzesPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50">
+      {/* Enhanced Header Section */}
       <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Quiz Management</h1>
-            <p className="text-gray-600 mt-1">Create and manage quizzes for the platform</p>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-2">Quiz Management</h1>
+              <p className="text-gray-600 text-lg">Create, edit, and manage interactive assessments for your students</p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <button
+                onClick={handleCreateQuiz}
+                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                <Plus size={20} />
+                <span>Create New Quiz</span>
+              </button>
+              <button
+                onClick={() => setShowCategoryManagement(true)}
+                className="bg-white border border-gray-300 hover:border-gray-400 text-gray-700 px-6 py-3 sm:px-6 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold hover:shadow-md"
+              >
+                <Settings size={20} />
+                <span>Categories</span>
+              </button>
+            </div>
           </div>
-          <button
-            onClick={handleCreateQuiz}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-bold shadow-md hover:shadow-lg"
-          >
-            <Plus size={16} />
-            Create Quiz
-          </button>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-        <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow duration-200">
+      {/* Enhanced Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+        <Card className="bg-white border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 mb-1">Total Quizzes</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-600 mb-2">Total Quizzes</p>
                 <p className="text-3xl font-bold text-gray-900 mb-1">{quizStats.total}</p>
-                <p className="text-xs text-gray-500">All quizzes</p>
+                <p className="text-sm text-blue-600 font-medium">All Assessments</p>
               </div>
-              <div className="bg-red-50 p-3 rounded-full ml-4 flex-shrink-0">
+              <div className="bg-blue-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-blue-200 transition-colors">
                 <Brain className="h-6 w-6 text-blue-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="hover:shadow-lg transition-shadow duration-200">
+        <Card className="bg-white border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 mb-1">Published</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-600 mb-2">Published</p>
                 <p className="text-3xl font-bold text-gray-900 mb-1">{quizStats.published}</p>
-                <p className="text-xs text-gray-500">Live quizzes</p>
+                <p className="text-sm text-emerald-600 font-medium">Active & Live</p>
               </div>
-              <div className="bg-green-50 p-3 rounded-full ml-4 flex-shrink-0">
-                <Eye className="h-6 w-6 text-green-600" />
+              <div className="bg-emerald-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-emerald-200 transition-colors">
+                <Eye className="h-6 w-6 text-emerald-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="hover:shadow-lg transition-shadow duration-200">
-          <CardContent className="p-6">
+        <Card className="hover:shadow-lg transition-shadow duration-200 touch-target">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 mb-1">Drafts</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-600 mb-2">Drafts</p>
                 <p className="text-3xl font-bold text-gray-900 mb-1">{quizStats.draft}</p>
-                <p className="text-xs text-gray-500">In development</p>
+                <p className="text-sm text-orange-600 font-medium">In Progress</p>
               </div>
-              <div className="bg-yellow-50 p-3 rounded-full ml-4 flex-shrink-0">
-                <Edit className="h-6 w-6 text-yellow-600" />
+              <div className="bg-orange-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-orange-200 transition-colors">
+                <Edit className="h-6 w-6 text-orange-600" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="hover:shadow-lg transition-shadow duration-200">
+        <Card className="bg-white border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group sm:col-span-2 lg:col-span-1">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 mb-1">Total Questions</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-600 mb-2">Total Questions</p>
                 <p className="text-3xl font-bold text-gray-900 mb-1">{quizStats.totalQuestions}</p>
-                <p className="text-xs text-gray-500">All questions</p>
+                <p className="text-sm text-purple-600 font-medium">Assessment Items</p>
               </div>
-              <div className="bg-purple-50 p-3 rounded-full ml-4 flex-shrink-0">
+              <div className="bg-purple-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-purple-200 transition-colors">
                 <Users className="h-6 w-6 text-purple-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow duration-200">
+        <Card className="bg-white border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group sm:col-span-2 xl:col-span-1">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 mb-1">Avg Passing Score</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-600 mb-2">Avg Passing Score</p>
                 <p className="text-3xl font-bold text-gray-900 mb-1">{quizStats.averagePassingScore}%</p>
-                <p className="text-xs text-gray-500">Required to pass</p>
+                <p className="text-sm text-indigo-600 font-medium">Success Rate</p>
               </div>
-              <div className="bg-indigo-50 p-3 rounded-full ml-4 flex-shrink-0">
+              <div className="bg-indigo-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-indigo-200 transition-colors">
                 <BarChart3 className="h-6 w-6 text-indigo-600" />
               </div>
             </div>
@@ -265,118 +299,220 @@ export default function QuizzesPage() {
         </Card>
       </div>
 
-      {/* Search and Filters */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <input
-            type="text"
-            placeholder="Search quizzes..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div className="flex gap-3">
-          <select
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            {categories.map(category => (
-              <option key={category} value={category}>
-                {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
-              </option>
-            ))}
-          </select>
-          <select
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            value={selectedDifficulty}
-            onChange={(e) => setSelectedDifficulty(e.target.value)}
-          >
-            {difficulties.map(difficulty => (
-              <option key={difficulty} value={difficulty}>
-                {difficulty === 'all' ? 'All Levels' : difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-              </option>
-            ))}
-          </select>
+      {/* Enhanced Search and Filters */}
+      <div className="mb-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                type="text"
+                placeholder="Search quizzes by title or category..."
+                className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors text-base font-medium"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            
+            <div className="flex gap-3">
+              <div className="relative" ref={categoryDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                  className="px-6 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors text-base font-medium min-w-48 flex items-center justify-between"
+                >
+                  <span>
+                    {selectedCategories.length === 0 
+                      ? 'All Categories' 
+                      : selectedCategories.length === 1 && selectedCategories[0]
+                      ? selectedCategories[0].charAt(0).toUpperCase() + selectedCategories[0].slice(1)
+                      : `${selectedCategories.length} Categories`
+                    }
+                  </span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {showCategoryDropdown && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-xl shadow-xl z-50 py-2 max-h-64 overflow-y-auto">
+                    <div className="px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+                      <button
+                        onClick={() => setSelectedCategories([])}
+                        className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+                      >
+                        Clear All
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowCategoryDropdown(false)
+                          setShowCategoryManagement(true)
+                        }}
+                        className="text-sm text-gray-600 hover:text-gray-800 font-medium flex items-center gap-1"
+                      >
+                        <Settings size={14} />
+                        Manage
+                      </button>
+                    </div>
+                    {categories.filter(cat => cat !== 'all').map(category => (
+                      <label key={category} className="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(category)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedCategories([...selectedCategories, category])
+                            } else {
+                              setSelectedCategories(selectedCategories.filter(c => c !== category))
+                            }
+                          }}
+                          className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 mr-3"
+                        />
+                        <span className="text-gray-900 font-medium capitalize">{category}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              <select
+                className="px-6 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors text-base font-medium min-w-0"
+                value={selectedDifficulty}
+                onChange={(e) => setSelectedDifficulty(e.target.value)}
+              >
+                {difficulties.map(difficulty => (
+                  <option key={difficulty} value={difficulty}>
+                    {difficulty === 'all' ? 'All Levels' : difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Selected Categories Tags */}
+          {selectedCategories.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
+              <span className="text-sm text-gray-600 font-medium mr-2">Active filters:</span>
+              {selectedCategories.map(category => (
+                <span
+                  key={category}
+                  className="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium"
+                >
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                  <button
+                    onClick={() => setSelectedCategories(selectedCategories.filter(c => c !== category))}
+                    className="text-purple-600 hover:text-purple-800 ml-1"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              <button
+                onClick={() => setSelectedCategories([])}
+                className="text-sm text-gray-500 hover:text-gray-700 underline font-medium"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Quizzes Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  
+      {/* Enhanced Quizzes Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredQuizzes.map((quiz) => (
-          <Card key={quiz.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <CardTitle className="text-lg">{quiz.title}</CardTitle>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(quiz.is_published)}`}>
-                      {quiz.is_published ? 'published' : 'draft'}
+          <Card key={quiz.id} className="bg-white border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+            
+            {/* Quiz Image */}
+            <div className="relative h-48 bg-gray-100">
+              {quiz.image_url ? (
+                <Image
+                  src={quiz.image_url}
+                  alt={quiz.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-purple-100 to-blue-200 flex items-center justify-center">
+                  <div className="text-4xl font-black text-purple-500">
+                    {quiz.title.charAt(0).toUpperCase()}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-3">
+                    <CardTitle className="text-lg font-bold text-gray-900 leading-tight">{quiz.title}</CardTitle>
+                    <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full flex-shrink-0 ${getStatusBadge(quiz.is_published)}`}>
+                      {quiz.is_published ? 'Published' : 'Draft'}
                     </span>
                   </div>
-                  <CardDescription className="line-clamp-2">{quiz.description}</CardDescription>
+                  <CardDescription className="line-clamp-2 text-base text-gray-600 leading-relaxed">{quiz.description}</CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
+            <CardContent className="pt-0">
+              <div className="space-y-4 mb-6">
                 <div className="flex items-center justify-between">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize ${getDifficultyColor(quiz.difficulty)}`}>
+                  <span className={`inline-flex px-3 py-2 text-sm font-bold rounded-xl capitalize ${getDifficultyColor(quiz.difficulty)}`}>
                     {quiz.difficulty}
                   </span>
-                  <span className="text-sm text-gray-500 capitalize">{quiz.category}</span>
+                  <span className="text-base text-gray-700 font-medium capitalize">{quiz.category}</span>
                 </div>
                 
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-1 text-gray-500">
-                    <Clock className="h-4 w-4" />
-                    {quiz.duration_minutes}min
+                <div className="grid grid-cols-2 gap-4 text-base">
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Clock className="h-5 w-5 flex-shrink-0 text-blue-600" />
+                    <span className="font-medium">{quiz.duration_minutes} min</span>
                   </div>
-                  <div className="flex items-center gap-1 text-gray-500">
-                    <Brain className="h-4 w-4" />
-                    {quiz.total_questions} questions
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Brain className="h-5 w-5 flex-shrink-0 text-purple-600" />
+                    <span className="font-medium">{quiz.total_questions} questions</span>
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-1 text-gray-500">
-                    <Users className="h-4 w-4" />
-                    {quiz.total_questions} questions
+                <div className="grid grid-cols-2 gap-4 text-base">
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Users className="h-5 w-5 flex-shrink-0 text-emerald-600" />
+                    <span className="font-medium">{quiz.total_questions} items</span>
                   </div>
-                  <div className="flex items-center gap-1 text-gray-500">
-                    <BarChart3 className="h-4 w-4" />
-                    {quiz.passing_score}% to pass
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <BarChart3 className="h-5 w-5 flex-shrink-0 text-orange-600" />
+                    <span className="font-medium">{quiz.passing_score}% pass</span>
                   </div>
                 </div>
 
-                <div className="text-xs text-gray-500 border-t pt-2">
+                <div className="text-sm text-gray-500 border-t border-gray-200 pt-3 font-medium">
                   Created: {formatDate(quiz.created_at)}
                 </div>
 
-                <div className="flex gap-2 pt-2">
-                  <button 
-                    onClick={() => handleViewQuiz(quiz)}
-                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center"
-                  >
-                    <Eye className="h-3 w-3 mr-1" />
-                    View
-                  </button>
-                  <button 
-                    onClick={() => handleEditQuiz(quiz)}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center"
-                  >
-                    <Edit className="h-3 w-3 mr-1" />
-                    Edit
-                  </button>
-                  <button 
-                    onClick={() => handleDeleteQuiz(quiz)}
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center"
-                  >
-                    <Trash2 className="h-3 w-3 mr-1" />
-                    Delete
-                  </button>
+                {/* Enhanced Action Buttons */}
+                <div className="space-y-3 pt-2">
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={() => handleViewQuiz(quiz)}
+                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
+                    >
+                      <Eye className="h-5 w-5" />
+                      <span>View</span>
+                    </button>
+                    <button 
+                      onClick={() => handleEditQuiz(quiz)}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
+                    >
+                      <Edit className="h-5 w-5" />
+                      <span>Edit</span>
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteQuiz(quiz)}
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                      <span>Delete</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -384,23 +520,25 @@ export default function QuizzesPage() {
         ))}
       </div>
 
-      {/* Empty State */}
+      {/* Enhanced Empty State */}
       {filteredQuizzes.length === 0 && !loading && (
-        <Card className="mt-8 border-2 border-dashed border-gray-300">
-          <CardContent className="p-8">
+        <Card className="mt-8 border-2 border-dashed border-gray-300 bg-white">
+          <CardContent className="p-12">
             <div className="text-center">
-              <Brain className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No quizzes found</h3>
-              <p className="text-gray-500 mb-4">
+              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Brain className="h-8 w-8 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">No quizzes found</h3>
+              <p className="text-gray-600 mb-6 text-base leading-relaxed max-w-md mx-auto">
                 {searchTerm || selectedCategory !== 'all' || selectedDifficulty !== 'all'
-                  ? 'Try adjusting your search or filter criteria'
-                  : 'Start creating engaging quizzes for your students'
+                  ? 'Try adjusting your search or filter criteria to find the quizzes you are looking for'
+                  : 'Start creating engaging quizzes for your students to test their knowledge and understanding'
                 }
               </p>
               {!searchTerm && selectedCategory === 'all' && selectedDifficulty === 'all' && (
                 <button 
                   onClick={handleCreateQuiz}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
+                  className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-4 rounded-xl font-semibold text-base transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   Create Your First Quiz
                 </button>
@@ -434,6 +572,15 @@ export default function QuizzesPage() {
           if (viewingQuiz) {
             handleEditQuiz(viewingQuiz)
           }
+        }}
+      />
+
+      <CategoryManagement
+        isOpen={showCategoryManagement}
+        onClose={() => setShowCategoryManagement(false)}
+        onCategoryCreated={() => {
+          // Refresh categories when new ones are created
+          fetchQuizzes()
         }}
       />
     </div>

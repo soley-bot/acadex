@@ -5,21 +5,21 @@ import QuizPreview from '@/components/QuizPreview'
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="content-wrapper">
       <Hero />
       
-      {/* Features Section with accent background */}
-      <div className="section-divider section-accent">
+      {/* Features Section */}
+      <div className="alternate-section">
         <Features />
       </div>
       
       {/* Quiz Section */}
-      <div className="section-divider">
+      <div className="content-section">
         <QuizPreview />
       </div>
       
-      {/* Popular Courses Section with accent background */}
-      <div className="section-divider section-accent">
+      {/* Popular Courses Section */}
+      <div className="alternate-section">
         <PopularCourses />
       </div>
     </div>

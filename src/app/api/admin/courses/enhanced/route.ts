@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+import { logger } from '@/lib/logger'
+
 // Create Supabase client with service role key to bypass RLS
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -32,7 +34,7 @@ export async function GET(request: NextRequest) {
         .single()
 
       if (courseError) {
-        console.error('Error fetching course:', courseError)
+        logger.error('Error fetching course:', courseError)
         return NextResponse.json({ 
           success: false, 
           error: courseError.message 
@@ -57,7 +59,7 @@ export async function GET(request: NextRequest) {
         .order('created_at', { ascending: false })
 
       if (coursesError) {
-        console.error('Error fetching courses:', coursesError)
+        logger.error('Error fetching courses:', coursesError)
         return NextResponse.json({ 
           success: false, 
           error: coursesError.message 
@@ -70,7 +72,7 @@ export async function GET(request: NextRequest) {
       })
     }
   } catch (error: any) {
-    console.error('Unexpected error:', error)
+    logger.error('Unexpected error:', error)
     return NextResponse.json({ 
       success: false, 
       error: 'Internal server error' 
@@ -112,7 +114,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
   } catch (error: any) {
-    console.error('Error processing request:', error)
+    logger.error('Error processing request:', error)
     return NextResponse.json({ 
       success: false, 
       error: 'Internal server error' 
@@ -128,6 +130,7 @@ async function createEnhancedCourse(courseData: any) {
       .insert({
         title: courseData.title,
         description: courseData.description,
+        instructor_id: courseData.instructor_id, // Add this line
         instructor_name: courseData.instructor_name,
         category: courseData.category,
         level: courseData.level,
@@ -197,7 +200,7 @@ async function createEnhancedCourse(courseData: any) {
 
     return { success: true, data: course }
   } catch (error: any) {
-    console.error('Error creating enhanced course:', error)
+    logger.error('Error creating enhanced course:', error)
     return { success: false, error: error.message }
   }
 }
@@ -233,14 +236,42 @@ async function updateEnhancedCourse(courseData: any) {
       throw new Error(`Course update failed: ${courseError.message}`)
     }
 
-    // Delete existing modules and lessons (cascade will handle lessons)
-    const { error: deleteError } = await supabase
+    // Get existing modules to handle safe deletion
+    const { data: existingModules, error: fetchError } = await supabase
       .from('course_modules')
-      .delete()
+      .select('id')
       .eq('course_id', courseData.id)
 
-    if (deleteError) {
-      throw new Error(`Module deletion failed: ${deleteError.message}`)
+    if (fetchError) {
+      throw new Error(`Failed to fetch existing modules: ${fetchError.message}`)
+    }
+
+    // Clear any enrollments that might reference lessons in these modules
+    // This prevents foreign key constraint violations
+    if (existingModules && existingModules.length > 0) {
+      // Get all lesson IDs for these modules
+      const { data: lessonIds, error: lessonError } = await supabase
+        .from('course_lessons')
+        .select('id')
+        .in('module_id', existingModules.map(m => m.id))
+
+      if (!lessonError && lessonIds && lessonIds.length > 0) {
+        // Clear current_lesson_id in enrollments that reference these lessons
+        await supabase
+          .from('enrollments')
+          .update({ current_lesson_id: null })
+          .in('current_lesson_id', lessonIds.map(l => l.id))
+      }
+
+      // Now safely delete modules (lessons will cascade)
+      const { error: deleteError } = await supabase
+        .from('course_modules')
+        .delete()
+        .eq('course_id', courseData.id)
+
+      if (deleteError) {
+        throw new Error(`Module deletion failed: ${deleteError.message}`)
+      }
     }
 
     // Recreate modules and lessons with new structure
@@ -290,7 +321,7 @@ async function updateEnhancedCourse(courseData: any) {
 
     return { success: true, data: course }
   } catch (error: any) {
-    console.error('Error updating enhanced course:', error)
+    logger.error('Error updating enhanced course:', error)
     return { success: false, error: error.message }
   }
 }

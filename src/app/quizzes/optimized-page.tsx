@@ -1,4 +1,6 @@
-'use client';
+'use client'
+
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
@@ -66,7 +68,7 @@ export default function OptimizedQuizzesPage() {
       const data = result && typeof result === 'object' && 'data' in result ? (result as any).data : [];
       setQuizzes(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error('Failed to fetch quizzes:', err);
+      logger.error('Failed to fetch quizzes:', err);
       setError('Failed to load quizzes. Please try again.');
     } finally {
       setIsLoading(false);

@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger'
+
 /**
  * High-Performance Database Operations with Optimizations
  * Implements: selective fields, limits, parallel queries, and caching
@@ -358,7 +360,7 @@ export const clearAllCaches = () => {
     })
   }
   
-  console.log('🧹 All caches cleared successfully!')
+  logger.debug('🧹 All caches cleared successfully!')
 }
 
 /**
@@ -528,13 +530,13 @@ export class QueryPerformance {
 
       // Log slow queries
       if (duration > 1000) {
-        console.warn(`🐌 Slow query: ${queryName} took ${duration}ms`)
+        logger.warn(`🐌 Slow query: ${queryName} took ${duration}ms`)
       }
 
       return result
     } catch (error) {
       const duration = Date.now() - start
-      console.error(`❌ Query failed: ${queryName} after ${duration}ms`, error)
+      logger.error(`❌ Query failed: ${queryName} after ${duration}ms`, error)
       throw error
     }
   }

@@ -1,4 +1,6 @@
-'use client';
+'use client'
+
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
@@ -92,7 +94,7 @@ export default function OptimizedSearchPage() {
       setCourses('data' in courseResults ? courseResults.data || [] : []);
 
     } catch (error) {
-      console.error('Search error:', error);
+      logger.error('Search error:', error);
       // Fallback to regular search if full-text search fails
       await fallbackSearch(query, type);
     } finally {

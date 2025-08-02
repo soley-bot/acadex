@@ -1,4 +1,6 @@
-'use client';
+'use client'
+
+import { logger } from '@/lib/logger';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -30,7 +32,7 @@ export default function PerformancePreviewPage() {
       }, 1000);
       
     } catch (error) {
-      console.error('Error clearing caches:', error);
+      logger.error('Error clearing caches:', error);
     } finally {
       setTimeout(() => setIsClearing(false), 1000);
     }

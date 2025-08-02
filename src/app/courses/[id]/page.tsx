@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
@@ -39,12 +41,12 @@ export default function CoursePage() {
         
         if (fetchError) {
           setError('Course not found or not published')
-          console.error('Error fetching course:', fetchError)
+          logger.error('Error fetching course:', fetchError)
         } else {
           setCourse(data)
         }
       } catch (err) {
-        console.error('Error fetching course:', err)
+        logger.error('Error fetching course:', err)
         setError('Failed to load course')
       } finally {
         setLoading(false)
@@ -69,7 +71,7 @@ export default function CoursePage() {
           setIsEnrolled(false)
         }
       } catch (err) {
-        console.error('Error checking enrollment status:', err)
+        logger.error('Error checking enrollment status:', err)
         setIsEnrolled(false)
       }
     }
@@ -84,7 +86,7 @@ export default function CoursePage() {
 
   const handleEnroll = async () => {
     if (!user) {
-      router.push('/login')
+      router.push('/auth/login')
       return
     }
 
@@ -98,7 +100,7 @@ export default function CoursePage() {
       router.push(`/courses/${course!.id}/study`)
       
     } catch (err: any) {
-      console.error('Error enrolling in course:', err)
+      logger.error('Error enrolling in course:', err)
       if (err.message?.includes('already enrolled')) {
         setError('You are already enrolled in this course!')
         setIsEnrolled(true)

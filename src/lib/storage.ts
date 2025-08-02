@@ -1,5 +1,7 @@
 import { supabase } from './supabase'
 
+import { logger } from '@/lib/logger'
+
 export interface UploadResult {
   url: string | null
   error: string | null
@@ -44,7 +46,7 @@ export async function uploadFile(
       })
 
     if (error) {
-      console.error('Upload error:', error)
+      logger.error('Upload error:', error)
       return { url: null, error: error.message }
     }
 
@@ -55,7 +57,7 @@ export async function uploadFile(
 
     return { url: urlData.publicUrl, error: null }
   } catch (err) {
-    console.error('Upload error:', err)
+    logger.error('Upload error:', err)
     return { url: null, error: 'Failed to upload file' }
   }
 }
@@ -68,13 +70,13 @@ export async function deleteFile(bucket: string, path: string): Promise<boolean>
       .remove([path])
 
     if (error) {
-      console.error('Delete error:', error)
+      logger.error('Delete error:', error)
       return false
     }
 
     return true
   } catch (err) {
-    console.error('Delete error:', err)
+    logger.error('Delete error:', err)
     return false
   }
 }

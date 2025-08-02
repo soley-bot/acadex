@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger'
+
 /**
  * Advanced Cache Management System
  * Implements best practices for React/Next.js applications
@@ -292,7 +294,7 @@ export function useCachedQuery<T>(
           setData(freshData)
           setIsStale(false)
         } catch (err) {
-          console.warn('Background refresh failed:', err)
+          logger.warn('Background refresh failed:', err)
         }
       }
       return cachedData
@@ -391,58 +393,58 @@ export function useCacheMutation<TData, TVariables>(
   const [error, setError] = useState<Error | null>(null)
 
   const mutate = useCallback(async (variables: TVariables) => {
-    console.log('🔄 [CACHE_MUTATION] === STARTING MUTATION ===')
-    console.log('🔄 [CACHE_MUTATION] Started at:', new Date().toISOString())
-    console.log('🔄 [CACHE_MUTATION] Variables:', JSON.stringify(variables, null, 2))
-    console.log('🔄 [CACHE_MUTATION] Setting isLoading to true...')
+    logger.debug('🔄 [CACHE_MUTATION] === STARTING MUTATION ===')
+    logger.debug('🔄 [CACHE_MUTATION] Started at:', new Date().toISOString())
+    logger.debug('🔄 [CACHE_MUTATION] Variables:', JSON.stringify(variables, null, 2))
+    logger.debug('🔄 [CACHE_MUTATION] Setting isLoading to true...')
     
     setIsLoading(true)
     setError(null)
 
     try {
-      console.log('🚀 [CACHE_MUTATION] Calling mutationFn...')
+      logger.debug('🚀 [CACHE_MUTATION] Calling mutationFn...')
       const data = await mutationFn(variables)
-      console.log('✅ [CACHE_MUTATION] mutationFn completed successfully')
-      console.log('✅ [CACHE_MUTATION] Returned data:', JSON.stringify(data, null, 2))
+      logger.debug('✅ [CACHE_MUTATION] mutationFn completed successfully')
+      logger.debug('✅ [CACHE_MUTATION] Returned data:', JSON.stringify(data, null, 2))
       
       // Invalidate related cache entries
       if (invalidateTags.length > 0) {
-        console.log('🗑️ [CACHE_MUTATION] Invalidating cache tags:', invalidateTags)
+        logger.debug('🗑️ [CACHE_MUTATION] Invalidating cache tags:', invalidateTags)
         cache.invalidateByTags(invalidateTags)
-        console.log('🗑️ [CACHE_MUTATION] Cache invalidated successfully')
+        logger.debug('🗑️ [CACHE_MUTATION] Cache invalidated successfully')
       }
 
-      console.log('🔧 [CACHE_MUTATION] Setting isLoading to false...')
+      logger.debug('🔧 [CACHE_MUTATION] Setting isLoading to false...')
       setIsLoading(false) // Reset loading state before success callback
-      console.log('🔧 [CACHE_MUTATION] isLoading set to false')
+      logger.debug('🔧 [CACHE_MUTATION] isLoading set to false')
       
-      console.log('🎉 [CACHE_MUTATION] Calling onSuccess callback...')
+      logger.debug('🎉 [CACHE_MUTATION] Calling onSuccess callback...')
       onSuccess?.(data, variables)
-      console.log('🎉 [CACHE_MUTATION] onSuccess callback completed')
+      logger.debug('🎉 [CACHE_MUTATION] onSuccess callback completed')
       
-      console.log('🎉 [CACHE_MUTATION] === MUTATION SUCCESS ===')
+      logger.debug('🎉 [CACHE_MUTATION] === MUTATION SUCCESS ===')
       return data
     } catch (err) {
-      console.error('💥 [CACHE_MUTATION] === MUTATION ERROR ===')
-      console.error('💥 [CACHE_MUTATION] Error occurred at:', new Date().toISOString())
-      console.error('💥 [CACHE_MUTATION] Error details:', err)
+      logger.error('💥 [CACHE_MUTATION] === MUTATION ERROR ===')
+      logger.error('💥 [CACHE_MUTATION] Error occurred at:', new Date().toISOString())
+      logger.error('💥 [CACHE_MUTATION] Error details:', err)
       
       const error = err instanceof Error ? err : new Error('Mutation failed')
-      console.error('💥 [CACHE_MUTATION] Processed error:', error.message)
+      logger.error('💥 [CACHE_MUTATION] Processed error:', error.message)
       
-      console.log('🔧 [CACHE_MUTATION] Setting isLoading to false after error...')
+      logger.debug('🔧 [CACHE_MUTATION] Setting isLoading to false after error...')
       setIsLoading(false) // Reset loading state before error handling
-      console.log('🔧 [CACHE_MUTATION] isLoading set to false after error')
+      logger.debug('🔧 [CACHE_MUTATION] isLoading set to false after error')
       
-      console.log('🔧 [CACHE_MUTATION] Setting error state...')
+      logger.debug('🔧 [CACHE_MUTATION] Setting error state...')
       setError(error)
-      console.log('🔧 [CACHE_MUTATION] Error state set')
+      logger.debug('🔧 [CACHE_MUTATION] Error state set')
       
-      console.log('💥 [CACHE_MUTATION] Calling onError callback...')
+      logger.debug('💥 [CACHE_MUTATION] Calling onError callback...')
       onError?.(error, variables)
-      console.log('💥 [CACHE_MUTATION] onError callback completed')
+      logger.debug('💥 [CACHE_MUTATION] onError callback completed')
       
-      console.error('💥 [CACHE_MUTATION] Re-throwing error...')
+      logger.error('💥 [CACHE_MUTATION] Re-throwing error...')
       throw error
     }
   }, [mutationFn, onSuccess, onError, invalidateTags, cache])
@@ -494,7 +496,7 @@ export const cacheDebug = {
     console.group('🗄️ Cache Statistics')
     const stats = cache.getStats()
     Object.entries(stats).forEach(([key, value]) => {
-      console.log(`${key}:`, value)
+      logger.debug(`${key}:`, value)
     })
     console.groupEnd()
   },

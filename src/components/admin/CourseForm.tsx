@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/logger'
+
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { X, Save, Loader2, Upload, AlertCircle, Plus, Trash2, BookOpen } from 'lucide-react'
@@ -7,6 +9,8 @@ import { Course } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { useCourseMutations } from '@/lib/cachedOperations'
 import { categories, levels } from '@/lib/courseConstants'
+import { ImageUpload } from '@/components/ui/ImageUpload'
+import { uploadCourseImage } from '@/lib/storage'
 
 interface CourseFormProps {
   course?: Course
@@ -47,29 +51,29 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
 
   // Track loading state changes
   useEffect(() => {
-    console.log('🔧 [COURSE_FORM] Loading state changed:')
-    console.log('🔧 [COURSE_FORM] isCreating:', isCreating)
-    console.log('🔧 [COURSE_FORM] isUpdating:', isUpdating)
-    console.log('🔧 [COURSE_FORM] isLoading:', isLoading)
+    logger.debug('🔧 [COURSE_FORM] Loading state changed:')
+    logger.debug('🔧 [COURSE_FORM] isCreating:', isCreating)
+    logger.debug('🔧 [COURSE_FORM] isUpdating:', isUpdating)
+    logger.debug('🔧 [COURSE_FORM] isLoading:', isLoading)
   }, [isCreating, isUpdating, isLoading])
 
   // Update error state when mutation error changes
   useEffect(() => {
-    console.log('🔧 [COURSE_FORM] Mutation error changed:', mutationError)
+    logger.debug('🔧 [COURSE_FORM] Mutation error changed:', mutationError)
     if (mutationError) {
-      console.log('❌ [COURSE_FORM] Setting error from mutation:', mutationError.message)
+      logger.debug('❌ [COURSE_FORM] Setting error from mutation:', mutationError.message)
       setError(mutationError.message)
     }
   }, [mutationError])
 
   useEffect(() => {
-    console.log('🔄 [COURSE_FORM] Form opened/course changed')
-    console.log('🔄 [COURSE_FORM] Course prop:', course?.id, course?.title)
-    console.log('🔄 [COURSE_FORM] User:', user?.id, user?.email)
-    console.log('🔄 [COURSE_FORM] Form open:', isOpen)
+    logger.debug('🔄 [COURSE_FORM] Form opened/course changed')
+    logger.debug('🔄 [COURSE_FORM] Course prop:', { courseId: course?.id, courseTitle: course?.title })
+    logger.debug('🔄 [COURSE_FORM] User:', { userId: user?.id, userEmail: user?.email })
+    logger.debug('🔄 [COURSE_FORM] Form open:', { isOpen })
     
     if (course) {
-      console.log('📝 [COURSE_FORM] Setting form data from course:', course.title)
+      logger.debug('📝 [COURSE_FORM] Setting form data from course:', course.title)
       setFormData({
         title: course.title,
         description: course.description,
@@ -83,7 +87,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
         learning_objectives: course.learning_objectives || []
       })
     } else {
-      console.log('📝 [COURSE_FORM] Resetting form for new course')
+      logger.debug('📝 [COURSE_FORM] Resetting form for new course')
       // Reset form for new course
       setFormData({
         title: '',
@@ -107,14 +111,14 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
     setError(null)
     setSuccessMessage(null) // Clear previous success message
 
-    console.log('🔄 [COURSE_FORM] === STARTING COURSE SUBMISSION ===')
-    console.log('🔄 [COURSE_FORM] Form submitted at:', new Date().toISOString())
-    console.log('📝 [COURSE_FORM] Form Data:', JSON.stringify(formData, null, 2))
-    console.log('👤 [COURSE_FORM] User:', user?.id, user?.email)
-    console.log('📚 [COURSE_FORM] Course being edited:', course?.id, course?.title)
-    console.log('🔧 [COURSE_FORM] isCreating:', isCreating)
-    console.log('🔧 [COURSE_FORM] isUpdating:', isUpdating)
-    console.log('🔧 [COURSE_FORM] isLoading:', isLoading)
+    logger.debug('🔄 [COURSE_FORM] === STARTING COURSE SUBMISSION ===')
+    logger.debug('🔄 [COURSE_FORM] Form submitted at:', new Date().toISOString())
+    logger.debug('📝 [COURSE_FORM] Form Data:', JSON.stringify(formData, null, 2))
+    logger.debug('👤 [COURSE_FORM] User:', { userId: user?.id, userEmail: user?.email })
+    logger.debug('📚 [COURSE_FORM] Course being edited:', { courseId: course?.id, courseTitle: course?.title })
+    logger.debug('🔧 [COURSE_FORM] isCreating:', isCreating)
+    logger.debug('🔧 [COURSE_FORM] isUpdating:', isUpdating)
+    logger.debug('🔧 [COURSE_FORM] isLoading:', isLoading)
 
     const courseData = {
       title: formData.title,
@@ -130,76 +134,76 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
       instructor_id: user?.id,
     }
 
-    console.log('💾 [COURSE_FORM] Prepared courseData:', JSON.stringify(courseData, null, 2))
+    logger.debug('💾 [COURSE_FORM] Prepared courseData:', JSON.stringify(courseData, null, 2))
 
     try {
-      console.log('🚀 [COURSE_FORM] About to call mutation...')
+      logger.debug('🚀 [COURSE_FORM] About to call mutation...')
       
       let result: Course
       
       if (course?.id) {
-        console.log('✏️ [COURSE_FORM] UPDATING existing course:', course.id)
-        console.log('✏️ [COURSE_FORM] Calling updateCourse with:', { id: course.id, updates: courseData })
+        logger.debug('✏️ [COURSE_FORM] UPDATING existing course:', course.id)
+        logger.debug('✏️ [COURSE_FORM] Calling updateCourse with:', { id: course.id, updates: courseData })
         
         result = await updateCourse({ id: course.id, updates: courseData })
         
-        console.log('✅ [COURSE_FORM] updateCourse returned:', result)
-        console.log('✅ [COURSE_FORM] Course updated successfully')
+        logger.debug('✅ [COURSE_FORM] updateCourse returned:', result)
+        logger.debug('✅ [COURSE_FORM] Course updated successfully')
       } else {
-        console.log('🆕 [COURSE_FORM] CREATING new course')
-        console.log('🆕 [COURSE_FORM] Calling createCourse with:', courseData)
+        logger.debug('🆕 [COURSE_FORM] CREATING new course')
+        logger.debug('🆕 [COURSE_FORM] Calling createCourse with:', courseData)
         
         result = await createCourse(courseData)
         
-        console.log('✅ [COURSE_FORM] createCourse returned:', result)
-        console.log('✅ [COURSE_FORM] Course created successfully')
+        logger.debug('✅ [COURSE_FORM] createCourse returned:', result)
+        logger.debug('✅ [COURSE_FORM] Course created successfully')
       }
 
-      console.log('🎉 [COURSE_FORM] Operation completed successfully, calling callbacks...')
+      logger.debug('🎉 [COURSE_FORM] Operation completed successfully, calling callbacks...')
       
       if (course?.id) {
         // For updates, show success message and keep form open
-        console.log('🎉 [COURSE_FORM] This is an UPDATE - keeping form open')
-        console.log('🎉 [COURSE_FORM] Updated course data:', JSON.stringify(result, null, 2))
+        logger.debug('🎉 [COURSE_FORM] This is an UPDATE - keeping form open')
+        logger.debug('🎉 [COURSE_FORM] Updated course data:', JSON.stringify(result, null, 2))
         
         // Set success message first
         setSuccessMessage('Course updated successfully!')
         
         // Then call success callback with updated data - DO NOT CLOSE FORM
-        console.log('🎉 [COURSE_FORM] Calling onSuccess with result')
+        logger.debug('🎉 [COURSE_FORM] Calling onSuccess with result')
         onSuccess(result)
-        console.log('🎉 [COURSE_FORM] Form should stay OPEN for updates')
+        logger.debug('🎉 [COURSE_FORM] Form should stay OPEN for updates')
         
       } else {
         // For new courses, close the form
-        console.log('🎉 [COURSE_FORM] This is a NEW COURSE - closing form')
+        logger.debug('🎉 [COURSE_FORM] This is a NEW COURSE - closing form')
         onSuccess()
-        console.log('🎉 [COURSE_FORM] Calling onClose()...')
+        logger.debug('🎉 [COURSE_FORM] Calling onClose()...')
         onClose()
       }
       
-      console.log('🎉 [COURSE_FORM] === SUBMISSION COMPLETE ===')
+      logger.debug('🎉 [COURSE_FORM] === SUBMISSION COMPLETE ===')
       
     } catch (err) {
-      console.error('💥 [COURSE_FORM] === ERROR IN SUBMISSION ===')
-      console.error('💥 [COURSE_FORM] Error occurred at:', new Date().toISOString())
-      console.error('💥 [COURSE_FORM] Error details:', err)
-      console.error('💥 [COURSE_FORM] Error message:', err instanceof Error ? err.message : 'Unknown error')
-      console.error('💥 [COURSE_FORM] Error stack:', err instanceof Error ? err.stack : 'No stack trace')
+      logger.error('💥 [COURSE_FORM] === ERROR IN SUBMISSION ===')
+      logger.error('💥 [COURSE_FORM] Error occurred at:', new Date().toISOString())
+      logger.error('💥 [COURSE_FORM] Error details:', err)
+      logger.error('💥 [COURSE_FORM] Error message:', err instanceof Error ? err.message : 'Unknown error')
+      logger.error('💥 [COURSE_FORM] Error stack:', err instanceof Error ? err.stack : 'No stack trace')
       
       setError(err instanceof Error ? err.message : 'An error occurred while saving the course')
-      console.log('💥 [COURSE_FORM] Error state set, form should show error now')
+      logger.debug('💥 [COURSE_FORM] Error state set, form should show error now')
     }
   }
 
   if (!isOpen) {
-    console.log('🚫 [COURSE_FORM] Form not rendering - isOpen is false')
+    logger.debug('🚫 [COURSE_FORM] Form not rendering - isOpen is false')
     return null
   }
 
-  console.log('📺 [COURSE_FORM] Form rendering - isOpen is true')
-  console.log('📺 [COURSE_FORM] Current course:', course?.id, course?.title)
-  console.log('📺 [COURSE_FORM] Form data title:', formData.title)
+  logger.debug('📺 [COURSE_FORM] Form rendering - isOpen is true')
+  logger.debug('📺 [COURSE_FORM] Current course:', { courseId: course?.id, courseTitle: course?.title })
+  logger.debug('📺 [COURSE_FORM] Form data title:', formData.title)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -215,7 +219,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
           </div>
           <button
             onClick={() => {
-              console.log('❌ [COURSE_FORM] X button clicked - closing form')
+              logger.debug('❌ [COURSE_FORM] X button clicked - closing form')
               onClose()
             }}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -348,14 +352,21 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Course Image URL
+                Course Image
               </label>
-              <input
-                type="url"
+              <ImageUpload
                 value={formData.image_url}
-                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="https://example.com/image.jpg"
+                onChange={(url) => setFormData({ ...formData, image_url: url || '' })}
+                onFileUpload={async (file) => {
+                  // We'll use a temporary ID for new courses
+                  const tempId = course?.id || 'temp-' + Date.now()
+                  const result = await uploadCourseImage(file, tempId)
+                  if (result.error) {
+                    throw new Error(result.error)
+                  }
+                  return result.url!
+                }}
+                placeholder="Upload course image or enter URL"
               />
             </div>
 
@@ -438,7 +449,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
             <button
               type="button"
               onClick={() => {
-                console.log('❌ [COURSE_FORM] Cancel button clicked - closing form')
+                logger.debug('❌ [COURSE_FORM] Cancel button clicked - closing form')
                 onClose()
               }}
               className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
@@ -450,9 +461,9 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
               disabled={isLoading}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center"
               onClick={() => {
-                console.log('🖱️ [COURSE_FORM] Submit button clicked')
-                console.log('🖱️ [COURSE_FORM] isLoading at click:', isLoading)
-                console.log('🖱️ [COURSE_FORM] Button disabled:', isLoading)
+                logger.debug('🖱️ [COURSE_FORM] Submit button clicked')
+                logger.debug('🖱️ [COURSE_FORM] isLoading at click:', isLoading)
+                logger.debug('🖱️ [COURSE_FORM] Button disabled:', isLoading)
               }}
             >
               {isLoading ? (

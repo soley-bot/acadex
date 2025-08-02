@@ -9,6 +9,15 @@ export interface AppError {
   code?: string
   technical?: string
   retry?: boolean
+  severity?: 'low' | 'medium' | 'high' | 'critical'
+}
+
+interface ErrorContext {
+  component?: string
+  action?: string
+  userId?: string
+  courseId?: string
+  [key: string]: any
 }
 
 export class ErrorHandler {
@@ -27,17 +36,30 @@ export class ErrorHandler {
         message: 'Network connection error. Please check your internet connection.',
         code: 'NETWORK_ERROR',
         technical: error.message,
-        retry: true
+        retry: true,
+        severity: 'medium'
       }
     }
 
     // Authentication errors
-    if (error?.message?.includes('auth')) {
+    if (error?.message?.includes('auth') || error?.status === 401) {
       return {
         message: 'Authentication error. Please log in again.',
         code: 'AUTH_ERROR',
         technical: error.message,
-        retry: false
+        retry: false,
+        severity: 'high'
+      }
+    }
+
+    // Validation errors
+    if (error?.message?.includes('validation') || error?.name === 'ValidationError') {
+      return {
+        message: 'Please check your input and try again.',
+        code: 'VALIDATION_ERROR',
+        technical: error.message,
+        retry: true,
+        severity: 'low'
       }
     }
 
@@ -47,7 +69,19 @@ export class ErrorHandler {
         message: 'File upload failed. Please try again with a smaller file.',
         code: 'UPLOAD_ERROR',
         technical: error.message,
-        retry: true
+        retry: true,
+        severity: 'medium'
+      }
+    }
+
+    // Rate limit errors
+    if (error?.status === 429 || error?.message?.includes('rate limit')) {
+      return {
+        message: 'Too many requests. Please wait a moment and try again.',
+        code: 'RATE_LIMIT_ERROR',
+        technical: error.message,
+        retry: true,
+        severity: 'medium'
       }
     }
 
@@ -56,7 +90,8 @@ export class ErrorHandler {
       message: 'An unexpected error occurred. Please try again.',
       code: 'GENERIC_ERROR',
       technical: error?.message || 'Unknown error',
-      retry: true
+      retry: true,
+      severity: 'medium'
     }
   }
 
@@ -64,49 +99,165 @@ export class ErrorHandler {
    * Handles Supabase/PostgreSQL specific errors
    */
   private static handleDatabaseError(error: any): AppError {
-    const commonErrors: Record<string, string> = {
-      '23505': 'This item already exists. Please use a different name.',
-      '23503': 'Cannot delete this item because it is being used elsewhere.',
-      '42P01': 'Database table not found. Please contact support.',
-      '42501': 'You do not have permission to perform this action.',
-      'PGRST116': 'No data found matching your request.',
-      'PGRST301': 'You do not have permission to access this data.'
-    }
+    const code = error.code || error.error_code
 
-    const userMessage = commonErrors[error.code] || 'Database error occurred.'
-
-    return {
-      message: userMessage,
-      code: error.code,
-      technical: error.message,
-      retry: !['23505', '42501', 'PGRST301'].includes(error.code)
+    switch (code) {
+      case '23505': // Unique violation
+        return {
+          message: 'This item already exists. Please choose a different name.',
+          code: 'DUPLICATE_ERROR',
+          technical: error.message,
+          retry: false,
+          severity: 'low'
+        }
+      case '42501': // Insufficient privilege
+      case 'PGRST301': // RLS policy violation
+        return {
+          message: 'You do not have permission to perform this action.',
+          code: 'PERMISSION_ERROR',
+          technical: error.message,
+          retry: false,
+          severity: 'high'
+        }
+      case '23503': // Foreign key violation
+        return {
+          message: 'Cannot delete this item because it is being used elsewhere.',
+          code: 'REFERENCE_ERROR',
+          technical: error.message,
+          retry: false,
+          severity: 'medium'
+        }
+      case 'PGRST116': // No rows found
+        return {
+          message: 'The requested item was not found.',
+          code: 'NOT_FOUND_ERROR',
+          technical: error.message,
+          retry: false,
+          severity: 'low'
+        }
+      case '23514': // Check violation
+        return {
+          message: 'Invalid data provided. Please check your input.',
+          code: 'CONSTRAINT_ERROR',
+          technical: error.message,
+          retry: true,
+          severity: 'medium'
+        }
+      case 'PGRST000': // Connection error
+        return {
+          message: 'Database connection error. Please try again.',
+          code: 'CONNECTION_ERROR',
+          technical: error.message,
+          retry: true,
+          severity: 'high'
+        }
+      default:
+        return {
+          message: 'Database error occurred. Please try again.',
+          code: 'DATABASE_ERROR',
+          technical: error.message,
+          retry: true,
+          severity: 'medium'
+        }
     }
   }
 
   /**
    * Logs error and returns formatted error for UI
    */
-  static handleError(error: any, context?: string): AppError {
+  static handleError(error: any, context?: ErrorContext | string): AppError {
     const formattedError = this.formatError(error)
     
-    logger.error(`Error in ${context || 'application'}`, {
+    // Convert string context to object
+    const contextObj = typeof context === 'string' 
+      ? { component: context } 
+      : context || {}
+
+    logger.error(`Error in ${contextObj.component || 'application'}`, {
       userMessage: formattedError.message,
       code: formattedError.code,
       technical: formattedError.technical,
-      originalError: error
+      severity: formattedError.severity,
+      originalError: error,
+      ...contextObj
     })
 
     return formattedError
   }
-}
 
-/**
- * Hook for handling errors in React components
- */
-export function useErrorHandler() {
-  const handleError = (error: any, context?: string) => {
-    return ErrorHandler.handleError(error, context)
+  /**
+   * React hook for error handling
+   */
+  static useErrorHandler() {
+    return {
+      handleError: (error: any, context?: ErrorContext | string) => 
+        this.handleError(error, context),
+      formatError: (error: any) => this.formatError(error)
+    }
   }
 
-  return { handleError }
+  /**
+   * Async wrapper with error handling
+   */
+  static async withErrorHandling<T>(
+    operation: () => Promise<T>,
+    context?: ErrorContext | string
+  ): Promise<{ data?: T; error?: AppError }> {
+    try {
+      const data = await operation()
+      return { data }
+    } catch (error) {
+      const appError = this.handleError(error, context)
+      return { error: appError }
+    }
+  }
+
+  /**
+   * Retry mechanism for operations
+   */
+  static async withRetry<T>(
+    operation: () => Promise<T>,
+    maxRetries: number = 3,
+    delayMs: number = 1000,
+    context?: ErrorContext | string
+  ): Promise<{ data?: T; error?: AppError }> {
+    let lastError: any
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const data = await operation()
+        return { data }
+      } catch (error) {
+        lastError = error
+        
+        const formattedError = this.formatError(error)
+        
+        // Don't retry if the error is not retryable
+        if (!formattedError.retry) {
+          return { error: this.handleError(error, context) }
+        }
+        
+        // Don't retry on the last attempt
+        if (attempt === maxRetries) {
+          break
+        }
+        
+        logger.warn(`Retry attempt ${attempt}/${maxRetries} failed`, {
+          error: formattedError.message,
+          context
+        })
+        
+        // Wait before retrying with exponential backoff
+        await new Promise(resolve => setTimeout(resolve, delayMs * attempt))
+      }
+    }
+    
+    return { error: this.handleError(lastError, context) }
+  }
 }
+
+// Export hook for React components
+export const useErrorHandler = ErrorHandler.useErrorHandler
+
+// Export types
+export type { ErrorContext }

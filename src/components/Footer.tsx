@@ -16,10 +16,10 @@ export default function Footer() {
   const displayYear = isClient ? new Date().getFullYear() : 2025
 
   return (
-    <footer className="relative bg-black overflow-hidden">
+    <footer className="relative bg-foreground overflow-hidden">
       {/* Background Elements */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-red-600/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-background/5 rounded-full blur-3xl"></div>
       
       {/* Main Footer */}
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-16">
@@ -42,7 +42,7 @@ export default function Footer() {
                 href="https://facebook.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-12 h-12 rounded-lg bg-gray-800 hover:bg-red-600 flex items-center justify-center text-white transition-all duration-200 font-bold text-lg"
+                className="w-12 h-12 rounded-lg bg-red-600 hover:bg-primary flex items-center justify-center text-white transition-all duration-200 font-bold text-lg"
                 aria-label="Facebook"
               >
                 f
@@ -50,7 +50,7 @@ export default function Footer() {
               
               <a 
                 href="#" 
-                className="w-12 h-12 rounded-lg bg-gray-800 hover:bg-red-600 flex items-center justify-center text-white transition-all duration-200 font-bold text-lg"
+                className="w-12 h-12 rounded-lg bg-red-600 hover:bg-primary flex items-center justify-center text-white transition-all duration-200 font-bold text-lg"
                 aria-label="Twitter"
               >
                 t
@@ -58,7 +58,7 @@ export default function Footer() {
               
               <a 
                 href="#" 
-                className="w-12 h-12 rounded-lg bg-gray-800 hover:bg-red-600 flex items-center justify-center text-white transition-all duration-200 font-bold text-sm"
+                className="w-12 h-12 rounded-lg bg-red-600 hover:bg-primary flex items-center justify-center text-white transition-all duration-200 font-bold text-sm"
                 aria-label="LinkedIn"
               >
                 in
@@ -66,7 +66,7 @@ export default function Footer() {
               
               <a 
                 href="mailto:contact@acadex.com" 
-                className="w-12 h-12 rounded-lg bg-gray-800 hover:bg-red-600 flex items-center justify-center text-white transition-all duration-200 font-bold text-lg"
+                className="w-12 h-12 rounded-lg bg-red-600 hover:bg-primary flex items-center justify-center text-white transition-all duration-200 font-bold text-lg"
                 aria-label="Contact Us"
               >
                 @
@@ -76,7 +76,7 @@ export default function Footer() {
 
           {/* Courses */}
           <div>
-            <h3 className="text-lg font-bold mb-6 text-white">Popular Courses</h3>
+            <h3 className="text-lg font-bold mb-6 text-background">Popular Courses</h3>
             <ul className="space-y-4">
               {[
                 { name: "Web Development", href: "/courses/web-development" },
@@ -87,7 +87,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="text-gray-300 hover:text-red-400 transition-colors duration-200 text-base"
+                    className="text-gray-300 hover:text-white transition-colors duration-200 text-base"
                   >
                     {link.name}
                   </Link>
@@ -98,7 +98,7 @@ export default function Footer() {
 
           {/* Support */}
           <div>
-            <h3 className="text-lg font-bold mb-6 text-white">Support</h3>
+            <h3 className="text-lg font-bold mb-6 text-background">Support</h3>
             <ul className="space-y-4">
               {[
                 { name: "Help Center", href: "/help" },
@@ -110,7 +110,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="text-gray-300 hover:text-red-400 transition-colors duration-200 text-base"
+                    className="text-gray-300 hover:text-white transition-colors duration-200 text-base"
                   >
                     {link.name}
                   </Link>
@@ -121,7 +121,7 @@ export default function Footer() {
 
           {/* Company */}
           <div>
-            <h3 className="text-lg font-bold mb-6 text-white">Company</h3>
+            <h3 className="text-lg font-bold mb-6 text-background">Company</h3>
             <ul className="space-y-4">
               {[
                 { name: "About Us", href: "/about" },
@@ -133,7 +133,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="text-gray-300 hover:text-red-400 transition-colors duration-200 text-base"
+                    className="text-gray-300 hover:text-white transition-colors duration-200 text-base"
                   >
                     {link.name}
                   </Link>
@@ -145,10 +145,10 @@ export default function Footer() {
       </div>
 
       {/* Newsletter Section */}
-      <div className="relative border-t border-gray-800">
+      <div className="relative border-t border-border">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h3 className="text-2xl md:text-3xl font-black mb-4 text-white">Join Our Learning Community</h3>
+            <h3 className="text-2xl md:text-3xl font-black mb-4 text-background">Join Our Learning Community</h3>
             <p className="text-gray-300 mb-8 max-w-3xl mx-auto text-lg leading-relaxed">
               Get tips, guides, lessons, and exclusive learning resources delivered to your inbox.
             </p>
@@ -156,9 +156,9 @@ export default function Footer() {
               <input 
                 type="email" 
                 placeholder="Enter your email"
-                className="flex-1 px-6 py-4 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder-gray-400"
+                className="flex-1 px-6 py-4 border border-border bg-secondary text-background rounded-lg focus:ring-2 focus:ring-primary focus:border-primary placeholder-muted-foreground"
               />
-              <button className="bg-red-600 text-white hover:bg-red-700 px-8 py-4 rounded-lg font-bold transition-all duration-200 shadow-lg hover:shadow-xl">
+              <button className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-4 rounded-lg font-bold transition-all duration-200 shadow-lg hover:shadow-xl">
                 Subscribe
               </button>
             </div>
@@ -167,11 +167,11 @@ export default function Footer() {
       </div>
 
       {/* Bottom Footer */}
-      <div className="relative border-t border-gray-800">
+      <div className="relative border-t border-border">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-gray-400 text-base">
-              © {displayYear} ACADEX. All rights reserved. Made with ❤️ for learners worldwide.
+            <p className="text-gray-300 text-base">
+              © {displayYear} ACADEX. All rights reserved. Made with love for learners worldwide.
             </p>
             <div className="flex items-center space-x-8">
               {[
@@ -182,7 +182,7 @@ export default function Footer() {
                 <Link 
                   key={link.name}
                   href={link.href} 
-                  className="text-gray-400 hover:text-red-400 text-base transition-colors duration-200"
+                  className="text-gray-300 hover:text-white text-base transition-colors duration-200"
                 >
                   {link.name}
                 </Link>

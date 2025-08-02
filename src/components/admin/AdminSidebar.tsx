@@ -1,5 +1,6 @@
 'use client'
 
+import { logger } from '@/lib/logger'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -38,7 +39,11 @@ export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) 
   const { user, signOut } = useAuth()
 
   const handleSignOut = async () => {
-    await signOut()
+    try {
+      await signOut()
+    } catch (error) {
+      logger.error('Sign out error:', error)
+    }
   }
 
   const handleLinkClick = () => {
