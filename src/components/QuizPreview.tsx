@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { Typography, DisplayLG, H2, H3, H4, H5, BodyLG, BodyMD } from '@/components/ui/Typography'
+import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
+import Icon from '@/components/ui/Icon'
 
 interface QuizStat {
   title: string
@@ -54,41 +57,54 @@ export default function QuizPreview() {
   ]
 
   return (
-    <section className="py-24 px-6 lg:px-8 bg-background">
-      <div className="max-w-7xl mx-auto">
+    <Section 
+      className="relative overflow-hidden"
+      background="gradient"
+    >
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 right-10 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob"></div>
+        <div className="absolute bottom-20 left-10 w-64 h-64 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob animation-delay-4000"></div>
+      </div>
+
+      <Container size="xl" className="relative">
         {/* Section Header */}
         <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-full text-sm font-medium mb-8 border border-border">
-            <span className="w-2 h-2 bg-primary rounded-full"></span>
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+            <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
             Quiz Platform
           </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6 text-foreground">
+          <DisplayLG className="mb-8 tracking-tight">
             Test Your Skills with Our 
-            <span className="block text-primary mt-2">Quiz System</span>
-          </h2>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-light">
+            <span className="block text-red-600 mt-4">Quiz System</span>
+          </DisplayLG>
+          <BodyLG 
+            color="muted" 
+            className="max-w-4xl mx-auto leading-relaxed"
+          >
             Practice across multiple subjects with our adaptive quiz platform designed for comprehensive skill assessment.
-          </p>
+          </BodyLG>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+        <Grid cols={2} className="lg:grid-cols-4 mb-20">
           {stats.map((stat, index) => (
-            <div key={index} className="text-center p-8 bg-card rounded-2xl shadow-lg border border-border hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="text-4xl md:text-5xl font-black text-primary mb-3">{stat.value}</div>
-              <div className="font-bold text-lg mb-2 text-foreground">{stat.title}</div>
-              <div className="text-sm text-muted-foreground font-medium uppercase tracking-wide">{stat.description}</div>
+            <div key={index} className="text-center p-8 bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <Typography variant="display-md" color="primary" className="mb-3">{stat.value}</Typography>
+              <BodyLG className="font-bold mb-2">{stat.title}</BodyLG>
+              <Typography variant="caption" className="text-gray-600 font-medium uppercase tracking-wide">{stat.description}</Typography>
             </div>
           ))}
-        </div>
+        </Grid>
 
         {/* Interactive Features Showcase */}
-        <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
+        <Grid cols={1} className="lg:grid-cols-2 gap-16 items-center mb-20">
           {/* Feature Navigation */}
           <div>
-            <h3 className="text-3xl md:text-4xl font-black tracking-tight mb-8 text-foreground">
+            <H2 className="mb-8 tracking-tight">
               Why Students Love Our Quiz System
-            </h3>
+            </H2>
             <div className="space-y-4">
               {features.map((feature, index) => (
                 <button
@@ -96,103 +112,103 @@ export default function QuizPreview() {
                   onClick={() => setActiveFeature(index)}
                   className={`w-full text-left p-6 rounded-xl border-2 transition-all duration-300 ${
                     activeFeature === index
-                      ? 'border-primary bg-primary/10 shadow-lg'
-                      : 'border-border bg-card hover:border-primary/30 hover:shadow-md'
+                      ? 'border-red-600 bg-red-50 shadow-lg'
+                      : 'border-white/20 bg-white/80 backdrop-blur-lg hover:border-red-300 hover:shadow-md'
                   }`}
                 >
-                  <div className="flex items-start gap-4">
+                  <Flex align="start" gap="md">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
                       activeFeature === index 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'bg-muted text-muted-foreground'
+                        ? 'bg-gradient-to-r from-red-600 to-red-700 text-white' 
+                        : 'bg-gray-200 text-gray-600'
                     }`}>
                       {index + 1}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-bold text-lg mb-2 text-foreground">
+                      <H4 className="mb-2">
                         {feature.title}
-                      </h4>
-                      <p className="text-muted-foreground leading-relaxed">
+                      </H4>
+                      <BodyLG color="muted" className="leading-relaxed">
                         {feature.description}
-                      </p>
+                      </BodyLG>
                     </div>
-                  </div>
+                  </Flex>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Feature Preview */}
-          <div className="bg-card rounded-2xl p-8 shadow-xl border border-border">
+          <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
             <div className="text-center mb-8">
-              <div className="w-20 h-20 mx-auto mb-6 bg-primary rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-3xl font-black text-primary-foreground">{activeFeature + 1}</span>
+              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-3xl font-black text-white">{activeFeature + 1}</span>
               </div>
-              <h4 className="text-2xl font-bold text-foreground mb-4">
+              <H4 className="mb-4">
                 {features[activeFeature]?.title || 'Feature'}
-              </h4>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              </H4>
+              <BodyLG color="muted" className="leading-relaxed">
                 {features[activeFeature]?.preview || 'Feature preview'}
-              </p>
+              </BodyLG>
             </div>
 
             {/* Mock Interface Preview */}
-            <div className="bg-muted rounded-xl p-6 border border-border">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-muted-foreground">Question 3 of 10</span>
-                <span className="text-sm font-bold text-primary">85% Complete</span>
-              </div>
-              <div className="w-full bg-border rounded-full h-3 mb-6">
-                <div className="bg-primary h-3 rounded-full transition-all duration-500" style={{ width: '85%' }}></div>
+            <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+              <Flex align="center" justify="between" className="mb-4">
+                <Typography variant="caption" className="text-gray-600 font-medium">Question 3 of 10</Typography>
+                <Typography variant="caption" color="primary" className="font-bold">85% Complete</Typography>
+              </Flex>
+              <div className="w-full bg-gray-200 rounded-full h-3 mb-6">
+                <div className="bg-gradient-to-r from-red-600 to-red-700 h-3 rounded-full transition-all duration-500" style={{ width: '85%' }}></div>
               </div>
               
-              <h5 className="text-lg font-bold text-foreground mb-4">
+              <H5 className="mb-4">
                 Which sentence uses the present perfect tense correctly?
-              </h5>
+              </H5>
               
               <div className="space-y-3">
-                <div className="p-4 rounded-lg border-2 border-primary bg-primary/10 text-primary font-medium">
+                <div className="p-4 rounded-lg border-2 border-red-600 bg-red-50 text-red-700 font-medium">
                   I have lived in London for five years.
                 </div>
-                <div className="p-4 rounded-lg border border-border text-muted-foreground hover:border-border/50 transition-colors">
+                <div className="p-4 rounded-lg border border-gray-300 text-gray-700 hover:border-gray-400 transition-colors">
                   I am living in London for five years.
                 </div>
-                <div className="p-4 rounded-lg border border-border text-muted-foreground hover:border-border/50 transition-colors">
+                <div className="p-4 rounded-lg border border-gray-300 text-gray-700 hover:border-gray-400 transition-colors">
                   I live in London for five years.
                 </div>
               </div>
               
               <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-800">
+                <Typography variant="caption" className="text-green-800">
                   <strong>Correct!</strong> Present perfect uses &quot;have/has + past participle&quot; for actions starting in the past and continuing to the present.
-                </p>
+                </Typography>
               </div>
             </div>
           </div>
-        </div>
+        </Grid>
 
         {/* Call to Action */}
         <div className="text-center">
-          <div className="bg-foreground rounded-2xl p-12 text-background shadow-2xl">
-            <h3 className="text-3xl md:text-4xl font-black text-background mb-4">
+          <div className="bg-gradient-to-r from-gray-700 to-gray-600 rounded-2xl p-12 text-white shadow-2xl">
+            <H2 className="text-white mb-4">
               Ready to Test Your Skills?
-            </h3>
-            <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto font-light">
+            </H2>
+            <BodyLG className="text-gray-300 mb-8 max-w-3xl mx-auto">
               Join thousands of students who are improving their skills with our interactive quiz platform.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Link href="/quizzes" className="inline-flex items-center justify-center gap-3 bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 rounded-lg font-bold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                <span>✓</span>
+            </BodyLG>
+            <Flex direction="col" gap="md" className="sm:flex-row justify-center">
+              <Link href="/quizzes" className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                <Icon name="check" size={20} color="white" />
                 Start Free Quiz
               </Link>
-              <Link href="/courses" className="inline-flex items-center justify-center gap-3 border-2 border-background text-background hover:bg-background hover:text-foreground px-8 py-4 rounded-lg font-bold text-lg transition-all duration-200 transform hover:-translate-y-1">
-                <span>📚</span>
+              <Link href="/courses" className="inline-flex items-center justify-center gap-3 border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-lg font-bold text-lg transition-all duration-200 transform hover:-translate-y-1">
+                <Icon name="book" size={20} color="current" />
                 Explore Courses
               </Link>
-            </div>
+            </Flex>
           </div>
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   )
 }

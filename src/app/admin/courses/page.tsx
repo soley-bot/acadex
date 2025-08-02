@@ -9,7 +9,7 @@ import { EnhancedAPICourseForm } from '@/components/admin/EnhancedAPICourseForm'
 import { DeleteCourseModal } from '@/components/admin/DeleteCourseModal'
 import { CourseViewModal } from '@/components/admin/CourseViewModal'
 import { CategoryManagement } from '@/components/admin/CategoryManagement'
-import SvgIcon from '@/components/ui/SvgIcon'
+import Icon from '@/components/ui/Icon'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function CoursesPage() {
@@ -164,7 +164,7 @@ export default function CoursesPage() {
         <div className="flex items-center justify-center min-h-screen p-6">
           <div className="bg-white rounded-2xl shadow-lg border border-red-200 p-8 max-w-md w-full text-center">
             <div className="bg-red-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-              <SvgIcon icon="block" size={24} className="text-red-600" />
+              <Icon name="warning" size={24} color="error" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-3">Access Denied</h1>
             <p className="text-gray-700 mb-2">Only administrators can access course management.</p>
@@ -200,7 +200,7 @@ export default function CoursesPage() {
         <div className="flex items-center justify-center min-h-screen p-6">
           <div className="bg-white rounded-2xl shadow-lg border border-red-200 p-8 max-w-md w-full text-center">
             <div className="bg-red-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-              <SvgIcon icon="error" size={24} className="text-red-600" />
+              <Icon name="warning" size={24} color="error" />
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-3">Failed to load courses</h2>
             <p className="text-red-600 mb-6 font-medium">{error}</p>
@@ -208,7 +208,7 @@ export default function CoursesPage() {
               onClick={() => fetchCourses()}
               className="bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-lg transition-colors font-semibold w-full flex items-center justify-center gap-2"
             >
-              <SvgIcon icon="refresh" size={16} variant="white" />
+              <Icon name="refresh" size={16} color="white" />
               Try Again
             </button>
           </div>
@@ -232,7 +232,7 @@ export default function CoursesPage() {
                 onClick={handleCreateCourse}
                 className="bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
-                <SvgIcon icon="add" size={20} variant="white" />
+                <Icon name="add" size={20} color="white" />
                 <span className="sm:hidden">Add Course</span>
                 <span className="hidden sm:inline">Create New Course</span>
               </button>
@@ -240,7 +240,7 @@ export default function CoursesPage() {
                 onClick={() => setShowCategoryManagement(true)}
                 className="bg-gray-700 border border-gray-600 hover:bg-gray-800 text-white px-6 py-3 sm:px-6 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold hover:shadow-md"
               >
-                <SvgIcon icon="settings" size={20} />
+                <Icon name="settings" size={20} />
                 <span>Categories</span>
               </button>
             </div>
@@ -259,7 +259,7 @@ export default function CoursesPage() {
                 <p className="text-sm text-emerald-600 font-medium">Active & Live</p>
               </div>
               <div className="bg-emerald-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-emerald-200 transition-colors">
-                <SvgIcon icon="check" size={24} className="text-emerald-600" />
+                <Icon name="check-circle" size={24} color="success" />
               </div>
             </div>
           </CardContent>
@@ -274,7 +274,7 @@ export default function CoursesPage() {
                 <p className="text-sm text-orange-600 font-medium">In Progress</p>
               </div>
               <div className="bg-orange-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-orange-200 transition-colors">
-                <SvgIcon icon="edit" size={24} className="text-orange-600" />
+                <Icon name="edit" size={24} color="warning" />
               </div>
             </div>
           </CardContent>
@@ -289,7 +289,7 @@ export default function CoursesPage() {
                 <p className="text-sm text-blue-600 font-medium">Enrolled Learners</p>
               </div>
               <div className="bg-blue-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-blue-200 transition-colors">
-                <SvgIcon icon="contacts" size={24} className="text-blue-600" />
+                <Icon name="users" size={24} color="primary" />
               </div>
             </div>
           </CardContent>
@@ -301,10 +301,11 @@ export default function CoursesPage() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="relative flex-1">
-              <SvgIcon 
-                icon="search" 
+              <Icon 
+                name="search" 
                 size={20} 
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" 
+                color="muted"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2" 
               />
               <input
                 type="text"
@@ -395,7 +396,7 @@ export default function CoursesPage() {
                       onClick={() => handleViewCourse(course)}
                       className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
                     >
-                      <SvgIcon icon="eye" size={16} />
+                      <Icon name="eye" size={16} />
                       <span>View</span>
                     </button>
                     <button 
@@ -406,10 +407,10 @@ export default function CoursesPage() {
                           : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                       }`}
                     >
-                      <SvgIcon 
-                        icon={course.is_published ? "visibility_off" : "check"} 
+                      <Icon 
+                        name={course.is_published ? "eye-off" : "check"} 
                         size={16} 
-                        variant="white" 
+                        color="white" 
                       />
                       <span>
                         {course.is_published ? 'Unpublish' : 'Publish'}
@@ -422,14 +423,14 @@ export default function CoursesPage() {
                       onClick={() => handleEditCourse(course)}
                       className="flex-1 bg-gray-800 hover:bg-gray-900 text-white px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
                     >
-                      <SvgIcon icon="edit" size={16} variant="white" />
+                      <Icon name="edit" size={16} color="white" />
                       <span>Edit</span>
                     </button>
                     <button 
                       onClick={() => handleDeleteCourse(course)}
                       className="flex-1 bg-red-700 hover:bg-red-800 text-white px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
                     >
-                      <SvgIcon icon="delete" size={16} variant="white" />
+                      <Icon name="delete" size={16} color="white" />
                       <span>Delete</span>
                     </button>
                   </div>
@@ -447,7 +448,7 @@ export default function CoursesPage() {
             <CardContent className="p-12">
               <div className="text-center">
                 <div className="bg-gray-200 p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
-                  <SvgIcon icon="school" size={32} className="text-gray-400" />
+                  <Icon name="book" size={32} color="muted" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3">No courses found</h3>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto text-lg">
@@ -461,7 +462,7 @@ export default function CoursesPage() {
                     onClick={handleCreateCourse}
                     className="bg-gray-800 hover:bg-gray-900 text-white px-8 py-4 rounded-xl transition-all duration-300 flex items-center gap-3 mx-auto font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                   >
-                    <SvgIcon icon="add" size={20} variant="white" />
+                    <Icon name="add" size={20} color="white" />
                     Create Your First Course
                   </button>
                 )}

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
-import SvgIcon from '@/components/ui/SvgIcon'
+import Icon from '@/components/ui/Icon'
 
 interface DashboardStats {
   totalUsers: number
@@ -114,7 +114,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center bg-white p-8 rounded-2xl shadow-xl border border-gray-200 max-w-md mx-auto">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <SvgIcon icon="ban" size={24} className="text-red-600" />
+              <Icon name="warning" size={24} color="error" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to Load Dashboard</h3>
             <p className="text-red-600 mb-4 text-sm">{error}</p>
@@ -134,7 +134,7 @@ export default function AdminDashboard() {
       title: 'Total Users',
       value: stats.totalUsers.toLocaleString(),
       description: 'Registered learners',
-      icon: 'contacts',
+      icon: 'users',
       color: 'text-blue-600',
       bgColor: 'bg-blue-50'
     },
@@ -142,7 +142,7 @@ export default function AdminDashboard() {
       title: 'Total Courses',
       value: stats.totalCourses.toLocaleString(),
       description: 'Educational content',
-      icon: 'learning',
+      icon: 'book',
       color: 'text-green-600',
       bgColor: 'bg-green-50'
     },
@@ -150,7 +150,7 @@ export default function AdminDashboard() {
       title: 'Published Courses',
       value: stats.publishedCourses.toLocaleString(),
       description: 'Active learning paths',
-      icon: 'check',
+      icon: 'check-circle',
       color: 'text-emerald-600',
       bgColor: 'bg-emerald-50'
     },
@@ -158,7 +158,7 @@ export default function AdminDashboard() {
       title: 'Total Quizzes',
       value: stats.totalQuizzes.toLocaleString(),
       description: 'Assessment tools',
-      icon: 'quiz',
+      icon: 'help-circle',
       color: 'text-purple-600',
       bgColor: 'bg-purple-50'
     },
@@ -166,7 +166,7 @@ export default function AdminDashboard() {
       title: 'Quiz Attempts',
       value: stats.totalAttempts.toLocaleString(),
       description: 'Learning assessments',
-      icon: 'assignment',
+      icon: 'edit',
       color: 'text-orange-600',
       bgColor: 'bg-orange-50'
     },
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
       title: 'Total Revenue',
       value: `$${stats.totalRevenue.toLocaleString()}`,
       description: 'Platform earnings',
-      icon: 'monetization_on',
+      icon: 'dollar-sign',
       color: 'text-red-600',
       bgColor: 'bg-red-50'
     }
@@ -206,9 +206,10 @@ export default function AdminDashboard() {
                   <p className="text-sm text-gray-500">{stat.description}</p>
                 </div>
                 <div className={`${stat.bgColor} p-4 rounded-xl ml-4 flex-shrink-0`}>
-                  <SvgIcon 
-                    icon={stat.icon} 
+                  <Icon 
+                    name={stat.icon as any} 
                     size={28} 
+                    color="current"
                     className={`${stat.color}`}
                   />
                 </div>
@@ -223,7 +224,7 @@ export default function AdminDashboard() {
         <Card className="bg-white border-gray-200 shadow-lg">
           <CardHeader>
             <CardTitle className="text-gray-900 font-bold flex items-center">
-              <SvgIcon icon="timeline" size={20} className="text-blue-600 mr-2" />
+              <Icon name="activity" size={20} color="primary" className="mr-2" />
               Recent Activity
             </CardTitle>
             <CardDescription>Latest platform activities</CardDescription>
@@ -258,7 +259,7 @@ export default function AdminDashboard() {
         <Card className="bg-white border-gray-200 shadow-lg">
           <CardHeader>
             <CardTitle className="text-gray-900 font-bold flex items-center">
-              <SvgIcon icon="dashboard" size={20} className="text-red-600 mr-2" />
+              <Icon name="lightning" size={20} color="primary" className="mr-2" />
               Quick Actions
             </CardTitle>
             <CardDescription>Commonly used admin functions</CardDescription>
@@ -268,7 +269,7 @@ export default function AdminDashboard() {
               <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 group">
                 <div className="flex items-center">
                   <div className="bg-blue-100 p-2 rounded-lg mr-3 group-hover:bg-blue-200 transition-colors">
-                    <SvgIcon icon="person_add" size={20} className="text-blue-600" />
+                    <Icon name="user" size={20} color="current" className="text-blue-600" />
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">Add New User</div>
@@ -280,7 +281,7 @@ export default function AdminDashboard() {
               <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200 group">
                 <div className="flex items-center">
                   <div className="bg-green-100 p-2 rounded-lg mr-3 group-hover:bg-green-200 transition-colors">
-                    <SvgIcon icon="add" size={20} className="text-green-600" />
+                    <Icon name="add" size={20} color="current" className="text-green-600" />
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">Create Course</div>
@@ -292,7 +293,7 @@ export default function AdminDashboard() {
               <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200 group">
                 <div className="flex items-center">
                   <div className="bg-purple-100 p-2 rounded-lg mr-3 group-hover:bg-purple-200 transition-colors">
-                    <SvgIcon icon="quiz" size={20} className="text-purple-600" />
+                    <Icon name="help" size={20} color="current" className="text-purple-600" />
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">Create Quiz</div>

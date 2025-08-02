@@ -1,116 +1,146 @@
 import Link from 'next/link'
 import { LinkButton } from '@/components/ui/LinkButton'
-import { Container, Section } from '@/components/ui/Layout'
-import { ElevatedCard, StatCard } from '@/components/ui/ElevatedCard'
-import { HeroHeading, Badge } from '@/components/ui/Typography'
-
-// Modern geometric elements for visual appeal
-const GeometricPattern = () => (
-  <div className="absolute inset-0 opacity-5 pointer-events-none">
-    <div className="absolute top-20 left-10 w-32 h-32 border border-foreground transform rotate-45" />
-    <div className="absolute top-40 right-20 w-24 h-24 bg-primary transform rotate-12 opacity-20" />
-    <div className="absolute bottom-32 left-1/4 w-16 h-16 border-2 border-border rounded-full" />
-    <div className="absolute bottom-20 right-1/3 w-20 h-20 bg-foreground transform rotate-45 opacity-10" />
-  </div>
-)
+import { Typography, DisplayXL, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
+import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
+import Icon from '@/components/ui/Icon'
 
 export default function Hero() {
   return (
-    <Section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <GeometricPattern />
+    <Section 
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      background="gradient"
+    >
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-6000"></div>
+      </div>
       
-      <Container className="text-center py-16 md:py-24">
+      <Container size="xl" className="relative text-center">
         <div className="max-w-4xl mx-auto">
-          <Badge className="mb-8">
-            <span className="w-2 h-2 bg-red-600 rounded-full"></span>
+          {/* Hero Badge */}
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-2 lg:px-6 lg:py-3 rounded-full text-sm lg:text-base font-medium mb-8 lg:mb-12 shadow-lg transform hover:scale-105 transition-all duration-200">
+            <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
             #1 Learning Platform
-          </Badge>
+          </div>
           
-          <HeroHeading className="mb-6">
+          {/* Main Heading */}
+          <DisplayXL className="mb-8 lg:mb-12 leading-tight">
             Master Any Subject with
-            <span className="block text-red-600 mt-2">
+            <span className="block text-red-600 mt-4">
               Interactive Learning
             </span>
-            <span className="block text-gray-900">
+            <span className="block text-gray-700 mt-2">
               & Expert Courses
             </span>
-          </HeroHeading>
+          </DisplayXL>
           
-          <p className="text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed max-w-3xl mx-auto font-light">
+          {/* Subtitle */}
+          <BodyLG 
+            color="muted" 
+            className="mb-12 lg:mb-16 leading-relaxed max-w-3xl mx-auto"
+          >
             From languages and academics to professional skills and test preparation. 
             Discover personalized learning paths designed by industry experts.
-          </p>
+          </BodyLG>
           
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
-            <LinkButton href="/courses" size="lg" className="text-lg">
-              Explore Courses
-              <span aria-hidden="true" className="text-2xl">→</span>
-            </LinkButton>
-            <LinkButton href="/quizzes" variant="outline" size="lg" className="text-lg">
-              Start Practicing
-              <span aria-hidden="true" className="text-2xl">📝</span>
-            </LinkButton>
-          </div>
+          {/* CTA Buttons */}
+          <Flex direction="col" gap="md" className="sm:flex-row justify-center mb-20 lg:mb-24">
+            <Link href="/courses">
+              <button className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 lg:px-10 lg:py-5 rounded-2xl font-bold text-lg lg:text-xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 min-w-[200px]">
+                Explore Courses
+                <span className="ml-3 text-xl">→</span>
+              </button>
+            </Link>
+            <Link href="/quizzes">
+              <button className="border-2 border-red-600 text-red-600 bg-white/80 backdrop-blur-sm hover:bg-red-600 hover:text-white px-8 py-4 lg:px-10 lg:py-5 rounded-2xl font-bold text-lg lg:text-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 min-w-[200px]">
+                Start Practicing
+                <Icon name="edit" size={20} className="ml-3" />
+              </button>
+            </Link>
+          </Flex>
           
           {/* Stats Section */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto mb-20">
-            <StatCard value="10K+" label="Active Learners" highlight />
-            <StatCard value="500+" label="Practice Questions" />
-            <StatCard value="50+" label="Expert Courses" />
-            <StatCard value="95%" label="Success Rate" highlight />
-          </div>
+          <Grid cols={2} className="md:grid-cols-4 max-w-5xl mx-auto mb-20 lg:mb-24">
+            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-xl border border-white/20 transform hover:scale-105 transition-all duration-300">
+              <Typography variant="display-md" color="primary" className="mb-2">10K+</Typography>
+              <BodyMD color="muted" className="font-medium">Active Learners</BodyMD>
+            </div>
+            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-xl border border-white/20 transform hover:scale-105 transition-all duration-300">
+              <Typography variant="display-md" className="mb-2">500+</Typography>
+              <BodyMD color="muted" className="font-medium">Practice Questions</BodyMD>
+            </div>
+            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-xl border border-white/20 transform hover:scale-105 transition-all duration-300">
+              <Typography variant="display-md" className="mb-2">50+</Typography>
+              <BodyMD color="muted" className="font-medium">Expert Courses</BodyMD>
+            </div>
+            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-xl border border-white/20 transform hover:scale-105 transition-all duration-300">
+              <Typography variant="display-md" color="primary" className="mb-2">95%</Typography>
+              <BodyMD color="muted" className="font-medium">Success Rate</BodyMD>
+            </div>
+          </Grid>
 
           {/* Learning Dashboard Preview */}
           <div className="mt-16 max-w-5xl mx-auto">
-            <ElevatedCard className="p-8 transform hover:scale-105 transition-all duration-500">
+            <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-8 lg:p-12 transform hover:scale-[1.02] transition-all duration-500">
               {/* Dashboard Header */}
-              <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-red-600 rounded-xl flex items-center justify-center">
-                    <span className="text-white text-2xl">🎯</span>
+              <Flex 
+                align="center" 
+                justify="between" 
+                className="mb-8 lg:mb-12 pb-6 lg:pb-8 border-b border-gray-200"
+              >
+                <Flex align="center" gap="md">
+                  <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Icon name="target" size={32} color="white" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-xl text-gray-900">Learning Dashboard</h3>
-                    <p className="text-gray-600">Your personalized learning journey</p>
+                    <H3 className="mb-1">Learning Dashboard</H3>
+                    <BodyMD color="muted">Your personalized learning journey</BodyMD>
                   </div>
-                </div>
-                <div className="text-sm text-gray-600 font-medium">Today</div>
-              </div>
+                </Flex>
+                <BodyMD color="muted" className="font-medium bg-gray-100 px-3 py-1 rounded-full">Today</BodyMD>
+              </Flex>
               
               {/* Course Progress Grid */}
-              <div className="grid md:grid-cols-2 gap-6 mb-8">
-                <ElevatedCard className="hover:shadow-lg transition-shadow duration-300">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="font-bold text-gray-900">Web Development</span>
-                    <span className="text-sm text-red-600 font-bold bg-red-50 px-3 py-1 rounded-full">85%</span>
+              <Grid cols={1} className="md:grid-cols-2 mb-8 lg:mb-12">
+                <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 lg:p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <Flex align="center" justify="between" className="mb-4 lg:mb-6">
+                    <H3>Web Development</H3>
+                    <Typography variant="body-md" color="primary" className="font-bold bg-red-50 px-3 py-1 lg:px-4 lg:py-2 rounded-full">85%</Typography>
+                  </Flex>
+                  <div className="w-full bg-gray-200 rounded-full h-3 lg:h-4">
+                    <div className="bg-gradient-to-r from-red-600 to-red-700 h-3 lg:h-4 rounded-full transition-all duration-500 shadow-sm" style={{ width: '85%' }}></div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div className="bg-red-600 h-3 rounded-full transition-all duration-500" style={{ width: '85%' }}></div>
-                  </div>
-                </ElevatedCard>
+                </div>
                 
-                <ElevatedCard className="hover:shadow-lg transition-shadow duration-300">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="font-bold text-gray-900">Data Science</span>
-                    <span className="text-sm text-red-600 font-bold bg-red-50 px-3 py-1 rounded-full">72%</span>
+                <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 lg:p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <Flex align="center" justify="between" className="mb-4 lg:mb-6">
+                    <H3>Data Science</H3>
+                    <Typography variant="body-md" color="primary" className="font-bold bg-red-50 px-3 py-1 lg:px-4 lg:py-2 rounded-full">72%</Typography>
+                  </Flex>
+                  <div className="w-full bg-gray-200 rounded-full h-3 lg:h-4">
+                    <div className="bg-gradient-to-r from-red-600 to-red-700 h-3 lg:h-4 rounded-full transition-all duration-500 shadow-sm" style={{ width: '72%' }}></div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div className="bg-red-600 h-3 rounded-full transition-all duration-500" style={{ width: '72%' }}></div>
-                  </div>
-                </ElevatedCard>
-              </div>
+                </div>
+              </Grid>
               
               {/* Achievement Section */}
-              <div className="flex items-center gap-4 p-6 bg-gray-900 rounded-xl text-white">
-                <div className="w-14 h-14 bg-red-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-2xl">🏆</span>
+              <Flex 
+                align="center" 
+                gap="md" 
+                className="p-6 lg:p-8 bg-gradient-to-r from-gray-700 to-gray-600 rounded-2xl text-white shadow-xl"
+              >
+                <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center shadow-lg">
+                  <Icon name="trophy" size={32} color="white" />
                 </div>
                 <div>
-                  <div className="font-bold text-lg">Congratulations!</div>
-                  <div className="text-gray-300">You completed 5 lessons this week</div>
+                  <Typography variant="h3" className="text-white mb-1">Congratulations!</Typography>
+                  <BodyMD className="text-gray-300">You completed 5 lessons this week</BodyMD>
                 </div>
-              </div>
-            </ElevatedCard>
+              </Flex>
+            </div>
           </div>
         </div>
       </Container>

@@ -7,7 +7,7 @@ import type { User } from '@/lib/supabase'
 import AddUserModal from '@/components/admin/AddUserModal'
 import EditUserModal from '@/components/admin/EditUserModal'
 import DeleteUserModal from '@/components/admin/DeleteUserModal'
-import SvgIcon from '@/components/ui/SvgIcon'
+import Icon from '@/components/ui/Icon'
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([])
@@ -119,7 +119,7 @@ export default function AdminUsers() {
             onClick={() => setShowAddUser(true)}
             className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-bold shadow-md hover:shadow-lg"
           >
-            <SvgIcon icon="plus" size={16} variant="white" />
+            <Icon name="add" size={16} color="white" />
             Add User
           </button>
         </div>
@@ -130,7 +130,7 @@ export default function AdminUsers() {
         <Card className="bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-bold text-gray-900">Total Users</CardTitle>
-            <SvgIcon icon="users" size={16} className="text-red-600" />
+            <Icon name="users" size={16} color="primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">{userStats.total}</div>
@@ -141,7 +141,7 @@ export default function AdminUsers() {
         <Card className="bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-bold text-gray-900">Students</CardTitle>
-            <SvgIcon icon="users" size={16} className="text-red-600" />
+            <Icon name="users" size={16} color="primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">{userStats.students}</div>
@@ -152,7 +152,7 @@ export default function AdminUsers() {
         <Card className="bg-white border-gray-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-bold text-black">Instructors</CardTitle>
-            <SvgIcon icon="briefcase" size={16} className="text-red-600" />
+            <Icon name="briefcase" size={16} color="primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-black">{userStats.instructors}</div>
@@ -163,7 +163,7 @@ export default function AdminUsers() {
         <Card className="bg-white border-gray-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-bold text-black">Admins</CardTitle>
-            <SvgIcon icon="check" size={16} className="text-red-600" />
+            <Icon name="shield" size={16} color="primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-black">{userStats.admins}</div>
@@ -175,10 +175,11 @@ export default function AdminUsers() {
       {/* Search and Filters */}
       <div className="mb-6 flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <SvgIcon 
-            icon="search" 
+          <Icon 
+            name="search" 
             size={16} 
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
+            color="muted"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2" 
           />
           <input
             type="text"
@@ -236,7 +237,7 @@ export default function AdminUsers() {
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center">
                       <div className="text-gray-500">
-                        <SvgIcon icon="users" size={48} className="mx-auto mb-4 text-gray-300" />
+                        <Icon name="users" size={48} color="muted" className="mx-auto mb-4" />
                         <h3 className="text-lg font-bold text-black mb-2">No users found</h3>
                         <p className="text-sm">
                           {searchTerm || roleFilter !== 'all' 

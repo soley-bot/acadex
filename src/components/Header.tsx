@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import SvgIcon from '@/components/ui/SvgIcon'
+import Icon from '@/components/ui/Icon'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -72,30 +72,30 @@ export default function Header() {
   }, [isMenuOpen])
 
   return (
-    <header className="fixed top-0 w-full bg-background/95 backdrop-blur-md border-b border-border z-50 shadow-sm">
+    <header className="fixed top-0 w-full backdrop-blur-lg bg-white/80 border-b border-white/20 z-50 shadow-2xl">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
             <span className="text-2xl md:text-3xl font-black tracking-tight group-hover:scale-105 transition-transform duration-200">
-              <span className="text-black">ACAD</span>
-              <span className="text-red-600">E</span>
-              <span className="text-black">X</span>
+              <span className="bg-gradient-to-r from-gray-800 to-black bg-clip-text text-transparent">ACAD</span>
+              <span className="bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">E</span>
+              <span className="bg-gradient-to-r from-gray-800 to-black bg-clip-text text-transparent">X</span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/courses" className="text-foreground hover:text-primary font-medium transition-colors duration-200 text-lg">
+            <Link href="/courses" className="text-gray-800 hover:text-red-600 font-bold transition-colors duration-200 text-lg">
               Courses
             </Link>
-            <Link href="/quizzes" className="text-foreground hover:text-primary font-medium transition-colors duration-200 text-lg">
+            <Link href="/quizzes" className="text-gray-800 hover:text-red-600 font-bold transition-colors duration-200 text-lg">
               Quizzes
             </Link>
-            <Link href="/about" className="text-foreground hover:text-primary font-medium transition-colors duration-200 text-lg">
+            <Link href="/about" className="text-gray-800 hover:text-red-600 font-bold transition-colors duration-200 text-lg">
               About
             </Link>
-            <Link href="/contact" className="text-foreground hover:text-primary font-medium transition-colors duration-200 text-lg">
+            <Link href="/contact" className="text-gray-800 hover:text-red-600 font-bold transition-colors duration-200 text-lg">
               Contact
             </Link>
           </nav>
@@ -103,53 +103,47 @@ export default function Header() {
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             {loading ? (
-              <div className="w-24 h-10 bg-muted animate-pulse rounded-lg"></div>
+              <div className="w-24 h-10 bg-gray-200 animate-pulse rounded-lg"></div>
             ) : user ? (
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-3 bg-background border border-border rounded-lg px-4 py-2 hover:bg-muted transition-colors shadow-sm"
+                  className="flex items-center space-x-3 backdrop-blur-lg bg-white/60 border border-white/30 rounded-xl px-4 py-2 hover:bg-white/80 transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                    <span className="text-primary-foreground font-bold text-sm">{user.name?.charAt(0).toUpperCase()}</span>
+                  <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-orange-600 rounded-full flex items-center justify-center shadow-sm">
+                    <span className="text-white font-bold text-sm">{user.name?.charAt(0).toUpperCase()}</span>
                   </div>
-                  <span className="text-foreground font-medium">Welcome, {user.name}</span>
-                  <svg className={`w-4 h-4 transition-transform text-muted-foreground ${isUserMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                  <span className="text-gray-800 font-bold">Welcome, {user.name}</span>
+                  <div className={`transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`}>
+                    <Icon name="chevron-down" size={16} color="muted" />
+                  </div>
                 </button>
 
                 {/* User Dropdown Menu */}
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-xl py-1 z-50">
+                  <div className="absolute right-0 mt-2 w-48 backdrop-blur-lg bg-white/90 border border-white/30 rounded-2xl shadow-2xl py-2 z-50">
                     <Link
                       href="/dashboard"
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors text-foreground"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-gray-800 font-medium"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                      </svg>
+                      <Icon name="home" size={16} color="current" />
                       Dashboard
                     </Link>
                     <Link
                       href="/profile"
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors text-foreground"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-gray-800 font-medium"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
+                      <Icon name="user" size={16} color="current" />
                       Profile
                     </Link>
-                    <div className="border-t border-border my-1"></div>
+                    <div className="border-t border-gray-200 my-1"></div>
                     <button
                       onClick={handleSignOut}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-destructive/10 transition-colors w-full text-left text-muted-foreground hover:text-destructive"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors w-full text-left text-gray-600 hover:text-red-600 font-medium"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                      </svg>
+                      <Icon name="arrow-right" size={16} color="current" />
                       Sign Out
                     </button>
                   </div>
@@ -157,10 +151,10 @@ export default function Header() {
               </div>
             ) : (
               <>
-                <Link href="/auth/login" className="text-foreground hover:text-primary font-medium transition-colors duration-200 px-4 py-2 text-lg">
+                <Link href="/auth/login" className="text-gray-800 hover:text-red-600 font-bold transition-colors duration-200 px-4 py-2 text-lg">
                   Sign In
                 </Link>
-                <Link href="/auth/signup" className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-2 rounded-lg font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <Link href="/auth/signup" className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-6 py-2 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
                   Get Started
                 </Link>
               </>
@@ -170,25 +164,11 @@ export default function Header() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+            className="md:hidden p-2 rounded-xl hover:bg-white/60 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 backdrop-blur-sm bg-white/40 border border-white/30"
             aria-label="Toggle mobile menu"
           >
-            <div className="w-6 h-6 relative flex flex-col justify-center items-center">
-              <span className={`block w-6 h-0.5 bg-foreground transition-all duration-300 ${
-                isMenuOpen 
-                  ? 'rotate-45 translate-y-0' 
-                  : '-translate-y-1.5'
-              }`} />
-              <span className={`block w-6 h-0.5 bg-foreground transition-all duration-300 ${
-                isMenuOpen 
-                  ? 'opacity-0' 
-                  : 'opacity-100'
-              }`} />
-              <span className={`block w-6 h-0.5 bg-foreground transition-all duration-300 ${
-                isMenuOpen 
-                  ? '-rotate-45 -translate-y-0.5' 
-                  : 'translate-y-1.5'
-              }`} />
+            <div className={`transition-transform duration-300 ${isMenuOpen ? 'rotate-90' : ''}`}>
+              <Icon name={isMenuOpen ? "close" : "menu"} size={24} color="primary" />
             </div>
           </button>
         </div>
@@ -203,85 +183,94 @@ export default function Header() {
             />
             
             {/* Mobile Menu */}
-            <div className="mobile-menu fixed top-16 left-0 w-full bg-background border-b border-border shadow-xl z-50 md:hidden">
-              <div className="max-w-7xl mx-auto px-6 py-6">
-                <div className="flex flex-col space-y-2">
+            <div className="mobile-menu fixed top-16 left-0 w-full backdrop-blur-lg bg-white/95 border-b border-white/30 shadow-2xl z-50 md:hidden">
+              <div className="max-w-7xl mx-auto px-4 py-4">
+                <div className="flex flex-col space-y-1">
                   <Link 
                     href="/courses" 
-                    className="text-foreground hover:text-primary hover:bg-muted py-4 px-4 rounded-lg font-medium transition-colors text-lg"
+                    className="text-gray-800 hover:text-red-600 hover:bg-red-50 py-4 px-6 rounded-xl font-bold transition-all duration-300 text-lg flex items-center gap-3"
                     onClick={handleMobileNavClick}
                   >
+                    <Icon name="book" size={20} color="current" />
                     Courses
                   </Link>
                   <Link 
                     href="/quizzes" 
-                    className="text-foreground hover:text-primary hover:bg-muted py-4 px-4 rounded-lg font-medium transition-colors text-lg"
+                    className="text-gray-800 hover:text-red-600 hover:bg-red-50 py-4 px-6 rounded-xl font-bold transition-all duration-300 text-lg flex items-center gap-3"
                     onClick={handleMobileNavClick}
                   >
+                    <Icon name="lightbulb" size={20} color="current" />
                     Quizzes
                   </Link>
                   <Link 
                     href="/about" 
-                    className="text-foreground hover:text-primary hover:bg-muted py-4 px-4 rounded-lg font-medium transition-colors text-lg"
+                    className="text-gray-800 hover:text-red-600 hover:bg-red-50 py-4 px-6 rounded-xl font-bold transition-all duration-300 text-lg flex items-center gap-3"
                     onClick={handleMobileNavClick}
                   >
+                    <Icon name="info" size={20} color="current" />
                     About
                   </Link>
                   <Link 
                     href="/contact" 
-                    className="text-foreground hover:text-primary hover:bg-muted py-4 px-4 rounded-lg font-medium transition-colors text-lg"
+                    className="text-gray-800 hover:text-red-600 hover:bg-red-50 py-4 px-6 rounded-xl font-bold transition-all duration-300 text-lg flex items-center gap-3"
                     onClick={handleMobileNavClick}
                   >
+                    <Icon name="mail" size={20} color="current" />
                     Contact
                   </Link>
                   
                   {/* Mobile User Section */}
-                  <div className="flex flex-col space-y-3 pt-6 border-t border-border">
+                  <div className="flex flex-col space-y-2 pt-4 mt-4 border-t border-gray-200">
                     {loading ? (
-                      <div className="w-full h-12 bg-muted animate-pulse rounded-lg"></div>
+                      <div className="w-full h-14 bg-gray-200 animate-pulse rounded-xl"></div>
                     ) : user ? (
-                      <div className="space-y-3">
-                        <div className="flex items-center space-x-3 bg-muted border border-border rounded-lg px-4 py-4">
-                          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                            <span className="text-primary-foreground font-bold">{user.name?.charAt(0).toUpperCase()}</span>
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-3 backdrop-blur-sm bg-white/80 border border-white/40 rounded-xl px-4 py-3 shadow-lg">
+                          <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-orange-600 rounded-full flex items-center justify-center shadow-sm">
+                            <span className="text-white font-bold text-sm">{user.name?.charAt(0).toUpperCase()}</span>
                           </div>
-                          <span className="text-foreground font-medium">Welcome, {user.name}</span>
+                          <span className="text-gray-800 font-bold text-lg">Welcome, {user.name}</span>
                         </div>
                         <Link 
                           href="/dashboard" 
-                          className="text-foreground hover:text-primary hover:bg-muted py-3 px-4 rounded-lg font-medium transition-colors w-full text-left block" 
+                          className="text-gray-800 hover:text-red-600 hover:bg-red-50 py-4 px-6 rounded-xl font-bold transition-all duration-300 w-full text-left block text-lg flex items-center gap-3" 
                           onClick={handleMobileNavClick}
                         >
+                          <Icon name="home" size={20} color="current" />
                           Dashboard
                         </Link>
                         <Link 
                           href="/profile" 
-                          className="text-foreground hover:text-primary hover:bg-muted py-3 px-4 rounded-lg font-medium transition-colors w-full text-left block" 
+                          className="text-gray-800 hover:text-red-600 hover:bg-red-50 py-4 px-6 rounded-xl font-bold transition-all duration-300 w-full text-left block text-lg flex items-center gap-3" 
                           onClick={handleMobileNavClick}
                         >
+                          <Icon name="user" size={20} color="current" />
                           Profile
                         </Link>
                         <button
                           onClick={handleSignOut}
-                          className="bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive px-4 py-3 rounded-lg font-medium transition-colors w-full"
+                          className="backdrop-blur-sm bg-white/80 text-gray-700 hover:bg-red-50 hover:text-red-600 px-6 py-4 rounded-xl font-bold transition-all duration-300 w-full border border-white/40 text-lg flex items-center gap-3"
                         >
+                          <Icon name="arrow-right" size={20} color="current" />
                           Sign Out
                         </button>
                       </div>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="space-y-2">
                         <Link 
                           href="/auth/login" 
-                          className="border-2 border-primary bg-background hover:bg-primary/10 text-primary px-4 py-3 rounded-lg font-semibold transition-colors w-full text-center block"
+                          className="border-2 border-red-600 bg-white/90 hover:bg-red-50 text-red-600 px-6 py-4 rounded-xl font-bold transition-all duration-300 w-full text-center block text-lg flex items-center justify-center gap-3"
                           onClick={handleMobileNavClick}
                         >
+                          <Icon name="user" size={20} color="current" />
                           Sign In
                         </Link>
                         <Link 
                           href="/auth/signup" 
-                          className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-3 rounded-lg font-semibold transition-colors w-full text-center block shadow-lg"
+                          className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-6 py-4 rounded-xl font-bold transition-all duration-300 w-full text-center block shadow-lg text-lg flex items-center justify-center gap-3"
                           onClick={handleMobileNavClick}
                         >
+                          <Icon name="rocket" size={20} color="white" />
                           Get Started
                         </Link>
                       </div>

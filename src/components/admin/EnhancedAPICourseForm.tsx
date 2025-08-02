@@ -5,7 +5,7 @@ import { logger } from '@/lib/logger'
 import { useState, useEffect } from 'react'
 import { Course, Question } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
-import SvgIcon from '@/components/ui/SvgIcon'
+import Icon, { IconName } from '@/components/ui/Icon'
 import { CategorySelector } from '@/components/admin/CategorySelector'
 import { CategoryManagement } from '@/components/admin/CategoryManagement'
 import { RichTextFormatGuide } from './RichTextFormatGuide'
@@ -424,7 +424,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
     }
   }
 
-  const tabs = [
+  const tabs: Array<{id: string, label: string, icon: IconName}> = [
     { id: 'basic', label: 'Basic Info', icon: 'info' },
     { id: 'outcomes', label: 'Learning Outcomes', icon: 'target' },
     { id: 'modules', label: 'Modules & Lessons', icon: 'book' },
@@ -439,7 +439,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
         <div className="flex items-center justify-between p-6 sm:p-8 border-b bg-gradient-to-r from-gray-50 via-white to-purple-50">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg">
-              <SvgIcon icon="book" size={24} variant="white" />
+              <Icon name="book" size={24} className="text-white" />
             </div>
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
@@ -454,7 +454,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-white/50 rounded-lg"
           >
-            <SvgIcon icon="close" size={24} className="text-gray-400" />
+            <Icon name="close" size={24} className="text-gray-400" />
           </button>
         </div>
         
@@ -470,7 +470,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                   : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
               }`}
             >
-              <SvgIcon icon={tab.icon} size={16} className={activeTab === tab.id ? 'text-purple-600' : 'text-gray-600'} />
+              <Icon name={tab.icon} size={16} className={activeTab === tab.id ? 'text-purple-600' : 'text-gray-600'} />
               <span className="hidden sm:inline">{tab.label}</span>
             </button>
           ))}
@@ -494,7 +494,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="bg-emerald-500 p-1 rounded-full mr-3">
-                      <SvgIcon icon="check" size={16} variant="white" />
+                      <Icon name="check" size={16} className="text-white" />
                     </div>
                     <span className="text-emerald-800 font-semibold">{success}</span>
                   </div>
@@ -505,7 +505,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                       onClick={() => setSuccess(null)}
                       className="text-emerald-600 hover:text-emerald-800 p-1 rounded-lg hover:bg-emerald-200 transition-colors"
                     >
-                      <SvgIcon icon="close" size={16} />
+                      <Icon name="close" size={16} />
                     </button>
                   </div>
                 </div>
@@ -516,7 +516,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
             {error && (
               <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
                 <div className="flex items-center">
-                  <SvgIcon icon="warning" size={20} className="text-red-600 mr-2" />
+                  <Icon name="warning" size={20} className="text-red-600 mr-2" />
                   <span className="text-red-800">{error}</span>
                 </div>
               </div>
@@ -678,7 +678,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                       onClick={addLearningOutcome}
                       className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2"
                     >
-                      <SvgIcon icon="plus" size={16} variant="white" />
+                      <Icon name="add" size={16} className="text-white" />
                       Add Outcome
                     </button>
                   </div>
@@ -703,7 +703,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                             onClick={() => removeLearningOutcome(outcome.id)}
                             className="text-red-600 hover:text-red-700 p-2"
                           >
-                            <SvgIcon icon="close" size={16} />
+                            <Icon name="close" size={16} />
                           </button>
                         )}
                       </div>
@@ -719,7 +719,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                       onClick={addPrerequisite}
                       className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2"
                     >
-                      <SvgIcon icon="plus" size={16} variant="white" />
+                      <Icon name="add" size={16} className="text-white" />
                       Add Prerequisite
                     </button>
                   </div>
@@ -744,7 +744,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                             onClick={() => removePrerequisite(index)}
                             className="text-red-600 hover:text-red-700 p-2"
                           >
-                            <SvgIcon icon="close" size={16} />
+                            <Icon name="close" size={16} />
                           </button>
                         )}
                       </div>
@@ -767,7 +767,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                     onClick={addModule}
                     className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                   >
-                    <SvgIcon icon="plus" size={16} variant="white" />
+                    <Icon name="add" size={16} className="text-white" />
                     Add Module
                   </button>
                 </div>
@@ -783,7 +783,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                             onClick={() => removeModule(moduleIndex)}
                             className="text-red-600 hover:text-red-700 p-1"
                           >
-                            <SvgIcon icon="ban" size={16} />
+                            <Icon name="ban" size={16} />
                           </button>
                         )}
                       </div>
@@ -825,7 +825,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                             onClick={() => addLesson(moduleIndex)}
                             className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm flex items-center gap-2"
                           >
-                            <SvgIcon icon="plus" size={14} variant="white" />
+                            <Icon name="add" size={14} className="text-white" />
                             Add Lesson
                           </button>
                         </div>
@@ -843,7 +843,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                                     onClick={() => removeLesson(moduleIndex, lessonIndex)}
                                     className="text-red-600 hover:text-red-700 p-1"
                                   >
-                                    <SvgIcon icon="close" size={14} />
+                                    <Icon name="close" size={14} />
                                   </button>
                                 )}
                               </div>
@@ -951,7 +951,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                       onClick={addTag}
                       className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2"
                     >
-                      <SvgIcon icon="plus" size={16} variant="white" />
+                      <Icon name="add" size={16} className="text-white" />
                       Add Tag
                     </button>
                   </div>
@@ -971,7 +971,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                             onClick={() => removeTag(index)}
                             className="text-red-600 hover:text-red-700 p-2"
                           >
-                            <SvgIcon icon="close" size={16} />
+                            <Icon name="close" size={16} />
                           </button>
                         )}
                       </div>
@@ -1020,7 +1020,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                   </>
                 ) : (
                   <>
-                    <SvgIcon icon="check" size={16} variant="white" />
+                    <Icon name="check" size={16} className="text-white" />
                     {course ? 'Update Course' : 'Create Course'}
                   </>
                 )}
