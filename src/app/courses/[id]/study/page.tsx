@@ -9,6 +9,9 @@ import { supabase, Course, CourseModule, CourseLesson, CourseResource, LessonPro
 import { getCourseWithModulesAndLessons, updateEnrollmentProgress } from '@/lib/database-operations'
 import { useAuth } from '@/contexts/AuthContext'
 import { RichTextRenderer } from '@/components/ui/RichTextRenderer'
+import { Typography, DisplayLG, H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
+import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
+import Icon from '@/components/ui/Icon'
 
 interface ModuleWithContent extends CourseModule {
   course_lessons: (CourseLesson & {
@@ -197,85 +200,127 @@ export default function CourseStudyPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center bg-white p-8 rounded-xl shadow-lg border border-gray-200">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading course content...</p>
+      <Section 
+        className="min-h-screen relative overflow-hidden"
+        background="gradient"
+      >
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
-      </div>
+        
+        <Container className="relative flex items-center justify-center min-h-screen">
+          <div className="text-center bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+            <BodyLG color="muted" className="font-medium">Loading course content...</BodyLG>
+          </div>
+        </Container>
+      </Section>
     )
   }
 
   if (error || !course) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center bg-white p-8 rounded-xl shadow-lg border border-gray-200 max-w-md">
-          <p className="text-red-600 mb-4 font-bold">{error || 'Course not found'}</p>
-          <button
-            onClick={() => router.push('/courses')}
-            className="text-red-600 hover:text-red-700 font-bold bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors duration-200"
-          >
-            ← Back to Courses
-          </button>
+      <Section 
+        className="min-h-screen relative overflow-hidden"
+        background="gradient"
+      >
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
-      </div>
+        
+        <Container className="relative flex items-center justify-center min-h-screen px-4">
+          <div className="text-center bg-white/80 backdrop-blur-lg rounded-2xl p-12 shadow-xl border border-white/20 max-w-md w-full">
+            <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <Icon name="warning" size={32} color="white" />
+            </div>
+            <H3 className="mb-4">{error || 'Course not found'}</H3>
+            <button
+              onClick={() => router.push('/courses')}
+              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 rounded-xl font-bold transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+            >
+              ← Back to Courses
+            </button>
+          </div>
+        </Container>
+      </Section>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-6000"></div>
+      </div>
+
       {/* Mobile Navigation Bar */}
-      <nav className="lg:hidden fixed top-14 left-0 right-0 z-40 bg-white border-b border-gray-200 shadow-sm">
-        <div className="flex items-center justify-between px-4 py-3">
+      <nav className="lg:hidden fixed top-14 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-b border-white/20 shadow-lg">
+        {/* Top Row: Course Title and Menu Button */}
+        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
             <button
               onClick={() => router.push('/courses')}
-              className="flex items-center text-gray-600 hover:text-gray-900 transition-colors flex-shrink-0"
+              className="flex items-center text-gray-600 hover:text-gray-900 transition-colors flex-shrink-0 bg-white rounded-lg p-1.5 shadow-sm border border-gray-200"
             >
-              <Home className="w-5 h-5" />
+              <Home className="w-4 h-4" />
             </button>
-            <div className="h-4 w-px bg-gray-300 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <h1 className="text-base lg:text-lg font-bold text-gray-900 truncate">
+              <BodyMD className="font-bold truncate text-gray-900">
                 {course?.title || 'Course'}
-              </h1>
-              {currentLesson && (
-                <p className="text-xs text-gray-500 truncate">
-                  {currentLesson.title}
-                </p>
-              )}
+              </BodyMD>
             </div>
           </div>
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="flex items-center space-x-2 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors flex-shrink-0"
+            className="flex items-center space-x-1.5 bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1.5 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 flex-shrink-0 shadow-lg"
           >
             <BookOpen className="w-4 h-4" />
             <span className="text-sm font-medium">Lessons</span>
             {isSidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </div>
+        
+        {/* Bottom Row: Current Lesson */}
+        {currentLesson && (
+          <div className="px-4 py-2 bg-gray-50/80">
+            <div className="flex items-center space-x-2">
+              <PlayCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+              <BodyMD color="muted" className="truncate font-medium">
+                {currentLesson.title}
+              </BodyMD>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Desktop Header */}
-      <div className="hidden lg:block bg-white border-b fixed top-16 left-0 right-0 z-10 shadow-sm">
+      <div className="hidden lg:block bg-white/80 backdrop-blur-lg border-b border-white/20 fixed top-16 left-0 right-0 z-10 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between">
             <button
               onClick={() => router.push('/courses')}
-              className="text-red-600 hover:text-red-700 flex items-center text-sm font-semibold"
+              className="text-red-600 hover:text-red-700 flex items-center text-sm font-semibold bg-white/80 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg border border-white/20 transition-all duration-200 hover:-translate-y-1"
             >
               ← Back to Courses
             </button>
             <div className="flex items-center justify-between flex-1">
               <h1 className="text-lg font-bold text-gray-900 truncate ml-48">{course?.title}</h1>
-              <p className="text-sm text-gray-600 font-medium">{course?.instructor_name}</p>
+              <p className="text-sm text-gray-600 font-medium bg-white/80 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg border border-white/20">{course?.instructor_name}</p>
             </div>
             {!isEnrolled && (
               <div className="flex-shrink-0 ml-8">
                 <button
                   onClick={() => router.push(`/courses/${params.id}`)}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 font-semibold rounded-lg transition-colors text-sm shadow-md hover:shadow-lg"
+                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 font-semibold rounded-lg transition-all duration-200 text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                 >
                   Enroll Now
                 </button>
@@ -292,11 +337,11 @@ export default function CourseStudyPage() {
 
       {/* Course Content Sidebar */}
       <div className={`
-        lg:hidden fixed top-20 left-0 bottom-0 w-full max-w-sm bg-white z-50 transform transition-transform duration-300 ease-in-out shadow-xl
+        lg:hidden fixed top-20 left-0 bottom-0 w-full max-w-sm bg-white/90 backdrop-blur-lg z-50 transform transition-transform duration-300 ease-in-out shadow-xl border-r border-white/20
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="h-full overflow-y-auto">
-          <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-900 to-gray-800">
+          <div className="p-4 border-b border-white/20 bg-gradient-to-r from-gray-900 to-gray-800">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold text-white">Course Content</h2>
@@ -306,7 +351,7 @@ export default function CourseStudyPage() {
               </div>
               <button
                 onClick={() => setIsSidebarOpen(false)}
-                className="text-gray-300 hover:text-white p-1 rounded"
+                className="text-gray-300 hover:text-white p-1 rounded bg-white/10 backdrop-blur-sm"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -315,10 +360,10 @@ export default function CourseStudyPage() {
           
           <div className="pb-4">
             {modules.map((module) => (
-              <div key={module.id} className="border-b last:border-b-0 border-gray-100">
+              <div key={module.id} className="border-b last:border-b-0 border-white/20">
                 <button
                   onClick={() => toggleModule(module.id)}
-                  className="w-full p-4 text-left hover:bg-gray-50 flex items-center justify-between transition-colors duration-200 min-h-[60px]"
+                  className="w-full p-4 text-left hover:bg-white/50 flex items-center justify-between transition-all duration-200 min-h-[60px] backdrop-blur-sm"
                 >
                   <div>
                     <h3 className="text-sm font-bold text-gray-900">{module.title}</h3>
@@ -332,7 +377,7 @@ export default function CourseStudyPage() {
                 </button>
                 
                 {expandedModules.has(module.id) && (
-                  <div className="bg-gray-50 border-t border-gray-100">
+                  <div className="bg-white/30 backdrop-blur-sm border-t border-white/20">
                     {module.course_lessons.map((lesson) => {
                       const isLocked = !isEnrolled && !lesson.is_free_preview
                       const isCompleted = lesson.progress?.is_completed
@@ -343,10 +388,10 @@ export default function CourseStudyPage() {
                           key={lesson.id}
                           onClick={() => selectLesson(lesson)}
                           disabled={isLocked}
-                          className={`w-full p-4 text-left hover:bg-white flex items-center gap-3 transition-all duration-200 border-b border-gray-100 last:border-b-0 min-h-[70px] ${
-                            isCurrent ? 'bg-red-50 border-r-4 border-red-600 shadow-sm' : ''
+                          className={`w-full p-4 text-left hover:bg-white/60 flex items-center gap-3 transition-all duration-200 border-b border-white/20 last:border-b-0 min-h-[70px] backdrop-blur-sm ${
+                            isCurrent ? 'bg-red-50/80 border-r-4 border-red-600 shadow-lg' : ''
                           } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''} ${
-                            !isLocked && !isCurrent ? 'hover:shadow-sm' : ''
+                            !isLocked && !isCurrent ? 'hover:shadow-lg' : ''
                           }`}
                         >
                           <div className="flex-shrink-0">
@@ -366,7 +411,7 @@ export default function CourseStudyPage() {
                               <Clock className="w-3 h-3 flex-shrink-0" />
                               {formatDuration(lesson.duration_minutes)}
                               {lesson.is_free_preview && (
-                                <span className="bg-green-100 text-green-800 px-1.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap">Free</span>
+                                <span className="bg-green-100/80 text-green-800 px-1.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap backdrop-blur-sm">Free</span>
                               )}
                             </div>
                           </div>
@@ -382,13 +427,13 @@ export default function CourseStudyPage() {
       </div>
 
       {/* Main Content */}
-      <div className="pt-20 lg:pt-28">
+      <div className="relative pt-36 lg:pt-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
           <div className="lg:grid lg:grid-cols-4 lg:gap-8">
             {/* Desktop Sidebar */}
             <div className="hidden lg:block lg:col-span-1">
-              <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden sticky top-32">
-                <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-900 to-gray-800">
+              <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden sticky top-32">
+                <div className="p-4 border-b border-white/20 bg-gradient-to-r from-gray-900 to-gray-800">
                   <h2 className="text-lg font-bold text-white">Course Content</h2>
                   <p className="text-sm text-gray-300 mt-1">
                     {modules.reduce((total, module) => total + module.course_lessons.length, 0)} lessons
@@ -397,10 +442,10 @@ export default function CourseStudyPage() {
                 
                 <div className="max-h-96 overflow-y-auto">
                   {modules.map((module) => (
-                    <div key={module.id} className="border-b last:border-b-0 border-gray-100">
+                    <div key={module.id} className="border-b last:border-b-0 border-white/20">
                       <button
                         onClick={() => toggleModule(module.id)}
-                        className="w-full p-4 text-left hover:bg-gray-50 flex items-center justify-between transition-colors duration-200 min-h-[60px]"
+                        className="w-full p-4 text-left hover:bg-white/50 flex items-center justify-between transition-all duration-200 min-h-[60px] backdrop-blur-sm"
                       >
                         <div>
                           <h3 className="text-sm font-bold text-gray-900">{module.title}</h3>
@@ -414,7 +459,7 @@ export default function CourseStudyPage() {
                       </button>
                       
                       {expandedModules.has(module.id) && (
-                        <div className="bg-gray-50 border-t border-gray-100">
+                        <div className="bg-white/30 backdrop-blur-sm border-t border-white/20">
                           {module.course_lessons.map((lesson) => {
                             const isLocked = !isEnrolled && !lesson.is_free_preview
                             const isCompleted = lesson.progress?.is_completed
@@ -425,10 +470,10 @@ export default function CourseStudyPage() {
                                 key={lesson.id}
                                 onClick={() => selectLesson(lesson)}
                                 disabled={isLocked}
-                                className={`w-full p-3 text-left hover:bg-white flex items-center gap-3 transition-all duration-200 border-b border-gray-100 last:border-b-0 min-h-[70px] ${
-                                  isCurrent ? 'bg-red-50 border-r-4 border-red-600 shadow-sm' : ''
+                                className={`w-full p-3 text-left hover:bg-white/60 flex items-center gap-3 transition-all duration-200 border-b border-white/20 last:border-b-0 min-h-[70px] backdrop-blur-sm ${
+                                  isCurrent ? 'bg-red-50/80 border-r-4 border-red-600 shadow-lg' : ''
                                 } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''} ${
-                                  !isLocked && !isCurrent ? 'hover:shadow-sm' : ''
+                                  !isLocked && !isCurrent ? 'hover:shadow-lg' : ''
                                 }`}
                               >
                                 <div className="flex-shrink-0">
@@ -448,7 +493,7 @@ export default function CourseStudyPage() {
                                     <Clock className="w-3 h-3 flex-shrink-0" />
                                     {formatDuration(lesson.duration_minutes)}
                                     {lesson.is_free_preview && (
-                                      <span className="bg-green-100 text-green-800 px-1.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap">Free</span>
+                                      <span className="bg-green-100/80 text-green-800 px-1.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap backdrop-blur-sm">Free</span>
                                     )}
                                   </div>
                                 </div>
@@ -466,8 +511,8 @@ export default function CourseStudyPage() {
             {/* Main Content Area */}
             <div className="lg:col-span-3">
               {currentLesson ? (
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                  <div className="p-4 lg:p-8 border-b border-gray-200 bg-gradient-to-r from-gray-900 to-gray-800">
+                <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+                  <div className="p-4 lg:p-8 border-b border-white/20 bg-gradient-to-r from-gray-900 to-gray-800">
                     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                       <div className="flex-1">
                         <h1 className="text-xl lg:text-3xl font-bold text-white mb-2 lg:mb-3">
@@ -478,16 +523,17 @@ export default function CourseStudyPage() {
                       {isEnrolled && (
                         <button
                           onClick={() => toggleLessonCompletion(currentLesson.id)}
-                          className={`flex items-center gap-2 px-4 lg:px-6 py-2 lg:py-3 rounded-lg text-sm lg:text-base font-bold transition-all duration-200 hover:shadow-lg self-start ${
+                          className={`flex items-center gap-2 px-4 lg:px-6 py-2 lg:py-3 rounded-xl text-sm lg:text-base font-bold transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start ${
                             currentLesson.progress?.is_completed
-                              ? 'bg-green-600 text-white hover:bg-green-700 shadow-md'
-                              : 'bg-red-600 text-white hover:bg-red-700 shadow-md'
+                              ? 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800'
+                              : 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800'
                           }`}
                         >
                           {currentLesson.progress?.is_completed ? (
                             <>
                               <CheckCircle className="w-4 lg:w-5 h-4 lg:h-5" />
-                              <span>Completed ✓</span>
+                              <span>Completed</span>
+                              <Icon name="check" size={16} color="current" />
                             </>
                           ) : (
                             <>
@@ -504,7 +550,7 @@ export default function CourseStudyPage() {
                     {/* Video Player */}
                     {currentLesson.video_url && (
                       <div className="mb-6 lg:mb-8">
-                        <div className="aspect-video bg-gray-100 rounded-xl overflow-hidden shadow-md">
+                        <div className="aspect-video bg-gray-100/80 backdrop-blur-sm rounded-2xl overflow-hidden shadow-xl border border-white/20">
                           <video
                             src={currentLesson.video_url}
                             controls
@@ -516,7 +562,7 @@ export default function CourseStudyPage() {
 
                     {/* Rich Text Lesson Content */}
                     {currentLesson.content && (
-                      <div className="mb-6 lg:mb-8">
+                      <div className="mb-6 lg:mb-8 bg-white/50 backdrop-blur-sm rounded-2xl p-6 lg:p-8 shadow-lg border border-white/20">
                         <RichTextRenderer 
                           content={currentLesson.content}
                           className="text-gray-900 leading-relaxed text-base lg:text-lg"
@@ -526,13 +572,18 @@ export default function CourseStudyPage() {
 
                     {/* Resources */}
                     {currentLesson.resources && currentLesson.resources.length > 0 && (
-                      <div>
-                        <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6">Resources</h3>
+                      <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 lg:p-8 shadow-lg border border-white/20">
+                        <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6 flex items-center gap-3">
+                          <span className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center text-white text-sm">📁</span>
+                          Resources
+                        </h3>
                         <div className="space-y-3 lg:space-y-4">
                           {currentLesson.resources.map((resource) => (
-                            <div key={resource.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 lg:p-6 bg-gray-50 rounded-xl border border-gray-200 hover:border-red-300 hover:shadow-md transition-all duration-200">
+                            <div key={resource.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 lg:p-6 bg-white/80 backdrop-blur-lg rounded-xl border border-white/20 hover:border-red-300 hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
                               <div className="flex items-start gap-3 lg:gap-4 flex-1">
-                                <FileText className="w-5 lg:w-6 h-5 lg:h-6 text-red-600 flex-shrink-0 mt-0.5" />
+                                <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-red-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                                  <FileText className="w-5 h-5 text-white" />
+                                </div>
                                 <div className="flex-1 min-w-0">
                                   <h4 className="text-sm lg:text-base font-bold text-gray-900">{resource.title}</h4>
                                   {resource.description && (
@@ -545,7 +596,7 @@ export default function CourseStudyPage() {
                                   href={resource.file_url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-red-600 hover:text-red-700 flex items-center gap-2 text-sm lg:text-base font-bold hover:bg-red-50 px-3 py-2 rounded-lg transition-colors duration-200 self-start sm:self-center"
+                                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white flex items-center gap-2 text-sm lg:text-base font-bold px-4 py-2 rounded-xl transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start sm:self-center"
                                 >
                                   <Download className="w-4 lg:w-5 h-4 lg:h-5" />
                                   Download
@@ -559,9 +610,9 @@ export default function CourseStudyPage() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8 lg:p-16 text-center">
-                  <div className="p-4 lg:p-6 bg-red-50 rounded-full w-fit mx-auto mb-6 lg:mb-8">
-                    <PlayCircle className="w-12 lg:w-16 h-12 lg:h-16 text-red-600" />
+                <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-8 lg:p-16 text-center">
+                  <div className="p-4 lg:p-6 bg-gradient-to-r from-red-600 to-red-700 rounded-full w-fit mx-auto mb-6 lg:mb-8 shadow-xl">
+                    <PlayCircle className="w-12 lg:w-16 h-12 lg:h-16 text-white" />
                   </div>
                   <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-3 lg:mb-4">Select a Lesson</h2>
                   <p className="text-sm lg:text-base text-gray-600 max-w-md mx-auto mb-4 lg:hidden">

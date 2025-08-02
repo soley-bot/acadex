@@ -7,6 +7,9 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getQuizQuestions, submitQuizAttempt } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
+import { H1, H2, H3, H4, BodyLG, BodyMD } from '@/components/ui/Typography'
+import Icon from '@/components/ui/Icon'
+import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
 
 interface Question {
   id: string
@@ -136,11 +139,18 @@ export default function TakeQuizPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
-        <div className="flex items-center justify-center py-20 pt-24">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 text-lg">Loading quiz...</p>
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        </div>
+        
+        <div className="relative flex items-center justify-center py-20 pt-32">
+          <div className="text-center p-8 sm:p-12 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-200 border-t-red-600 mx-auto mb-6"></div>
+            <BodyLG>Loading quiz...</BodyLG>
           </div>
         </div>
       </div>
@@ -149,39 +159,63 @@ export default function TakeQuizPage() {
 
   if (error || !quiz || questions.length === 0) {
     return (
-      <div className="min-h-screen bg-white">
-        <div className="max-w-2xl mx-auto py-12 sm:py-20 pt-20 sm:pt-24 text-center px-4 sm:px-6">
-          <h1 className="text-2xl sm:text-3xl font-black text-black mb-3 sm:mb-4">Unable to Load Quiz</h1>
-          <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8">{error || 'The quiz questions could not be loaded.'}</p>
-          <button
-            onClick={() => router.push('/quizzes')}
-            className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white px-4 sm:px-6 py-3 rounded-lg font-bold transition-colors"
-          >
-            Back to Quizzes
-          </button>
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
+        
+        <Container size="sm" className="py-12 sm:py-20 pt-20 sm:pt-24">
+          <div className="p-8 sm:p-12 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl text-center">
+            <H1 className="mb-4 sm:mb-6 text-red-600">Unable to Load Quiz</H1>
+            <BodyLG className="mb-6 sm:mb-8" color="muted">{error || 'The quiz questions could not be loaded.'}</BodyLG>
+            <button
+              onClick={() => router.push('/quizzes')}
+              className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-orange-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105"
+            >
+              Back to Quizzes
+            </button>
+          </div>
+        </Container>
       </div>
     )
   }
 
   if (!quizStarted) {
     return (
-      <div className="min-h-screen bg-white">
-        <div className="max-w-2xl mx-auto py-12 sm:py-20 pt-20 sm:pt-24 text-center px-4 sm:px-6">
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-xl p-6 sm:p-8 lg:p-12">
-            <h1 className="text-3xl sm:text-4xl font-black text-black mb-4 sm:mb-6">{quiz.title}</h1>
-            <p className="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8">You have <span className="font-bold text-red-600">{quiz.duration_minutes} minutes</span> to complete this quiz</p>
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        </div>
+        
+        <Container size="sm" className="py-12 sm:py-20 pt-20 sm:pt-24">
+          <div className="p-8 sm:p-12 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl text-center">
+            <div className="inline-block p-4 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl mb-6">
+              <Icon name="target" size={32} color="white" />
+            </div>
+            <H1 className="mb-4 sm:mb-6 text-red-600">{quiz.title}</H1>
+            <BodyLG className="mb-6 sm:mb-8" color="muted">
+              You have <span className="font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">{quiz.duration_minutes} minutes</span> to complete this quiz
+            </BodyLG>
             <button
               onClick={() => {
                 setQuizStarted(true)
                 setStartTime(new Date())
               }}
-              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold text-base sm:text-lg transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-orange-600 text-white px-8 sm:px-12 py-4 rounded-2xl font-bold text-lg sm:text-xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105"
             >
-              Start Quiz
+              <span className="flex items-center gap-3 justify-center">
+                <Icon name="rocket" size={24} color="white" />
+                Start Quiz
+              </span>
             </button>
           </div>
-        </div>
+        </Container>
       </div>
     )
   }
@@ -189,23 +223,29 @@ export default function TakeQuizPage() {
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      </div>
       
       {/* Quiz Header */}
-      <div className="bg-black border-b border-gray-200 pt-16 shadow-lg">
+      <div className="relative pt-16 backdrop-blur-lg bg-white/80 border-b border-white/20 shadow-2xl">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-red-600 rounded-full"></div>
-                <h1 className="text-lg sm:text-xl font-bold text-white truncate">{quiz.title}</h1>
+                <div className="w-3 h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full animate-pulse"></div>
+                <h1 className="text-lg sm:text-xl font-bold text-gray-800 truncate">{quiz.title}</h1>
               </div>
             </div>
             <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
-              <div className="text-base sm:text-lg font-mono font-bold text-red-600 bg-red-50 px-3 sm:px-4 py-2 rounded-lg border border-red-200 flex-shrink-0">
+              <div className="text-base sm:text-lg font-mono font-bold text-white bg-gradient-to-r from-red-600 to-orange-600 px-4 sm:px-6 py-3 rounded-2xl border border-white/20 backdrop-blur-lg shadow-2xl flex-shrink-0">
                 {formatTime(timeLeft)}
               </div>
-              <div className="text-xs sm:text-sm text-gray-300 bg-gray-800 px-3 sm:px-4 py-2 rounded-lg whitespace-nowrap">
+              <div className="text-xs sm:text-sm text-gray-700 bg-white/60 backdrop-blur-lg px-3 sm:px-4 py-2 rounded-xl border border-white/30 whitespace-nowrap">
                 Question {currentQuestionIndex + 1} of {questions.length}
               </div>
             </div>
@@ -213,13 +253,13 @@ export default function TakeQuizPage() {
           
           {/* Progress Bar */}
           <div className="mt-6">
-            <div className="flex items-center justify-between text-sm text-gray-200 mb-3">
+            <div className="flex items-center justify-between text-sm text-gray-700 mb-3">
               <span className="font-medium">Progress</span>
               <span className="font-bold">{Math.round(getProgressPercentage())}% Complete</span>
             </div>
-            <div className="w-full bg-gray-700 rounded-full h-4 border border-gray-600 shadow-inner">
+            <div className="w-full bg-white/40 backdrop-blur-sm rounded-full h-4 border border-white/30 shadow-inner">
               <div 
-                className="bg-gradient-to-r from-red-500 to-red-600 h-4 rounded-full transition-all duration-500 shadow-sm"
+                className="bg-gradient-to-r from-red-500 to-orange-500 h-4 rounded-full transition-all duration-500 shadow-lg"
                 style={{ width: `${getProgressPercentage()}%` }}
               />
             </div>
@@ -227,41 +267,105 @@ export default function TakeQuizPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {/* Mobile Navigation Layout - Above Question Card */}
+        <div className="flex flex-col gap-3 mb-4 sm:hidden">
+          {/* Mini Question Navigator - Top */}
+          <div className="p-3 rounded-xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-md">
+            <div className="grid grid-cols-8 gap-2">
+              {questions.slice(0, 8).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentQuestionIndex(index)}
+                  className={`w-7 h-7 rounded-lg font-bold text-xs transition-all duration-300 border ${
+                    index === currentQuestionIndex
+                      ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white transform scale-110 border-red-500 z-10 relative shadow-lg'
+                      : answers[questions[index]?.id ?? ''] !== undefined
+                      ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-300'
+                      : 'bg-white/60 text-gray-600 border-gray-300'
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+            {questions.length > 8 && (
+              <div className="text-xs text-gray-600 text-center mt-2">
+                Showing first 8 questions • {questions.length} total
+              </div>
+            )}
+          </div>
+          
+          {/* Navigation Buttons - Below Navigator */}
+          <div className="flex items-center justify-between gap-3">
+            <button
+              onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
+              disabled={currentQuestionIndex === 0}
+              className="flex-1 backdrop-blur-lg bg-white/80 border-2 border-gray-300 text-gray-800 hover:bg-white hover:border-gray-400 px-3 py-2 rounded-xl font-medium text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg disabled:hover:bg-white/80 disabled:hover:border-gray-300"
+            >
+              ← Previous
+            </button>
+
+            {currentQuestionIndex === questions.length - 1 ? (
+              <button
+                onClick={handleSubmitQuiz}
+                disabled={submitting}
+                className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 text-white px-3 py-2 rounded-xl font-medium text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2"
+              >
+                {submitting ? (
+                  'Submitting...'
+                ) : (
+                  <>
+                    <Icon name="check" size={14} color="white" />
+                    Submit
+                  </>
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
+                className="flex-1 bg-gradient-to-r from-gray-800 to-black text-white px-3 py-2 rounded-xl font-medium text-sm transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                Next →
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Current Question */}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
+        <div className="p-4 sm:p-8 lg:p-10 mb-6 sm:mb-8 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl">
           {currentQuestion ? (
             <>
-              <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-red-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+              <div className="flex items-center gap-3 mb-4 sm:mb-8">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
                   {currentQuestionIndex + 1}
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-gray-500">
+                <span className="text-sm sm:text-base font-medium text-gray-600 bg-white/60 px-4 py-2 rounded-full border border-gray-200">
                   Question {currentQuestionIndex + 1} of {questions.length}
                 </span>
               </div>
               
-              <h2 className="text-xl sm:text-2xl font-bold text-black mb-6 sm:mb-8 leading-relaxed">
+              <h2 className="text-xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-10 leading-relaxed">
                 {currentQuestion.question}
               </h2>
               
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-6">
                 {currentQuestion?.options?.map((option, index) => (
                   <label
                     key={index}
-                    className={`group flex items-start gap-4 p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                    className={`group flex items-start gap-3 sm:gap-6 p-4 sm:p-8 border-2 rounded-2xl cursor-pointer transition-all duration-300 backdrop-blur-sm ${
                       answers[currentQuestion?.id ?? ''] === index
-                        ? 'border-red-600 bg-red-50 shadow-md'
-                        : 'border-gray-200 hover:border-red-300 hover:bg-gray-50'
+                        ? 'border-red-500 bg-gradient-to-r from-red-50/80 to-orange-50/80 shadow-xl scale-105'
+                        : 'border-white/30 bg-white/40 hover:border-red-300 hover:bg-white/60 hover:shadow-lg hover:scale-102'
                     }`}
                   >
-                    <div className={`relative flex items-center justify-center w-5 h-5 rounded-full border-2 transition-all ${
+                    <div className={`relative flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 transition-all ${
                       answers[currentQuestion?.id ?? ''] === index
-                        ? 'border-red-600 bg-red-600'
-                        : 'border-gray-400 group-hover:border-red-600'
+                        ? 'border-red-500 bg-gradient-to-r from-red-500 to-orange-500 shadow-lg'
+                        : 'border-gray-400 group-hover:border-red-500 bg-white'
                     }`}>
                       {answers[currentQuestion?.id ?? ''] === index && (
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                        <div className="w-3 h-3 bg-white rounded-full shadow-sm"></div>
                       )}
                     </div>
                     <input
@@ -272,7 +376,7 @@ export default function TakeQuizPage() {
                       onChange={() => currentQuestion && handleAnswerSelect(currentQuestion.id, index)}
                       className="sr-only"
                     />
-                    <span className="text-lg text-black leading-relaxed flex-1 font-medium">
+                    <span className="text-base sm:text-xl text-gray-800 leading-relaxed flex-1 font-medium">
                       {option}
                     </span>
                   </label>
@@ -280,18 +384,18 @@ export default function TakeQuizPage() {
               </div>
             </>
           ) : (
-            <div className="text-gray-600 text-lg">No question found.</div>
+            <div className="text-gray-600 text-lg text-center py-12">No question found.</div>
           )}
         </div>
 
-        {/* Navigation */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 sm:mb-8">
+        {/* Desktop Navigation */}
+        <div className="hidden sm:flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
           <button
             onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
             disabled={currentQuestionIndex === 0}
-            className="w-full sm:w-auto border-2 border-black text-black hover:bg-black hover:text-white px-6 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-black min-w-[120px]"
+            className="w-full sm:w-auto backdrop-blur-lg bg-white/80 border-2 border-gray-300 text-gray-800 hover:bg-white hover:border-gray-400 px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl disabled:hover:bg-white/80 disabled:hover:border-gray-300 min-w-[140px]"
           >
-            Previous
+            ← Previous
           </button>
 
           <div className="flex items-center gap-4 w-full sm:w-auto">
@@ -299,65 +403,71 @@ export default function TakeQuizPage() {
               <button
                 onClick={handleSubmitQuiz}
                 disabled={submitting}
-                className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl min-w-[120px]"
+                className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-orange-600 text-white px-10 py-4 rounded-2xl font-bold text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl hover:shadow-3xl transform hover:scale-105 min-w-[140px] flex items-center justify-center gap-2"
               >
-                {submitting ? 'Submitting...' : 'Submit Quiz'}
+                {submitting ? (
+                  'Submitting...'
+                ) : (
+                  <>
+                    <Icon name="check" size={16} color="white" />
+                    Submit Quiz
+                  </>
+                )}
               </button>
             ) : (
               <button
                 onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
-                className="w-full sm:w-auto bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-bold transition-colors min-w-[120px]"
+                className="w-full sm:w-auto bg-gradient-to-r from-gray-800 to-black text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105 min-w-[140px]"
               >
-                Next
+                Next →
               </button>
             )}
           </div>
         </div>
 
-        {/* Question Navigator */}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8">
-          <h3 className="text-lg sm:text-xl font-bold text-black mb-4 sm:mb-6 flex items-center gap-3">
-            <div className="w-4 h-4 sm:w-5 sm:h-5 bg-red-600 rounded-full flex items-center justify-center">
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"></div>
+        {/* Question Navigator - Desktop Only */}
+        <div className="hidden lg:block p-6 sm:p-8 lg:p-10 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl">
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 sm:mb-8 flex items-center gap-3">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl flex items-center justify-center">
+              <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
             </div>
             Question Navigator
           </h3>
-          <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2 sm:gap-3">
+          <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-3 sm:gap-4">
             {questions.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentQuestionIndex(index)}
-                className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg font-bold text-xs sm:text-sm transition-all duration-200 border-2 ${
+                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 border-2 shadow-lg ${
                   index === currentQuestionIndex
-                    ? 'bg-red-600 text-white shadow-lg transform scale-105 border-red-600 z-10 relative'
+                    ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white transform scale-110 border-red-500 z-10 relative shadow-2xl'
                     : answers[questions[index]?.id ?? ''] !== undefined
-                    ? 'bg-green-50 text-green-700 border-green-300 hover:bg-green-100 hover:border-green-400'
-                    : 'bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100 hover:text-black hover:border-gray-400'
+                    ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-300 hover:bg-gradient-to-r hover:from-green-200 hover:to-emerald-200 hover:border-green-400 hover:scale-105'
+                    : 'bg-white/60 text-gray-600 border-gray-300 hover:bg-white hover:text-gray-800 hover:border-gray-400 hover:scale-105'
                 }`}
               >
                 {index + 1}
               </button>
             ))}
           </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 mt-4 sm:mt-6 text-xs sm:text-sm bg-gray-50 rounded-lg p-3 sm:p-4">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 sm:w-5 sm:h-5 bg-red-600 rounded-lg shadow-sm flex items-center justify-center">
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"></div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 mt-6 sm:mt-8 text-sm sm:text-base bg-gradient-to-r from-gray-50/80 to-white/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/30">
+            <div className="flex items-center gap-3">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl shadow-lg flex items-center justify-center">
+                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
               </div>
               <span className="text-gray-700 font-medium">Current</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 sm:w-5 sm:h-5 bg-green-50 border-2 border-green-300 rounded-lg"></div>
+            <div className="flex items-center gap-3">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-r from-green-100 to-emerald-100 border-2 border-green-300 rounded-xl shadow-sm"></div>
               <span className="text-gray-700 font-medium">Answered</span>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gray-50 border-2 border-gray-300 rounded-lg"></div>
+            <div className="flex items-center gap-3">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 bg-white/60 border-2 border-gray-300 rounded-xl shadow-sm"></div>
               <span className="text-gray-700 font-medium">Unanswered</span>
             </div>
           </div>
         </div>
       </div>
-
     </div>
   )
 }

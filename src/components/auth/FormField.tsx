@@ -49,8 +49,8 @@ export function FormField({
     : showValidation && validation.isValid
     ? 'border-green-300 focus:border-green-500 focus:ring-green-500/20'
     : isFocused 
-    ? 'border-blue-300 focus:border-blue-500 focus:ring-blue-500/20'
-    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20'
+    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
+    : 'border-gray-300 focus:border-red-500 focus:ring-red-500/20'
 
   const iconColor = showError 
     ? 'text-red-400' 
@@ -59,8 +59,8 @@ export function FormField({
     : 'text-gray-400'
 
   return (
-    <div className="space-y-2">
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700">
+    <div className="space-y-3">
+      <label htmlFor={name} className="block text-sm font-bold text-gray-800">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
@@ -92,9 +92,9 @@ export function FormField({
             w-full px-4 py-3 
             ${icon ? 'pl-10' : ''} 
             ${type === 'password' && onTogglePassword ? 'pr-12' : 'pr-4'}
-            border rounded-lg transition-all duration-200
-            bg-white text-gray-900 placeholder-gray-500
-            focus:outline-none focus:ring-4
+            border-2 rounded-xl transition-all duration-300
+            backdrop-blur-sm bg-white/80 hover:bg-white/90 text-gray-900 placeholder-gray-500 font-medium
+            focus:outline-none focus:ring-4 shadow-lg hover:shadow-xl
             ${borderColor}
           `}
           placeholder={placeholder}

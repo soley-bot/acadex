@@ -7,6 +7,9 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getQuizById } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
+import { H1, H2, H3, H4, BodyLG, BodyMD } from '@/components/ui/Typography'
+import { Container, Section } from '@/components/ui/Layout'
+import Icon from '@/components/ui/Icon'
 
 interface Quiz {
   id: string
@@ -78,165 +81,223 @@ export default function QuizPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="flex items-center justify-center py-20 pt-32">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
+        
+        <Section spacing="lg" className="pt-24 px-6 lg:px-8 overflow-hidden">
+          <Container size="md" className="text-center">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+              <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+              Quiz Loading
+            </div>
+            <H1 className="mb-8">Loading Quiz...</H1>
+            <div className="mt-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-200 border-t-red-600 mx-auto"></div>
+            </div>
+          </Container>
+        </Section>
       </div>
     )
   }
 
   if (error || !quiz) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container-content pt-32 text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-6">Quiz Not Found</h1>
-          <p className="text-gray-600 mb-12 text-xl">{error || 'The quiz you are looking for does not exist.'}</p>
-          <Link
-            href="/quizzes"
-            className="btn-default inline-block text-lg px-8 py-4"
-          >
-            Back to Quizzes
-          </Link>
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
+        
+        <Section spacing="lg" className="pt-24 px-6 lg:px-8">
+          <Container size="md" className="text-center">
+            <div className="bg-white/80 backdrop-blur-lg border border-red-200 rounded-2xl p-12 max-w-md mx-auto shadow-xl">
+              <H1 className="mb-6 text-red-600">Quiz Not Found</H1>
+              <BodyLG color="muted" className="mb-8">{error || 'The quiz you are looking for does not exist.'}</BodyLG>
+              <Link
+                href="/quizzes"
+                className="inline-block px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
+              >
+                Back to Quizzes
+              </Link>
+            </div>
+          </Container>
+        </Section>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      
-      <div className="container-content pt-28 pb-12">
-        {/* Debug Information */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="bg-warning/10 border border-warning/20 rounded-lg p-4 mb-8">
-            <h3 className="text-sm font-semibold text-warning mb-2">Debug Info:</h3>
-            <div className="text-xs text-warning/80">
-              <p>User: {user ? `${user.email} (${user.id})` : 'Not logged in'}</p>
-              <p>Quiz ID: {quiz?.id}</p>
-              <p>Quiz Title: {quiz?.title}</p>
-            </div>
-          </div>
-        )}
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      </div>
 
-        {/* Quiz Header */}
-        <div className="bg-gradient-to-r from-primary to-primary/80 rounded-xl p-8 text-white mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <span className={`px-3 py-1 rounded-full text-sm font-medium bg-white/20 text-white`}>
-              {quiz.difficulty}
-            </span>
-            <span className="text-primary-50 text-base">{quiz.category}</span>
+      {/* Hero Section */}
+      <Section spacing="lg" className="pt-24 text-center px-6">
+        <Container size="md">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+            <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+            Quiz Details
           </div>
-          
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">{quiz.title}</h1>
-          
-          <div className="flex items-center gap-6 text-primary-50 mb-6 text-base">
-            <div className="flex items-center gap-2">
-              <span>{quiz.question_count} questions</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>{quiz.duration_minutes} minutes</span>
-            </div>
-          </div>
-          
-          <p className="text-base text-primary-50 leading-relaxed max-w-2xl">{quiz.description}</p>
-        </div>
+          <H1 className="mb-6 text-red-600">{quiz.title}</H1>
+          <BodyLG color="muted" className="max-w-2xl mx-auto leading-relaxed">
+            {quiz.description}
+          </BodyLG>
+        </Container>
+      </Section>
 
-        {/* Quiz Details */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Quiz Info */}
-          <div className="card-elevated p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Quiz Details</h2>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm">Difficulty:</span>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getDifficultyColor(quiz.difficulty)}`}>
-                  {quiz.difficulty}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm">Category:</span>
-                <span className="font-medium text-gray-900 text-sm">{quiz.category}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm">Questions:</span>
-                <span className="font-medium text-gray-900 text-sm">{quiz.question_count}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600 text-sm">Time Limit:</span>
-                <span className="font-medium text-gray-900 text-sm">{quiz.duration_minutes} minutes</span>
+      {/* Main Content */}
+      <Section spacing="lg" className="px-6 lg:px-8">
+        <Container size="xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+            {/* Quiz Details */}
+            <div className="group">
+              <div className="p-8 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-105">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+                    <Icon name="chart" size={24} color="white" />
+                  </div>
+                  <H2>Quiz Details</H2>
+                </div>
+              
+              <div className="space-y-6">
+                <div className="flex justify-between items-center p-4 rounded-xl bg-gradient-to-r from-red-50 to-red-50/50 border border-red-100">
+                  <BodyMD color="muted" className="font-medium">Difficulty:</BodyMD>
+                  <span className={`px-4 py-2 rounded-full text-sm font-bold ${getDifficultyColor(quiz.difficulty)} shadow-lg`}>
+                    {quiz.difficulty}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center p-4 rounded-xl bg-gradient-to-r from-blue-50 to-blue-50/50 border border-blue-100">
+                  <BodyMD color="muted" className="font-medium">Category:</BodyMD>
+                  <span className="font-bold text-gray-600 bg-white px-4 py-2 rounded-full shadow-md">{quiz.category}</span>
+                </div>
+                <div className="flex justify-between items-center p-4 rounded-xl bg-gradient-to-r from-green-50 to-green-50/50 border border-green-100">
+                  <BodyMD color="muted" className="font-medium">Questions:</BodyMD>
+                  <span className="font-bold text-gray-600 bg-white px-4 py-2 rounded-full shadow-md">{quiz.question_count}</span>
+                </div>
+                <div className="flex justify-between items-center p-4 rounded-xl bg-gradient-to-r from-orange-50 to-orange-50/50 border border-orange-100">
+                  <BodyMD color="muted" className="font-medium">Time Limit:</BodyMD>
+                  <span className="font-bold text-gray-600 bg-white px-4 py-2 rounded-full shadow-md">{quiz.duration_minutes} minutes</span>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Instructions */}
-          <div className="card-elevated p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Instructions</h2>
-            <ul className="space-y-3 text-gray-600 text-sm">
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Read each question carefully before answering</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>You have {quiz.duration_minutes} minutes to complete the quiz</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>You can navigate between questions during the quiz</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Submit your answers before time runs out</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Your results will be available immediately</span>
-              </li>
-            </ul>
+          <div className="group">
+            <div className="p-8 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-105">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                  <Icon name="edit" size={24} color="white" />
+                </div>
+                <H2>Instructions</H2>
+              </div>
+              
+              <ul className="space-y-4">
+                {[
+                  "Read each question carefully before answering",
+                  `You have ${quiz.duration_minutes} minutes to complete the quiz`,
+                  "You can navigate between questions during the quiz",
+                  "Submit your answers before time runs out",
+                  "Your results will be available immediately"
+                ].map((instruction, index) => (
+                  <li key={index} className="flex items-start gap-3 p-3 rounded-xl bg-gradient-to-r from-blue-50 to-blue-50/50 border border-blue-100 hover:shadow-md transition-all duration-300">
+                    <span className="w-6 h-6 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center text-white text-sm font-bold mt-0.5">
+                      {index + 1}
+                    </span>
+                    <BodyMD color="muted" className="font-medium">{instruction}</BodyMD>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 
         {/* Quiz Tips */}
-        <div className="bg-warning/10 border border-warning/20 rounded-xl p-8 mb-12">
-          <h3 className="text-2xl font-semibold text-warning-foreground mb-6">💡 Tips for Success</h3>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-warning-foreground">
-            <div>
-              <h4 className="font-semibold mb-4 text-lg">Before Starting:</h4>
-              <ul className="text-base space-y-2">
-                <li>• Find a quiet environment</li>
-                <li>• Ensure stable internet connection</li>
-                <li>• Have scratch paper ready if needed</li>
-              </ul>
+        <div className="mb-16">
+          <div className="p-10 rounded-3xl backdrop-blur-lg bg-gradient-to-r from-yellow-100/80 to-orange-100/80 border border-yellow-200/50 shadow-2xl">
+            <div className="text-center mb-8">
+              <div className="inline-block p-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl mb-4">
+                <Icon name="lightbulb" size={32} color="white" />
+              </div>
+              <H3 className="text-center">Tips for Success</H3>
             </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-lg">During the Quiz:</h4>
-              <ul className="text-base space-y-2">
-                <li>• Read questions thoroughly</li>
-                <li>• Manage your time wisely</li>
-                <li>• Review answers before submitting</li>
-              </ul>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="p-6 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/30">
+                <H4 className="mb-6 flex items-center gap-2">
+                  <span className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center">
+                    <Icon name="file" size={16} color="white" />
+                  </span>
+                  Before Starting:
+                </H4>
+                <ul className="space-y-3">
+                  {["Find a quiet environment", "Ensure stable internet connection", "Have scratch paper ready if needed"].map((tip, index) => (
+                    <li key={index} className="flex items-center gap-3">
+                      <span className="w-2 h-2 bg-gradient-to-r from-green-400 to-blue-400 rounded-full"></span>
+                      <BodyMD color="muted" className="font-medium">{tip}</BodyMD>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="p-6 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/30">
+                <h4 className="font-bold mb-6 text-xl text-gray-800 flex items-center gap-2">
+                  <span className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                    <Icon name="lightning" size={16} color="white" />
+                  </span>
+                  During the Quiz:
+                </h4>
+                <ul className="space-y-3">
+                  {["Read questions thoroughly", "Manage your time wisely", "Review answers before submitting"].map((tip, index) => (
+                    <li key={index} className="flex items-center gap-3 text-gray-700">
+                      <span className="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></span>
+                      <span className="font-medium">{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            onClick={handleStartQuiz}
-            className="btn-default text-base px-8 py-3 font-medium"
-          >
-            Start Quiz
-          </button>
-          <Link
-            href="/quizzes"
-            className="btn-secondary text-base px-8 py-3 font-medium text-center"
-          >
-            Back to Quizzes
-          </Link>
+        <div className="text-center">
+          <div className="inline-flex flex-col sm:flex-row gap-6">
+            <button
+              onClick={handleStartQuiz}
+              className="group relative px-12 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <span className="relative flex items-center gap-3">
+                <Icon name="rocket" size={24} color="white" />
+                Start Quiz
+              </span>
+            </button>
+            
+            <Link
+              href="/quizzes"
+              className="group relative px-12 py-4 bg-white/80 backdrop-blur-lg text-gray-600 text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 border border-white/30"
+            >
+              <span className="relative flex items-center gap-3">
+                <Icon name="arrow-left" size={24} color="current" />
+                Back to Quizzes
+              </span>
+            </Link>
+          </div>
         </div>
-      </div>
-
+        </Container>
+      </Section>
     </div>
   )
 }

@@ -7,7 +7,8 @@ import { useState, useEffect } from 'react'
 import { courseAPI } from '@/lib/database'
 import type { Course } from '@/lib/supabase'
 import { CourseImage } from '@/components/OptimizedImage'
-import SvgIcon from '@/components/ui/SvgIcon'
+import { Typography, DisplayLG, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
+import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
 
 // Static fallback courses for better performance
 const STATIC_COURSES: Course[] = [
@@ -113,28 +114,40 @@ export default function PopularCourses() {
   // Loading state
   if (loading) {
     return (
-      <section className="py-24 px-6 lg:px-8 bg-muted/30">
-        <div className="max-w-7xl mx-auto">
+      <Section 
+        className="relative overflow-hidden"
+        background="gradient"
+      >
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-20 left-10 w-64 h-64 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob"></div>
+          <div className="absolute bottom-20 right-10 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob animation-delay-2000"></div>
+        </div>
+
+        <Container size="xl" className="relative">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-full text-sm font-medium mb-6 border border-border">
-              <span className="w-2 h-2 bg-primary rounded-full"></span>
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+              <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
               Featured Courses
             </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6 text-foreground">
+            <DisplayLG className="mb-8 tracking-tight">
               Popular Learning
-              <span className="block text-primary mt-2">Courses</span>
-            </h2>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto font-light leading-relaxed">
+              <span className="block text-red-600 mt-4">Courses</span>
+            </DisplayLG>
+            <BodyLG 
+              color="muted" 
+              className="max-w-4xl mx-auto leading-relaxed"
+            >
               Join thousands of learners advancing their skills with our expert-designed courses across various subjects and disciplines.
-            </p>
+            </BodyLG>
           </div>
 
           {/* Loading Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Grid cols={1} className="md:grid-cols-2 lg:grid-cols-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="card">
-                <div className="h-48 bg-gray-200 animate-pulse rounded-t-lg"></div>
+              <div key={i} className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20">
+                <div className="h-48 bg-gray-200 animate-pulse rounded-t-2xl"></div>
                 <div className="p-6">
                   <div className="h-6 bg-gray-200 animate-pulse rounded mb-3"></div>
                   <div className="h-4 bg-gray-200 animate-pulse rounded mb-2"></div>
@@ -147,35 +160,48 @@ export default function PopularCourses() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
+          </Grid>
+        </Container>
+      </Section>
     )
   }
 
   return (
-    <section className="py-24 px-6 lg:px-8 bg-muted/30">
-      <div className="max-w-7xl mx-auto">
+    <Section 
+      className="relative overflow-hidden"
+      background="gradient"
+    >
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 left-10 w-64 h-64 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+      </div>
+
+      <Container size="xl" className="relative">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-full text-sm font-medium mb-6 border border-border">
-            <span className="w-2 h-2 bg-primary rounded-full"></span>
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+            <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
             Featured Courses
           </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6 text-foreground">
+          <DisplayLG className="mb-8 tracking-tight">
             Popular Learning
-            <span className="block text-primary mt-2">Courses</span>
-          </h2>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto font-light leading-relaxed">
+            <span className="block text-red-600 mt-4">Courses</span>
+          </DisplayLG>
+          <BodyLG 
+            color="muted" 
+            className="max-w-4xl mx-auto leading-relaxed"
+          >
             Join thousands of learners advancing their skills with our expert-designed courses across various subjects and disciplines.
-          </p>
+          </BodyLG>
         </div>
 
         {/* Courses Grid */}
         {courses.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <Grid cols={1} className="md:grid-cols-2 lg:grid-cols-3">
             {courses.map((course) => (
-              <div key={course.id} className="group bg-card rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-border overflow-hidden hover:-translate-y-2">
+              <div key={course.id} className="group bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-white/20 overflow-hidden hover:-translate-y-2">
                 {/* Course Image */}
                 <div className="h-48 relative overflow-hidden">
                   <CourseImage
@@ -184,77 +210,77 @@ export default function PopularCourses() {
                     size="medium"
                     className="w-full h-full group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute top-4 right-4 bg-card/95 backdrop-blur-sm px-3 py-2 rounded-full text-sm font-bold border shadow-lg">
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full text-sm font-bold border shadow-lg text-gray-800">
                     {course.level}
                   </div>
                   {/* Category overlay */}
-                  <div className="absolute bottom-4 left-4 px-4 py-2 bg-primary text-primary-foreground text-sm font-bold rounded-full shadow-lg">
+                  <div className="absolute bottom-4 left-4 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white text-sm font-bold rounded-full shadow-lg">
                     {course.category}
                   </div>
                 </div>
 
                 <div className="p-8">
                   {/* Title */}
-                  <h3 className="text-2xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors leading-tight">
+                  <H3 className="mb-3 group-hover:text-red-600 transition-colors leading-tight">
                     {course.title}
-                  </h3>
+                  </H3>
 
                   {/* Description */}
-                  <p className="text-muted-foreground mb-6 line-clamp-2 leading-relaxed text-lg">
+                  <BodyLG color="muted" className="mb-6 line-clamp-2 leading-relaxed">
                     {course.description}
-                  </p>
+                  </BodyLG>
 
                   {/* Instructor */}
-                  <p className="text-sm text-muted-foreground mb-6 font-medium">
+                  <BodyMD color="muted" className="mb-6 font-medium">
                     by {course.instructor_name}
-                  </p>
+                  </BodyMD>
 
                   {/* Stats */}
-                  <div className="flex items-center gap-6 mb-8 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <div className="flex text-primary">
+                  <Flex align="center" gap="md" className="mb-8 text-sm text-gray-600">
+                    <Flex align="center" gap="sm">
+                      <div className="flex text-red-600">
                         {[...Array(5)].map((_, i) => (
                           <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                           </svg>
                         ))}
                       </div>
-                      <span className="font-bold text-foreground">{course.rating}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
+                      <Typography variant="body-md" className="font-bold">{course.rating}</Typography>
+                    </Flex>
+                    <Flex align="center" gap="sm">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                       </svg>
-                      <span className="font-bold text-foreground">{course.student_count.toLocaleString()}</span>
-                    </div>
-                  </div>
+                      <Typography variant="body-md" className="font-bold">{course.student_count.toLocaleString()}</Typography>
+                    </Flex>
+                  </Flex>
 
                   {/* Price & CTA */}
-                  <div className="flex items-center justify-between">
-                    <div className="text-3xl font-black text-foreground">
+                  <Flex align="center" justify="between">
+                    <Typography variant="display-sm" className="font-black">
                       {course.is_free ? (
-                        <span className="text-success">Free</span>
+                        <span className="text-green-600">Free</span>
                       ) : (
                         <>
-                          <span className="text-muted-foreground text-xl font-normal">$</span>{course.price}
+                          <span className="text-gray-600 text-xl font-normal">$</span>{course.price}
                         </>
                       )}
-                    </div>
+                    </Typography>
                     <Link 
                       href={`/courses/${course.id}`}
-                      className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                      className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                     >
                       <span>Enroll Now</span>
                       <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </Link>
-                  </div>
+                  </Flex>
                 </div>
               </div>
               ))
             }
-          </div>
+          </Grid>
         ) : (
           <div className="text-center py-20">
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -262,13 +288,13 @@ export default function PopularCourses() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">No Courses Available</h3>
-            <p className="text-gray-600 max-w-md mx-auto">
+            <H3 className="mb-4">No Courses Available</H3>
+            <BodyLG color="muted" className="max-w-md mx-auto">
               We&apos;re working on adding more courses. Check back soon for new content!
-            </p>
+            </BodyLG>
           </div>
         )}
-      </div>
-    </section>
+      </Container>
+    </Section>
   )
 }
