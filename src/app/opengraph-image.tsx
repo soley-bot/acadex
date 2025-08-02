@@ -35,31 +35,13 @@ export default async function Image() {
         >
           <div
             style={{
-              width: '80px',
-              height: '80px',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-              borderRadius: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: '48px',
-              fontWeight: 'bold',
-              marginRight: '24px',
-              boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)',
-            }}
-          >
-            A
-          </div>
-          <div
-            style={{
               fontSize: '72px',
-              fontWeight: 'bold',
+              fontWeight: '900',
               color: '#1f2937',
               letterSpacing: '-2px',
             }}
           >
-            Acadex
+            ACAD<span style={{ color: '#ef4444' }}>E</span>X
           </div>
         </div>
 
@@ -81,38 +63,41 @@ export default async function Image() {
           style={{
             display: 'flex',
             marginTop: '60px',
-            gap: '40px',
+            gap: '60px',
           }}
         >
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              fontSize: '24px',
+              fontSize: '22px',
               color: '#374151',
+              fontWeight: '600',
             }}
           >
-            📚 Comprehensive Courses
+            • Comprehensive Courses
           </div>
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              fontSize: '24px',
+              fontSize: '22px',
               color: '#374151',
+              fontWeight: '600',
             }}
           >
-            🎯 Interactive Quizzes
+            • Interactive Quizzes
           </div>
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              fontSize: '24px',
+              fontSize: '22px',
               color: '#374151',
+              fontWeight: '600',
             }}
           >
-            👨‍🏫 Expert Instructors
+            • Expert Instructors
           </div>
         </div>
       </div>

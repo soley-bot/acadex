@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'Acadex Team' }],
   creator: 'Acadex',
   publisher: 'Acadex',
-  metadataBase: new URL('http://localhost:3001'),
+  metadataBase: new URL('https://acadex.academy'),
   icons: {
     icon: [
       { url: '/icon', sizes: '32x32', type: 'image/png' },
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Acadex - English Learning Platform',
     description: 'Master English with expert-led courses and interactive quizzes. Join thousands of learners improving their skills.',
-    url: 'http://localhost:3001',
+    url: 'https://acadex.academy',
     siteName: 'Acadex',
     images: [
       {
