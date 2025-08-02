@@ -16,24 +16,25 @@ export default function AppleIcon() {
     (
       <div
         style={{
-          background: '#ff5757',
+          background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          borderRadius: '32px',
+          borderRadius: '36px',
         }}
       >
         <div
           style={{
             color: 'white',
-            fontSize: '100px',
-            fontWeight: 'bold',
+            fontSize: '64px',
+            fontWeight: '900',
             fontFamily: 'Inter',
+            letterSpacing: '-3px',
           }}
         >
-          A
+          A<span style={{ color: '#ef4444' }}>E</span>
         </div>
       </div>
     ),

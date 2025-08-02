@@ -14,7 +14,7 @@ export default function Icon() {
     (
       <div
         style={{
-          background: '#ff5757',
+          background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
           width: '100%',
           height: '100%',
           display: 'flex',
@@ -26,12 +26,13 @@ export default function Icon() {
         <div
           style={{
             color: 'white',
-            fontSize: '20px',
-            fontWeight: 'bold',
+            fontSize: '12px',
+            fontWeight: '900',
             fontFamily: 'Inter',
+            letterSpacing: '-0.5px',
           }}
         >
-          A
+          A<span style={{ color: '#ef4444' }}>E</span>
         </div>
       </div>
     ),
