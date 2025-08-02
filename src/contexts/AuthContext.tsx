@@ -189,10 +189,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, name: string = '', options?: { provider?: string }) => {
     // Handle OAuth providers
     if (options?.provider === 'google') {
+      const redirectUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://acadex.academy/dashboard'
+        : 'http://localhost:3000/dashboard'
+        
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         }
       })
       return { error }

@@ -155,7 +155,7 @@ function EnhancedSignupForm() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex items-center justify-center py-6 px-4 sm:py-12 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex items-center justify-center py-8 px-4 sm:py-12 sm:px-6 lg:px-8">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
@@ -163,28 +163,28 @@ function EnhancedSignupForm() {
         <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
       
-      <div className="relative w-full max-w-4xl flex flex-col lg:flex-row gap-4 lg:gap-8 items-center">
+      <div className="relative w-full max-w-4xl flex flex-col lg:flex-row gap-6 lg:gap-8 items-start lg:items-center">
         {/* Left Side - Benefits */}
-        <div className="w-full lg:w-1/2 space-y-4 lg:space-y-8">
+        <div className="w-full lg:w-1/2 space-y-6 lg:space-y-8 mb-8 lg:mb-0">
           <div>
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1.5 lg:px-4 lg:py-2 rounded-full text-xs lg:text-sm font-medium mb-4 lg:mb-6 shadow-lg">
-              <Star className="w-3 h-3 lg:w-4 lg:h-4" />
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-2 rounded-full text-sm font-medium mb-6 shadow-lg">
+              <Star className="w-4 h-4" />
               Join 10,000+ Students
             </div>
-            <h1 className="text-2xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-4 lg:mb-6">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 lg:mb-6 leading-tight">
               Start Your English Learning Journey
             </h1>
-            <p className="text-base lg:text-xl text-gray-600 mb-4 lg:mb-8">
+            <p className="text-lg lg:text-xl text-gray-600 mb-6 lg:mb-8 leading-relaxed">
               Master English with interactive courses, real-time feedback, and a supportive community.
             </p>
           </div>
 
-          <div className="space-y-3 lg:space-y-4">
+          <div className="space-y-4 lg:space-y-4">
             {/* Dynamic content based on form state */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 lg:p-4 space-y-2">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-2">
                 <div className="flex items-center gap-2 text-red-700 font-medium">
-                  <AlertTriangle className="w-4 h-4 lg:w-5 lg:h-5" />
+                  <AlertTriangle className="w-5 h-5" />
                   Sign Up Error
                 </div>
                 <p className="text-red-600 text-sm">{error}</p>
@@ -193,9 +193,9 @@ function EnhancedSignupForm() {
 
             {/* Password validation feedback */}
             {step === 2 && formData.password && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 lg:p-4 space-y-3">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
                 <div className="flex items-center gap-2 text-blue-700 font-medium">
-                  <User className="w-4 h-4 lg:w-5 lg:h-5" />
+                  <User className="w-5 h-5" />
                   Password Requirements
                 </div>
                 {(() => {
@@ -241,12 +241,12 @@ function EnhancedSignupForm() {
                 <div className="text-green-600 flex-shrink-0">
                   {benefit.icon}
                 </div>
-                <span className="text-sm lg:text-lg">{benefit.text}</span>
+                <span className="text-base lg:text-lg">{benefit.text}</span>
               </div>
             ))}
           </div>
 
-          <div className="flex items-center gap-4 text-xs lg:text-sm text-gray-500">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-sm text-gray-500">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-400 rounded-full"></div>
               100% Free to Start
@@ -263,12 +263,11 @@ function EnhancedSignupForm() {
         </div>
 
         {/* Right Side - Form */}
-        {/* Right Side - Form */}
         <div className="w-full lg:w-1/2 lg:max-w-md">
           <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6 lg:p-8">
             {/* Progress Bar */}
             <div className="mb-6 lg:mb-8">
-              <div className="flex items-center justify-between text-xs lg:text-sm text-gray-600 mb-2">
+              <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
                 <span>Step {step} of 2</span>
                 <span>{step === 1 ? 'Basic Info' : 'Secure Password'}</span>
               </div>
@@ -278,7 +277,9 @@ function EnhancedSignupForm() {
                   style={{ width: `${(step / 2) * 100}%` }}
                 ></div>
               </div>
-            </div>            <form onSubmit={handleSubmit} className="space-y-6">
+            </div>
+            
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Global Error */}
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4">
@@ -294,9 +295,9 @@ function EnhancedSignupForm() {
 
               {step === 1 && (
                 <>
-                  <div className="text-center mb-4 lg:mb-6">
-                    <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-2">Let&apos;s get started!</h2>
-                    <p className="text-gray-600 text-sm lg:text-base">Tell us a bit about yourself</p>
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Let&apos;s get started!</h2>
+                    <p className="text-gray-600">Tell us a bit about yourself</p>
                   </div>
 
                   {/* Name Field */}
@@ -328,9 +329,9 @@ function EnhancedSignupForm() {
 
               {step === 2 && (
                 <>
-                  <div className="text-center mb-4 lg:mb-6">
-                    <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-2">Secure your account</h2>
-                    <p className="text-gray-600 text-sm lg:text-base">Create a strong password to protect your progress</p>
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Secure your account</h2>
+                    <p className="text-gray-600">Create a strong password to protect your progress</p>
                   </div>
 
                   {/* Password Field */}
@@ -367,12 +368,12 @@ function EnhancedSignupForm() {
               )}
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col gap-3">
                 {step === 2 && (
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-gray-200 transition-colors text-sm lg:text-base"
+                    className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-gray-200 transition-colors"
                   >
                     Back
                   </button>
@@ -381,7 +382,7 @@ function EnhancedSignupForm() {
                 <button
                   type="submit"
                   disabled={loading || (step === 1 && !canProceedToStep2()) || (step === 2 && !canSubmit())}
-                  className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-4 rounded-xl font-medium shadow-lg hover:from-red-700 hover:to-red-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] text-sm lg:text-base"
+                  className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-4 rounded-xl font-medium shadow-lg hover:from-red-700 hover:to-red-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
                 >
                   {loading ? (
                     <div className="flex items-center justify-center gap-2">
@@ -409,8 +410,8 @@ function EnhancedSignupForm() {
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300" />
                 </div>
-                <div className="relative flex justify-center text-xs lg:text-sm">
-                  <span className="px-2 lg:px-3 bg-white text-gray-500">Or continue with</span>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-3 bg-white text-gray-500">Or continue with</span>
                 </div>
               </div>
 
@@ -418,7 +419,7 @@ function EnhancedSignupForm() {
                 type="button"
                 onClick={handleGoogleSignup}
                 disabled={loading}
-                className="mt-3 lg:mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium text-sm lg:text-base"
+                className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -454,8 +455,8 @@ function EnhancedSignupForm() {
       </div>
 
       {/* Footer */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-        <p className="text-center text-sm text-gray-500">
+      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 px-4">
+        <p className="text-center text-sm text-gray-500 max-w-md">
           By creating an account, you agree to our{' '}
           <Link href="/terms" className="text-red-600 hover:text-red-800">Terms of Service</Link>
           {' '}and{' '}
