@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import SvgIcon from '@/components/ui/SvgIcon'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import { Container, Section } from '@/components/ui/Layout'
 import { ElevatedCard } from '@/components/ui/ElevatedCard'
 import { SectionHeading, HeroHeading, Badge } from '@/components/ui/Typography'

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Button, ButtonProps } from '@/components/ui/Button'
+import { Button, ButtonProps } from '@/components/ui/button'
 import { ReactNode } from 'react'
 
 interface LinkButtonProps extends Omit<ButtonProps, 'asChild'> {
