@@ -27,6 +27,7 @@ export default function AppleIcon() {
       >
         <div
           style={{
+            display: 'flex',
             color: 'white',
             fontSize: '64px',
             fontWeight: '900',
@@ -34,7 +35,8 @@ export default function AppleIcon() {
             letterSpacing: '-3px',
           }}
         >
-          A<span style={{ color: '#ef4444' }}>E</span>
+          <span style={{ color: 'white' }}>A</span>
+          <span style={{ color: '#ef4444' }}>E</span>
         </div>
       </div>
     ),

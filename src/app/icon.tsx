@@ -25,6 +25,7 @@ export default function Icon() {
       >
         <div
           style={{
+            display: 'flex',
             color: 'white',
             fontSize: '12px',
             fontWeight: '900',
@@ -32,7 +33,8 @@ export default function Icon() {
             letterSpacing: '-0.5px',
           }}
         >
-          A<span style={{ color: '#ef4444' }}>E</span>
+          <span style={{ color: 'white' }}>A</span>
+          <span style={{ color: '#ef4444' }}>E</span>
         </div>
       </div>
     ),
