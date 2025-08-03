@@ -7,7 +7,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { quizAPI } from '@/lib/database'
 import { Pagination } from '@/components/ui/Pagination'
-import { Typography, H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
+import { Typography, DisplayXL, H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Container, Section, Grid } from '@/components/ui/Layout'
 
 interface Quiz {
@@ -101,18 +101,16 @@ export default function QuizzesPage() {
     return (difficulty: string) => {
       switch (difficulty.toLowerCase()) {
         case 'beginner':
-          return 'text-success bg-success/10 border-success/20'
+          return 'text-green-700 bg-green-100/80 border-green-200'
         case 'intermediate':
-          return 'text-warning bg-warning/10 border-warning/20'
+          return 'text-yellow-700 bg-yellow-100/80 border-yellow-200'
         case 'advanced':
-          return 'text-destructive bg-destructive/10 border-destructive/20'
+          return 'text-red-700 bg-red-100/80 border-red-200'
         default:
           return 'text-gray-600 bg-gray-100 border-gray-200'
       }
     }
   }, [])
-
-  // Removed icon mapping - using clean text-only design
 
   if (isLoading && currentPage === 1) {
     return (
@@ -127,13 +125,13 @@ export default function QuizzesPage() {
           <Container size="md" className="text-center">
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
               <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-              Quiz Platform
+              Quiz Practice
             </div>
             <H1 className="mb-8 text-center">
-              Test Your
-              <span className="block text-red-600 mt-4">Knowledge</span>
+              Practice What You Know,
+              <span className="block text-red-600 mt-4">Without the Stress</span>
             </H1>
-            <BodyLG className="mb-12 text-center">Loading quizzes...</BodyLG>
+            <BodyLG color="muted" className="mb-12 text-center">Loading quizzes...</BodyLG>
             <div className="mt-8">
               <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-200 border-t-red-600 mx-auto"></div>
             </div>
@@ -158,14 +156,14 @@ export default function QuizzesPage() {
         <Container size="md">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
             <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-            Quiz Platform
+            Quiz Practice
           </div>
           <H1 className="mb-8 text-center">
-            Test Your Knowledge
-            <span className="block text-red-600 mt-4">Challenge Yourself</span>
+            Practice What You Know,
+            <span className="block text-red-600 mt-4">Without the Stress</span>
           </H1>
           <BodyLG className="max-w-3xl mx-auto text-center" color="muted">
-            Comprehensive quizzes across multiple subjects to assess and improve your skills
+            Try simple quizzes to test your understanding, build confidence, and see what you&apos;re ready to learn next. No grades. Just learning.
           </BodyLG>
         </Container>
       </Section>
@@ -177,8 +175,11 @@ export default function QuizzesPage() {
           <div className="mb-12 space-y-6">
             <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
               <div className="w-full lg:w-auto">
-                <H2 className="mb-3">Available Quizzes</H2>
+                <H2 className="mb-3">Try a Quiz</H2>
                 <BodyLG color="muted">
+                  More quizzes coming soon — we&apos;re starting with the basics and improving each week.
+                </BodyLG>
+                <BodyLG color="muted" className="mt-2">
                   Showing {((currentPage - 1) * pagination.limit + 1)} - {Math.min(currentPage * pagination.limit, pagination.total)} of {pagination.total} quizzes
                 </BodyLG>
               </div>
@@ -226,166 +227,171 @@ export default function QuizzesPage() {
                 </div>
               </div>
             </div>
+            
+            {/* Filter microcopy */}
+            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-4 shadow-xl border border-white/20">
+              <BodyMD color="muted" className="text-center">
+                Use these filters to find quizzes that match your current level or topic.
+              </BodyMD>
+            </div>
           </div>
 
           {/* Error State */}
           {error && (
-            <div className="text-center py-12">
-              <div className="bg-white/80 backdrop-blur-lg border border-red-200 rounded-2xl p-8 max-w-md mx-auto shadow-xl">
-                <H3 color="error" className="mb-3">Error</H3>
-                <BodyLG color="error" className="mb-6">{error}</BodyLG>
-                <button 
-                  onClick={fetchQuizzes}
-                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 rounded-xl font-bold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                >
-                  Try Again
-                </button>
-              </div>
+            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-xl border border-white/20">
+              <BodyMD className="font-bold text-red-800">Error loading quizzes</BodyMD>
+              <BodyMD className="text-sm mt-1 text-red-600">{error}</BodyMD>
+              <button 
+                onClick={fetchQuizzes}
+                className="mt-3 text-sm underline hover:no-underline font-medium text-red-700 transition-all duration-200"
+              >
+                Try again
+              </button>
             </div>
           )}
 
-          {/* Loading State */}
-          {isLoading && (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-200 border-t-red-600 mx-auto mb-4"></div>
-              <BodyLG color="muted">Loading quizzes...</BodyLG>
+          {/* Small library message */}
+          {!isLoading && quizzes.length > 0 && quizzes.length <= 3 && (
+            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-xl border border-white/20 text-center mb-8">
+              <BodyMD className="font-medium text-gray-700 mb-2">
+                Not many quizzes yet? That&apos;s okay — we&apos;re building more each week.
+              </BodyMD>
+              <BodyMD color="muted">
+                Want to request a topic? <Link href="/contact" className="text-red-600 hover:text-red-700 underline font-medium">Send us a message</Link>.
+              </BodyMD>
             </div>
           )}
 
           {/* Quizzes Grid */}
-          {!isLoading && !error && (
-            <>
-              {quizzes.length === 0 ? (
-                <div className="text-center py-16">
-                  <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-12 max-w-md mx-auto shadow-xl border border-white/20">
-                    <div className="w-20 h-20 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                      <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
+          <Grid cols={1} className="md:grid-cols-2 lg:grid-cols-3 mb-12">
+            {isLoading && currentPage !== 1 ? (
+              // Loading skeleton cards for pagination
+              Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden hover:shadow-2xl transition-all duration-300">
+                  <div className="h-48 bg-gradient-to-br from-gray-200/80 to-gray-300/80 animate-pulse backdrop-blur-sm"></div>
+                  <div className="p-6 space-y-4 bg-white/50 backdrop-blur-sm">
+                    <div className="flex gap-2">
+                      <div className="h-6 w-16 bg-gradient-to-r from-gray-200/80 to-gray-300/80 animate-pulse rounded-full backdrop-blur-sm"></div>
+                      <div className="h-6 w-20 bg-gradient-to-r from-gray-200/80 to-gray-300/80 animate-pulse rounded-full backdrop-blur-sm"></div>
                     </div>
-                    <H3 className="mb-4">No quizzes found</H3>
-                    <BodyLG color="muted" className="mb-8">
-                      Try adjusting your filters or check back later for new quizzes.
-                    </BodyLG>
-                    <button 
-                      onClick={() => {
-                        setSelectedCategory('all')
-                        setSelectedDifficulty('all')
-                        setCurrentPage(1)
-                      }}
-                      className="border-2 border-red-600 text-red-600 bg-white hover:bg-red-600 hover:text-white px-6 py-3 rounded-xl font-bold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                    >
-                      Clear Filters
-                    </button>
+                    <div className="h-8 bg-gradient-to-r from-gray-200/80 to-gray-300/80 animate-pulse rounded-lg backdrop-blur-sm"></div>
+                    <div className="h-5 bg-gradient-to-r from-gray-200/80 to-gray-300/80 animate-pulse rounded w-3/4 backdrop-blur-sm"></div>
+                    <div className="h-5 bg-gradient-to-r from-gray-200/80 to-gray-300/80 animate-pulse rounded w-1/2 backdrop-blur-sm"></div>
+                    <div className="flex justify-between items-center pt-4">
+                      <div className="h-8 w-16 bg-gradient-to-r from-gray-200/80 to-gray-300/80 animate-pulse rounded backdrop-blur-sm"></div>
+                      <div className="h-10 w-24 bg-gradient-to-r from-gray-200/80 to-gray-300/80 animate-pulse rounded-xl backdrop-blur-sm"></div>
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <Grid cols={3} className="mb-12">
-                  {quizzes.map((quiz, index) => (
-                    <div key={quiz.id} className="group">
-                      <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-white/20 hover:-translate-y-2">
-                        
-                        {/* Quiz Image */}
-                        <div className="relative h-48 bg-gradient-to-br from-red-100 to-orange-100">
-                          {quiz.image_url ? (
-                            <Image
-                              src={quiz.image_url}
-                              alt={quiz.title}
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-300"
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-red-200 to-orange-200 flex items-center justify-center">
-                              <div className="text-4xl font-black text-red-600">
-                                {quiz.title.charAt(0).toUpperCase()}
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* Difficulty Badge */}
-                          <div className="absolute top-4 right-4">
-                            <div className={`inline-flex items-center px-3 py-2 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm ${
-                              quiz.difficulty.toLowerCase() === 'beginner' ? 'bg-green-500/90 text-white' :
-                              quiz.difficulty.toLowerCase() === 'intermediate' ? 'bg-yellow-500/90 text-white' :
-                              'bg-red-500/90 text-white'
-                            }`}>
-                              {formatDifficulty(quiz.difficulty)}
-                            </div>
+              ))
+            ) : quizzes.length > 0 ? (
+              quizzes.map((quiz) => (
+                <div key={quiz.id} className="group">
+                  <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:scale-[1.02] hover:-translate-y-2">
+                    
+                    {/* Quiz Image */}
+                    <div className="relative h-48 bg-gradient-to-br from-gray-100/80 to-gray-200/80 overflow-hidden">
+                      {quiz.image_url ? (
+                        <Image
+                          src={quiz.image_url}
+                          alt={quiz.title}
+                          fill
+                          className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-red-100/80 to-red-200/80 flex items-center justify-center backdrop-blur-sm">
+                          <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
+                            <span className="text-white text-2xl font-bold">Q</span>
                           </div>
                         </div>
+                      )}
+                      
+                      {/* Category & Difficulty Badges */}
+                      <div className="absolute top-4 left-4 flex gap-2">
+                        <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-medium rounded-full border border-white/20 shadow-lg">
+                          {quiz.category}
+                        </span>
+                        <span className={`px-3 py-1 text-xs font-medium rounded-full border shadow-lg ${getDifficultyColor(quiz.difficulty)}`}>
+                          {formatDifficulty(quiz.difficulty)}
+                        </span>
+                      </div>
+                    </div>
 
-                        {/* Content Section */}
-                        <div className="p-6">
-                          {/* Category Badge */}
-                          <div className="mb-4">
-                            <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg">
-                              {quiz.category}
-                            </div>
+                    {/* Quiz Content */}
+                    <div className="p-6 bg-white/50 backdrop-blur-sm">
+                      <H3 className="mb-3 group-hover:text-red-600 transition-colors duration-200">
+                        {quiz.title}
+                      </H3>
+                      
+                      <BodyMD color="muted" className="mb-4 line-clamp-2">
+                        {quiz.description}
+                      </BodyMD>
+                      
+                      {/* Quiz Stats */}
+                      <div className="flex items-center justify-between text-sm text-gray-500 mb-6">
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-1">
+                            <span className="w-4 h-4 bg-gray-400 rounded-full flex items-center justify-center">
+                              <span className="text-white text-xs">⏱</span>
+                            </span>
+                            <span>~{quiz.duration_minutes} min</span>
                           </div>
-
-                          {/* Title */}
-                          <H3 className="mb-3 leading-tight group-hover:text-red-600 transition-colors">
-                            {quiz.title}
-                          </H3>
-
-                          {/* Description */}
-                          <BodyLG color="muted" className="mb-4 line-clamp-2 leading-relaxed">
-                            {quiz.description}
-                          </BodyLG>
-
-                          {/* Quiz Stats */}
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-6">
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                                <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                              </div>
-                              <span className="font-medium">{quiz.duration_minutes} min</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                                <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                              </div>
-                              <span className="font-medium">{quiz.total_questions} questions</span>
-                            </div>
-                          </div>
-
-                          {/* Action Button */}
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                            <div className="text-lg font-bold text-red-600">
-                              Free Quiz
-                            </div>
-                            <Link 
-                              href={`/quizzes/${quiz.id}/take`}
-                              className="w-full sm:w-auto text-center bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 rounded-xl font-bold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                            >
-                              Start Quiz
-                              <span className="ml-2">→</span>
-                            </Link>
+                          <div className="flex items-center gap-1">
+                            <span className="w-4 h-4 bg-gray-400 rounded-full flex items-center justify-center">
+                              <span className="text-white text-xs">#</span>
+                            </span>
+                            <span>{quiz.total_questions} questions</span>
                           </div>
                         </div>
                       </div>
+                      
+                      {/* CTA Button */}
+                      <Link
+                        href={`/quizzes/${quiz.id}`}
+                        className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 text-center block"
+                      >
+                        Start Quiz
+                      </Link>
                     </div>
-                  ))}
-                </Grid>
-              )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              // Empty State
+              <div className="col-span-full text-center py-12">
+                <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20 max-w-md mx-auto">
+                  <div className="w-16 h-16 bg-gradient-to-br from-gray-300 to-gray-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <span className="text-white text-2xl">📚</span>
+                  </div>
+                  <H3 className="mb-4">No quizzes found</H3>
+                  <BodyMD color="muted" className="mb-6">
+                    We don&apos;t have any quizzes matching your current filters yet.
+                  </BodyMD>
+                  <button
+                    onClick={() => {
+                      setSelectedCategory('all')
+                      setSelectedDifficulty('all')
+                    }}
+                    className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
+              </div>
+            )}
+          </Grid>
 
-              {/* Pagination */}
-              {pagination.totalPages > 1 && (
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={pagination.totalPages}
-                  totalItems={pagination.total}
-                  itemsPerPage={pagination.limit}
-                  onPageChange={handlePageChange}
-                  isLoading={isLoading}
-                />
-              )}
-            </>
+          {/* Pagination */}
+          {pagination.totalPages > 1 && (
+            <div className="flex justify-center">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={pagination.totalPages}
+                totalItems={pagination.total}
+                itemsPerPage={pagination.limit}
+                onPageChange={handlePageChange}
+              />
+            </div>
           )}
         </Container>
       </Section>

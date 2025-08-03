@@ -1,5 +1,6 @@
 import Hero from '@/components/Hero'
 import Features from '@/components/Features'
+import HonestSection from '@/components/HonestSection'
 import PopularCourses from '@/components/PopularCourses'
 import QuizPreview from '@/components/QuizPreview'
 import { Section } from '@/components/ui/Layout'
@@ -7,23 +8,23 @@ import { Metadata } from 'next'
 import { generateOrganizationSchema, generateWebsiteSchema } from '@/lib/schema'
 
 export const metadata: Metadata = {
-  title: 'Acadex - English Learning & Online Courses Platform',
-  description: 'Master English with expert-led courses, interactive quizzes, and personalized learning paths. Join thousands of students improving their English skills on Acadex.',
+  title: 'Acadex - Learn Real Skills, Your Way',
+  description: 'A growing online platform made for Cambodian students and young professionals. Simple lessons, clear explanations, helpful videos, and zero pressure.',
   keywords: [
-    'english learning platform',
-    'online english courses', 
-    'english quiz practice',
-    'learn english online',
-    'english education',
-    'language learning academy',
-    'interactive english lessons',
-    'english speaking practice',
-    'english grammar courses',
-    'english vocabulary training'
+    'cambodian online learning',
+    'english learning cambodia', 
+    'simple lessons cambodia',
+    'learn english cambodia',
+    'study skills cambodia',
+    'career preparation',
+    'visual learning videos',
+    'pace learning',
+    'everyday english',
+    'communication skills'
   ],
   openGraph: {
-    title: 'Acadex - Master English with Expert-Led Courses',
-    description: 'Join thousands of students learning English through interactive courses, quizzes, and personalized lessons. Start your English learning journey today!',
+    title: 'Acadex - Learn Real Skills, Your Way',
+    description: 'Simple lessons and clear explanations made for Cambodian learners. Short videos, friendly visuals, and zero pressure. Start learning today!',
   },
 }
 
@@ -55,6 +56,11 @@ export default function Home() {
       {/* Features Section */}
       <Section background="glass" spacing="lg">
         <Features />
+      </Section>
+      
+      {/* Honest Section */}
+      <Section background="transparent" spacing="lg">
+        <HonestSection />
       </Section>
       
       {/* Quiz Section */}

@@ -5,34 +5,24 @@ import Icon, { IconName } from '@/components/ui/Icon'
 export default function Features() {
   const features = [
     {
-      icon: "book" as IconName,
-      title: "Interactive Courses",
-      description: "Learn with engaging video lessons, interactive exercises, and hands-on projects across multiple subjects."
-    },
-    {
-      icon: "target" as IconName,
-      title: "Personalized Learning",
-      description: "AI-powered recommendations adapt to your learning style and pace for maximum effectiveness."
-    },
-    {
-      icon: "trophy" as IconName,
-      title: "Skill Assessments",
-      description: "Test your knowledge with comprehensive quizzes and earn certificates to showcase your achievements."
-    },
-    {
-      icon: "users" as IconName,
-      title: "Expert Instructors",
-      description: "Learn from industry professionals and subject matter experts with years of teaching experience."
-    },
-    {
-      icon: "chart" as IconName,
-      title: "Progress Analytics",
-      description: "Track your learning journey with detailed insights and performance metrics to stay motivated."
-    },
-    {
       icon: "clock" as IconName,
-      title: "Flexible Schedule",
-      description: "Study at your own pace with 24/7 access to all content on any device, anywhere in the world."
+      title: "Short, simple lessons",
+      description: "Easy to follow. No long lectures. Just what you need to know."
+    },
+    {
+      icon: "video" as IconName,
+      title: "Helpful illustration videos",
+      description: "We use visuals to explain concepts clearly — even if English isn't your strength."
+    },
+    {
+      icon: "heart" as IconName,
+      title: "Made for Cambodian learners",
+      description: "Our courses are designed with your real-life needs in mind."
+    },
+    {
+      icon: "user" as IconName,
+      title: "Learn at your own pace",
+      description: "No deadlines. No stress. Start anytime and learn from anywhere."
     }
   ]
 
@@ -53,27 +43,28 @@ export default function Features() {
         <div className="text-center mb-20">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
             <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-            Why Choose ACADEX
+            Why Learn with Acadex
           </div>
           
           <DisplayLG className="mb-8 tracking-tight">
-            Everything You Need to
-            <span className="block text-red-600 mt-4">
-              Master Any Subject
-            </span>
+            What You&apos;ll Learn
           </DisplayLG>
           
-          <BodyLG 
-            color="muted" 
-            className="max-w-4xl mx-auto leading-relaxed"
-          >
-            From languages and academics to professional skills and certifications. Our comprehensive platform 
-            provides all the tools you need for success.
-          </BodyLG>
+          <div className="max-w-4xl mx-auto leading-relaxed text-gray-600">
+            <div className="space-y-2 text-lg">
+              <div>• Everyday English for work and life</div>
+              <div>• Communication skills for school, interviews, and more</div>
+              <div>• How to study better and stay focused</div>
+              <div>• Career preparation and confidence building</div>
+            </div>
+            <div className="mt-6 text-sm">
+              New topics are coming — we&apos;re starting small but growing.
+            </div>
+          </div>
         </div>
 
         {/* Features Grid */}
-        <Grid cols={1} className="md:grid-cols-2 lg:grid-cols-3">
+        <Grid cols={1} className="md:grid-cols-2 max-w-4xl mx-auto">
           {features.map((feature, index) => (
             <div key={index} className="group">
               <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-8 h-full transition-all duration-300 hover:shadow-2xl hover:border-red-200 hover:-translate-y-2 shadow-lg">

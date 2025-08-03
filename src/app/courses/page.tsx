@@ -108,14 +108,16 @@ export default function CoursesPage() {
             Our Courses
           </div>
           <H1 className="mb-6 lg:mb-8">
-            Discover Your Perfect
-            <span className="block text-red-600 mt-2">Learning Path</span>
+            Start Small.
+            <span className="block text-red-600 mt-2">Learn What Matters.</span>
           </H1>
           <BodyLG 
             color="muted" 
             className="leading-relaxed max-w-3xl mx-auto"
           >
-            Explore our comprehensive collection of courses designed to help you achieve your goals.
+            Acadex is still growing — but we&apos;ve created a few courses to help you build real skills in English, communication, and study habits.
+            <br />
+            No pressure. Learn at your own pace.
           </BodyLG>
         </div>
       </Container>
@@ -127,9 +129,9 @@ export default function CoursesPage() {
           <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-xl border border-white/20">
             <Flex direction="col" className="lg:flex-row" gap="lg" align="start" justify="between">
               <div>
-                <H2 className="mb-3">Available Courses</H2>
+                <H2 className="mb-3">Courses You Can Start Today</H2>
                 <BodyLG color="muted">
-                  Showing {courses.length} course{courses.length !== 1 ? 's' : ''}
+                  Showing {courses.length} course{courses.length !== 1 ? 's' : ''} — more coming soon!
                 </BodyLG>
               </div>
               
@@ -169,6 +171,13 @@ export default function CoursesPage() {
                 </div>
               </Flex>
             </Flex>
+            
+            {/* Helpful microcopy */}
+            <div className="mt-4 pt-4 border-t border-white/20">
+              <BodyMD color="muted" className="text-center">
+                Use the filters to explore — but don&apos;t worry, you don&apos;t need to follow a perfect path. Just start where you feel curious.
+              </BodyMD>
+            </div>
           </div>
         </div>
 
@@ -183,6 +192,18 @@ export default function CoursesPage() {
             >
               Try again
             </button>
+          </div>
+        )}
+
+        {/* Small library message */}
+        {!isLoading && courses.length > 0 && courses.length <= 3 && (
+          <div className="bg-blue-50/80 backdrop-blur-sm border border-blue-200 rounded-2xl p-6 mb-8 shadow-lg text-center">
+            <BodyMD className="font-medium text-blue-800 mb-2">
+              We&apos;re just getting started — more lessons are being written and tested every week.
+            </BodyMD>
+            <BodyMD className="text-blue-600">
+              If you&apos;d like to request a course or topic, feel free to <Link href="/contact" className="underline hover:no-underline font-medium">contact us</Link>.
+            </BodyMD>
           </div>
         )}
 
