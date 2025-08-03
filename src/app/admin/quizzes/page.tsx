@@ -5,7 +5,7 @@ import { logger } from '@/lib/logger'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Search, Plus, Brain, Clock, Users, BarChart3, Edit, Trash2, Eye, ChevronDown, Settings } from 'lucide-react'
+import { Search, Plus, Brain, Clock, Users, BarChart3, Edit, Trash2, Eye, ChevronDown, Settings, EyeOff, Check } from 'lucide-react'
 import { supabase, Quiz } from '@/lib/supabase'
 import { QuizForm } from '@/components/admin/QuizForm'
 import { DeleteQuizModal } from '@/components/admin/DeleteQuizModal'
@@ -118,8 +118,8 @@ export default function QuizzesPage() {
 
   const getStatusBadge = (isPublished: boolean) => {
     return isPublished 
-      ? 'bg-green-100 text-green-800' 
-      : 'bg-yellow-100 text-yellow-800'
+      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+      : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
   }
 
   const handleCreateQuiz = () => {
@@ -140,6 +140,29 @@ export default function QuizzesPage() {
   const handleViewQuiz = (quiz: Quiz) => {
     setViewingQuiz(quiz)
     setShowViewModal(true)
+  }
+
+  const handleTogglePublish = async (quiz: Quiz) => {
+    try {
+      const { error } = await supabase
+        .from('quizzes')
+        .update({ is_published: !quiz.is_published })
+        .eq('id', quiz.id)
+
+      if (error) throw error
+
+      // Update local state
+      setQuizzes(prevQuizzes => 
+        prevQuizzes.map(q => 
+          q.id === quiz.id 
+            ? { ...q, is_published: !q.is_published }
+            : q
+        )
+      )
+    } catch (err: any) {
+      logger.error('Error toggling quiz publish status:', err)
+      setError('Failed to update quiz status. Please try again.')
+    }
   }
 
   const handleFormSuccess = () => {
@@ -498,6 +521,26 @@ export default function QuizzesPage() {
                       <Eye className="h-5 w-5" />
                       <span>View</span>
                     </button>
+                    <button 
+                      onClick={() => handleTogglePublish(quiz)}
+                      className={`flex-1 px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md ${
+                        quiz.is_published
+                          ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                          : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                      }`}
+                    >
+                      {quiz.is_published ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Check className="h-5 w-5" />
+                      )}
+                      <span>
+                        {quiz.is_published ? 'Unpublish' : 'Publish'}
+                      </span>
+                    </button>
+                  </div>
+                  
+                  <div className="flex gap-3">
                     <button 
                       onClick={() => handleEditQuiz(quiz)}
                       className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"

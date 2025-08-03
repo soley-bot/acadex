@@ -35,56 +35,29 @@ export default function Footer() {
                 <span className="text-white">X</span>
               </span>
             </Link>
-            <BodyLG color="muted-light" className="mb-8 leading-relaxed">
-              Join thousands of students who are already mastering skills with our innovative platform.
+            <BodyLG color="muted-light" className="mb-6 leading-relaxed">
+              Built from scratch for Cambodian learners.
+              Simple lessons. Real skills. No pressure.
             </BodyLG>
-            <Flex gap="md">
-              {/* Social Links */}
-              <a 
-                href="https://facebook.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-12 h-12 rounded-xl bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-                aria-label="Facebook"
-              >
-                <Icon name="facebook" size={20} color="white" />
-              </a>
-              
-              <a 
-                href="#" 
-                className="w-12 h-12 rounded-xl bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-                aria-label="Twitter"
-              >
-                <Icon name="twitter" size={20} color="white" />
-              </a>
-              
-              <a 
-                href="#" 
-                className="w-12 h-12 rounded-xl bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-                aria-label="LinkedIn"
-              >
-                <Icon name="linkedin" size={20} color="white" />
-              </a>
-              
-              <a 
-                href="mailto:contact@acadex.com" 
-                className="w-12 h-12 rounded-xl bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-                aria-label="Contact Us"
-              >
-                <Icon name="mail" size={20} color="white" />
-              </a>
-            </Flex>
+            <div className="mb-8">
+              <BodyMD color="muted-light" className="mb-2">
+                Email: acadex@gmail.com
+              </BodyMD>
+              <BodyMD color="muted-light">
+                Based in Phnom Penh, Cambodia
+              </BodyMD>
+            </div>
           </div>
 
           {/* Courses */}
           <div>
-            <H3 className="mb-6 text-white">Popular Courses</H3>
+            <H3 className="mb-6 text-white">Courses</H3>
             <ul className="space-y-4">
               {[
-                { name: "Web Development", href: "/courses/web-development" },
-                { name: "Data Science", href: "/courses/data-science" },
-                { name: "Digital Marketing", href: "/courses/digital-marketing" },
-                { name: "Business Skills", href: "/courses/business-skills" }
+                { name: "English for Daily Use", href: "/courses/english-daily" },
+                { name: "Grammar & Vocabulary", href: "/courses/grammar-vocabulary" },
+                { name: "Communication Skills", href: "/courses/communication" },
+                { name: "Study & Productivity", href: "/courses/study-productivity" }
               ].map((link) => (
                 <li key={link.name}>
                   <Link 
@@ -103,11 +76,10 @@ export default function Footer() {
             <H3 className="mb-6 text-white">Support</H3>
             <ul className="space-y-4">
               {[
-                { name: "Help Center", href: "/help" },
+                { name: "Help Center (coming soon)", href: "#" },
                 { name: "Contact Us", href: "/contact" },
-                { name: "Community", href: "/community" },
-                { name: "Blog", href: "/blog" },
-                { name: "Careers", href: "/careers" }
+                { name: "Suggest a Course", href: "/contact?subject=course-suggestion" },
+                { name: "FAQ", href: "/faq" }
               ].map((link) => (
                 <li key={link.name}>
                   <Link 
@@ -126,11 +98,9 @@ export default function Footer() {
             <H3 className="mb-6 text-white">Company</H3>
             <ul className="space-y-4">
               {[
-                { name: "About Us", href: "/about" },
+                { name: "About Acadex", href: "/about" },
                 { name: "Privacy Policy", href: "/privacy" },
-                { name: "Terms of Service", href: "/terms" },
-                { name: "Cookie Policy", href: "/cookie-policy" },
-                { name: "Accessibility", href: "/accessibility" }
+                { name: "Terms of Service", href: "/terms" }
               ].map((link) => (
                 <li key={link.name}>
                   <Link 
@@ -152,7 +122,7 @@ export default function Footer() {
           <div className="text-center">
             <H2 className="mb-4 text-white">Join Our Learning Community</H2>
             <BodyLG color="muted-light" className="mb-8 max-w-3xl mx-auto leading-relaxed">
-              Get tips, guides, lessons, and exclusive learning resources delivered to your inbox.
+              Get tips, mini-lessons, and new course updates — sent right to your inbox.
             </BodyLG>
             <div className="max-w-lg mx-auto">
               <Flex direction="col" gap="sm" className="sm:flex-row sm:gap-md">
@@ -175,18 +145,20 @@ export default function Footer() {
         <Container size="xl" className="py-8">
           <Flex direction="col" align="center" justify="between" className="md:flex-row gap-4 md:gap-0">
             <BodyMD color="muted-light" className="font-medium text-center md:text-left">
-              © {displayYear} ACADEX. All rights reserved. Made with love for learners worldwide.
+              © {displayYear} Acadex. All rights reserved.
+              <br className="sm:hidden" />
+              <span className="block sm:inline sm:ml-2">Made with love in Cambodia. Powered by persistence.</span>
             </BodyMD>
             <Flex align="center" gap="md" className="flex-wrap justify-center">
               {[
                 { name: "Sitemap", href: "/sitemap" },
-                { name: "Status", href: "/status" },
-                { name: "Security", href: "/security" }
+                { name: "Terms", href: "/terms" },
+                { name: "Status", href: "/status" }
               ].map((link) => (
                 <Link 
                   key={link.name}
                   href={link.href} 
-                  className="hover:text-red-400 transition-colors duration-300 font-medium"
+                  className="hover:text-red-400 transition-colors duration-300 font-medium text-sm"
                 >
                   <BodyMD color="muted-light">{link.name}</BodyMD>
                 </Link>

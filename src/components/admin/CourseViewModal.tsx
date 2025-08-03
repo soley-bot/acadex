@@ -37,24 +37,24 @@ export function CourseViewModal({ course, isOpen, onClose, onEdit }: CourseViewM
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case 'beginner': return 'bg-green-100 text-green-800'
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800'
-      case 'advanced': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'beginner': return 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+      case 'intermediate': return 'bg-amber-100 text-amber-800 border border-amber-200'
+      case 'advanced': return 'bg-red-100 text-red-800 border border-red-200'
+      default: return 'bg-gray-100 text-gray-800 border border-gray-200'
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="surface-primary rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-subtle">
+        <div className="flex items-center justify-between p-6 border-b border-subtle">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Course Details</h2>
-            <p className="text-sm text-gray-600">View course information</p>
+            <h2 className="heading-subsection">Course Details</h2>
+            <p className="text-sm text-tertiary">View course information</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-tertiary hover:text-primary"
           >
             <X className="h-5 w-5" />
           </button>
@@ -65,8 +65,8 @@ export function CourseViewModal({ course, isOpen, onClose, onEdit }: CourseViewM
           <div className="mb-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">{course.title}</h3>
-                <p className="text-gray-600 mb-4">{course.description}</p>
+                <h3 className="text-2xl font-bold text-primary mb-2">{course.title}</h3>
+                <p className="text-secondary mb-4">{course.description}</p>
                 
                 <div className="flex items-center gap-4 mb-4">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${getLevelColor(course.level || 'beginner')}`}>
@@ -74,8 +74,8 @@ export function CourseViewModal({ course, isOpen, onClose, onEdit }: CourseViewM
                   </span>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                     course.is_published 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-800'
+                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                      : 'bg-amber-100 text-amber-800 border border-amber-200'
                   }`}>
                     {course.is_published ? 'Published' : 'Draft'}
                   </span>

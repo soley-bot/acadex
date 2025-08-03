@@ -73,10 +73,10 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: 
   if (!isOpen || !user) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="surface-primary rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto border border-subtle shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex items-center justify-between p-6 border-b border-subtle">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <User className="w-5 h-5 text-blue-600" />

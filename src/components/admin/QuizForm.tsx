@@ -237,44 +237,41 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col border border-gray-200">
-        {/* Enhanced Header */}
-        <div className="flex items-center justify-between p-6 sm:p-8 border-b bg-gradient-to-r from-gray-50 via-white to-purple-50">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg">
-              <Eye className="w-6 h-6 text-white" />
-            </div>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="surface-primary rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-subtle">
+        {/* Enhanced Header with Better Typography */}
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 text-white">
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
+              <h2 className="text-2xl font-bold mb-1">
                 {quiz ? 'Edit Quiz' : 'Create New Quiz'}
               </h2>
-              <p className="text-gray-600 text-lg mt-1">
+              <p className="text-purple-100 text-lg mt-1">
                 {quiz ? 'Update quiz content and settings' : 'Build interactive assessments for your students'}
               </p>
             </div>
           </div>
           <button 
             onClick={onClose} 
-            className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-white/50 rounded-lg"
+            className="text-white/80 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-lg absolute top-6 right-6"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
 
         {/* Enhanced Tab Navigation */}
-        <div className="bg-gray-50 border-b border-gray-200">
+        <div className="surface-secondary border-b border-subtle">
           <nav className="flex">
             <button
               onClick={() => setActiveTab('details')}
               className={`px-6 py-4 text-sm font-semibold border-b-2 transition-all duration-200 ${
                 activeTab === 'details'
-                  ? 'border-purple-500 text-purple-600 bg-white'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                  ? 'border-primary text-primary surface-primary'
+                  : 'border-transparent text-tertiary hover:text-secondary hover:bg-gray-50'
               }`}
             >
               <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${activeTab === 'details' ? 'bg-purple-500' : 'bg-gray-400'}`}></div>
+                <div className={`w-2 h-2 rounded-full ${activeTab === 'details' ? 'bg-primary' : 'bg-gray-400'}`}></div>
                 Quiz Details
               </div>
             </button>
@@ -282,15 +279,15 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
               onClick={() => setActiveTab('questions')}
               className={`px-6 py-4 text-sm font-semibold border-b-2 transition-all duration-200 ${
                 activeTab === 'questions'
-                  ? 'border-purple-500 text-purple-600 bg-white'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                  ? 'border-primary text-primary surface-primary'
+                  : 'border-transparent text-tertiary hover:text-secondary hover:bg-gray-50'
               }`}
             >
               <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${activeTab === 'questions' ? 'bg-purple-500' : 'bg-gray-400'}`}></div>
+                <div className={`w-2 h-2 rounded-full ${activeTab === 'questions' ? 'bg-primary' : 'bg-gray-400'}`}></div>
                 Questions
                 <span className={`px-2 py-1 rounded-full text-xs ${
-                  activeTab === 'questions' ? 'bg-purple-100 text-purple-700' : 'bg-gray-200 text-gray-600'
+                  activeTab === 'questions' ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-600'
                 }`}>
                   {questions.length}
                 </span>

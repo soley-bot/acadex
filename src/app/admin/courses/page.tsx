@@ -75,8 +75,8 @@ export default function CoursesPage() {
 
   const getStatusBadge = (isPublished: boolean) => {
     return isPublished 
-      ? 'bg-emerald-100 text-emerald-800' 
-      : 'bg-orange-100 text-orange-800'
+      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+      : 'bg-amber-100 text-amber-800 border border-amber-200'
   }
 
   const handleCreateCourse = () => {
@@ -344,8 +344,8 @@ export default function CoursesPage() {
                 </div>
                 <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full flex-shrink-0 ${
                   course.is_published 
-                    ? 'bg-emerald-100 text-emerald-800' 
-                    : 'bg-orange-100 text-orange-800'
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                    : 'bg-amber-100 text-amber-800 border border-amber-200'
                 }`}>
                   {course.is_published ? 'Live' : 'Draft'}
                 </span>

@@ -62,22 +62,22 @@ export default function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserMo
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="surface-primary rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto border border-subtle shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex items-center justify-between p-6 border-b border-subtle">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <User className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Add New User</h2>
-              <p className="text-sm text-gray-500">Create a new user account</p>
+              <h2 className="heading-subsection">Add New User</h2>
+              <p className="text-sm text-tertiary">Create a new user account</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-tertiary hover:text-primary transition-colors p-2 hover:bg-gray-100 rounded-lg"
           >
             <X className="w-6 h-6" />
           </button>
