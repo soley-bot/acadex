@@ -115,17 +115,17 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'beginner': return 'bg-green-100 text-green-800'
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800'
-      case 'advanced': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'beginner': return 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+      case 'intermediate': return 'bg-amber-100 text-amber-800 border border-amber-200'
+      case 'advanced': return 'bg-red-100 text-red-800 border border-red-200'
+      default: return 'bg-gray-100 text-gray-800 border border-gray-200'
     }
   }
 
   const getStatusBadge = (isPublished: boolean) => {
     return isPublished 
-      ? 'bg-green-100 text-green-800' 
-      : 'bg-yellow-100 text-yellow-800'
+      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+      : 'bg-amber-100 text-amber-800 border border-amber-200'
   }
 
   const formatDate = (dateString: string) => {
@@ -141,14 +141,14 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
   if (!isOpen || !quiz) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="surface-primary rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col border border-subtle">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-subtle">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <h2 className="text-2xl font-bold text-gray-900">{quiz.title}</h2>
+                <h2 className="heading-section">{quiz.title}</h2>
                 <span className={`px-3 py-1 text-xs font-semibold rounded-full ${getStatusBadge(quiz.is_published)}`}>
                   {quiz.is_published ? 'Published' : 'Draft'}
                 </span>
@@ -156,8 +156,8 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
                   {quiz.difficulty}
                 </span>
               </div>
-              <p className="text-gray-600 mb-3">{quiz.description}</p>
-              <div className="flex items-center gap-6 text-sm text-gray-500">
+              <p className="text-secondary mb-3">{quiz.description}</p>
+              <div className="flex items-center gap-6 text-sm text-tertiary">
                 <div className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
                   {quiz.duration_minutes} min
@@ -174,22 +174,22 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-tertiary hover:text-primary transition-colors p-2 hover:bg-gray-100 rounded-lg"
             >
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5" />
             </button>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="px-6 border-b border-gray-200">
+        <div className="px-6 border-b border-subtle">
           <div className="flex space-x-8">
             <button
               onClick={() => setActiveTab('overview')}
               className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === 'overview'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-tertiary hover:text-secondary'
               }`}
             >
               Overview
@@ -198,8 +198,8 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
               onClick={() => setActiveTab('questions')}
               className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === 'questions'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-tertiary hover:text-secondary'
               }`}
             >
               Questions ({questions.length})
@@ -208,8 +208,8 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
               onClick={() => setActiveTab('analytics')}
               className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === 'analytics'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-tertiary hover:text-secondary'
               }`}
             >
               Analytics
@@ -221,7 +221,7 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
         <div className="flex-1 overflow-auto">
           {loading ? (
             <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : (
             <>
@@ -229,23 +229,27 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
                 <div className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     {/* Stats Cards */}
-                    <div className="bg-blue-50 p-4 rounded-lg">
+                    <div className="surface-secondary border border-subtle p-6 rounded-xl">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-blue-600 text-sm font-medium">Total Attempts</p>
-                          <p className="text-2xl font-bold text-blue-900">{stats?.totalAttempts || 0}</p>
+                          <p className="text-blue-600 text-sm font-semibold">Total Attempts</p>
+                          <p className="text-2xl font-bold text-primary">{stats?.totalAttempts || 0}</p>
                         </div>
-                        <Users className="h-8 w-8 text-blue-600" />
+                        <div className="bg-blue-100 p-3 rounded-lg">
+                          <Users className="h-6 w-6 text-blue-600" />
+                        </div>
                       </div>
                     </div>
 
-                    <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="surface-secondary border border-subtle p-6 rounded-xl">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-green-600 text-sm font-medium">Average Score</p>
-                          <p className="text-2xl font-bold text-green-900">{stats?.averageScore || 0}%</p>
+                          <p className="text-emerald-600 text-sm font-semibold">Average Score</p>
+                          <p className="text-2xl font-bold text-primary">{stats?.averageScore || 0}%</p>
                         </div>
-                        <BarChart3 className="h-8 w-8 text-green-600" />
+                        <div className="bg-emerald-100 p-3 rounded-lg">
+                          <BarChart3 className="h-6 w-6 text-emerald-600" />
+                        </div>
                       </div>
                     </div>
 

@@ -11,6 +11,8 @@ import { CategoryManagement } from '@/components/admin/CategoryManagement'
 import { RichTextFormatGuide } from './RichTextFormatGuide'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import { uploadCourseImage } from '@/lib/storage'
+import { AICourseBuilder } from './AICourseBuilder'
+import { GeneratedCourse } from '@/lib/ai-course-generator'
 
 interface Module {
   id?: string
@@ -72,6 +74,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
   const [success, setSuccess] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('basic')
   const [showCategoryManagement, setShowCategoryManagement] = useState(false)
+  const [showAICourseBuilder, setShowAICourseBuilder] = useState(false)
 
   const [formData, setFormData] = useState<EnhancedCourseData>({
     title: '',
@@ -372,6 +375,55 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
     }))
   }
 
+  const handleAICourseGenerated = (generatedCourse: GeneratedCourse) => {
+    try {
+      // Map generated course to form data structure
+      const mappedFormData: EnhancedCourseData = {
+        title: generatedCourse.course.title,
+        description: generatedCourse.course.description,
+        category: 'english', // Default to english category
+        level: generatedCourse.course.level,
+        duration: generatedCourse.course.duration,
+        price: generatedCourse.course.price,
+        is_published: false, // Always start as draft
+        instructor_name: (user as any)?.user_metadata?.full_name || user?.email || '',
+        image_url: '',
+        learning_outcomes: generatedCourse.course.learning_objectives.map((obj, index) => ({
+          id: (index + 1).toString(),
+          description: obj
+        })),
+        prerequisites: generatedCourse.course.prerequisites || [''],
+        modules: generatedCourse.modules.map((module, moduleIndex) => ({
+          id: undefined, // New module
+          title: module.title,
+          description: module.description,
+          order_index: moduleIndex,
+          lessons: module.lessons.map((lesson, lessonIndex) => ({
+            id: undefined, // New lesson
+            title: lesson.title,
+            content: lesson.content,
+            video_url: '',
+            duration: `${lesson.duration_minutes} minutes`,
+            order_index: lessonIndex,
+            is_preview: lessonIndex === 0 // Make first lesson preview
+          }))
+        })),
+        certificate_enabled: false,
+        estimated_completion_time: generatedCourse.course.duration,
+        difficulty_rating: generatedCourse.course.level === 'beginner' ? 1 : 
+                          generatedCourse.course.level === 'intermediate' ? 3 : 5,
+        tags: []
+      }
+
+      setFormData(mappedFormData)
+      setShowAICourseBuilder(false)
+      setSuccess('Course generated successfully! You can now review and customize the content.')
+    } catch (error) {
+      console.error('Error mapping AI generated course:', error)
+      setError('Failed to apply generated course data')
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -450,12 +502,26 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-white/50 rounded-lg"
-          >
-            <Icon name="close" size={24} className="text-gray-400" />
-          </button>
+          <div className="flex items-center gap-3">
+            {/* AI Course Builder Button - Only show for new courses */}
+            {!course && (
+              <button
+                type="button"
+                onClick={() => setShowAICourseBuilder(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+              >
+                <Icon name="lightning" size={16} className="text-white" />
+                <span className="hidden sm:inline">Generate with AI</span>
+                <span className="sm:hidden">AI</span>
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-white/50 rounded-lg"
+            >
+              <Icon name="close" size={24} className="text-gray-400" />
+            </button>
+          </div>
         </div>
         
         {/* Tab Navigation */}
@@ -1037,6 +1103,14 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
           // Categories will be refreshed automatically by CategorySelector
         }}
       />
+
+      {/* AI Course Builder Modal */}
+      {showAICourseBuilder && (
+        <AICourseBuilder
+          onClose={() => setShowAICourseBuilder(false)}
+          onCourseGenerated={handleAICourseGenerated}
+        />
+      )}
     </div>
   )
 }

@@ -59,23 +59,28 @@ export function DeleteCourseModal({ course, isOpen, onClose, onSuccess }: Delete
   if (!isOpen || !course) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
-        <div className="flex items-center justify-between p-6 border-b">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="surface-primary rounded-2xl shadow-2xl max-w-md w-full border border-subtle">
+        <div className="flex items-center justify-between p-6 border-b border-subtle">
           <div className="flex items-center">
-            <AlertTriangle className="h-6 w-6 text-red-500 mr-3" />
-            <h2 className="text-lg font-semibold text-gray-900">Delete Course</h2>
+            <div className="p-2 bg-red-100 rounded-lg mr-3">
+              <AlertTriangle className="h-6 w-6 text-red-600" />
+            </div>
+            <div>
+              <h2 className="heading-subsection">Delete Course</h2>
+              <p className="text-sm text-tertiary">This action cannot be undone</p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-tertiary hover:text-primary"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         <div className="p-6">
-          <p className="text-gray-700 mb-4">
+          <p className="text-secondary mb-4">
             Are you sure you want to delete the course &ldquo;{course.title}&rdquo;? This action cannot be undone.
           </p>
 

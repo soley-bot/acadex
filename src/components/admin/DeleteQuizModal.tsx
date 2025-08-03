@@ -87,22 +87,22 @@ export function DeleteQuizModal({ quiz, isOpen, onClose, onSuccess }: DeleteQuiz
   if (!isOpen || !quiz) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="surface-primary rounded-2xl shadow-2xl w-full max-w-md border border-subtle">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+        <div className="p-6 border-b border-subtle flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-red-100 rounded-lg">
               <AlertTriangle className="h-6 w-6 text-red-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Delete Quiz</h2>
-              <p className="text-gray-600 text-sm">This action cannot be undone</p>
+              <h2 className="heading-subsection">Delete Quiz</h2>
+              <p className="text-tertiary text-sm">This action cannot be undone</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-tertiary hover:text-primary transition-colors p-2 hover:bg-gray-100 rounded-lg"
           >
             <X className="h-5 w-5" />
           </button>
@@ -111,11 +111,11 @@ export function DeleteQuizModal({ quiz, isOpen, onClose, onSuccess }: DeleteQuiz
         {/* Content */}
         <div className="p-6">
           <div className="mb-6">
-            <h3 className="font-semibold text-gray-900 mb-2">You are about to delete:</h3>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-gray-900">{quiz.title}</h4>
-              <p className="text-gray-600 text-sm mt-1">{quiz.description}</p>
-              <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+            <h3 className="font-semibold text-primary mb-2">You are about to delete:</h3>
+            <div className="surface-secondary border border-subtle p-4 rounded-xl">
+              <h4 className="font-medium text-primary">{quiz.title}</h4>
+              <p className="text-secondary text-sm mt-1">{quiz.description}</p>
+              <div className="flex items-center gap-4 mt-3 text-sm text-tertiary">
                 <span className="capitalize">{quiz.difficulty}</span>
                 <span>•</span>
                 <span className="capitalize">{quiz.category}</span>
@@ -127,11 +127,11 @@ export function DeleteQuizModal({ quiz, isOpen, onClose, onSuccess }: DeleteQuiz
 
           {/* Usage Warning */}
           {attemptCount !== null && attemptCount > 0 && (
-            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-amber-800">Quiz Has Student Attempts</h4>
+                  <h4 className="font-semibold text-amber-800">Quiz Has Student Attempts</h4>
                   <p className="text-amber-700 text-sm mt-1">
                     This quiz has {attemptCount} student attempt{attemptCount !== 1 ? 's' : ''}. 
                     Deleting it will also remove all associated attempt records and may affect student progress tracking.

@@ -5,6 +5,7 @@ import { logger } from '@/lib/logger'
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Brain } from 'lucide-react'
 import { quizAPI } from '@/lib/database'
 import { Pagination } from '@/components/ui/Pagination'
 import { Typography, DisplayXL, H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
@@ -360,8 +361,8 @@ export default function QuizzesPage() {
               // Empty State
               <div className="col-span-full text-center py-12">
                 <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20 max-w-md mx-auto">
-                  <div className="w-16 h-16 bg-gradient-to-br from-gray-300 to-gray-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <span className="text-white text-2xl">📚</span>
+                  <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Brain className="text-red-600 h-8 w-8" />
                   </div>
                   <H3 className="mb-4">No quizzes found</H3>
                   <BodyMD color="muted" className="mb-6">

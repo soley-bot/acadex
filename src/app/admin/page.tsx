@@ -158,7 +158,7 @@ export default function AdminDashboard() {
       title: 'Total Quizzes',
       value: stats.totalQuizzes.toLocaleString(),
       description: 'Assessment tools',
-      icon: 'help-circle',
+      icon: 'help',
       color: 'text-purple-600',
       bgColor: 'bg-purple-50'
     },
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
       title: 'Total Revenue',
       value: `$${stats.totalRevenue.toLocaleString()}`,
       description: 'Platform earnings',
-      icon: 'dollar-sign',
+      icon: 'dollar',
       color: 'text-red-600',
       bgColor: 'bg-red-50'
     }
