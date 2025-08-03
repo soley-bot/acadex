@@ -1,7 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { Typography, DisplayLG, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
+import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
 import Icon from '@/components/ui/Icon'
+import { Metadata } from 'next'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -47,136 +50,170 @@ export default function ContactPage() {
     }
   }
 
+  const faqItems = [
+    {
+      question: "How do I start learning with Acadex?",
+      answer: "Create a free account, browse our available courses, and start learning at your own pace. No special tests or placements are needed."
+    },
+    {
+      question: "Do I need to prepare for IELTS to use this platform?",
+      answer: "No. Acadex is not only about IELTS. While we offer grammar and communication practice that can help with exams, our focus is on real-life English and practical skills."
+    },
+    {
+      question: "Are there free resources?",
+      answer: "Yes. Most of our content right now is completely free — including quizzes, short lessons, and study tools."
+    },
+    {
+      question: "Do I get a certificate?",
+      answer: "We're working on adding certificates in the future. For now, the focus is on actual learning, not papers."
+    },
+    {
+      question: "How long will it take to see improvement?",
+      answer: "Everyone's pace is different. Some learners feel more confident after just a few lessons. The key is consistency — and learning that makes sense."
+    },
+    {
+      question: "Is this platform only for English?",
+      answer: "Right now, we focus on English and communication skills. In the future, we plan to expand into other useful skills for students and young professionals."
+    },
+    {
+      question: "I have more questions. What should I do?",
+      answer: "Just send us a message using the form or email acadex@gmail.com — we'd love to help."
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
       {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
         <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-6000"></div>
       </div>
       
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
-            <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-            Contact Us
+      <Section className="relative" background="transparent" spacing="lg">
+        <Container size="lg" className="relative">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+              <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+              Contact Us
+            </div>
+            
+            <DisplayLG className="mb-6">
+              Get in Touch
+            </DisplayLG>
+            
+            <H2 className="text-red-600 mb-8">
+              We&apos;re Here to Listen — Not Just Sell
+            </H2>
+            
+            <BodyLG className="text-gray-600 leading-relaxed max-w-3xl mx-auto" color="muted">
+              Got a question, suggestion, or concern? Whether you&apos;re curious about a course, need help navigating the platform, 
+              or just want to share feedback — I&apos;m here. Acadex is still small, but every message helps us grow better.
+            </BodyLG>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 mb-8 leading-tight">
-            Get in Touch
-            <span className="block text-red-600 mt-4">We&apos;re Here to Help</span>
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
-            Have questions about English learning, IELTS preparation, or need support? Our team is dedicated to helping you 
-            achieve English fluency and reach your language goals.
-          </p>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       {/* Contact Form and Info */}
-      <section className="relative py-16 px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+      <Section background="transparent" spacing="lg">
+        <Container size="lg" className="relative">
+          <Grid cols={1} className="lg:grid-cols-2 gap-16">
+            
             {/* Contact Form */}
-            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
-              <h2 className="text-3xl font-bold mb-6 text-gray-900">Send us a Message</h2>
+            <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 lg:p-12 shadow-xl border border-white/20">
+              <H2 className="mb-8">Send us a Message</H2>
               
               {success && (
-                <div className="bg-green-50/80 backdrop-blur-sm border-2 border-green-200 rounded-xl p-4 mb-6">
-                  <div className="flex items-center gap-3">
+                <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-4 mb-6 shadow-xl border border-white/20">
+                  <Flex align="center" gap="sm">
                     <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
                       <Icon name="check" size={16} color="white" />
                     </div>
-                    <p className="text-green-800 font-medium">
-                      Thank you for your message! We&apos;ll get back to you within 24 hours.
-                    </p>
-                  </div>
+                    <BodyMD className="text-green-800 font-medium">
+                      Thank you for your message! We&apos;ll get back to you within 1-2 business days.
+                    </BodyMD>
+                  </Flex>
                 </div>
               )}
 
               {error && (
-                <div className="bg-red-50/80 backdrop-blur-sm border-2 border-red-200 rounded-xl p-4 mb-6">
-                  <div className="flex items-center gap-3">
+                <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-4 mb-6 shadow-xl border border-white/20">
+                  <Flex align="center" gap="sm">
                     <div className="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center">
                       <Icon name="close" size={16} color="white" />
                     </div>
-                    <p className="text-red-800 font-medium">{error}</p>
-                  </div>
+                    <BodyMD className="text-red-800 font-medium">{error}</BodyMD>
+                  </Flex>
                 </div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-bold text-gray-900 mb-2">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/80 backdrop-blur-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all duration-200 shadow-lg"
-                      placeholder="Enter your full name"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-bold text-gray-900 mb-2">
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/80 backdrop-blur-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all duration-200 shadow-lg"
-                      placeholder="Enter your email address"
-                    />
-                  </div>
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white/50 backdrop-blur-sm"
+                    placeholder="Your full name"
+                  />
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-bold text-gray-900 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white/50 backdrop-blur-sm"
+                    placeholder="your.email@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
                     Subject *
                   </label>
                   <select
                     id="subject"
                     name="subject"
+                    required
                     value={formData.subject}
                     onChange={handleInputChange}
-                    required
-                    className="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/80 backdrop-blur-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all duration-200 shadow-lg"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white/50 backdrop-blur-sm"
                   >
                     <option value="">Select a subject</option>
-                    <option value="general">General English Learning</option>
-                    <option value="ielts">IELTS Preparation</option>
-                    <option value="technical">Technical Support</option>
-                    <option value="grammar">Grammar Questions</option>
-                    <option value="vocabulary">Vocabulary Building</option>
-                    <option value="course">Course Content</option>
-                    <option value="feedback">Feedback & Suggestions</option>
+                    <option value="general">General Question</option>
+                    <option value="course-help">Course Help</option>
+                    <option value="report-issue">Report an Issue</option>
+                    <option value="feedback">Feedback</option>
+                    <option value="other">Other</option>
                   </select>
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-bold text-gray-900 mb-2">
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
                     Message *
                   </label>
                   <textarea
                     id="message"
                     name="message"
-                    value={formData.message}
-                    onChange={handleInputChange}
                     required
                     rows={6}
-                    className="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/80 backdrop-blur-lg focus:ring-2 focus:ring-red-600 focus:border-red-600 transition-all duration-200 shadow-lg resize-none"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white/50 backdrop-blur-sm resize-none"
                     placeholder="Tell us how we can help you..."
                   />
                 </div>
@@ -184,145 +221,92 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 border-2 border-gray-300 border-t-white rounded-full animate-spin"></div>
+                    <Flex align="center" justify="center" gap="sm">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       Sending...
-                    </div>
+                    </Flex>
                   ) : (
-                    'Send Message'
+                    "Send Message"
                   )}
                 </button>
               </form>
             </div>
 
-            {/* Contact Information */}
+            {/* Contact Info */}
             <div className="space-y-8">
-              <div>
-                <h2 className="text-3xl font-bold mb-6 text-gray-900">Get in Touch</h2>
-                <p className="text-gray-600 mb-8 leading-relaxed">
-                  We&apos;re here to support your English learning journey and answer any questions about our courses, 
-                  IELTS preparation, or platform features. We look forward to hearing from you!
-                </p>
+              
+              {/* Email */}
+              <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20">
+                <Flex align="center" gap="md" className="mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Icon name="mail" size={24} color="white" />
+                  </div>
+                  <H3>Email Us</H3>
+                </Flex>
+                <BodyMD className="text-gray-600 mb-2" color="muted">Send us an email anytime</BodyMD>
+                <BodyLG className="text-red-600 font-medium">acadex@gmail.com</BodyLG>
               </div>
 
-              <div className="space-y-6">
-                <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 shadow-xl border border-white/20 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-gradient-to-r from-red-600 to-red-700 rounded-full shadow-lg">
-                      <Icon name="mail" size={24} color="white" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold mb-2 text-gray-900">Email Us</h3>
-                      <p className="text-gray-600 mb-2">Send us an email anytime</p>
-                      <a href="mailto:acadex@gmail.com" className="text-red-600 hover:text-red-700 font-bold transition-colors duration-200">
-                        acadex@gmail.com
-                      </a>
-                    </div>
+              {/* Support Hours */}
+              <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20">
+                <Flex align="center" gap="md" className="mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Icon name="clock" size={24} color="white" />
                   </div>
-                </div>
-
-                <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 shadow-xl border border-white/20 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-gradient-to-r from-red-600 to-red-700 rounded-full shadow-lg">
-                      <Icon name="clock" size={24} color="white" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold mb-2 text-gray-900">Support Hours</h3>
-                      <p className="text-gray-600 mb-2">We&apos;re available to help</p>
-                      <p className="text-gray-900">
-                        Monday - Friday: 9:00 AM - 6:00 PM ICT<br />
-                        Weekend: 10:00 AM - 4:00 PM ICT<br />
-                        <span className="text-sm text-gray-600">(Cambodia Time)</span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 shadow-xl border border-white/20 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-gradient-to-r from-red-600 to-red-700 rounded-full shadow-lg">
-                      <Icon name="message-circle" size={24} color="white" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold mb-2 text-gray-900">Quick Response</h3>
-                      <p className="text-gray-600 mb-2">Average response time</p>
-                      <p className="text-gray-900 font-bold">Within 24 hours</p>
-                    </div>
-                  </div>
+                  <H3>Support Hours</H3>
+                </Flex>
+                <BodyMD className="text-gray-600 mb-3" color="muted">
+                  We&apos;re available to help during the following times (Cambodia Time):
+                </BodyMD>
+                <div className="space-y-1">
+                  <BodyMD className="font-medium">Monday – Friday: 9:00 AM – 6:00 PM</BodyMD>
+                  <BodyMD className="font-medium">Weekend: 10:00 AM – 4:00 PM</BodyMD>
                 </div>
               </div>
+
+              {/* Response Time */}
+              <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20">
+                <Flex align="center" gap="md" className="mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Icon name="timer" size={24} color="white" />
+                  </div>
+                  <H3>Response Time</H3>
+                </Flex>
+                <BodyMD className="text-gray-600" color="muted">
+                  We usually respond within 1–2 business days.
+                  <br />
+                  Thanks for your patience — it&apos;s just one person reading and replying to every message!
+                </BodyMD>
+              </div>
+              
             </div>
-          </div>
-        </div>
-      </section>
+          </Grid>
+        </Container>
+      </Section>
 
       {/* FAQ Section */}
-      <section className="relative py-16 px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6 text-gray-900">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-xl text-gray-600 leading-relaxed">
-              Quick answers to common questions. Can&apos;t find what you&apos;re looking for? Contact us directly.
-            </p>
+      <Section background="transparent" spacing="lg">
+        <Container size="lg" className="relative">
+          <div className="text-center mb-16">
+            <H2 className="mb-6">Frequently Asked Questions</H2>
+            <BodyLG className="text-gray-600 max-w-3xl mx-auto" color="muted">
+              Quick answers to common questions about Acadex
+            </BodyLG>
           </div>
 
-          <div className="space-y-6 text-left">
-            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-              <h3 className="font-bold mb-3 text-gray-900 text-lg">How do I start learning English with ACADEX?</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Create a free account, take our English level assessment, and start with courses tailored to your level. 
-                Begin with our free IELTS practice tests and grammar quizzes to evaluate your current skills.
-              </p>
-            </div>
-
-            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-              <h3 className="font-bold mb-3 text-gray-900 text-lg">What IELTS preparation resources do you offer?</h3>
-              <p className="text-gray-600 leading-relaxed">
-                We provide comprehensive IELTS preparation including 2,500+ authentic practice questions, 
-                complete mock tests, writing feedback, speaking practice, and proven strategies for all four skills.
-              </p>
-            </div>
-
-            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-              <h3 className="font-bold mb-3 text-gray-900 text-lg">Are there free English learning resources available?</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Yes! We offer free grammar quizzes, vocabulary tests, sample IELTS questions, and basic English lessons. 
-                Premium courses provide advanced features, personalized feedback, and certification.
-              </p>
-            </div>
-
-            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-              <h3 className="font-bold mb-3 text-gray-900 text-lg">How long does it take to improve my English level?</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Progress varies by individual, but most students see improvement within 2-4 weeks of regular practice. 
-                Our adaptive learning system tracks your progress and adjusts to help you learn efficiently.
-              </p>
-            </div>
-
-            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-              <h3 className="font-bold mb-3 text-gray-900 text-lg">Do you provide certificates for course completion?</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Yes, we provide completion certificates for all our premium English courses. 
-                These certificates can be used to demonstrate your English proficiency to employers or educational institutions.
-              </p>
-            </div>
-
-            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-              <h3 className="font-bold mb-3 text-gray-900 text-lg">What English levels do your courses cover?</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Our courses cover all English levels from beginner (A1) to advanced (C2). 
-                We also offer specialized IELTS preparation for students targeting specific band scores (5.5-9.0).
-              </p>
-            </div>
+          <div className="max-w-4xl mx-auto space-y-6">
+            {faqItems.map((item, index) => (
+              <div key={index} className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-lg border border-white/20">
+                <H3 className="mb-4 text-gray-900">{item.question}</H3>
+                <BodyMD className="text-gray-600 leading-relaxed" color="muted">{item.answer}</BodyMD>
+              </div>
+            ))}
           </div>
-        </div>
-      </section>
-
+        </Container>
+      </Section>
     </div>
   )
 }

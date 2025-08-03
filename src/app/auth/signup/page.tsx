@@ -155,7 +155,7 @@ function EnhancedSignupForm() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex items-center justify-center py-8 px-4 sm:py-12 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex flex-col py-8 px-4 sm:py-12 sm:px-6 lg:px-8">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
@@ -163,18 +163,20 @@ function EnhancedSignupForm() {
         <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
       
-      <div className="relative w-full max-w-4xl flex flex-col lg:flex-row gap-6 lg:gap-8 items-start lg:items-center">
+      {/* Main Content Container */}
+      <div className="flex-1 flex items-center justify-center">
+        <div className="relative w-full max-w-4xl flex flex-col lg:flex-row gap-6 lg:gap-8 items-start lg:items-center">
         {/* Left Side - Benefits */}
-        <div className="w-full lg:w-1/2 space-y-6 lg:space-y-8 mb-8 lg:mb-0">
+        <div className="w-full lg:w-1/2 space-y-4 sm:space-y-6 lg:space-y-8 mb-6 sm:mb-8 lg:mb-0">
           <div>
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-2 rounded-full text-sm font-medium mb-6 shadow-lg">
-              <Star className="w-4 h-4" />
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6 shadow-lg">
+              <Star className="w-3 h-3 sm:w-4 sm:h-4" />
               Join 10,000+ Students
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 lg:mb-6 leading-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 lg:mb-6 leading-tight">
               Start Your English Learning Journey
             </h1>
-            <p className="text-lg lg:text-xl text-gray-600 mb-6 lg:mb-8 leading-relaxed">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-4 sm:mb-6 lg:mb-8 leading-relaxed">
               Master English with interactive courses, real-time feedback, and a supportive community.
             </p>
           </div>
@@ -454,14 +456,15 @@ function EnhancedSignupForm() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 px-4">
-        <p className="text-center text-sm text-gray-500 max-w-md">
+      {/* Footer - Fixed for mobile overlap */}
+      <div className="mt-8 mb-6 px-4">
+        <p className="text-center text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
           By creating an account, you agree to our{' '}
           <Link href="/terms" className="text-red-600 hover:text-red-800">Terms of Service</Link>
           {' '}and{' '}
           <Link href="/privacy" className="text-red-600 hover:text-red-800">Privacy Policy</Link>
         </p>
+      </div>
       </div>
     </div>
   )
