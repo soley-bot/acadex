@@ -155,7 +155,7 @@ function EnhancedSignupForm() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex flex-col py-8 px-4 sm:py-12 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex flex-col py-4 px-4 sm:py-8 sm:px-6 lg:px-8">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
@@ -165,9 +165,9 @@ function EnhancedSignupForm() {
       
       {/* Main Content Container */}
       <div className="flex-1 flex items-center justify-center">
-        <div className="relative w-full max-w-4xl flex flex-col lg:flex-row gap-6 lg:gap-8 items-start lg:items-center">
-        {/* Left Side - Benefits */}
-        <div className="w-full lg:w-1/2 space-y-4 sm:space-y-6 lg:space-y-8 mb-6 sm:mb-8 lg:mb-0">
+        <div className="relative w-full max-w-4xl flex flex-col lg:flex-row gap-4 lg:gap-8 items-start lg:items-center">
+        {/* Left Side - Benefits - Hidden on small mobile, visible on tablet+ */}
+        <div className="hidden sm:block w-full lg:w-1/2 space-y-4 sm:space-y-6 lg:space-y-8 mb-4 sm:mb-6 lg:mb-0">
           <div>
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6 shadow-lg">
               <Star className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -237,18 +237,52 @@ function EnhancedSignupForm() {
               </div>
             )}
 
-            {/* Default benefits when no errors/validation */}
-            {!error && (step === 1 || !formData.password) && benefits.map((benefit, index) => (
-              <div key={index} className="flex items-center gap-3 text-gray-700">
-                <div className="text-green-600 flex-shrink-0">
-                  {benefit.icon}
-                </div>
-                <span className="text-base lg:text-lg">{benefit.text}</span>
+          {/* Default benefits when no errors/validation */}
+          {!error && (step === 1 || !formData.password) && benefits.map((benefit, index) => (
+            <div key={index} className="flex items-center gap-3 text-gray-700">
+              <div className="text-green-600 flex-shrink-0">
+                {benefit.icon}
               </div>
-            ))}
-          </div>
+              <span className="text-base lg:text-lg">{benefit.text}</span>
+            </div>
+          ))}
+        </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-sm text-gray-500">
+        {/* Mobile-only header - visible only on small screens */}
+        <div className="sm:hidden w-full mb-6">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-2 rounded-full text-xs font-medium mb-4 shadow-lg">
+              <Star className="w-3 h-3" />
+              Join 10,000+ Students
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-3 leading-tight">
+              Start Learning English
+            </h1>
+            <p className="text-base text-gray-600 mb-4 leading-relaxed">
+              Join thousands of learners improving their English skills
+            </p>
+          </div>
+        </div>
+
+        {/* Mobile benefits bar */}
+        <div className="sm:hidden w-full mb-6">
+          <div className="flex flex-col space-y-2 text-sm text-gray-500">
+            <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                100% Free
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                No Credit Card
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                Cancel Anytime
+              </div>
+            </div>
+          </div>
+        </div>          <div className="hidden sm:flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-sm text-gray-500">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-400 rounded-full"></div>
               100% Free to Start
@@ -266,10 +300,10 @@ function EnhancedSignupForm() {
 
         {/* Right Side - Form */}
         <div className="w-full lg:w-1/2 lg:max-w-md">
-          <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-6 lg:p-8">
+          <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-4 sm:p-6 lg:p-8">
             {/* Progress Bar */}
-            <div className="mb-6 lg:mb-8">
-              <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
+            <div className="mb-4 sm:mb-6 lg:mb-8">
+              <div className="flex items-center justify-between text-sm text-gray-600 mb-2 sm:mb-3">
                 <span>Step {step} of 2</span>
                 <span>{step === 1 ? 'Basic Info' : 'Secure Password'}</span>
               </div>
@@ -281,7 +315,7 @@ function EnhancedSignupForm() {
               </div>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {/* Global Error */}
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4">
@@ -297,9 +331,9 @@ function EnhancedSignupForm() {
 
               {step === 1 && (
                 <>
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Let&apos;s get started!</h2>
-                    <p className="text-gray-600">Tell us a bit about yourself</p>
+                  <div className="text-center mb-4 sm:mb-6">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Let&apos;s get started!</h2>
+                    <p className="text-gray-600 text-sm sm:text-base">Tell us a bit about yourself</p>
                   </div>
 
                   {/* Name Field */}
@@ -331,9 +365,9 @@ function EnhancedSignupForm() {
 
               {step === 2 && (
                 <>
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Secure your account</h2>
-                    <p className="text-gray-600">Create a strong password to protect your progress</p>
+                  <div className="text-center mb-4 sm:mb-6">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Secure your account</h2>
+                    <p className="text-gray-600 text-sm sm:text-base">Create a strong password to protect your progress</p>
                   </div>
 
                   {/* Password Field */}
@@ -370,7 +404,7 @@ function EnhancedSignupForm() {
               )}
 
               {/* Action Buttons */}
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2 sm:gap-3">
                 {step === 2 && (
                   <button
                     type="button"
@@ -407,7 +441,7 @@ function EnhancedSignupForm() {
             </form>
 
             {/* Google Sign Up */}
-            <div className="mt-6">
+            <div className="mt-4 sm:mt-6">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-300" />
@@ -440,9 +474,19 @@ function EnhancedSignupForm() {
               </button>
             </div>
 
+            {/* Terms and Privacy */}
+            <div className="mt-4 sm:mt-6 pt-4 border-t border-gray-200">
+              <p className="text-center text-xs sm:text-sm text-gray-500 leading-relaxed">
+                By creating an account, you agree to our{' '}
+                <Link href="/terms" className="text-red-600 hover:text-red-800">Terms of Service</Link>
+                {' '}and{' '}
+                <Link href="/privacy" className="text-red-600 hover:text-red-800">Privacy Policy</Link>
+              </p>
+            </div>
+
             {/* Sign In Link */}
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <p className="text-center text-gray-600">
+            <div className="mt-4 sm:mt-6">
+              <p className="text-center text-gray-600 text-sm sm:text-base">
                 Already have an account?{' '}
                 <Link 
                   href="/auth/login" 
@@ -454,16 +498,6 @@ function EnhancedSignupForm() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Footer - Fixed for mobile overlap */}
-      <div className="mt-8 mb-6 px-4">
-        <p className="text-center text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
-          By creating an account, you agree to our{' '}
-          <Link href="/terms" className="text-red-600 hover:text-red-800">Terms of Service</Link>
-          {' '}and{' '}
-          <Link href="/privacy" className="text-red-600 hover:text-red-800">Privacy Policy</Link>
-        </p>
       </div>
       </div>
     </div>
