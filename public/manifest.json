@@ -5,25 +5,18 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#3b82f6",
+  "theme_color": "#dc2626",
   "icons": [
     {
-      "src": "/Icons8/icons8-idea-50.png",
-      "sizes": "50x50",
-      "type": "image/png",
-      "purpose": "any"
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32",
+      "type": "image/x-icon"
     },
     {
-      "src": "/Icons8/icons8-idea-100.png",
-      "sizes": "100x100",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/Icons8/icons8-idea-100.png",
+      "src": "/favicon.ico",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
+      "type": "image/x-icon",
+      "purpose": "any maskable"
     }
   ],
   "categories": ["education", "productivity"],
