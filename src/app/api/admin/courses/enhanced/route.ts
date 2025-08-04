@@ -236,85 +236,219 @@ async function updateEnhancedCourse(courseData: any) {
       throw new Error(`Course update failed: ${courseError.message}`)
     }
 
-    // Get existing modules to handle safe deletion
+    // Get existing modules and lessons for comparison
     const { data: existingModules, error: fetchError } = await supabase
       .from('course_modules')
-      .select('id')
+      .select(`
+        id,
+        title,
+        description,
+        order_index,
+        course_lessons (
+          id,
+          title,
+          content,
+          video_url,
+          duration,
+          order_index,
+          is_preview
+        )
+      `)
       .eq('course_id', courseData.id)
+      .order('order_index')
 
     if (fetchError) {
       throw new Error(`Failed to fetch existing modules: ${fetchError.message}`)
     }
 
-    // Clear any enrollments that might reference lessons in these modules
-    // This prevents foreign key constraint violations
-    if (existingModules && existingModules.length > 0) {
-      // Get all lesson IDs for these modules
-      const { data: lessonIds, error: lessonError } = await supabase
-        .from('course_lessons')
-        .select('id')
-        .in('module_id', existingModules.map(m => m.id))
-
-      if (!lessonError && lessonIds && lessonIds.length > 0) {
-        // Clear current_lesson_id in enrollments that reference these lessons
-        await supabase
-          .from('enrollments')
-          .update({ current_lesson_id: null })
-          .in('current_lesson_id', lessonIds.map(l => l.id))
-      }
-
-      // Now safely delete modules (lessons will cascade)
-      const { error: deleteError } = await supabase
-        .from('course_modules')
-        .delete()
-        .eq('course_id', courseData.id)
-
-      if (deleteError) {
-        throw new Error(`Module deletion failed: ${deleteError.message}`)
-      }
-    }
-
-    // Recreate modules and lessons with new structure
+    // Handle modules update/create/delete intelligently
     if (courseData.modules && courseData.modules.length > 0) {
-      for (const moduleData of courseData.modules) {
+      // Track which existing modules are being kept
+      const keptModuleIds = new Set()
+      
+      for (let moduleIndex = 0; moduleIndex < courseData.modules.length; moduleIndex++) {
+        const moduleData = courseData.modules[moduleIndex]
+        
         if (moduleData.title) {
-          const { data: module, error: moduleError } = await supabase
-            .from('course_modules')
-            .insert({
-              course_id: course.id,
-              title: moduleData.title,
-              description: moduleData.description,
-              order_index: moduleData.order_index
-            })
-            .select()
-            .single()
+          let moduleId = moduleData.id
+          
+          // Check if this is an existing module or new one
+          if (moduleId && existingModules?.find(m => m.id === moduleId)) {
+            // Update existing module
+            const { data: updatedModule, error: moduleError } = await supabase
+              .from('course_modules')
+              .update({
+                title: moduleData.title,
+                description: moduleData.description,
+                order_index: moduleIndex
+              })
+              .eq('id', moduleId)
+              .select()
+              .single()
 
-          if (moduleError) {
-            throw new Error(`Module creation failed: ${moduleError.message}`)
+            if (moduleError) {
+              throw new Error(`Module update failed: ${moduleError.message}`)
+            }
+            
+            keptModuleIds.add(moduleId)
+          } else {
+            // Create new module
+            const { data: newModule, error: moduleError } = await supabase
+              .from('course_modules')
+              .insert({
+                course_id: course.id,
+                title: moduleData.title,
+                description: moduleData.description,
+                order_index: moduleIndex
+              })
+              .select()
+              .single()
+
+            if (moduleError) {
+              throw new Error(`Module creation failed: ${moduleError.message}`)
+            }
+            
+            moduleId = newModule.id
+            keptModuleIds.add(moduleId)
           }
 
-          // Create lessons for this module
+          // Handle lessons for this module
           if (moduleData.lessons && moduleData.lessons.length > 0) {
-            for (const lessonData of moduleData.lessons) {
-              if (lessonData.title) {
-                const { error: lessonError } = await supabase
-                  .from('course_lessons')
-                  .insert({
-                    module_id: module.id,
-                    title: lessonData.title,
-                    content: lessonData.content,
-                    video_url: lessonData.video_url,
-                    duration: lessonData.duration,
-                    order_index: lessonData.order_index,
-                    is_preview: lessonData.is_preview
-                  })
+            const existingModule = existingModules?.find(m => m.id === moduleId)
+            const existingLessons = existingModule?.course_lessons || []
+            const keptLessonIds = new Set()
 
-                if (lessonError) {
-                  throw new Error(`Lesson creation failed: ${lessonError.message}`)
+            for (let lessonIndex = 0; lessonIndex < moduleData.lessons.length; lessonIndex++) {
+              const lessonData = moduleData.lessons[lessonIndex]
+              
+              if (lessonData.title) {
+                let lessonId = lessonData.id
+                
+                // Check if this is an existing lesson or new one
+                if (lessonId && existingLessons.find(l => l.id === lessonId)) {
+                  // Update existing lesson
+                  const { error: lessonError } = await supabase
+                    .from('course_lessons')
+                    .update({
+                      title: lessonData.title,
+                      content: lessonData.content,
+                      video_url: lessonData.video_url,
+                      duration: lessonData.duration,
+                      order_index: lessonIndex,
+                      is_preview: lessonData.is_preview
+                    })
+                    .eq('id', lessonId)
+
+                  if (lessonError) {
+                    throw new Error(`Lesson update failed: ${lessonError.message}`)
+                  }
+                  
+                  keptLessonIds.add(lessonId)
+                } else {
+                  // Create new lesson
+                  const { data: newLesson, error: lessonError } = await supabase
+                    .from('course_lessons')
+                    .insert({
+                      module_id: moduleId,
+                      title: lessonData.title,
+                      content: lessonData.content,
+                      video_url: lessonData.video_url,
+                      duration: lessonData.duration,
+                      order_index: lessonIndex,
+                      is_preview: lessonData.is_preview
+                    })
+                    .select()
+                    .single()
+
+                  if (lessonError) {
+                    throw new Error(`Lesson creation failed: ${lessonError.message}`)
+                  }
+                  
+                  keptLessonIds.add(newLesson.id)
                 }
               }
             }
+
+            // Delete lessons that are no longer in the module
+            const lessonsToDelete = existingLessons
+              .filter(l => !keptLessonIds.has(l.id))
+              .map(l => l.id)
+
+            if (lessonsToDelete.length > 0) {
+              // Clear references in enrollments first
+              await supabase
+                .from('enrollments')
+                .update({ current_lesson_id: null })
+                .in('current_lesson_id', lessonsToDelete)
+
+              // Delete the lessons
+              const { error: deleteError } = await supabase
+                .from('course_lessons')
+                .delete()
+                .in('id', lessonsToDelete)
+
+              if (deleteError) {
+                throw new Error(`Lesson deletion failed: ${deleteError.message}`)
+              }
+            }
           }
+        }
+      }
+
+      // Delete modules that are no longer in the course
+      const modulesToDelete = existingModules
+        ?.filter(m => !keptModuleIds.has(m.id))
+        .map(m => m.id) || []
+
+      if (modulesToDelete.length > 0) {
+        // Get lesson IDs from modules to be deleted
+        const { data: lessonsToDelete, error: lessonError } = await supabase
+          .from('course_lessons')
+          .select('id')
+          .in('module_id', modulesToDelete)
+
+        if (!lessonError && lessonsToDelete && lessonsToDelete.length > 0) {
+          // Clear references in enrollments
+          await supabase
+            .from('enrollments')
+            .update({ current_lesson_id: null })
+            .in('current_lesson_id', lessonsToDelete.map(l => l.id))
+        }
+
+        // Delete the modules (lessons will cascade)
+        const { error: deleteError } = await supabase
+          .from('course_modules')
+          .delete()
+          .in('id', modulesToDelete)
+
+        if (deleteError) {
+          throw new Error(`Module deletion failed: ${deleteError.message}`)
+        }
+      }
+    } else {
+      // No modules provided - clear all existing modules and lessons
+      if (existingModules && existingModules.length > 0) {
+        // Get all lesson IDs
+        const allLessonIds = existingModules.flatMap(m => 
+          m.course_lessons?.map(l => l.id) || []
+        )
+
+        if (allLessonIds.length > 0) {
+          // Clear references in enrollments
+          await supabase
+            .from('enrollments')
+            .update({ current_lesson_id: null })
+            .in('current_lesson_id', allLessonIds)
+        }
+
+        // Delete all modules (lessons will cascade)
+        const { error: deleteError } = await supabase
+          .from('course_modules')
+          .delete()
+          .eq('course_id', courseData.id)
+
+        if (deleteError) {
+          throw new Error(`Module deletion failed: ${deleteError.message}`)
         }
       }
     }

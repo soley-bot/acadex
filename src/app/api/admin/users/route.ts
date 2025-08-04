@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { logger } from '@/lib/logger'
 
-// Create admin client with service role key
-const supabaseAdmin = createClient(
+// Create admin client with service role key - same pattern as other working APIs
+const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
   {
@@ -14,6 +14,27 @@ const supabaseAdmin = createClient(
     }
   }
 )
+
+// GET - Fetch all users for admin
+export async function GET(request: NextRequest) {
+  try {
+    // Fetch users
+    const { data: users, error } = await supabase
+      .from('users')
+      .select('id, name, email, role, created_at')
+      .order('name')
+
+    if (error) {
+      console.error('Database error:', error)
+      return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
+    }
+
+    return NextResponse.json({ users })
+  } catch (error) {
+    console.error('API error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists in auth.users
-    const { data: existingUsers, error: checkError } = await supabaseAdmin.auth.admin.listUsers()
+    const { data: existingUsers, error: checkError } = await supabase.auth.admin.listUsers()
     if (checkError) {
       logger.error('Error checking existing users:', checkError)
       return NextResponse.json(
@@ -55,7 +76,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create user in Supabase Auth using admin client
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
       email_confirm: true, // Admin-created users are auto-confirmed
@@ -81,7 +102,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert user profile in users table
-    const { error: profileError } = await supabaseAdmin
+    const { error: profileError } = await supabase
       .from('users')
       .insert({
         id: authData.user.id,
@@ -95,7 +116,7 @@ export async function POST(request: NextRequest) {
       
       // If profile creation fails, clean up the auth user
       try {
-        await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
+        await supabase.auth.admin.deleteUser(authData.user.id)
       } catch (cleanupError) {
         logger.error('Failed to cleanup auth user:', cleanupError)
       }

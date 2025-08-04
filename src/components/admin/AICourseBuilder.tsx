@@ -24,7 +24,20 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
     learning_objectives: [],
     module_count: 4,
     lessons_per_module: 3,
-    course_format: 'mixed'
+    course_format: 'mixed',
+    // Enhanced generation options
+    subject_area: 'General Education',
+    content_depth: 'detailed',
+    content_style: 'practical',
+    include_examples: true,
+    include_exercises: true,
+    rich_text_format: false,
+    content_length: 'medium',
+    language_focus: 'general',
+    // Quiz generation options
+    include_lesson_quizzes: false,
+    quiz_questions_per_lesson: 3,
+    quiz_difficulty: 'medium'
   })
   
   const [currentTopic, setCurrentTopic] = useState('')
@@ -45,12 +58,13 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
     setTestingConnection(true)
     try {
       const response = await fetch('/api/admin/generate-course', {
+        method: 'GET',
         credentials: 'include'
       })
       const data = await response.json()
       setApiConnected(data.success)
       if (!data.success) {
-        setError(data.error || 'Failed to connect to OpenAI API')
+        setError(data.error || 'Failed to connect to Gemini API')
       }
     } catch (err: any) {
       setApiConnected(false)
@@ -113,7 +127,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
     }
 
     if (!apiConnected) {
-      setError('OpenAI API is not connected. Please check your API key.')
+      setError('Gemini API is not connected. Please check your API key.')
       return
     }
 
@@ -138,7 +152,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
       }
 
       setGeneratedCourse(data.course)
-      setStep(4) // Go to review step
+      setStep(5) // Go to review step
     } catch (err: any) {
       setError(err.message || 'Failed to generate course')
     } finally {
@@ -198,8 +212,9 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
               {[
                 { num: 1, label: 'Basic Info' },
                 { num: 2, label: 'Topics & Goals' },
-                { num: 3, label: 'Prompt (Optional)' },
-                { num: 4, label: 'Review' }
+                { num: 3, label: 'Generation Settings' },
+                { num: 4, label: 'Prompt (Optional)' },
+                { num: 5, label: 'Review' }
               ].map((stepInfo) => (
                 <div key={stepInfo.num} className="flex items-center">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
@@ -212,7 +227,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
                   <div className="ml-2 text-xs text-gray-600 hidden sm:block">
                     {stepInfo.label}
                   </div>
-                  {stepInfo.num < 4 && (
+                  {stepInfo.num < 5 && (
                     <div className={`w-12 sm:w-16 h-1 mx-2 ${
                       step > stepInfo.num ? 'bg-purple-600' : 'bg-gray-200'
                     }`} />
@@ -470,8 +485,214 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
             </div>
           )}
 
-          {/* Step 3: Prompt Editor (Optional) */}
+          {/* Step 3: Generation Settings */}
           {step === 3 && (
+            <div className="space-y-6">
+              <div className="text-center mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Content Generation Settings</h3>
+                <p className="text-gray-600">Customize how the AI generates your course content</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Subject Area */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Subject Area</label>
+                  <select
+                    value={formData.subject_area}
+                    onChange={(e) => setFormData(prev => ({ ...prev, subject_area: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="General Education">General Education</option>
+                    <option value="Language Learning">Language Learning</option>
+                    <option value="Business">Business</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Science">Science</option>
+                    <option value="Arts">Arts</option>
+                    <option value="Health">Health</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="History">History</option>
+                    <option value="Literature">Literature</option>
+                  </select>
+                </div>
+
+                {/* Content Depth */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Content Depth</label>
+                  <select
+                    value={formData.content_depth}
+                    onChange={(e) => setFormData(prev => ({ ...prev, content_depth: e.target.value as 'basic' | 'detailed' | 'comprehensive' }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="basic">Basic - Fundamental concepts with simple explanations</option>
+                    <option value="detailed">Detailed - Thorough explanations with examples</option>
+                    <option value="comprehensive">Comprehensive - Extensive detail with advanced concepts</option>
+                  </select>
+                </div>
+
+                {/* Content Style */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Content Style</label>
+                  <select
+                    value={formData.content_style}
+                    onChange={(e) => setFormData(prev => ({ ...prev, content_style: e.target.value as 'academic' | 'practical' | 'conversational' }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="academic">Academic - Formal language with theoretical frameworks</option>
+                    <option value="practical">Practical - Real-world applications and hands-on examples</option>
+                    <option value="conversational">Conversational - Friendly, accessible language</option>
+                  </select>
+                </div>
+
+                {/* Content Length */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Content Length</label>
+                  <select
+                    value={formData.content_length}
+                    onChange={(e) => setFormData(prev => ({ ...prev, content_length: e.target.value as 'short' | 'medium' | 'long' }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="short">Short - 200-400 words per lesson (20 min)</option>
+                    <option value="medium">Medium - 400-800 words per lesson (35 min)</option>
+                    <option value="long">Long - 800-1500 words per lesson (50 min)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Language Focus (for language learning) */}
+              {formData.subject_area === 'Language Learning' && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Language Focus</label>
+                  <select
+                    value={formData.language_focus}
+                    onChange={(e) => setFormData(prev => ({ ...prev, language_focus: e.target.value as 'general' | 'business' | 'academic' | 'conversational' }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="general">General Language Skills</option>
+                    <option value="business">Business Language</option>
+                    <option value="academic">Academic Language</option>
+                    <option value="conversational">Conversational Skills</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Content Features */}
+              <div className="space-y-4">
+                <h4 className="text-md font-medium text-gray-900">Content Features</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-3">
+                    <input
+                      id="include_examples"
+                      type="checkbox"
+                      checked={formData.include_examples}
+                      onChange={(e) => setFormData(prev => ({ ...prev, include_examples: e.target.checked }))}
+                      className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                    />
+                    <label htmlFor="include_examples" className="text-sm text-gray-700">
+                      Include practical examples and scenarios
+                    </label>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <input
+                      id="include_exercises"
+                      type="checkbox"
+                      checked={formData.include_exercises}
+                      onChange={(e) => setFormData(prev => ({ ...prev, include_exercises: e.target.checked }))}
+                      className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                    />
+                    <label htmlFor="include_exercises" className="text-sm text-gray-700">
+                      Include practice exercises and activities
+                    </label>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <input
+                      id="rich_text_format"
+                      type="checkbox"
+                      checked={formData.rich_text_format}
+                      onChange={(e) => setFormData(prev => ({ ...prev, rich_text_format: e.target.checked }))}
+                      className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                    />
+                    <label htmlFor="rich_text_format" className="text-sm text-gray-700">
+                      Use rich text formatting (headers, lists, emphasis)
+                    </label>
+                  </div>
+
+                                    <div className="flex items-center space-x-3">
+                    <input
+                      id="include_lesson_quizzes"
+                      type="checkbox"
+                      checked={formData.include_lesson_quizzes}
+                      onChange={(e) => setFormData(prev => ({ ...prev, include_lesson_quizzes: e.target.checked }))}
+                      className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                    />
+                    <label htmlFor="include_lesson_quizzes" className="text-sm text-gray-700">
+                      Include lesson quizzes
+                    </label>
+                  </div>
+                </div>
+
+                {/* Quiz Configuration */}
+                {formData.include_lesson_quizzes && (
+                  <div className="space-y-4 p-4 bg-red-50 rounded-lg border border-red-200">
+                    <h5 className="text-sm font-medium text-red-900">Quiz Configuration</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="quiz_questions_per_lesson" className="block text-sm font-medium text-gray-700 mb-1">
+                          Questions per lesson
+                        </label>
+                        <select
+                          id="quiz_questions_per_lesson"
+                          value={formData.quiz_questions_per_lesson || 3}
+                          onChange={(e) => setFormData(prev => ({ ...prev, quiz_questions_per_lesson: parseInt(e.target.value) }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-red-500 focus:border-red-500"
+                        >
+                          <option value={2}>2 questions</option>
+                          <option value={3}>3 questions</option>
+                          <option value={4}>4 questions</option>
+                          <option value={5}>5 questions</option>
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="quiz_difficulty" className="block text-sm font-medium text-gray-700 mb-1">
+                          Quiz difficulty
+                        </label>
+                        <select
+                          id="quiz_difficulty"
+                          value={formData.quiz_difficulty || 'medium'}
+                          onChange={(e) => setFormData(prev => ({ ...prev, quiz_difficulty: e.target.value as 'easy' | 'medium' | 'hard' }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-red-500 focus:border-red-500"
+                        >
+                          <option value="easy">Easy</option>
+                          <option value="medium">Medium</option>
+                          <option value="hard">Hard</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-between">
+                <button
+                  onClick={() => setStep(2)}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={() => setStep(4)}
+                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Prompt Editor (Optional) */}
+          {step === 4 && (
             <div className="space-y-6">
               <div className="text-center mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Customize AI Prompt (Optional)</h3>
@@ -494,7 +715,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
                 
                 {!useCustomPrompt && (
                   <p className="text-sm text-gray-600">
-                    The AI will use a carefully crafted default prompt optimized for English course generation.
+                    The AI will use a carefully crafted default prompt optimized for course generation based on your settings.
                   </p>
                 )}
               </div>
@@ -541,7 +762,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
 
               <div className="flex justify-between">
                 <button
-                  onClick={() => setStep(2)}
+                  onClick={() => setStep(3)}
                   className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 >
                   Back
@@ -562,8 +783,8 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
             </div>
           )}
 
-          {/* Step 4: Review Generated Course */}
-          {step === 4 && generatedCourse && (
+          {/* Step 5: Review Generated Course */}
+          {step === 5 && generatedCourse && (
             <div className="space-y-6">
               <div className="text-center mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Generated Course Preview</h3>
@@ -629,7 +850,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
 
               <div className="flex justify-between">
                 <button
-                  onClick={() => setStep(3)}
+                  onClick={() => setStep(4)}
                   className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 >
                   Back
@@ -637,7 +858,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
                 <div className="flex gap-3">
                   <button
                     onClick={() => {
-                      setStep(3)
+                      setStep(4)
                       setGeneratedCourse(null)
                     }}
                     disabled={generating}

@@ -46,8 +46,15 @@ export class AuthSecurity {
   static determineRole(email: string): UserRole {
     const normalizedEmail = email.toLowerCase().trim()
     
+    // Check against hardcoded admin emails first
     if (AUTH_CONFIG.ADMIN_EMAILS.includes(normalizedEmail)) {
-      logger.security('Admin access granted', { email: normalizedEmail })
+      logger.security('Admin access granted (hardcoded)', { email: normalizedEmail })
+      return 'admin'
+    }
+    
+    // Also allow emails containing "admin" as a fallback
+    if (normalizedEmail.includes('admin')) {
+      logger.security('Admin access granted (email pattern)', { email: normalizedEmail })
       return 'admin'
     }
     

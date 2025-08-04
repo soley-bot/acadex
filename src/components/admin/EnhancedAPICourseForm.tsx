@@ -12,6 +12,7 @@ import { RichTextFormatGuide } from './RichTextFormatGuide'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import { uploadCourseImage } from '@/lib/storage'
 import { AICourseBuilder } from './AICourseBuilder'
+import { LessonQuizManager } from './LessonQuizManager'
 import { GeneratedCourse } from '@/lib/ai-course-generator'
 
 interface Module {
@@ -961,6 +962,18 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                                     Free preview
                                   </label>
                                 </div>
+                              </div>
+
+                              {/* Lesson Quiz Manager */}
+                              <div className="mt-4 pt-4 border-t border-gray-200">
+                                <LessonQuizManager
+                                  lessonId={lesson.id}
+                                  lessonTitle={lesson.title || `Lesson ${lessonIndex + 1}`}
+                                  onQuizUpdated={(quiz) => {
+                                    // Optional: Handle quiz updates if needed
+                                    console.log('Quiz updated for lesson:', lesson.title, quiz)
+                                  }}
+                                />
                               </div>
                             </div>
                           ))}
