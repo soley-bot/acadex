@@ -9,6 +9,7 @@ import { supabase, Course, CourseModule, CourseLesson, CourseResource, LessonPro
 import { getCourseWithModulesAndLessons, updateEnrollmentProgress } from '@/lib/database-operations'
 import { useAuth } from '@/contexts/AuthContext'
 import { RichTextRenderer } from '@/components/ui/RichTextRenderer'
+import { LessonQuiz } from '@/components/lesson/LessonQuiz'
 import { Typography, DisplayLG, H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
 import Icon from '@/components/ui/Icon'
@@ -38,6 +39,7 @@ export default function CourseStudyPage() {
   const [isEnrolled, setIsEnrolled] = useState(false)
   const [enrollmentProgress, setEnrollmentProgress] = useState(0)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [showQuizModal, setShowQuizModal] = useState(false)
 
   const loadCourseContent = useCallback(async () => {
     try {
@@ -570,11 +572,55 @@ export default function CourseStudyPage() {
                       </div>
                     )}
 
+                    {/* Lesson Quiz Section */}
+                    <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 lg:p-8 shadow-lg border border-white/20">
+                      <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6 flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center">
+                          <BookOpen className="w-4 h-4 text-white" />
+                        </div>
+                        Test Your Knowledge
+                      </h3>
+                      <div className="p-4 lg:p-6 bg-white/80 backdrop-blur-lg rounded-xl border border-white/20 hover:border-red-300 hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                          <div className="flex items-start gap-3 lg:gap-4 flex-1">
+                            <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-red-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                              <CheckCircle className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm lg:text-base font-bold text-gray-900">Lesson Quiz</h4>
+                              <p className="text-xs lg:text-sm text-gray-600 mt-1">
+                                Test your understanding of this lesson with a quick quiz
+                              </p>
+                              <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                <div className="flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  <span>~5 min</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span className="w-3 h-3 bg-red-400 rounded-full flex items-center justify-center text-white text-xs">#</span>
+                                  <span>5 questions</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <button 
+                            onClick={() => setShowQuizModal(true)}
+                            className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white flex items-center gap-2 text-sm lg:text-base font-bold px-4 py-2 rounded-xl transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start sm:self-center"
+                          >
+                            <PlayCircle className="w-4 h-4 text-white" />
+                            Take Quiz
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Resources */}
                     {currentLesson.resources && currentLesson.resources.length > 0 && (
                       <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 lg:p-8 shadow-lg border border-white/20">
                         <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6 flex items-center gap-3">
-                          <span className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center text-white text-sm">📁</span>
+                          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
+                            <FileText className="w-4 h-4 text-white" />
+                          </div>
                           Resources
                         </h3>
                         <div className="space-y-3 lg:space-y-4">
@@ -627,6 +673,20 @@ export default function CourseStudyPage() {
           </div>
         </div>
       </div>
+      
+      {/* Lesson Quiz Modal */}
+      {showQuizModal && currentLesson && (
+        <LessonQuiz
+          lessonId={currentLesson.id}
+          lessonTitle={currentLesson.title}
+          isOpen={showQuizModal}
+          onClose={() => setShowQuizModal(false)}
+          onComplete={(score) => {
+            console.log('Quiz completed with score:', score)
+            // TODO: Save quiz attempt to database
+          }}
+        />
+      )}
     </div>
   )
 }

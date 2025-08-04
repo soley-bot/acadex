@@ -52,13 +52,14 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
   const fetchCategories = async () => {
     try {
       setLoading(true)
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name')
-
-      if (error) throw error
-      setCategories(data || [])
+      const response = await fetch('/api/admin/categories')
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories')
+      }
+      
+      const data = await response.json()
+      setCategories(data.categories || [])
     } catch (err) {
       logger.error('Error fetching categories:', err)
     } finally {
@@ -77,18 +78,34 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
     
     try {
       if (editingCategory) {
-        const { error } = await supabase
-          .from('categories')
-          .update(formData)
-          .eq('id', editingCategory.id)
+        // Update existing category
+        const response = await fetch('/api/admin/categories', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: editingCategory.id,
+            ...formData
+          })
+        })
 
-        if (error) throw error
+        if (!response.ok) {
+          throw new Error('Failed to update category')
+        }
       } else {
-        const { error } = await supabase
-          .from('categories')
-          .insert([formData])
+        // Create new category
+        const response = await fetch('/api/admin/categories', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        })
 
-        if (error) throw error
+        if (!response.ok) {
+          throw new Error('Failed to create category')
+        }
       }
 
       await fetchCategories()
@@ -126,12 +143,14 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
     if (!confirm('Are you sure you want to delete this category?')) return
 
     try {
-      const { error } = await supabase
-        .from('categories')
-        .update({ is_active: false })
-        .eq('id', categoryId)
+      const response = await fetch(`/api/admin/categories?id=${categoryId}`, {
+        method: 'DELETE'
+      })
 
-      if (error) throw error
+      if (!response.ok) {
+        throw new Error('Failed to delete category')
+      }
+      
       await fetchCategories()
     } catch (err) {
       logger.error('Error deleting category:', err)

@@ -63,7 +63,16 @@ export async function POST(request: NextRequest) {
       module_count,
       lessons_per_module,
       course_format,
-      custom_prompt
+      custom_prompt,
+      // Enhanced generation options
+      subject_area,
+      content_depth,
+      content_style,
+      include_examples,
+      include_exercises,
+      rich_text_format,
+      content_length,
+      language_focus
     } = body
 
     // Validate request
@@ -86,7 +95,16 @@ export async function POST(request: NextRequest) {
       module_count,
       lessons_per_module,
       course_format: course_format || 'text',
-      custom_prompt
+      custom_prompt,
+      // Enhanced generation options
+      subject_area: subject_area || 'General Education',
+      content_depth: content_depth || 'detailed',
+      content_style: content_style || 'practical',
+      include_examples: include_examples !== false,
+      include_exercises: include_exercises !== false,
+      rich_text_format: rich_text_format || false,
+      content_length: content_length || 'medium',
+      language_focus: language_focus || 'general'
     }, custom_prompt)
 
     if (result.error) {

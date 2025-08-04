@@ -21,6 +21,10 @@ const sidebarItems = [
     href: '/admin/courses'
   },
   {
+    title: 'Enrollments',
+    href: '/admin/enrollments'
+  },
+  {
     title: 'Quizzes',
     href: '/admin/quizzes'
   },
