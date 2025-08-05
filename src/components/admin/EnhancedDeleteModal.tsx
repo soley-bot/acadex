@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { AlertTriangle, Trash2, Loader2, Users, FileText, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
@@ -31,7 +31,7 @@ export function EnhancedDeleteModal({ item, isOpen, onClose, onSuccess }: Enhanc
   const [usageInfo, setUsageInfo] = useState<UsageInfo>({})
   const [deleteOption, setDeleteOption] = useState<'cascade' | 'clean' | ''>('')
 
-  const checkUsage = async () => {
+  const checkUsage = useCallback(async () => {
     if (!item) return
 
     setCheckingUsage(true)
@@ -68,7 +68,7 @@ export function EnhancedDeleteModal({ item, isOpen, onClose, onSuccess }: Enhanc
     } finally {
       setCheckingUsage(false)
     }
-  }
+  }, [item])
 
   useEffect(() => {
     if (isOpen && item) {
@@ -76,7 +76,7 @@ export function EnhancedDeleteModal({ item, isOpen, onClose, onSuccess }: Enhanc
       setDeleteOption('')
       checkUsage()
     }
-  }, [isOpen, item]) // checkUsage is not included to avoid infinite re-renders
+  }, [isOpen, item, checkUsage])
 
   const handleCascadeDelete = async () => {
     if (!item) return
