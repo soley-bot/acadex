@@ -86,8 +86,10 @@ export interface QuizQuestion {
   id: string
   quiz_id: string
   question: string
+  question_type?: 'multiple_choice' | 'true_false' | 'fill_blank'
   options: any // JSONB array
   correct_answer: number
+  correct_answer_text?: string | null
   explanation?: string | null
   order_index: number
   points: number
@@ -117,6 +119,7 @@ export interface QuizAttempt {
   answers: any // JSONB
   score: number
   time_taken_seconds: number
+  created_at: string
   completed_at: string
   passed: boolean
   percentage_score?: number | null

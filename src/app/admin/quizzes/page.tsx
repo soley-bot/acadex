@@ -6,11 +6,22 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Search, Plus, Brain, Clock, Users, BarChart3, Edit, Trash2, Eye, ChevronDown, Settings, EyeOff, Check } from 'lucide-react'
-import { supabase, Quiz } from '@/lib/supabase'
+import { supabase, Quiz as BaseQuiz } from '@/lib/supabase'
+
+// Extended Quiz interface with calculated statistics
+interface Quiz extends BaseQuiz {
+  attempts_count?: number
+  average_score?: number
+}
 import { QuizForm } from '@/components/admin/QuizForm'
-import { DeleteQuizModal } from '@/components/admin/DeleteQuizModal'
 import { QuizViewModal } from '@/components/admin/QuizViewModal'
 import { CategoryManagement } from '@/components/admin/CategoryManagement'
+import { AIQuizGenerator, GeneratedQuiz } from '@/components/admin/AIQuizGeneratorNew'
+import { SimpleAIQuizCreator } from '@/components/admin/SimpleAIQuizCreator'
+import { BulkQuizGenerator } from '@/components/admin/BulkQuizGenerator'
+import { QuizAnalytics } from '@/components/admin/QuizAnalytics'
+import { DeleteModal } from '@/components/ui/DeleteModal'
+import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
 
 export default function QuizzesPage() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([])
@@ -27,9 +38,14 @@ export default function QuizzesPage() {
   const [editingQuiz, setEditingQuiz] = useState<Quiz | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deletingQuiz, setDeletingQuiz] = useState<Quiz | null>(null)
+  const [showEnhancedDeleteModal, setShowEnhancedDeleteModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
   const [viewingQuiz, setViewingQuiz] = useState<Quiz | null>(null)
   const [showCategoryManagement, setShowCategoryManagement] = useState(false)
+  const [showAIGenerator, setShowAIGenerator] = useState(false)
+  const [showSimpleAICreator, setShowSimpleAICreator] = useState(false)
+  const [showBulkGenerator, setShowBulkGenerator] = useState(false)
+  const [showAnalytics, setShowAnalytics] = useState(false)
 
   // Refs for click outside
   const categoryDropdownRef = useRef<HTMLDivElement>(null)
@@ -58,7 +74,35 @@ export default function QuizzesPage() {
         logger.error('Error fetching quiz attempts:', attemptsError)
       }
 
-      setQuizzes(data || [])
+      // Get actual question counts from database
+      const { data: questionCounts, error: questionCountError } = await supabase
+        .from('quiz_questions')
+        .select('quiz_id')
+        .in('quiz_id', quizIds)
+
+      if (questionCountError) {
+        logger.error('Error fetching question counts:', questionCountError)
+      }
+
+      // Process quizzes with actual statistics
+      const processedQuizzes = data.map(quiz => {
+        const quizAttempts = attempts?.filter(attempt => attempt.quiz_id === quiz.id) || []
+        const actualQuestionCount = questionCounts?.filter(q => q.quiz_id === quiz.id).length || 0
+        
+        const attemptsCount = quizAttempts.length
+        const averageScore = attemptsCount > 0 
+          ? Math.round(quizAttempts.reduce((sum, attempt) => sum + (attempt.score / attempt.total_questions * 100), 0) / attemptsCount)
+          : 0
+
+        return {
+          ...quiz,
+          total_questions: actualQuestionCount, // Use actual count from database
+          attempts_count: attemptsCount,
+          average_score: averageScore
+        }
+      })
+
+      setQuizzes(processedQuizzes || [])
     } catch (err) {
       logger.error('Error fetching quizzes:', err)
       setError('Failed to load quizzes. Please try again.')
@@ -127,6 +171,125 @@ export default function QuizzesPage() {
     setShowQuizForm(true)
   }
 
+  const handleAIQuizGenerated = async (generatedQuiz: GeneratedQuiz) => {
+    try {
+      setLoading(true)
+      
+      // Create the quiz in the database
+      const { data: quiz, error: quizError } = await supabase
+        .from('quizzes')
+        .insert({
+          title: generatedQuiz.title,
+          description: generatedQuiz.description,
+          category: generatedQuiz.category,
+          difficulty: generatedQuiz.difficulty,
+          duration_minutes: generatedQuiz.duration_minutes,
+          passing_score: generatedQuiz.passing_score,
+          total_questions: generatedQuiz.questions.length,
+          is_published: false
+        })
+        .select()
+        .single()
+
+      if (quizError) throw quizError
+
+      // Insert questions
+      const questionsToInsert = generatedQuiz.questions.map(q => ({
+        quiz_id: quiz.id,
+        question: q.question,
+        question_type: q.question_type,
+        options: q.question_type === 'fill_blank' ? [] : (q.options || []),
+        correct_answer: q.question_type === 'fill_blank' ? 0 : (q.correct_answer as number),
+        correct_answer_text: q.question_type === 'fill_blank' ? (q.correct_answer as string) : null,
+        explanation: q.explanation || null,
+        order_index: q.order_index,
+        points: q.points || 1
+      }))
+
+      const { error: questionsError } = await supabase
+        .from('quiz_questions')
+        .insert(questionsToInsert)
+
+      if (questionsError) throw questionsError
+
+      // Refresh the quiz list and close the AI generator
+      fetchQuizzes()
+      setShowAIGenerator(false)
+      
+    } catch (err: any) {
+      logger.error('Error saving AI-generated quiz:', err)
+      setError('Failed to save AI-generated quiz. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleBulkQuizzesGenerated = async (generatedQuizzes: GeneratedQuiz[]) => {
+    try {
+      setLoading(true)
+      let successCount = 0
+      
+      for (const generatedQuiz of generatedQuizzes) {
+        try {
+          // Create the quiz in the database
+          const { data: quiz, error: quizError } = await supabase
+            .from('quizzes')
+            .insert({
+              title: generatedQuiz.title,
+              description: generatedQuiz.description,
+              category: generatedQuiz.category,
+              difficulty: generatedQuiz.difficulty,
+              duration_minutes: generatedQuiz.duration_minutes,
+              passing_score: generatedQuiz.passing_score,
+              total_questions: generatedQuiz.questions.length,
+              is_published: false
+            })
+            .select()
+            .single()
+
+          if (quizError) throw quizError
+
+          // Insert questions
+          const questionsToInsert = generatedQuiz.questions.map(q => ({
+            quiz_id: quiz.id,
+            question: q.question,
+            question_type: q.question_type,
+            options: q.question_type === 'fill_blank' ? [] : (q.options || []),
+            correct_answer: q.question_type === 'fill_blank' ? 0 : (q.correct_answer as number),
+            correct_answer_text: q.question_type === 'fill_blank' ? (q.correct_answer as string) : null,
+            explanation: q.explanation || null,
+            order_index: q.order_index,
+            points: q.points || 1
+          }))
+
+          const { error: questionsError } = await supabase
+            .from('quiz_questions')
+            .insert(questionsToInsert)
+
+          if (questionsError) throw questionsError
+          
+          successCount++
+        } catch (err: any) {
+          logger.error(`Error saving bulk quiz "${generatedQuiz.title}":`, err)
+        }
+      }
+
+      // Refresh the quiz list and close the bulk generator
+      fetchQuizzes()
+      setShowBulkGenerator(false)
+      
+      if (successCount < generatedQuizzes.length) {
+        setError(`Successfully created ${successCount} of ${generatedQuizzes.length} quizzes. Some quizzes failed to save.`)
+      }
+      
+    } catch (err: any) {
+      logger.error('Error saving bulk quizzes:', err)
+      setError('Failed to save bulk quizzes. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleEditQuiz = (quiz: Quiz) => {
     setEditingQuiz(quiz)
     setShowQuizForm(true)
@@ -134,7 +297,7 @@ export default function QuizzesPage() {
 
   const handleDeleteQuiz = (quiz: Quiz) => {
     setDeletingQuiz(quiz)
-    setShowDeleteModal(true)
+    setShowEnhancedDeleteModal(true)
   }
 
   const handleViewQuiz = (quiz: Quiz) => {
@@ -174,7 +337,27 @@ export default function QuizzesPage() {
   const handleDeleteSuccess = () => {
     fetchQuizzes()
     setShowDeleteModal(false)
+    setShowEnhancedDeleteModal(false)
     setDeletingQuiz(null)
+  }
+
+  const deleteQuiz = async (quiz: any) => {
+    const { error } = await supabase
+      .from('quizzes')
+      .delete()
+      .eq('id', quiz.id)
+
+    if (error) throw error
+  }
+
+  const checkQuizUsage = async (quiz: any) => {
+    const { count, error } = await supabase
+      .from('quiz_attempts')
+      .select('*', { count: 'exact', head: true })
+      .eq('quiz_id', quiz.id)
+
+    if (error) throw error
+    return { count: count || 0 }
   }
 
   const formatDate = (dateString: string) => {
@@ -225,19 +408,58 @@ export default function QuizzesPage() {
               <p className="text-gray-600 text-lg">Create, edit, and manage interactive assessments for your students</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              <button
-                onClick={handleCreateQuiz}
-                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                <Plus size={20} />
-                <span>Create New Quiz</span>
-              </button>
+              <div className="relative group">
+                <button
+                  onClick={handleCreateQuiz}
+                  className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full sm:w-auto"
+                >
+                  <Plus size={20} />
+                  <span>Create New Quiz</span>
+                </button>
+                <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-52">
+                  <button
+                    onClick={handleCreateQuiz}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
+                  >
+                    <Plus size={16} />
+                    Create Manually
+                  </button>
+                  <button
+                    onClick={() => setShowSimpleAICreator(true)}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
+                  >
+                    <Brain size={16} className="text-purple-600" />
+                    Create with AI (Simple)
+                  </button>
+                  <button
+                    onClick={() => setShowAIGenerator(true)}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
+                  >
+                    <Brain size={16} />
+                    Advanced AI Generator
+                  </button>
+                  <button
+                    onClick={() => setShowBulkGenerator(true)}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-b-lg flex items-center gap-2"
+                  >
+                    <Brain size={16} className="text-purple-600" />
+                    Bulk Generate
+                  </button>
+                </div>
+              </div>
               <button
                 onClick={() => setShowCategoryManagement(true)}
                 className="bg-white border border-gray-300 hover:border-gray-400 text-gray-700 px-6 py-3 sm:px-6 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold hover:shadow-md"
               >
                 <Settings size={20} />
                 <span>Categories</span>
+              </button>
+              <button
+                onClick={() => setShowAnalytics(true)}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 sm:px-6 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
+              >
+                <BarChart3 size={20} />
+                <span>Analytics</span>
               </button>
             </div>
           </div>
@@ -499,11 +721,11 @@ export default function QuizzesPage() {
                 <div className="grid grid-cols-2 gap-4 text-base">
                   <div className="flex items-center gap-2 text-gray-700">
                     <Users className="h-5 w-5 flex-shrink-0 text-emerald-600" />
-                    <span className="font-medium">{quiz.total_questions} items</span>
+                    <span className="font-medium">{quiz.attempts_count || 0} attempts</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-700">
                     <BarChart3 className="h-5 w-5 flex-shrink-0 text-orange-600" />
-                    <span className="font-medium">{quiz.passing_score}% pass</span>
+                    <span className="font-medium">{quiz.average_score || 0}% avg</span>
                   </div>
                 </div>
 
@@ -599,10 +821,19 @@ export default function QuizzesPage() {
         onSuccess={handleFormSuccess}
       />
 
-      <DeleteQuizModal
-        quiz={deletingQuiz}
+      <DeleteModal
+        item={deletingQuiz ? { ...deletingQuiz, type: 'quiz' } : null}
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
+        onSuccess={handleDeleteSuccess}
+        onDelete={deleteQuiz}
+        usageCheck={checkQuizUsage}
+      />
+
+      <EnhancedDeleteModal
+        item={deletingQuiz ? { id: deletingQuiz.id, title: deletingQuiz.title, type: 'quiz' } : null}
+        isOpen={showEnhancedDeleteModal}
+        onClose={() => setShowEnhancedDeleteModal(false)}
         onSuccess={handleDeleteSuccess}
       />
 
@@ -625,6 +856,32 @@ export default function QuizzesPage() {
           // Refresh categories when new ones are created
           fetchQuizzes()
         }}
+      />
+
+      <AIQuizGenerator
+        isOpen={showAIGenerator}
+        onClose={() => setShowAIGenerator(false)}
+        onQuizGenerated={handleAIQuizGenerated}
+      />
+
+      <SimpleAIQuizCreator
+        isOpen={showSimpleAICreator}
+        onClose={() => setShowSimpleAICreator(false)}
+        onSuccess={() => {
+          setShowSimpleAICreator(false)
+          fetchQuizzes()
+        }}
+      />
+
+      <BulkQuizGenerator
+        isOpen={showBulkGenerator}
+        onClose={() => setShowBulkGenerator(false)}
+        onQuizzesGenerated={handleBulkQuizzesGenerated}
+      />
+
+      <QuizAnalytics
+        isOpen={showAnalytics}
+        onClose={() => setShowAnalytics(false)}
       />
     </div>
   )
