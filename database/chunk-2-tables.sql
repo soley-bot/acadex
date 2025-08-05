@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS public.quiz_attempts (
   score INTEGER DEFAULT 0,
   total_questions INTEGER NOT NULL,
   time_taken INTEGER,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   completed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   answers JSONB
 );

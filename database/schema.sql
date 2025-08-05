@@ -63,6 +63,7 @@ CREATE TABLE public.quiz_attempts (
   total_questions INTEGER NOT NULL,
   time_taken_seconds INTEGER NOT NULL DEFAULT 0,
   answers JSONB NOT NULL, -- Object with question_id as key and selected_answer_index as value
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   completed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

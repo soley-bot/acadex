@@ -3,17 +3,19 @@
 import { logger } from '@/lib/logger'
 
 import { useState, useEffect, useCallback } from 'react'
-import { X, Plus, Trash2, Save, GripVertical, Eye } from 'lucide-react'
+import { X, Plus, Trash2, Save, GripVertical, Eye, Brain } from 'lucide-react'
 import { supabase, Quiz, QuizQuestion } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import { uploadQuizImage } from '@/lib/storage'
+import { AIQuizGenerator, GeneratedQuiz } from './AIQuizGenerator'
 
 interface Question {
   id?: string
   question: string
+  question_type?: 'multiple_choice' | 'true_false' | 'fill_blank'
   options: string[]
-  correct_answer: number
+  correct_answer: number | string
   explanation?: string
   order_index: number
   points?: number
@@ -32,6 +34,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<'details' | 'questions'>('details')
+  const [showAIGenerator, setShowAIGenerator] = useState(false)
 
   const [formData, setFormData] = useState({
     title: '',
@@ -44,6 +47,21 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
   })
 
   const [questions, setQuestions] = useState<Question[]>([])
+  const [showAddQuestionDropdown, setShowAddQuestionDropdown] = useState(false)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showAddQuestionDropdown) {
+        setShowAddQuestionDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showAddQuestionDropdown])
 
   // Define loadQuestions before useEffect that uses it
   const loadQuestions = useCallback(async () => {
@@ -61,10 +79,12 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
       setQuestions(data.map(q => ({
         id: q.id,
         question: q.question,
-        options: q.options,
-        correct_answer: q.correct_answer,
+        question_type: q.question_type || 'multiple_choice',
+        options: q.question_type === 'fill_blank' ? [] : (q.options || []),
+        correct_answer: q.question_type === 'fill_blank' ? (q.correct_answer_text || '') : (q.correct_answer || 0),
         explanation: q.explanation,
-        order_index: q.order_index
+        order_index: q.order_index,
+        points: q.points || 1
       })))
     } catch (err) {
       logger.error('Error loading questions:', err)
@@ -100,15 +120,46 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
     setError('')
   }, [quiz, isOpen, loadQuestions])
 
-  const addQuestion = () => {
+  const addQuestion = (questionType: 'multiple_choice' | 'true_false' | 'fill_blank' = 'multiple_choice') => {
     const newQuestion: Question = {
       question: '',
-      options: ['', '', '', ''],
-      correct_answer: -1,
+      question_type: questionType,
+      options: questionType === 'fill_blank' ? [] : 
+               questionType === 'true_false' ? ['True', 'False'] : 
+               ['', '', '', ''],
+      correct_answer: questionType === 'fill_blank' ? '' : -1,
       explanation: '',
-      order_index: questions.length
+      order_index: questions.length,
+      points: 1
     }
     setQuestions([...questions, newQuestion])
+  }
+
+  const handleAIQuizGenerated = (generatedQuiz: GeneratedQuiz) => {
+    // Update form data with generated quiz info
+    setFormData(prev => ({
+      ...prev,
+      title: generatedQuiz.title,
+      description: generatedQuiz.description,
+      category: generatedQuiz.category,
+      difficulty: generatedQuiz.difficulty,
+      duration_minutes: generatedQuiz.duration_minutes
+    }))
+
+    // Convert generated questions to our format
+    const convertedQuestions: Question[] = generatedQuiz.questions.map((q, index) => ({
+      question: q.question,
+      question_type: q.question_type,
+      options: q.options || [],
+      correct_answer: q.correct_answer,
+      explanation: q.explanation,
+      order_index: index,
+      points: q.points || 1
+    }))
+
+    setQuestions(convertedQuestions)
+    setShowAIGenerator(false)
+    setActiveTab('questions')
   }
 
   const updateQuestion = (index: number, field: keyof Question, value: any) => {
@@ -159,11 +210,26 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
         if (!q || !q.question.trim()) {
           throw new Error(`Question ${i + 1}: Question text is required`)
         }
-        if (q.options.some(opt => !opt.trim())) {
-          throw new Error(`Question ${i + 1}: All options must be filled`)
-        }
-        if (q.correct_answer < 0 || q.correct_answer >= q.options.length) {
-          throw new Error(`Question ${i + 1}: Please select a correct answer`)
+
+        const questionType = q.question_type || 'multiple_choice'
+
+        if (questionType === 'fill_blank') {
+          if (!q.correct_answer || (q.correct_answer as string).trim() === '') {
+            throw new Error(`Question ${i + 1}: Correct answer is required for fill-in-the-blank questions`)
+          }
+        } else {
+          // Multiple choice or true/false
+          if (!q.options || q.options.length === 0) {
+            throw new Error(`Question ${i + 1}: Answer options are required`)
+          }
+          
+          if (questionType === 'multiple_choice' && q.options.some(opt => !opt.trim())) {
+            throw new Error(`Question ${i + 1}: All options must be filled`)
+          }
+          
+          if (typeof q.correct_answer !== 'number' || q.correct_answer < 0 || q.correct_answer >= q.options.length) {
+            throw new Error(`Question ${i + 1}: Please select a correct answer`)
+          }
         }
       }
 
@@ -206,14 +272,20 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
       }
 
       // Insert questions
-      const questionsToInsert = questions.map(q => ({
-        quiz_id: quizId,
-        question: q.question,
-        options: q.options,
-        correct_answer: q.correct_answer,
-        explanation: q.explanation || null,
-        order_index: q.order_index
-      }))
+      const questionsToInsert = questions.map(q => {
+        const questionType = q.question_type || 'multiple_choice'
+        return {
+          quiz_id: quizId,
+          question: q.question,
+          question_type: questionType,
+          options: questionType === 'fill_blank' ? [] : q.options,
+          correct_answer: questionType === 'fill_blank' ? 0 : (q.correct_answer as number),
+          correct_answer_text: questionType === 'fill_blank' ? (q.correct_answer as string) : null,
+          explanation: q.explanation || null,
+          order_index: q.order_index,
+          points: q.points || 1
+        }
+      })
 
       const { error: questionsError } = await supabase
         .from('quiz_questions')
@@ -238,9 +310,9 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="surface-primary rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-subtle">
+      <div className="surface-primary rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col border border-subtle">
         {/* Enhanced Header with Better Typography */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 text-white">
+        <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-6 text-white flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold mb-1">
@@ -435,13 +507,58 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Quiz Questions</h3>
                   <p className="text-gray-600 text-base">Add and manage questions for your quiz</p>
                 </div>
-                <button
-                  onClick={addQuestion}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 font-semibold text-base hover:shadow-lg transform hover:-translate-y-0.5"
-                >
-                  <Plus className="h-5 w-5" />
-                  Add Question
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowAIGenerator(true)}
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 font-semibold text-base hover:shadow-lg transform hover:-translate-y-0.5"
+                  >
+                    <Brain className="h-5 w-5" />
+                    AI Generate
+                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowAddQuestionDropdown(!showAddQuestionDropdown)}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 font-semibold text-base hover:shadow-lg transform hover:-translate-y-0.5"
+                    >
+                      <Plus className="h-5 w-5" />
+                      Add Question
+                    </button>
+                    {showAddQuestionDropdown && (
+                      <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50 min-w-48">
+                        <button
+                          onClick={() => {
+                            addQuestion('multiple_choice')
+                            setShowAddQuestionDropdown(false)
+                          }}
+                          className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
+                        >
+                          <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                          Multiple Choice
+                        </button>
+                        <button
+                          onClick={() => {
+                            addQuestion('true_false')
+                            setShowAddQuestionDropdown(false)
+                          }}
+                          className="w-full text-left px-4 py-3 hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                          True/False
+                        </button>
+                        <button
+                          onClick={() => {
+                            addQuestion('fill_blank')
+                            setShowAddQuestionDropdown(false)
+                          }}
+                          className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-b-lg flex items-center gap-2"
+                        >
+                          <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                          Fill in the Blank
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-8">
@@ -450,7 +567,12 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
                     <div className="flex items-start justify-between mb-6">
                       <div className="flex items-center gap-3">
                         <GripVertical className="h-6 w-6 text-gray-400 cursor-move" />
-                        <h4 className="font-bold text-gray-900 text-lg">Question {questionIndex + 1}</h4>
+                        <div>
+                          <h4 className="font-bold text-gray-900 text-lg">Question {questionIndex + 1}</h4>
+                          <span className="text-sm text-gray-500 capitalize">
+                            {question.question_type?.replace('_', ' ') || 'Multiple Choice'}
+                          </span>
+                        </div>
                       </div>
                       <button
                         onClick={() => deleteQuestion(questionIndex)}
@@ -461,6 +583,45 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
                     </div>
 
                     <div className="space-y-4">
+                      {/* Question Type Selector */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Question Type
+                        </label>
+                        <select
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          value={question.question_type || 'multiple_choice'}
+                          onChange={(e) => {
+                            const newType = e.target.value as 'multiple_choice' | 'true_false' | 'fill_blank'
+                            const updated = [...questions]
+                            
+                            // Update the question type
+                            updated[questionIndex] = { 
+                              ...updated[questionIndex], 
+                              question_type: newType 
+                            } as Question
+                            
+                            // Reset options and correct answer based on type
+                            if (newType === 'true_false') {
+                              updated[questionIndex].options = ['True', 'False']
+                              updated[questionIndex].correct_answer = 0
+                            } else if (newType === 'fill_blank') {
+                              updated[questionIndex].options = []
+                              updated[questionIndex].correct_answer = ''
+                            } else { // multiple_choice
+                              updated[questionIndex].options = ['', '', '', '']
+                              updated[questionIndex].correct_answer = 0
+                            }
+                            
+                            setQuestions(updated)
+                          }}
+                        >
+                          <option value="multiple_choice">Multiple Choice</option>
+                          <option value="true_false">True/False</option>
+                          <option value="fill_blank">Fill in the Blank</option>
+                        </select>
+                      </div>
+
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-2">
                           Question Text *
@@ -470,36 +631,65 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
                           className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent bg-background/50 backdrop-blur-sm resize-vertical"
                           value={question.question}
                           onChange={(e) => updateQuestion(questionIndex, 'question', e.target.value)}
-                          placeholder="Enter your question clearly and concisely..."
+                          placeholder={
+                            question.question_type === 'fill_blank' 
+                              ? "Enter your question with a blank space (use _____ for the blank)..."
+                              : "Enter your question clearly and concisely..."
+                          }
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Answer Options *
-                        </label>
-                        <p className="text-sm text-gray-500 mb-3">Select the correct answer by clicking the radio button</p>
-                        <div className="space-y-2">
-                          {question.options.map((option, optionIndex) => (
-                            <div key={optionIndex} className="flex items-center gap-3">
-                              <input
-                                type="radio"
-                                name={`correct-${questionIndex}`}
-                                checked={question.correct_answer === optionIndex}
-                                onChange={() => updateQuestion(questionIndex, 'correct_answer', optionIndex)}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                              />
-                              <input
-                                type="text"
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                value={option}
-                                onChange={(e) => updateQuestionOption(questionIndex, optionIndex, e.target.value)}
-                                placeholder={`Option ${optionIndex + 1}`}
-                              />
-                            </div>
-                          ))}
+                      {/* Answer Options - Different UI for each question type */}
+                      {question.question_type === 'fill_blank' ? (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Correct Answer *
+                          </label>
+                          <input
+                            type="text"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            value={question.correct_answer as string}
+                            onChange={(e) => updateQuestion(questionIndex, 'correct_answer', e.target.value)}
+                            placeholder="Enter the correct word/phrase for the blank"
+                          />
                         </div>
-                      </div>
+                      ) : (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Answer Options *
+                          </label>
+                          <p className="text-sm text-gray-500 mb-3">
+                            {question.question_type === 'true_false' 
+                              ? 'Select whether the statement is true or false'
+                              : 'Select the correct answer by clicking the radio button'
+                            }
+                          </p>
+                          <div className="space-y-2">
+                            {question.options.map((option, optionIndex) => (
+                              <div key={optionIndex} className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name={`correct-${questionIndex}`}
+                                  checked={question.correct_answer === optionIndex}
+                                  onChange={() => updateQuestion(questionIndex, 'correct_answer', optionIndex)}
+                                  className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                />
+                                {question.question_type === 'true_false' ? (
+                                  <span className="text-sm font-medium text-gray-700">{option}</span>
+                                ) : (
+                                  <input
+                                    type="text"
+                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    value={option}
+                                    onChange={(e) => updateQuestionOption(questionIndex, optionIndex, e.target.value)}
+                                    placeholder={`Option ${optionIndex + 1}`}
+                                  />
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-2">
@@ -520,12 +710,21 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
                 {questions.length === 0 && (
                   <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                     <p className="text-gray-500 mb-4">No questions added yet</p>
-                    <button
-                      onClick={addQuestion}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
-                    >
-                      Add Your First Question
-                    </button>
+                    <div className="flex gap-3 justify-center">
+                      <button
+                        onClick={() => setShowAIGenerator(true)}
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2"
+                      >
+                        <Brain className="h-4 w-4" />
+                        Generate with AI
+                      </button>
+                      <button
+                        onClick={() => addQuestion('multiple_choice')}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
+                      >
+                        Add Manually
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -534,7 +733,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
         </div>
 
         {/* Enhanced Footer */}
-        <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-t border-gray-200 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-t border-gray-200 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
@@ -576,6 +775,13 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
           </div>
         </div>
       </div>
+
+      {/* AI Quiz Generator Modal */}
+      <AIQuizGenerator
+        isOpen={showAIGenerator}
+        onClose={() => setShowAIGenerator(false)}
+        onQuizGenerated={handleAIQuizGenerated}
+      />
     </div>
   )
 }

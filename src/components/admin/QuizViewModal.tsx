@@ -164,7 +164,7 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
                 </div>
                 <div className="flex items-center gap-1">
                   <BarChart3 className="h-4 w-4" />
-                  {quiz.total_questions} questions
+                  {questions.length} questions
                 </div>
                 <div className="flex items-center gap-1">
                   <Users className="h-4 w-4" />

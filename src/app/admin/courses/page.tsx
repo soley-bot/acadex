@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Course } from '@/lib/supabase'
 import { EnhancedAPICourseForm } from '@/components/admin/EnhancedAPICourseForm'
 import { DeleteCourseModal } from '@/components/admin/DeleteCourseModal'
+import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
 import { CourseViewModal } from '@/components/admin/CourseViewModal'
 import { CategoryManagement } from '@/components/admin/CategoryManagement'
 import Icon from '@/components/ui/Icon'
@@ -25,6 +26,7 @@ export default function CoursesPage() {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deletingCourse, setDeletingCourse] = useState<Course | null>(null)
+  const [showEnhancedDeleteModal, setShowEnhancedDeleteModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
   const [viewingCourse, setViewingCourse] = useState<Course | null>(null)
   const [showCategoryManagement, setShowCategoryManagement] = useState(false)
@@ -91,7 +93,7 @@ export default function CoursesPage() {
 
   const handleDeleteCourse = (course: Course) => {
     setDeletingCourse(course)
-    setShowDeleteModal(true)
+    setShowEnhancedDeleteModal(true)
   }
 
   const handleViewCourse = (course: Course) => {
@@ -109,6 +111,7 @@ export default function CoursesPage() {
   const handleDeleteSuccess = () => {
     fetchCourses() // Refresh courses after successful deletion
     setShowDeleteModal(false)
+    setShowEnhancedDeleteModal(false)
     setDeletingCourse(null)
   }
 
@@ -487,6 +490,13 @@ export default function CoursesPage() {
         course={deletingCourse}
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
+        onSuccess={handleDeleteSuccess}
+      />
+
+      <EnhancedDeleteModal
+        item={deletingCourse ? { id: deletingCourse.id, title: deletingCourse.title, type: 'course' } : null}
+        isOpen={showEnhancedDeleteModal}
+        onClose={() => setShowEnhancedDeleteModal(false)}
         onSuccess={handleDeleteSuccess}
       />
 
