@@ -265,12 +265,12 @@ export default function Header() {
                           <Icon name="user" size={20} color="current" />
                           Sign In
                         </Link>
-                        <Link 
-                          href="/auth/signup" 
-                          className="bg-primary hover:bg-primary/90 text-gray-900 px-6 py-4 rounded-xl font-bold transition-all duration-300 w-full text-center block shadow-lg text-lg flex items-center justify-center gap-3"
+                        <Link
+                          href="/auth/signup"
+                          className="bg-primary hover:bg-primary/90 text-black px-6 py-4 rounded-xl font-bold transition-all duration-300 w-full text-center block shadow-lg text-lg flex items-center justify-center gap-3"
                           onClick={handleMobileNavClick}
                         >
-                          <Icon name="rocket" size={20} color="gray-900" />
+                          <Icon name="rocket" size={20} color="current" />
                           Get Started
                         </Link>
                       </div>

@@ -69,8 +69,8 @@ export default function Features() {
             <div key={index} className="group">
               <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-8 h-full transition-all duration-300 hover:shadow-2xl hover:border-secondary hover:-translate-y-2 shadow-lg">
                 {/* Icon Container */}
-                <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center mb-8 group-hover:bg-secondary transition-all duration-300 shadow-lg">
-                  <Icon name={feature.icon} size={36} color="gray-900" className="group-hover:text-white transition-colors" />
+                <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center mb-8 group-hover:bg-secondary transition-all duration-300 shadow-lg text-black group-hover:text-white">
+                  <Icon name={feature.icon} size={36} color="current" />
                 </div>
                 
                 <H3 className="mb-4 group-hover:text-primary transition-colors">

@@ -129,8 +129,8 @@ export default function Hero() {
                 gap="md" 
                 className="p-6 lg:p-8 bg-gradient-to-r from-primary/5 via-white to-secondary/5 rounded-2xl text-secondary shadow-xl"
               >
-                <div className="w-12 h-12 lg:w-16 lg:h-16 bg-primary rounded-full flex items-center justify-center shadow-lg">
-                  <Icon name="trophy" size={32} color="gray-900" />
+                <div className="w-12 h-12 lg:w-16 lg:h-16 bg-primary rounded-full flex items-center justify-center shadow-lg text-black">
+                  <Icon name="trophy" size={32} color="current" />
                 </div>
                 <div>
                   <Typography variant="h3" className="text-secondary mb-1">Great progress!</Typography>
