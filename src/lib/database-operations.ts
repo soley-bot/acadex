@@ -128,7 +128,7 @@ export async function getCourses(filters?: {
 }): Promise<Course[]> {
   let query = supabase
     .from('courses')
-    .select(COURSE_FIELDS.join(','))
+    .select('*')
     .order('created_at', { ascending: false })
 
   if (filters?.category) {
@@ -146,7 +146,8 @@ export async function getCourses(filters?: {
 
   const { data, error } = await query
   if (error) throw error
-  return (data || []) as unknown as Course[]
+  
+  return data || []
 }
 
 export async function getCourseWithModulesAndLessons(courseId: string): Promise<Course & { modules: any[] }> {
@@ -220,7 +221,8 @@ export async function getQuizzes(filters?: {
 
   const { data, error } = await query
   if (error) throw error
-  return data
+  
+  return (data || [])
 }
 
 // Enrollment operations

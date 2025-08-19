@@ -167,7 +167,7 @@ export function AIQuizGenerator({ isOpen, onClose, onQuizGenerated }: AIQuizGene
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            className="px-4 py-2 text-secondary-foreground bg-secondary hover:bg-secondary/80 rounded-lg transition-colors"
             disabled={loading}
           >
             Cancel
@@ -175,7 +175,7 @@ export function AIQuizGenerator({ isOpen, onClose, onQuizGenerated }: AIQuizGene
           <button
             type="submit"
             disabled={loading || !formData.topic.trim()}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-2 bg-brand text-brand-foreground rounded-lg hover:bg-brand/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {loading ? (
               <>

@@ -175,14 +175,14 @@ export function CourseViewModal({ course, isOpen, onClose, onEdit }: CourseViewM
           <div className="flex justify-end space-x-3 pt-6 border-t">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="px-4 py-2 text-secondary-foreground bg-secondary hover:bg-secondary/80 rounded-lg transition-colors"
             >
               Close
             </button>
             {onEdit && (
               <button
                 onClick={onEdit}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-brand hover:bg-brand/90 text-brand-foreground rounded-lg transition-colors"
               >
                 Edit Course
               </button>

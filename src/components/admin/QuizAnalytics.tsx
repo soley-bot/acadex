@@ -84,14 +84,14 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
       // Calculate basic metrics
       const totalAttempts = attempts.length
       const totalScore = attempts.reduce((sum, attempt) => {
-        const percentage = (attempt.score / attempt.total_questions) * 100
-        return sum + percentage
+        // Score is already stored as percentage
+        return sum + attempt.score
       }, 0)
       const averageScore = totalScore / totalAttempts
 
       const passedAttempts = attempts.filter(attempt => {
-        const percentage = (attempt.score / attempt.total_questions) * 100
-        return percentage >= (attempt.quizzes?.passing_score || 70)
+        // Score is already stored as percentage
+        return attempt.score >= (attempt.quizzes?.passing_score || 70)
       }).length
       const passRate = (passedAttempts / totalAttempts) * 100
 
@@ -115,11 +115,11 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
       const difficultyMap = new Map<string, { count: number; totalScore: number }>()
       attempts.forEach(attempt => {
         const difficulty = attempt.quizzes?.difficulty || 'unknown'
-        const percentage = (attempt.score / attempt.total_questions) * 100
+        // Score is already stored as percentage
         const current = difficultyMap.get(difficulty) || { count: 0, totalScore: 0 }
         difficultyMap.set(difficulty, {
           count: current.count + 1,
-          totalScore: current.totalScore + percentage
+          totalScore: current.totalScore + attempt.score
         })
       })
       const difficultyDistribution = Array.from(difficultyMap.entries())
@@ -142,7 +142,8 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
         
         const dayAvgScore = dayAttempts.length > 0 
           ? dayAttempts.reduce((sum, attempt) => {
-              return sum + (attempt.score / attempt.total_questions) * 100
+              // Score is already stored as percentage
+              return sum + attempt.score
             }, 0) / dayAttempts.length
           : 0
         
@@ -163,8 +164,8 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
       
       attempts.forEach(attempt => {
         const quizTitle = attempt.quizzes?.title || 'Unknown Quiz'
-        const percentage = (attempt.score / attempt.total_questions) * 100
-        const isPassed = percentage >= (attempt.quizzes?.passing_score || 70)
+        // Score is already stored as percentage
+        const isPassed = attempt.score >= (attempt.quizzes?.passing_score || 70)
         
         const current = quizMap.get(quizTitle) || { 
           attempts: 0, 
@@ -175,7 +176,7 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
         
         quizMap.set(quizTitle, {
           attempts: current.attempts + 1,
-          totalScore: current.totalScore + percentage,
+          totalScore: current.totalScore + attempt.score,
           passed: current.passed + (isPassed ? 1 : 0),
           title: quizTitle
         })

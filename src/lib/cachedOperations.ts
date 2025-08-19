@@ -7,6 +7,7 @@ import { logger } from '@/lib/logger'
 
 import { supabase, Course, Quiz, User } from './supabase'
 import { courseCache, quizCache, userCache, useCachedQuery, useCacheMutation } from './cache'
+import { courseAPI } from './auth-api'
 
 // ==============================================
 // 1. CACHED COURSE OPERATIONS
@@ -105,95 +106,86 @@ export const cachedCourseAPI = {
 
   // Create course with cache invalidation
   createCourse: async (courseData: Partial<Course>): Promise<Course> => {
-    const { data, error } = await supabase
-      .from('courses')
-      .insert([{
-        ...courseData,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }])
-      .select()
-      .single()
-
-    if (error) throw error
-
-    const course = data as Course
+    logger.debug('🔄 [CACHED_API] Creating course via authenticated API')
+    logger.debug('📝 [CACHED_API] Course data:', JSON.stringify(courseData, null, 2))
     
-    // Invalidate course lists but cache the new course
-    courseCache.invalidateByTags(['courses-list'])
-    courseCache.set(`course:${course.id}`, course, ['courses', `course-${course.id}`])
-    
-    return course
+    try {
+      const response = await courseAPI.createCourse(courseData)
+      
+      if (response.error) {
+        logger.error('❌ [CACHED_API] Create course API error:', response.error)
+        throw new Error(response.error)
+      }
+      
+      const course = response.course as Course
+      logger.debug('✅ [CACHED_API] Course created successfully:', course.id)
+      
+      // Invalidate course lists but cache the new course
+      courseCache.invalidateByTags(['courses-list'])
+      courseCache.set(`course:${course.id}`, course, ['courses', `course-${course.id}`])
+      
+      return course
+    } catch (error) {
+      logger.error('❌ [CACHED_API] Create course error:', error)
+      throw error
+    }
   },
 
   // Update course with cache invalidation
   updateCourse: async (id: string, updates: Partial<Course>): Promise<Course> => {
-    logger.debug('🔄 [DATABASE_API] === STARTING DATABASE UPDATE ===')
-    logger.debug('🔄 [DATABASE_API] Timestamp:', new Date().toISOString())
-    logger.debug('🔄 [DATABASE_API] Course ID:', id)
-    logger.debug('� [DATABASE_API] Updates to apply:', JSON.stringify(updates, null, 2))
+    console.log('🎯 [DIRECT_LOG] CACHED API UPDATE COURSE CALLED!!')
+    console.log('🎯 [DIRECT_LOG] ID:', id)
+    console.log('🎯 [DIRECT_LOG] Updates:', updates)
+    
+    logger.debug('🔄 [CACHED_API] === STARTING COURSE UPDATE ===')
+    logger.debug('🔄 [CACHED_API] Timestamp:', new Date().toISOString())
+    logger.debug('🔄 [CACHED_API] Course ID:', id)
+    logger.debug('📝 [CACHED_API] Updates to apply:', JSON.stringify(updates, null, 2))
 
     try {
-      const updateData = {
-        ...updates,
-        updated_at: new Date().toISOString()
-      }
+      logger.debug('🌐 [CACHED_API] Calling authenticated course API...')
       
-      logger.debug('📝 [DATABASE_API] Final update data:', JSON.stringify(updateData, null, 2))
-      logger.debug('🌐 [DATABASE_API] Calling Supabase update...')
-
-      const { data, error } = await supabase
-        .from('courses')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single()
-
-      logger.debug('🌐 [DATABASE_API] Supabase response received')
-      logger.debug('🌐 [DATABASE_API] Error:', error)
-      logger.debug('🌐 [DATABASE_API] Data:', data)
-
-      if (error) {
-        logger.error('❌ [DATABASE_API] Database error occurred:')
-        logger.error('❌ [DATABASE_API] Error code:', error.code)
-        logger.error('❌ [DATABASE_API] Error message:', error.message)
-        logger.error('❌ [DATABASE_API] Error details:', JSON.stringify(error, null, 2))
-        throw error
-      }
-
-      if (!data) {
-        logger.error('❌ [DATABASE_API] No data returned from update')
-        logger.error('❌ [DATABASE_API] This might indicate the course was not found')
-        throw new Error('No data returned from database - course may not exist')
-      }
-
-      const course = data as Course
-      logger.debug('✅ [DATABASE_API] Database update successful')
-      logger.debug('✅ [DATABASE_API] Updated course title:', course.title)
-      logger.debug('✅ [DATABASE_API] Updated course data:', JSON.stringify(course, null, 2))
+      const response = await courseAPI.updateCourse(id, updates)
       
-      logger.debug('🗄️ [DATABASE_API] Updating cache...')
+      logger.debug('🌐 [CACHED_API] API response received')
+      logger.debug('🌐 [CACHED_API] Response:', JSON.stringify(response, null, 2))
+
+      if (response.error || !response.success) {
+        logger.error('❌ [CACHED_API] API error occurred:')
+        logger.error('❌ [CACHED_API] Error message:', response.error)
+        throw new Error(response.error || 'Failed to update course')
+      }
+
+      if (!response.data) {
+        logger.error('❌ [CACHED_API] No course data returned from API')
+        throw new Error('No course data returned from API - course may not exist')
+      }
+
+      const course = response.data as Course
+      logger.debug('✅ [CACHED_API] Course update successful')
+      logger.debug('✅ [CACHED_API] Updated course title:', course.title)
+      logger.debug('✅ [CACHED_API] Updated course data:', JSON.stringify(course, null, 2))
+      
+      logger.debug('🗄️ [CACHED_API] Updating cache...')
       courseCache.set(`course:${id}`, course, ['courses', `course-${id}`])
-      logger.debug('🗄️ [DATABASE_API] Course cached successfully')
+      logger.debug('🗄️ [CACHED_API] Course cached successfully')
       
-      logger.debug('🗑️ [DATABASE_API] Invalidating course lists...')
+      logger.debug('🗑️ [CACHED_API] Invalidating course lists...')
       courseCache.invalidateByTags(['courses-list'])
-      logger.debug('🗑️ [DATABASE_API] Course lists invalidated')
+      logger.debug('🗑️ [CACHED_API] Course lists invalidated')
       
-      logger.debug('✅ [DATABASE_API] === DATABASE UPDATE COMPLETE ===')
+      logger.debug('✅ [CACHED_API] === COURSE UPDATE COMPLETE ===')
       return course
     } catch (error) {
-      logger.error('💥 [DATABASE_API] === DATABASE UPDATE FAILED ===')
-      logger.error('💥 [DATABASE_API] Error timestamp:', new Date().toISOString())
-      logger.error('💥 [DATABASE_API] Course ID that failed:', id)
-      logger.error('💥 [DATABASE_API] Updates that failed:', JSON.stringify(updates, null, 2))
-      logger.error('💥 [DATABASE_API] Error details:', error)
-      logger.error('💥 [DATABASE_API] Error type:', typeof error)
-      logger.error('💥 [DATABASE_API] Error constructor:', error?.constructor?.name)
+      logger.error('💥 [CACHED_API] === COURSE UPDATE FAILED ===')
+      logger.error('💥 [CACHED_API] Error timestamp:', new Date().toISOString())
+      logger.error('💥 [CACHED_API] Course ID that failed:', id)
+      logger.error('💥 [CACHED_API] Updates that failed:', JSON.stringify(updates, null, 2))
+      logger.error('💥 [CACHED_API] Error details:', error)
       
       if (error instanceof Error) {
-        logger.error('💥 [DATABASE_API] Error message:', error.message)
-        logger.error('💥 [DATABASE_API] Error stack:', error.stack)
+        logger.error('💥 [CACHED_API] Error message:', error.message)
+        logger.error('💥 [CACHED_API] Error stack:', error.stack)
       }
       
       throw error
@@ -408,6 +400,10 @@ export function useCourseMutations() {
 
   const updateMutation = useCacheMutation(
     ({ id, updates }: { id: string; updates: Partial<Course> }) => {
+      console.log('🎯 [DIRECT_LOG] UPDATE MUTATION FUNCTION CALLED!!')
+      console.log('🎯 [DIRECT_LOG] ID:', id)
+      console.log('🎯 [DIRECT_LOG] Updates:', updates)
+      
       logger.debug('🔄 [COURSE_MUTATIONS] === UPDATE MUTATION STARTED ===')
       logger.debug('🔄 [COURSE_MUTATIONS] Course ID:', id)
       logger.debug('🔄 [COURSE_MUTATIONS] Updates:', JSON.stringify(updates, null, 2))

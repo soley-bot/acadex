@@ -88,7 +88,7 @@ export default function QuizzesPage() {
         
         const attemptsCount = quizAttempts.length
         const averageScore = attemptsCount > 0 
-          ? Math.round(quizAttempts.reduce((sum, attempt) => sum + (attempt.score / attempt.total_questions * 100), 0) / attemptsCount)
+          ? Math.round(quizAttempts.reduce((sum, attempt) => sum + attempt.score, 0) / attemptsCount)
           : 0
 
         return {

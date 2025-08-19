@@ -5,8 +5,8 @@ import { useRouter, useParams } from 'next/navigation'
 import { getQuizQuestions, submitQuizAttempt } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
 import { QuizQuestion, Quiz } from '@/lib/supabase'
-import { H1, BodyLG } from '@/components/ui/Typography'
-import { Container } from '@/components/ui/Layout'
+import { H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
+import { Container, Section } from '@/components/ui/Layout'
 import Icon from '@/components/ui/Icon'
 import { logger } from '@/lib/logger'
 
@@ -143,12 +143,24 @@ export default function TakeQuizPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center">
-        <div className="text-center p-6 rounded-xl bg-white/90 shadow-lg">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-200 border-t-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading quiz...</p>
+      <Section 
+        className="min-h-screen relative overflow-hidden"
+        background="gradient"
+      >
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
-      </div>
+        
+        <Container className="relative flex items-center justify-center min-h-screen">
+          <div className="text-center bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+            <BodyLG color="muted" className="font-medium">Loading quiz...</BodyLG>
+          </div>
+        </Container>
+      </Section>
     )
   }
 
@@ -207,35 +219,46 @@ export default function TakeQuizPage() {
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50">
-      <div className="container mx-auto px-4 py-4 max-w-4xl">
+    <Section 
+      className="min-h-screen relative overflow-hidden"
+      background="gradient"
+    >
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      </div>
+      
+      <Container className="relative py-4 max-w-4xl">
         {/* Compact Header */}
-        <div className="text-center mb-4">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
-            {quiz?.title || 'Quiz'}
-          </h1>
+        <div className="text-center mb-6">
+          <H1 className="mb-2">{quiz?.title || 'Quiz'}</H1>
           {quiz?.description && (
-            <p className="text-sm text-gray-600 bg-white/80 px-4 py-2 rounded-xl inline-block">
+            <BodyMD 
+              color="muted" 
+              className="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl inline-block border border-white/20"
+            >
               {quiz.description}
-            </p>
+            </BodyMD>
           )}
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-4 bg-white/80 rounded-xl p-3">
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-            <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
-            <span>{Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}% Complete</span>
+        <div className="mb-6 bg-white/80 backdrop-blur-lg rounded-2xl p-4 shadow-xl border border-white/20">
+          <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
+            <span className="font-medium">Question {currentQuestionIndex + 1} of {questions.length}</span>
+            <span className="font-medium">{Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}% Complete</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
             <div 
-              className="bg-gradient-to-r from-red-500 to-orange-500 h-2 rounded-full transition-all duration-300"
+              className="bg-gradient-to-r from-red-500 to-orange-500 h-3 rounded-full transition-all duration-500 shadow-lg"
               style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
             ></div>
           </div>
         </div>
 
-        {/* Main Quiz Content - Single View */}
+        {/* Main Quiz Content */}
         <div className="bg-white/90 rounded-xl p-4 sm:p-6 shadow-lg">
           {currentQuestion ? (
             <>
@@ -511,7 +534,7 @@ export default function TakeQuizPage() {
             <div className="text-gray-600 text-center py-8">No question found.</div>
           )}
         </div>
-      </div>
-    </div>
+      </Container>
+    </Section>
   )
 }

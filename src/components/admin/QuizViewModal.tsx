@@ -437,7 +437,7 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
             </button>
             <button
               onClick={onEdit}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-brand hover:bg-brand/90 text-brand-foreground rounded-lg transition-colors flex items-center gap-2"
             >
               <Edit className="h-4 w-4" />
               Edit Quiz

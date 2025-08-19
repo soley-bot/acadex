@@ -4,29 +4,76 @@ import { logger } from '@/lib/logger'
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { X, Save, Loader2, Upload, AlertCircle, Plus, Trash2, BookOpen } from 'lucide-react'
-import { Course } from '@/lib/supabase'
+import { X, Save, Loader2, Upload, AlertCircle, Plus, Trash2, BookOpen, Video, Link, PlayCircle, FileText, HelpCircle, Move, ChevronDown, ChevronRight } from 'lucide-react'
+import { Course, CourseModule, CourseLesson, Quiz } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { useCourseMutations } from '@/lib/cachedOperations'
 import { categories, levels } from '@/lib/courseConstants'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import { uploadCourseImage } from '@/lib/storage'
+import { quizAPI, courseAPI } from '@/lib/auth-api'
 
 interface CourseFormProps {
   course?: Course
   isOpen: boolean
   onClose: () => void
   onSuccess: (updatedCourse?: Course) => void
+  embedded?: boolean // New prop to control rendering mode
 }
 
-export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormProps) {
+// Enhanced interfaces for course structure
+interface QuizOption {
+  id: string
+  title: string
+  description?: string
+}
+
+interface LessonData {
+  id?: string
+  title: string
+  description: string
+  content: string
+  video_url?: string
+  video_type?: 'upload' | 'youtube'
+  duration_minutes?: number
+  order_index: number
+  is_free_preview: boolean
+  quiz_id?: string
+}
+
+interface ModuleData {
+  id?: string
+  title: string
+  description: string
+  order_index: number
+  lessons: LessonData[]
+}
+
+interface EnhancedCourseData {
+  title: string
+  description: string
+  instructor_name: string
+  price: number
+  category: string
+  level: 'beginner' | 'intermediate' | 'advanced'
+  duration: string
+  image_url: string
+  is_published: boolean
+  learning_objectives: string[]
+  modules: ModuleData[]
+}
+
+export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = false }: CourseFormProps) {
   const { user } = useAuth()
   const { createCourse, updateCourse, isCreating, isUpdating, error: mutationError } = useCourseMutations()
   
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [availableQuizzes, setAvailableQuizzes] = useState<QuizOption[]>([])
+  const [expandedModules, setExpandedModules] = useState<Set<number>>(new Set())
+  const [activeTab, setActiveTab] = useState<'basic' | 'modules'>('basic')
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<EnhancedCourseData>({
     title: '',
     description: '',
     instructor_name: '',
@@ -36,17 +83,131 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
     duration: '',
     image_url: '',
     is_published: false,
-    learning_objectives: [] as string[]
+    learning_objectives: [] as string[],
+    modules: [] as ModuleData[]
   })
 
   const isLoading = isCreating || isUpdating
 
+  // Load available quizzes
+  useEffect(() => {
+    const loadQuizzes = async () => {
+      try {
+        logger.info('CourseForm: Loading quizzes for user:', user?.id)
+        const response = await quizAPI.getQuizzes({ limit: 100 })
+        
+        if (response.error) {
+          throw new Error(response.error)
+        }
+        
+        // Transform the response to match the expected format
+        const quizOptions = response.quizzes?.map((quiz: any) => ({
+          id: quiz.id,
+          title: quiz.title,
+          description: quiz.description
+        })) || []
+        
+        setAvailableQuizzes(quizOptions)
+        logger.info(`CourseForm: Successfully loaded ${quizOptions.length} quizzes`)
+      } catch (err) {
+        logger.error('CourseForm: Error loading quizzes:', err)
+        console.error('Error loading quizzes:', err)
+      }
+    }
+
+    if (user?.id && isOpen) {
+      loadQuizzes()
+    }
+  }, [user?.id, isOpen])
+
   // Helper function to handle form field changes and clear success message
-  const handleFieldChange = (field: string, value: any) => {
+  const handleFieldChange = (field: keyof EnhancedCourseData, value: any) => {
     if (successMessage) {
       setSuccessMessage(null) // Clear success message when user makes changes
     }
     setFormData({ ...formData, [field]: value })
+  }
+
+  // Module management functions
+  const addModule = () => {
+    const newModule: ModuleData = {
+      title: `Module ${formData.modules.length + 1}`,
+      description: '',
+      order_index: formData.modules.length,
+      lessons: []
+    }
+    setFormData({
+      ...formData,
+      modules: [...formData.modules, newModule]
+    })
+    setExpandedModules(new Set([...expandedModules, formData.modules.length]))
+  }
+
+  const updateModule = (moduleIndex: number, field: keyof ModuleData, value: any) => {
+    const updated = [...formData.modules]
+    updated[moduleIndex] = { ...updated[moduleIndex], [field]: value } as ModuleData
+    setFormData({ ...formData, modules: updated })
+  }
+
+  const deleteModule = (moduleIndex: number) => {
+    const updated = formData.modules.filter((_, index) => index !== moduleIndex)
+    setFormData({ ...formData, modules: updated })
+    
+    // Update expanded modules
+    const newExpanded = new Set<number>()
+    expandedModules.forEach(index => {
+      if (index < moduleIndex) {
+        newExpanded.add(index)
+      } else if (index > moduleIndex) {
+        newExpanded.add(index - 1)
+      }
+    })
+    setExpandedModules(newExpanded)
+  }
+
+  // Lesson management functions
+  const addLesson = (moduleIndex: number) => {
+    const updated = [...formData.modules]
+    if (!updated[moduleIndex]) return
+    
+    const newLesson: LessonData = {
+      title: `Lesson ${updated[moduleIndex].lessons.length + 1}`,
+      description: '',
+      content: '',
+      order_index: updated[moduleIndex].lessons.length,
+      is_free_preview: false
+    }
+    updated[moduleIndex].lessons.push(newLesson)
+    setFormData({ ...formData, modules: updated })
+  }
+
+  const updateLesson = (moduleIndex: number, lessonIndex: number, field: keyof LessonData, value: any) => {
+    const updated = [...formData.modules]
+    if (!updated[moduleIndex] || !updated[moduleIndex].lessons[lessonIndex]) return
+    
+    updated[moduleIndex].lessons[lessonIndex] = { 
+      ...updated[moduleIndex].lessons[lessonIndex], 
+      [field]: value 
+    } as LessonData
+    setFormData({ ...formData, modules: updated })
+  }
+
+  const deleteLesson = (moduleIndex: number, lessonIndex: number) => {
+    const updated = [...formData.modules]
+    if (!updated[moduleIndex]) return
+    
+    updated[moduleIndex].lessons = updated[moduleIndex].lessons.filter((_, index) => index !== lessonIndex)
+    setFormData({ ...formData, modules: updated })
+  }
+
+  const toggleModuleExpanded = (moduleIndex: number) => {
+    const newExpanded = new Set(expandedModules)
+    if (newExpanded.has(moduleIndex)) {
+      newExpanded.delete(moduleIndex)
+    } else {
+      newExpanded.add(moduleIndex)
+    }
+    setExpandedModules(newExpanded)
   }
 
   // Track loading state changes
@@ -72,7 +233,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
     logger.debug('🔄 [COURSE_FORM] User:', { userId: user?.id, userEmail: user?.email })
     logger.debug('🔄 [COURSE_FORM] Form open:', { isOpen })
     
-    if (course) {
+    if (course && user) {
       logger.debug('📝 [COURSE_FORM] Setting form data from course:', course.title)
       setFormData({
         title: course.title,
@@ -84,8 +245,12 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
         duration: course.duration,
         image_url: course.image_url || '',
         is_published: course.is_published,
-        learning_objectives: course.learning_objectives || []
+        learning_objectives: course.learning_objectives || [],
+        modules: [] // Will be loaded separately
       })
+
+      // Load modules and lessons if editing existing course
+      loadCourseModules(course.id)
     } else {
       logger.debug('📝 [COURSE_FORM] Resetting form for new course')
       // Reset form for new course
@@ -99,14 +264,108 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
         duration: '',
         image_url: '',
         is_published: false,
-        learning_objectives: []
+        learning_objectives: [],
+        modules: []
       })
     }
     setError(null)
     setSuccessMessage(null) // Clear success message when form opens/changes
   }, [course, user, isOpen])
 
+  // Load course modules and lessons
+  const loadCourseModules = async (courseId: string) => {
+    try {
+      const { supabase } = await import('@/lib/supabase')
+      
+      // Load modules with lessons
+      const { data: modules, error: modulesError } = await supabase
+        .from('course_modules')
+        .select(`
+          *,
+          course_lessons (
+            *
+          )
+        `)
+        .eq('course_id', courseId)
+        .order('order_index')
+
+      if (modulesError) throw modulesError
+
+      const moduleData: ModuleData[] = (modules || []).map(module => ({
+        id: module.id,
+        title: module.title,
+        description: module.description || '',
+        order_index: module.order_index,
+        lessons: (module.course_lessons || [])
+          .sort((a: any, b: any) => a.order_index - b.order_index)
+          .map((lesson: any) => ({
+            id: lesson.id,
+            title: lesson.title,
+            description: lesson.description || '',
+            content: lesson.content || '',
+            video_url: lesson.video_url || '',
+            video_type: lesson.video_url?.includes('youtube') ? 'youtube' : 'upload',
+            duration_minutes: lesson.duration_minutes,
+            order_index: lesson.order_index,
+            is_free_preview: lesson.is_free_preview || false,
+            quiz_id: lesson.quiz_id || undefined
+          }))
+      }))
+
+      setFormData(prev => ({ ...prev, modules: moduleData }))
+      
+      // Expand first module by default
+      if (moduleData.length > 0) {
+        setExpandedModules(new Set([0]))
+      }
+      
+    } catch (err) {
+      console.error('Error loading course modules:', err)
+      setError('Failed to load course content')
+    }
+  }
+
+  // Save modules and lessons
+  const saveModulesAndLessons = async (courseId: string) => {
+    console.log('🎯 [DIRECT_LOG] SAVE MODULES AND LESSONS CALLED!!')
+    console.log('🎯 [DIRECT_LOG] Course ID:', courseId)
+    console.log('🎯 [DIRECT_LOG] Modules to save:', formData.modules)
+    
+    try {
+      logger.debug('🔄 [COURSE_FORM] Saving modules and lessons via authenticated API')
+      logger.debug('📚 [COURSE_FORM] Course ID:', courseId)
+      logger.debug('📝 [COURSE_FORM] Modules count:', formData.modules.length)
+      
+      console.log('🎯 [DIRECT_LOG] About to call courseAPI.saveModulesAndLessons...')
+      const response = await courseAPI.saveModulesAndLessons(courseId, formData.modules)
+      
+      console.log('🎯 [DIRECT_LOG] courseAPI.saveModulesAndLessons response:', response)
+      
+      if (response.error) {
+        logger.error('❌ [COURSE_FORM] Modules API error:', response.error)
+        throw new Error(response.error)
+      }
+      
+      logger.debug('✅ [COURSE_FORM] Modules and lessons saved successfully')
+    } catch (err) {
+      console.error('🎯 [DIRECT_LOG] ERROR in saveModulesAndLessons:', err)
+      logger.error('💥 [COURSE_FORM] Error saving modules and lessons:', err)
+      console.error('Error saving modules and lessons:', err)
+      throw new Error('Failed to save course content')
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('🎯 [DIRECT_LOG] HANDLE SUBMIT CALLED!!')
+    console.log('🎯 [DIRECT_LOG] Form data has modules:', formData.modules.length)
+    console.log('🎯 [DIRECT_LOG] Checking for video URLs in lessons...')
+    
+    // Check if any lesson has video_url
+    const hasVideoUrls = formData.modules.some(module => 
+      module.lessons.some(lesson => lesson.video_url && lesson.video_url.trim() !== '')
+    )
+    console.log('🎯 [DIRECT_LOG] Has video URLs:', hasVideoUrls)
+    
     e.preventDefault()
     setError(null)
     setSuccessMessage(null) // Clear previous success message
@@ -142,10 +401,17 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
       let result: Course
       
       if (course?.id) {
+        console.log('🎯 [DIRECT_LOG] ABOUT TO CALL updateCourse!!')
+        console.log('🎯 [DIRECT_LOG] Course ID:', course.id)
+        console.log('🎯 [DIRECT_LOG] Updates:', courseData)
+        
         logger.debug('✏️ [COURSE_FORM] UPDATING existing course:', course.id)
         logger.debug('✏️ [COURSE_FORM] Calling updateCourse with:', { id: course.id, updates: courseData })
         
         result = await updateCourse({ id: course.id, updates: courseData })
+        
+        console.log('🎯 [DIRECT_LOG] updateCourse COMPLETED!!')
+        console.log('🎯 [DIRECT_LOG] Result:', result)
         
         logger.debug('✅ [COURSE_FORM] updateCourse returned:', result)
         logger.debug('✅ [COURSE_FORM] Course updated successfully')
@@ -160,6 +426,9 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
       }
 
       logger.debug('🎉 [COURSE_FORM] Operation completed successfully, calling callbacks...')
+      
+      // Save modules and lessons after course is saved
+      await saveModulesAndLessons(result.id)
       
       if (course?.id) {
         // For updates, show success message and keep form open
@@ -205,18 +474,18 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
   logger.debug('📺 [COURSE_FORM] Current course:', { courseId: course?.id, courseTitle: course?.title })
   logger.debug('📺 [COURSE_FORM] Form data title:', formData.title)
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              {course ? 'Edit Course' : 'Create New Course'}
-            </h2>
-            <p className="text-sm text-gray-600">
-              {course ? 'Update course information' : 'Add a new course to the platform'}
-            </p>
-          </div>
+  const formContent = (
+    <>
+      <div className="flex items-center justify-between p-6 border-b">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {course ? 'Edit Course' : 'Create New Course'}
+          </h2>
+          <p className="text-sm text-gray-600">
+            {course ? 'Update course information' : 'Add a new course to the platform'}
+          </p>
+        </div>
+        {!embedded && (
           <button
             onClick={() => {
               logger.debug('❌ [COURSE_FORM] X button clicked - closing form')
@@ -226,9 +495,14 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
           >
             <X className="h-5 w-5" />
           </button>
-        </div>
+        )}
+      </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      <form onSubmit={handleSubmit} className="p-6 space-y-6" onInvalid={(e) => {
+        console.log('🎯 [DIRECT_LOG] FORM VALIDATION ERROR!!')
+        console.log('🎯 [DIRECT_LOG] Invalid element:', e.target)
+        console.log('🎯 [DIRECT_LOG] Validation message:', (e.target as HTMLInputElement).validationMessage)
+      }}>
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center">
               <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
@@ -245,6 +519,36 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
             </div>
           )}
 
+          {/* Tab Navigation */}
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                type="button"
+                onClick={() => setActiveTab('basic')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'basic'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Basic Information
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('modules')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'modules'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Course Content ({formData.modules.length} modules)
+              </button>
+            </nav>
+          </div>
+
+          {/* Basic Information Tab */}
+          {activeTab === 'basic' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -444,6 +748,280 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
               </label>
             </div>
           </div>
+          )}
+
+          {/* Course Content Tab */}
+          {activeTab === 'modules' && (
+            <div className="space-y-6">
+              {/* Add Module Button */}
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium text-gray-900">Course Modules</h3>
+                <button
+                  type="button"
+                  onClick={addModule}
+                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Module
+                </button>
+              </div>
+
+              {/* Modules List */}
+              {formData.modules.length === 0 ? (
+                <div className="text-center py-12 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                  <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-4" />
+                  <h4 className="text-lg font-medium text-gray-900 mb-2">No modules yet</h4>
+                  <p className="text-gray-500 mb-4">Start building your course by adding modules</p>
+                  <button
+                    type="button"
+                    onClick={addModule}
+                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Your First Module
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {formData.modules.map((module, moduleIndex) => (
+                    <div key={moduleIndex} className="border border-gray-200 rounded-lg">
+                      {/* Module Header */}
+                      <div className="p-4 border-b border-gray-200 bg-gray-50">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 flex-1">
+                            <button
+                              type="button"
+                              onClick={() => toggleModuleExpanded(moduleIndex)}
+                              className="text-gray-500 hover:text-gray-700"
+                            >
+                              {expandedModules.has(moduleIndex) ? (
+                                <ChevronDown className="w-5 h-5" />
+                              ) : (
+                                <ChevronRight className="w-5 h-5" />
+                              )}
+                            </button>
+                            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                              <input
+                                type="text"
+                                value={module.title}
+                                onChange={(e) => updateModule(moduleIndex, 'title', e.target.value)}
+                                className="font-medium bg-transparent border-none outline-none text-gray-900 placeholder-gray-500"
+                                placeholder="Module title"
+                              />
+                              <input
+                                type="text"
+                                value={module.description}
+                                onChange={(e) => updateModule(moduleIndex, 'description', e.target.value)}
+                                className="text-sm bg-transparent border-none outline-none text-gray-600 placeholder-gray-400"
+                                placeholder="Module description"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-500">{module.lessons.length} lessons</span>
+                            <button
+                              type="button"
+                              onClick={() => deleteModule(moduleIndex)}
+                              className="text-red-600 hover:text-red-700 p-1 hover:bg-red-50 rounded transition-colors"
+                              title="Delete module"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Module Content (Lessons) */}
+                      {expandedModules.has(moduleIndex) && (
+                        <div className="p-4">
+                          <div className="flex justify-between items-center mb-4">
+                            <h4 className="font-medium text-gray-900">Lessons</h4>
+                            <button
+                              type="button"
+                              onClick={() => addLesson(moduleIndex)}
+                              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium hover:bg-blue-50 px-3 py-1 rounded transition-colors"
+                            >
+                              <Plus className="w-4 h-4" />
+                              Add Lesson
+                            </button>
+                          </div>
+
+                          {module.lessons.length === 0 ? (
+                            <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                              <FileText className="w-6 h-6 text-gray-400 mx-auto mb-2" />
+                              <p className="text-gray-500 text-sm mb-3">No lessons in this module</p>
+                              <button
+                                type="button"
+                                onClick={() => addLesson(moduleIndex)}
+                                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
+                              >
+                                <Plus className="w-4 h-4" />
+                                Add First Lesson
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="space-y-4">
+                              {module.lessons.map((lesson, lessonIndex) => (
+                                <div key={lessonIndex} className="border border-gray-200 rounded-lg p-4 bg-white">
+                                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Lesson Title *
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={lesson.title}
+                                        onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'title', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        placeholder="Enter lesson title"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Duration (minutes)
+                                      </label>
+                                      <input
+                                        type="number"
+                                        value={lesson.duration_minutes || ''}
+                                        onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'duration_minutes', e.target.value ? parseInt(e.target.value) : undefined)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        placeholder="e.g., 15"
+                                        min="1"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                      Description
+                                    </label>
+                                    <textarea
+                                      value={lesson.description}
+                                      onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'description', e.target.value)}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                      rows={2}
+                                      placeholder="Brief lesson description"
+                                    />
+                                  </div>
+
+                                  {/* Video Section */}
+                                  <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      Video Content
+                                    </label>
+                                    <div className="flex gap-2 mb-3">
+                                      <button
+                                        type="button"
+                                        onClick={() => updateLesson(moduleIndex, lessonIndex, 'video_type', 'youtube')}
+                                        className={`flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                                          lesson.video_type === 'youtube'
+                                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                            : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                        }`}
+                                      >
+                                        <Link className="w-4 h-4" />
+                                        YouTube Link
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => updateLesson(moduleIndex, lessonIndex, 'video_type', 'upload')}
+                                        className={`flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 border rounded-lg text-sm font-medium transition-colors ${
+                                          lesson.video_type === 'upload'
+                                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                            : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                        }`}
+                                      >
+                                        <Video className="w-4 h-4" />
+                                        Upload Video
+                                      </button>
+                                    </div>
+
+                                    {lesson.video_type === 'youtube' && (
+                                      <input
+                                        type="text"
+                                        value={lesson.video_url || ''}
+                                        onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'video_url', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        placeholder="https://www.youtube.com/watch?v=..."
+                                      />
+                                    )}
+
+                                    {lesson.video_type === 'upload' && (
+                                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                        <Video className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                        <p className="text-sm text-gray-600 mb-2">Video upload coming soon</p>
+                                        <p className="text-xs text-gray-500">For now, please use YouTube links</p>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* Quiz Assignment */}
+                                  <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      Attach Quiz (Optional)
+                                    </label>
+                                    <select
+                                      value={lesson.quiz_id || ''}
+                                      onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'quiz_id', e.target.value || undefined)}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                    >
+                                      <option value="">No quiz</option>
+                                      {availableQuizzes.map((quiz) => (
+                                        <option key={quiz.id} value={quiz.id}>
+                                          {quiz.title}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+
+                                  {/* Lesson Content */}
+                                  <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                      Lesson Content
+                                    </label>
+                                    <textarea
+                                      value={lesson.content}
+                                      onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'content', e.target.value)}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                      rows={4}
+                                      placeholder="Enter lesson content, instructions, or notes..."
+                                    />
+                                  </div>
+
+                                  {/* Lesson Options */}
+                                  <div className="flex items-center justify-between">
+                                    <label className="flex items-center">
+                                      <input
+                                        type="checkbox"
+                                        checked={lesson.is_free_preview}
+                                        onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'is_free_preview', e.target.checked)}
+                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                      />
+                                      <span className="ml-2 text-sm text-gray-700">
+                                        Free preview lesson
+                                      </span>
+                                    </label>
+                                    <button
+                                      type="button"
+                                      onClick={() => deleteLesson(moduleIndex, lessonIndex)}
+                                      className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded transition-colors"
+                                      title="Delete lesson"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="flex justify-end space-x-3 pt-6 border-t">
             <button
@@ -452,14 +1030,14 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
                 logger.debug('❌ [COURSE_FORM] Cancel button clicked - closing form')
                 onClose()
               }}
-              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="px-4 py-2 text-secondary-foreground bg-secondary hover:bg-secondary/80 rounded-lg transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center"
+              className="px-4 py-2 bg-brand hover:bg-brand/90 text-brand-foreground rounded-lg transition-colors disabled:opacity-50 flex items-center"
               onClick={() => {
                 logger.debug('🖱️ [COURSE_FORM] Submit button clicked')
                 logger.debug('🖱️ [COURSE_FORM] isLoading at click:', isLoading)
@@ -480,6 +1058,21 @@ export function CourseForm({ course, isOpen, onClose, onSuccess }: CourseFormPro
             </button>
           </div>
         </form>
+      </>
+    )
+
+  if (embedded) {
+    return (
+      <div className="w-full max-w-none">
+        {formContent}
+      </div>
+    )
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        {formContent}
       </div>
     </div>
   )

@@ -446,11 +446,11 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
         body: JSON.stringify({
           courseData: {
             ...formData,
-            instructor_id: user.id, // Add this line to set the instructor_id
+            instructor_id: user.id, // Set the instructor_id to authenticated user
             id: course?.id
           },
-          action: course ? 'update' : 'create',
-          userId: user.id
+          action: course ? 'update' : 'create'
+          // SECURITY: No longer sending userId - server will use authenticated user
         })
       })
 

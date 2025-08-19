@@ -10,6 +10,7 @@ import { quizAPI } from '@/lib/database'
 import { Pagination } from '@/components/ui/Pagination'
 import { Typography, DisplayXL, H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Container, Section, Grid } from '@/components/ui/Layout'
+import { EnhancedQuizCard } from '@/components/cards/EnhancedQuizCard'
 
 interface Quiz {
   id: string
@@ -287,75 +288,7 @@ export default function QuizzesPage() {
               ))
             ) : quizzes.length > 0 ? (
               quizzes.map((quiz) => (
-                <div key={quiz.id} className="group">
-                  <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:scale-[1.02] hover:-translate-y-2">
-                    
-                    {/* Quiz Image */}
-                    <div className="relative h-48 bg-gradient-to-br from-gray-100/80 to-gray-200/80 overflow-hidden">
-                      {quiz.image_url ? (
-                        <Image
-                          src={quiz.image_url}
-                          alt={quiz.title}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-red-100/80 to-red-200/80 flex items-center justify-center backdrop-blur-sm">
-                          <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
-                            <span className="text-white text-2xl font-bold">Q</span>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Category & Difficulty Badges */}
-                      <div className="absolute top-4 left-4 flex gap-2">
-                        <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-medium rounded-full border border-white/20 shadow-lg">
-                          {quiz.category}
-                        </span>
-                        <span className={`px-3 py-1 text-xs font-medium rounded-full border shadow-lg ${getDifficultyColor(quiz.difficulty)}`}>
-                          {formatDifficulty(quiz.difficulty)}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Quiz Content */}
-                    <div className="p-6 bg-white/50 backdrop-blur-sm">
-                      <H3 className="mb-3 group-hover:text-red-600 transition-colors duration-200">
-                        {quiz.title}
-                      </H3>
-                      
-                      <BodyMD color="muted" className="mb-4 line-clamp-2">
-                        {quiz.description}
-                      </BodyMD>
-                      
-                      {/* Quiz Stats */}
-                      <div className="flex items-center justify-between text-sm text-gray-500 mb-6">
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-1">
-                            <span className="w-4 h-4 bg-gray-400 rounded-full flex items-center justify-center">
-                              <span className="text-white text-xs">⏱</span>
-                            </span>
-                            <span>~{quiz.duration_minutes} min</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="w-4 h-4 bg-gray-400 rounded-full flex items-center justify-center">
-                              <span className="text-white text-xs">#</span>
-                            </span>
-                            <span>{quiz.total_questions} questions</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* CTA Button */}
-                      <Link
-                        href={`/quizzes/${quiz.id}`}
-                        className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 text-center block"
-                      >
-                        Start Quiz
-                      </Link>
-                    </div>
-                  </div>
-                </div>
+                <EnhancedQuizCard key={quiz.id} quiz={quiz} showProgress={true} />
               ))
             ) : (
               // Empty State
