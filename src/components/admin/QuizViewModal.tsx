@@ -9,7 +9,8 @@ import { supabase } from '@/lib/supabase'
 interface Question {
   id: string
   question: string
-  options: string[]
+  question_type?: string
+  options: string[] | Array<{left: string; right: string}>
   correct_answer: number
   explanation?: string
   order_index: number
@@ -71,6 +72,7 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
       setQuestions(questionsData.map(q => ({
         id: q.id,
         question: q.question,
+        question_type: q.question_type,
         options: q.options,
         correct_answer: q.correct_answer,
         explanation: q.explanation,
@@ -313,26 +315,50 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
                           <p className="text-gray-700 mb-4">{question.question}</p>
                           
                           <div className="space-y-2 mb-4">
-                            {question.options.map((option, optionIndex) => (
-                              <div key={optionIndex} className={`flex items-center gap-3 p-3 rounded-lg ${
-                                optionIndex === question.correct_answer 
-                                  ? 'bg-green-50 border border-green-200' 
-                                  : 'bg-gray-50'
-                              }`}>
-                                {optionIndex === question.correct_answer ? (
-                                  <CheckCircle className="h-5 w-5 text-green-600" />
-                                ) : (
-                                  <XCircle className="h-5 w-5 text-gray-400" />
-                                )}
-                                <span className={`${
-                                  optionIndex === question.correct_answer 
-                                    ? 'text-green-900 font-medium' 
-                                    : 'text-gray-700'
-                                }`}>
-                                  {option}
-                                </span>
+                            {/* Handle different question types */}
+                            {question.question_type === 'matching' && Array.isArray(question.options) && typeof question.options[0] === 'object' ? (
+                              // Matching questions
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <h5 className="font-medium text-sm text-gray-600 mb-2">Left Column:</h5>
+                                  {(question.options as Array<{left: string; right: string}>).map((pair, optionIndex) => (
+                                    <div key={optionIndex} className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg mb-2">
+                                      <span className="text-sm">{optionIndex + 1}. {pair.left}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                                <div>
+                                  <h5 className="font-medium text-sm text-gray-600 mb-2">Right Column:</h5>
+                                  {(question.options as Array<{left: string; right: string}>).map((pair, optionIndex) => (
+                                    <div key={optionIndex} className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg mb-2">
+                                      <span className="text-sm">{String.fromCharCode(65 + optionIndex)}. {pair.right}</span>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
-                            ))}
+                            ) : (
+                              // Regular questions (multiple_choice, true_false, etc.)
+                              (question.options as string[]).map((option, optionIndex) => (
+                                <div key={optionIndex} className={`flex items-center gap-3 p-3 rounded-lg ${
+                                  optionIndex === question.correct_answer 
+                                    ? 'bg-green-50 border border-green-200' 
+                                    : 'bg-gray-50'
+                                }`}>
+                                  {optionIndex === question.correct_answer ? (
+                                    <CheckCircle className="h-5 w-5 text-green-600" />
+                                  ) : (
+                                    <XCircle className="h-5 w-5 text-gray-400" />
+                                  )}
+                                  <span className={`${
+                                    optionIndex === question.correct_answer 
+                                      ? 'text-green-900 font-medium' 
+                                      : 'text-gray-700'
+                                  }`}>
+                                    {option}
+                                  </span>
+                                </div>
+                              ))
+                            )}
                           </div>
 
                           {question.explanation && (

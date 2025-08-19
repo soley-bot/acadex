@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react'
 import Image from 'next/image'
+import { logger } from '@/lib/logger'
 
 interface ImageUploadProps {
   value?: string | null
@@ -41,7 +42,7 @@ export function ImageUpload({
       onChange(url)
       setUrlInput(url)
     } catch (error) {
-      console.error('Error uploading file:', error)
+      logger.error('Error uploading file:', error)
       // You could add toast notification here
     } finally {
       setUploading(false)
