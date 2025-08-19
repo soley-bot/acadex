@@ -41,7 +41,7 @@ export function OptimizedImage({
     <div className={`relative overflow-hidden ${className}`}>
       {isLoading && (
         <div 
-          className="absolute inset-0 bg-gray-200 animate-pulse rounded"
+          className="absolute inset-0 bg-muted/60 animate-pulse rounded"
           style={{ width, height }}
         />
       )}

@@ -109,21 +109,21 @@ export default function ProfilePage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
       
       <div className="relative max-w-4xl mx-auto px-6 py-8 pt-28">
         {/* Header */}
         <div className="mb-12 text-center p-12 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl">
-          <div className="inline-block p-4 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl mb-6">
+          <div className="inline-block p-4 bg-gradient-to-r from-primary to-warning rounded-2xl mb-6">
             <span className="text-white text-4xl">👤</span>
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent mb-4">Profile Settings</h1>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent mb-4">Profile Settings</h1>
           <p className="text-gray-700 text-xl font-medium">Manage your account information and preferences</p>
         </div>
 
@@ -132,7 +132,7 @@ export default function ProfilePage() {
           <form onSubmit={handleSubmit} className="p-8 space-y-8">
             {/* Basic Information */}
             <div className="p-8 rounded-2xl backdrop-blur-sm bg-gradient-to-r from-white/60 to-gray-50/60 border border-white/30 shadow-lg">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent mb-6 flex items-center gap-3">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent mb-6 flex items-center gap-3">
                 <span className="text-3xl">📝</span>
                 Basic Information
               </h2>
@@ -148,7 +148,7 @@ export default function ProfilePage() {
                     name="name"
                     value={profile.name}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 backdrop-blur-sm bg-white/80 text-gray-800 font-medium transition-all duration-300 hover:shadow-lg"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary backdrop-blur-sm bg-white/80 text-gray-800 font-medium transition-all duration-300 hover:shadow-lg"
                     required
                   />
                 </div>
@@ -163,7 +163,7 @@ export default function ProfilePage() {
                     name="email"
                     value={profile.email}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl backdrop-blur-sm bg-gray-100/80 text-gray-600 font-medium cursor-not-allowed"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl backdrop-blur-sm bg-muted/40/80 text-gray-600 font-medium cursor-not-allowed"
                     disabled
                   />
                   <p className="text-xs text-gray-600 mt-2 font-medium">📧 Email cannot be changed</p>
@@ -181,14 +181,14 @@ export default function ProfilePage() {
                   value={profile.bio}
                   onChange={handleInputChange}
                   placeholder="Tell us a bit about yourself..."
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 backdrop-blur-sm bg-white/80 text-gray-800 font-medium transition-all duration-300 hover:shadow-lg resize-none"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary backdrop-blur-sm bg-white/80 text-gray-800 font-medium transition-all duration-300 hover:shadow-lg resize-none"
                 />
               </div>
             </div>
 
             {/* Learning Preferences */}
             <div className="p-8 rounded-2xl backdrop-blur-sm bg-gradient-to-r from-white/60 to-gray-50/60 border border-white/30 shadow-lg">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent mb-6 flex items-center gap-3">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent mb-6 flex items-center gap-3">
                 <span className="text-3xl">🎯</span>
                 Learning Preferences
               </h2>
@@ -204,7 +204,7 @@ export default function ProfilePage() {
                   value={profile.learning_goals}
                   onChange={handleInputChange}
                   placeholder="What do you want to achieve with your learning?"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 backdrop-blur-sm bg-white/80 text-gray-800 font-medium transition-all duration-300 hover:shadow-lg resize-none"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary backdrop-blur-sm bg-white/80 text-gray-800 font-medium transition-all duration-300 hover:shadow-lg resize-none"
                 />
               </div>
 
@@ -222,7 +222,7 @@ export default function ProfilePage() {
                         type="checkbox"
                         checked={profile.preferred_subjects?.includes(subject) || false}
                         onChange={() => handleSubjectToggle(subject)}
-                        className="w-5 h-5 rounded border-gray-300 text-red-600 focus:ring-red-500 focus:ring-2"
+                        className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-red-500 focus:ring-2"
                       />
                       <span className="text-sm font-medium text-gray-800">{subject}</span>
                     </label>
@@ -233,12 +233,12 @@ export default function ProfilePage() {
 
             {/* Profile Picture */}
             <div className="p-8 rounded-2xl backdrop-blur-sm bg-gradient-to-r from-white/60 to-gray-50/60 border border-white/30 shadow-lg">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent mb-6 flex items-center gap-3">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent mb-6 flex items-center gap-3">
                 <span className="text-3xl">🖼️</span>
                 Profile Picture
               </h2>
               <div className="flex items-center space-x-8">
-                <div className="w-24 h-24 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl border-4 border-white/50">
+                <div className="w-24 h-24 bg-gradient-to-r from-primary to-warning rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl border-4 border-white/50">
                   {profile.name ? profile.name.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <div className="flex-1">
@@ -252,7 +252,7 @@ export default function ProfilePage() {
                     value={profile.avatar_url}
                     onChange={handleInputChange}
                     placeholder="https://example.com/avatar.jpg"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 backdrop-blur-sm bg-white/80 text-gray-800 font-medium transition-all duration-300 hover:shadow-lg"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary backdrop-blur-sm bg-white/80 text-gray-800 font-medium transition-all duration-300 hover:shadow-lg"
                   />
                   <p className="text-xs text-gray-600 mt-2 font-medium flex items-center gap-1">
                     <span>🔗</span>
@@ -293,7 +293,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-8 py-4 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105"
+                className="px-8 py-4 bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">

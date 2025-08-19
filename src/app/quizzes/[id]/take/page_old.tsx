@@ -139,12 +139,12 @@ export default function TakeQuizPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         
         <div className="relative flex items-center justify-center py-20 pt-32">
@@ -159,21 +159,21 @@ export default function TakeQuizPage() {
 
   if (error || !quiz || questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         
         <Container size="sm" className="py-12 sm:py-20 pt-20 sm:pt-24">
           <div className="p-8 sm:p-12 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl text-center">
-            <H1 className="mb-4 sm:mb-6 text-red-600">Unable to Load Quiz</H1>
+            <H1 className="mb-4 sm:mb-6 text-primary">Unable to Load Quiz</H1>
             <BodyLG className="mb-6 sm:mb-8" color="muted">{error || 'The quiz questions could not be loaded.'}</BodyLG>
             <button
               onClick={() => router.push('/quizzes')}
-              className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-orange-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105"
+              className="w-full sm:w-auto bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105"
             >
               Back to Quizzes
             </button>
@@ -185,29 +185,29 @@ export default function TakeQuizPage() {
 
   if (!quizStarted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         
         <Container size="sm" className="py-12 sm:py-20 pt-20 sm:pt-24">
           <div className="p-8 sm:p-12 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl text-center">
-            <div className="inline-block p-4 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl mb-6">
+            <div className="inline-block p-4 bg-gradient-to-r from-primary to-warning rounded-2xl mb-6">
               <Icon name="target" size={32} color="white" />
             </div>
-            <H1 className="mb-4 sm:mb-6 text-red-600">{quiz.title}</H1>
+            <H1 className="mb-4 sm:mb-6 text-primary">{quiz.title}</H1>
             <BodyLG className="mb-6 sm:mb-8" color="muted">
-              You have <span className="font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">{quiz.duration_minutes} minutes</span> to complete this quiz
+              You have <span className="font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent">{quiz.duration_minutes} minutes</span> to complete this quiz
             </BodyLG>
             <button
               onClick={() => {
                 setQuizStarted(true)
                 setStartTime(new Date())
               }}
-              className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-orange-600 text-white px-8 sm:px-12 py-4 rounded-2xl font-bold text-lg sm:text-xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105"
+              className="w-full sm:w-auto bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-8 sm:px-12 py-4 rounded-2xl font-bold text-lg sm:text-xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105"
             >
               <span className="flex items-center gap-3 justify-center">
                 <Icon name="rocket" size={24} color="white" />
@@ -223,12 +223,12 @@ export default function TakeQuizPage() {
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
       
       {/* Quiz Header */}
@@ -237,12 +237,12 @@ export default function TakeQuizPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full animate-pulse"></div>
+                <div className="w-3 h-3 bg-gradient-to-r from-primary to-warning rounded-full animate-pulse"></div>
                 <h1 className="text-lg sm:text-xl font-bold text-gray-800 truncate">{quiz.title}</h1>
               </div>
             </div>
             <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
-              <div className="text-base sm:text-lg font-mono font-bold text-white bg-gradient-to-r from-red-600 to-orange-600 px-4 sm:px-6 py-3 rounded-2xl border border-white/20 backdrop-blur-lg shadow-2xl flex-shrink-0">
+              <div className="text-base sm:text-lg font-mono font-bold text-gray-900 bg-gradient-to-r from-primary/5 via-white to-secondary/5 px-4 sm:px-6 py-3 rounded-2xl border border-gray-200 backdrop-blur-lg shadow-2xl flex-shrink-0">
                 {formatTime(timeLeft)}
               </div>
               <div className="text-xs sm:text-sm text-gray-700 bg-white/60 backdrop-blur-lg px-3 sm:px-4 py-2 rounded-xl border border-white/30 whitespace-nowrap">
@@ -259,7 +259,7 @@ export default function TakeQuizPage() {
             </div>
             <div className="w-full bg-white/40 backdrop-blur-sm rounded-full h-4 border border-white/30 shadow-inner">
               <div 
-                className="bg-gradient-to-r from-red-500 to-orange-500 h-4 rounded-full transition-all duration-500 shadow-lg"
+                className="bg-gradient-to-r from-primary to-warning h-4 rounded-full transition-all duration-500 shadow-lg"
                 style={{ width: `${getProgressPercentage()}%` }}
               />
             </div>
@@ -279,7 +279,7 @@ export default function TakeQuizPage() {
                   onClick={() => setCurrentQuestionIndex(index)}
                   className={`w-7 h-7 rounded-lg font-bold text-xs transition-all duration-300 border ${
                     index === currentQuestionIndex
-                      ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white transform scale-110 border-red-500 z-10 relative shadow-lg'
+                      ? 'bg-gradient-to-r from-primary to-warning text-gray-900 transform scale-110 border-primary z-10 relative shadow-lg'
                       : answers[questions[index]?.id ?? ''] !== undefined
                       ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-300'
                       : 'bg-white/60 text-gray-600 border-gray-300'
@@ -310,7 +310,7 @@ export default function TakeQuizPage() {
               <button
                 onClick={handleSubmitQuiz}
                 disabled={submitting}
-                className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 text-white px-3 py-2 rounded-xl font-medium text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2"
+                className="flex-1 bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-3 py-2 rounded-xl font-medium text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   'Submitting...'
@@ -324,7 +324,7 @@ export default function TakeQuizPage() {
             ) : (
               <button
                 onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
-                className="flex-1 bg-gradient-to-r from-gray-800 to-black text-white px-3 py-2 rounded-xl font-medium text-sm transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="flex-1 bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-secondary px-3 py-2 rounded-xl font-medium text-sm transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 Next →
               </button>
@@ -337,7 +337,7 @@ export default function TakeQuizPage() {
           {currentQuestion ? (
             <>
               <div className="flex items-center gap-3 mb-4 sm:mb-8">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-primary to-warning rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
                   {currentQuestionIndex + 1}
                 </div>
                 <span className="text-sm sm:text-base font-medium text-gray-600 bg-white/60 px-4 py-2 rounded-full border border-gray-200">
@@ -355,14 +355,14 @@ export default function TakeQuizPage() {
                     key={index}
                     className={`group flex items-start gap-3 sm:gap-6 p-4 sm:p-8 border-2 rounded-2xl cursor-pointer transition-all duration-300 backdrop-blur-sm ${
                       answers[currentQuestion?.id ?? ''] === index
-                        ? 'border-red-500 bg-gradient-to-r from-red-50/80 to-orange-50/80 shadow-xl scale-105'
+                        ? 'border-primary bg-gradient-to-r from-red-50/80 to-orange-50/80 shadow-xl scale-105'
                         : 'border-white/30 bg-white/40 hover:border-red-300 hover:bg-white/60 hover:shadow-lg hover:scale-102'
                     }`}
                   >
                     <div className={`relative flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 transition-all ${
                       answers[currentQuestion?.id ?? ''] === index
-                        ? 'border-red-500 bg-gradient-to-r from-red-500 to-orange-500 shadow-lg'
-                        : 'border-gray-400 group-hover:border-red-500 bg-white'
+                        ? 'border-primary bg-gradient-to-r from-primary to-warning shadow-lg'
+                        : 'border-gray-400 group-hover:border-primary bg-white'
                     }`}>
                       {answers[currentQuestion?.id ?? ''] === index && (
                         <div className="w-3 h-3 bg-white rounded-full shadow-sm"></div>
@@ -403,7 +403,7 @@ export default function TakeQuizPage() {
               <button
                 onClick={handleSubmitQuiz}
                 disabled={submitting}
-                className="w-full sm:w-auto bg-gradient-to-r from-red-600 to-orange-600 text-white px-10 py-4 rounded-2xl font-bold text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl hover:shadow-3xl transform hover:scale-105 min-w-[140px] flex items-center justify-center gap-2"
+                className="w-full sm:w-auto bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-10 py-4 rounded-2xl font-bold text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl hover:shadow-3xl transform hover:scale-105 min-w-[140px] flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   'Submitting...'
@@ -417,7 +417,7 @@ export default function TakeQuizPage() {
             ) : (
               <button
                 onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
-                className="w-full sm:w-auto bg-gradient-to-r from-gray-800 to-black text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105 min-w-[140px]"
+                className="w-full sm:w-auto bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-secondary px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105 min-w-[140px]"
               >
                 Next →
               </button>
@@ -428,7 +428,7 @@ export default function TakeQuizPage() {
         {/* Question Navigator - Desktop Only */}
         <div className="hidden lg:block p-6 sm:p-8 lg:p-10 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl">
           <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 sm:mb-8 flex items-center gap-3">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl flex items-center justify-center">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-primary to-warning rounded-xl flex items-center justify-center">
               <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
             </div>
             Question Navigator
@@ -440,7 +440,7 @@ export default function TakeQuizPage() {
                 onClick={() => setCurrentQuestionIndex(index)}
                 className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 border-2 shadow-lg ${
                   index === currentQuestionIndex
-                    ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white transform scale-110 border-red-500 z-10 relative shadow-2xl'
+                    ? 'bg-gradient-to-r from-primary to-warning text-gray-900 transform scale-110 border-primary z-10 relative shadow-2xl'
                     : answers[questions[index]?.id ?? ''] !== undefined
                     ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-300 hover:bg-gradient-to-r hover:from-green-200 hover:to-emerald-200 hover:border-green-400 hover:scale-105'
                     : 'bg-white/60 text-gray-600 border-gray-300 hover:bg-white hover:text-gray-800 hover:border-gray-400 hover:scale-105'
@@ -452,7 +452,7 @@ export default function TakeQuizPage() {
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 mt-6 sm:mt-8 text-sm sm:text-base bg-gradient-to-r from-gray-50/80 to-white/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/30">
             <div className="flex items-center gap-3">
-              <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl shadow-lg flex items-center justify-center">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-r from-primary to-warning rounded-xl shadow-lg flex items-center justify-center">
                 <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
               </div>
               <span className="text-gray-700 font-medium">Current</span>

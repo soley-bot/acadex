@@ -27,7 +27,7 @@ export default function CacheStatusComponent() {
   }, []);
 
   return (
-    <div className="bg-gray-100 p-3 rounded-lg text-xs">
+    <div className="bg-muted/40 p-3 rounded-lg text-xs">
       <div className="font-semibold mb-1">Cache Status ({cacheInfo.timestamp})</div>
       <div className="space-y-1">
         <div>Memory: {cacheInfo.inMemoryCache} items</div>

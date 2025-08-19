@@ -64,7 +64,7 @@ export default function SecurityDashboard() {
   if (!isAdmin()) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+        <div className="bg-primary/5 border border-destructive/30 rounded-md p-4">
           <div className="flex">
             <AlertTriangle className="h-5 w-5 text-red-400" />
             <div className="ml-3">
@@ -92,11 +92,11 @@ export default function SecurityDashboard() {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'text-red-600 bg-red-100'
+      case 'critical': return 'text-primary bg-destructive/20'
       case 'high': return 'text-orange-600 bg-orange-100'
       case 'medium': return 'text-yellow-600 bg-yellow-100'
       case 'low': return 'text-green-600 bg-green-100'
-      default: return 'text-gray-600 bg-gray-100'
+      default: return 'text-gray-600 bg-muted/40'
     }
   }
 
@@ -115,7 +115,7 @@ export default function SecurityDashboard() {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center">
-          <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
+          <RefreshCw className="w-6 h-6 animate-spin text-secondary" />
           <span className="ml-2">Loading security data...</span>
         </div>
       </div>
@@ -128,7 +128,7 @@ export default function SecurityDashboard() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-            <Shield className="w-6 h-6 mr-2 text-blue-600" />
+            <Shield className="w-6 h-6 mr-2 text-secondary" />
             Security Dashboard
           </h1>
           <p className="text-gray-600 mt-1">Monitor security events and system health</p>
@@ -156,7 +156,7 @@ export default function SecurityDashboard() {
           
           <button
             onClick={loadSecurityData}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-secondary hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
@@ -169,7 +169,7 @@ export default function SecurityDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white p-6 rounded-lg shadow border">
             <div className="flex items-center">
-              <Activity className="w-8 h-8 text-blue-600" />
+              <Activity className="w-8 h-8 text-secondary" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Events</p>
                 <p className="text-2xl font-bold text-gray-900">{metrics.totalEvents}</p>
@@ -179,7 +179,7 @@ export default function SecurityDashboard() {
 
           <div className="bg-white p-6 rounded-lg shadow border">
             <div className="flex items-center">
-              <AlertTriangle className="w-8 h-8 text-red-600" />
+              <AlertTriangle className="w-8 h-8 text-primary" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Critical Events</p>
                 <p className="text-2xl font-bold text-gray-900">{metrics.eventsBySeverity.critical || 0}</p>
@@ -211,7 +211,7 @@ export default function SecurityDashboard() {
 
       {/* Critical Events Alert */}
       {metrics?.recentCritical && metrics.recentCritical.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+        <div className="bg-primary/5 border border-destructive/30 rounded-md p-4">
           <div className="flex">
             <AlertTriangle className="h-5 w-5 text-red-400" />
             <div className="ml-3">
@@ -244,9 +244,9 @@ export default function SecurityDashboard() {
                   <span className="ml-2 text-sm font-medium text-gray-900 capitalize">{type}</span>
                 </div>
                 <div className="flex items-center">
-                  <div className="w-32 bg-gray-200 rounded-full h-2 mr-3">
+                  <div className="w-32 bg-muted/60 rounded-full h-2 mr-3">
                     <div
-                      className="bg-blue-600 h-2 rounded-full"
+                      className="bg-secondary h-2 rounded-full"
                       style={{ width: `${(count / metrics.totalEvents) * 100}%` }}
                     ></div>
                   </div>

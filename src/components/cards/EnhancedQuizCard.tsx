@@ -59,15 +59,15 @@ export function EnhancedQuizCard({ quiz, showProgress = true }: EnhancedQuizCard
     switch (difficulty.toLowerCase()) {
       case 'beginner':
       case 'easy':
-        return 'bg-green-100 text-green-800 border-green-200'
+        return 'bg-success/10 text-success border-success/20'
       case 'intermediate':
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+        return 'bg-warning/10 text-warning border-warning/20'
       case 'advanced':
       case 'hard':
-        return 'bg-red-100 text-red-800 border-red-200'
+        return 'bg-destructive/20 text-red-800 border-destructive/30'
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200'
+        return 'bg-muted/40 text-gray-800 border-gray-200'
     }
   }
 
@@ -83,9 +83,9 @@ export function EnhancedQuizCard({ quiz, showProgress = true }: EnhancedQuizCard
 
   const getActionButtonStyle = () => {
     if (attempted && lastAttempt?.completed_at) {
-      return 'bg-green-600 hover:bg-green-700 text-white'
+      return 'bg-success hover:bg-success/90 text-white'
     }
-    return 'bg-red-600 hover:bg-red-700 text-white'
+    return 'bg-primary hover:bg-secondary text-black hover:text-white'
   }
 
   const getScoreDisplay = () => {
@@ -93,7 +93,7 @@ export function EnhancedQuizCard({ quiz, showProgress = true }: EnhancedQuizCard
     
     // Score is already stored as percentage in database
     const percentage = Math.round(lastAttempt.score)
-    const scoreColor = percentage >= 70 ? 'text-green-600' : 'text-red-600'
+    const scoreColor = percentage >= 70 ? 'text-success' : 'text-primary'
     
     return (
       <div className={`text-sm font-semibold ${scoreColor}`}>
@@ -105,7 +105,7 @@ export function EnhancedQuizCard({ quiz, showProgress = true }: EnhancedQuizCard
   return (
     <div className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-gray-100">
       {/* Quiz Header */}
-      <div className="relative bg-gradient-to-br from-red-500 to-red-600 p-6 text-white">
+      <div className="relative bg-gradient-to-br from-primary to-primary/90 text-gray-900">
         {/* Quiz Icon */}
         <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
           <Icon name="target" size={32} color="white" />
@@ -127,7 +127,7 @@ export function EnhancedQuizCard({ quiz, showProgress = true }: EnhancedQuizCard
                 Completed
               </span>
             ) : (
-              <span className="px-2 py-1 bg-yellow-500 text-white text-xs font-semibold rounded-md">
+              <span className="px-2 py-1 bg-warning text-secondary text-xs font-semibold rounded-md">
                 In Progress
               </span>
             )}
@@ -193,7 +193,7 @@ export function EnhancedQuizCard({ quiz, showProgress = true }: EnhancedQuizCard
           {/* Secondary Action - View Details */}
           <Link
             href={`/quizzes/${quiz.id}`}
-            className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold text-center transition-all duration-200 flex items-center justify-center"
+            className="px-4 py-3 bg-muted/40 hover:bg-muted/60 text-gray-700 rounded-lg font-semibold text-center transition-all duration-200 flex items-center justify-center"
           >
             <Icon name="info" size={16} color="current" />
           </Link>

@@ -152,8 +152,8 @@ export default function QuizzesPage() {
     switch (difficulty) {
       case 'beginner': return 'bg-green-100 text-green-800'
       case 'intermediate': return 'bg-yellow-100 text-yellow-800'
-      case 'advanced': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'advanced': return 'bg-destructive/20 text-red-800'
+      default: return 'bg-muted/40 text-gray-800'
     }
   }
 
@@ -304,7 +304,7 @@ export default function QuizzesPage() {
       <div className="p-8">
         <div className="flex items-center justify-center min-h-96">
           <div className="text-center bg-white p-8 rounded-xl shadow-lg border border-gray-200">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-gray-700 font-medium">Loading quizzes...</p>
           </div>
         </div>
@@ -316,10 +316,10 @@ export default function QuizzesPage() {
     return (
       <div className="p-8">
         <div className="text-center bg-white p-8 rounded-xl shadow-lg border border-gray-200 max-w-md mx-auto">
-          <p className="text-red-600 mb-4 font-bold">{error}</p>
+          <p className="text-primary mb-4 font-bold">{error}</p>
           <button 
             onClick={fetchQuizzes}
-            className="text-red-600 hover:text-red-700 underline font-bold bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors"
+            className="text-primary hover:text-primary/80 underline font-bold bg-primary/5 hover:bg-destructive/20 px-4 py-2 rounded-lg transition-colors"
           >
             Try again
           </button>
@@ -342,7 +342,8 @@ export default function QuizzesPage() {
               <div className="relative group">
                 <Link
                   href="/admin/quizzes/create"
-                  className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full sm:w-auto"
+                                    className="bg-gradient-to-r from-secondary to-secondary/90 hover:from-secondary/80 hover:to-secondary/90
+ text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full sm:w-auto"
                 >
                   <Plus size={20} />
                   <span>Create New Quiz</span>
@@ -373,7 +374,7 @@ export default function QuizzesPage() {
               </button>
               <button
                 onClick={() => setShowAnalytics(true)}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 sm:px-6 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
+                className="bg-gradient-to-r from-primary to-warning hover:from-primary/90 hover:to-warning/90 text-white px-6 py-3 sm:px-6 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
               >
                 <BarChart3 size={20} />
                 <span>Analytics</span>
@@ -391,10 +392,10 @@ export default function QuizzesPage() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-600 mb-2">Total Quizzes</p>
                 <p className="text-3xl font-bold text-gray-900 mb-1">{quizStats.total}</p>
-                <p className="text-sm text-blue-600 font-medium">All Assessments</p>
+                <p className="text-sm text-secondary font-medium">All Assessments</p>
               </div>
-              <div className="bg-blue-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-blue-200 transition-colors">
-                <Brain className="h-6 w-6 text-blue-600" />
+              <div className="bg-secondary/10 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                <Brain className="h-6 w-6 text-secondary" />
               </div>
             </div>
           </CardContent>
@@ -423,7 +424,7 @@ export default function QuizzesPage() {
                 <p className="text-3xl font-bold text-gray-900 mb-1">{quizStats.draft}</p>
                 <p className="text-sm text-orange-600 font-medium">In Progress</p>
               </div>
-              <div className="bg-orange-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-orange-200 transition-colors">
+              <div className="bg-orange-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-warning/30 transition-colors">
                 <Edit className="h-6 w-6 text-orange-600" />
               </div>
             </div>
@@ -584,7 +585,7 @@ export default function QuizzesPage() {
           <Card key={quiz.id} className="bg-white border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
             
             {/* Quiz Image */}
-            <div className="relative h-48 bg-gray-100">
+            <div className="relative h-48 bg-muted/40">
               {quiz.image_url ? (
                 <Image
                   src={quiz.image_url}
@@ -626,7 +627,7 @@ export default function QuizzesPage() {
                 
                 <div className="grid grid-cols-2 gap-4 text-base">
                   <div className="flex items-center gap-2 text-gray-700">
-                    <Clock className="h-5 w-5 flex-shrink-0 text-blue-600" />
+                    <Clock className="h-5 w-5 flex-shrink-0 text-secondary" />
                     <span className="font-medium">{quiz.duration_minutes} min</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-700">
@@ -655,7 +656,7 @@ export default function QuizzesPage() {
                   <div className="flex gap-3">
                     <button 
                       onClick={() => handleViewQuiz(quiz)}
-                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
+                      className="flex-1 bg-muted/40 hover:bg-muted/60 text-gray-800 px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
                     >
                       <Eye className="h-5 w-5" />
                       <span>View</span>
@@ -682,14 +683,14 @@ export default function QuizzesPage() {
                   <div className="flex gap-3">
                     <Link
                       href={`/admin/quizzes/${quiz.id}/edit`}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
+                      className="flex-1 bg-primary hover:bg-secondary text-black hover:text-white px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
                     >
                       <Edit className="h-5 w-5" />
                       <span>Edit</span>
                     </Link>
                     <button 
                       onClick={() => handleDeleteQuiz(quiz)}
-                      className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
+                      className="flex-1 bg-primary hover:bg-primary/90 text-secondary px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
                     >
                       <Trash2 className="h-5 w-5" />
                       <span>Delete</span>
@@ -720,7 +721,7 @@ export default function QuizzesPage() {
               {!searchTerm && selectedCategory === 'all' && selectedDifficulty === 'all' && (
                 <button 
                   onClick={handleCreateQuiz}
-                  className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-4 rounded-xl font-semibold text-base transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  className="bg-gradient-to-r from-secondary to-secondary/90 hover:from-secondary/80 hover:to-secondary/90 text-white px-8 py-4 rounded-xl font-semibold text-base transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   Create Your First Quiz
                 </button>

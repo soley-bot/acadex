@@ -120,9 +120,9 @@ export default function ResetPasswordPage() {
   // Loading state while validating token
   if (validatingToken) {
     return (
-      <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="relative min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-secondary" />
           <p className="text-gray-600">Verifying reset link...</p>
         </div>
       </div>
@@ -132,11 +132,11 @@ export default function ResetPasswordPage() {
   // Invalid token state
   if (!tokenValid) {
     return (
-      <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="relative min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="relative w-full max-w-md space-y-8">
           <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 p-8 text-center">
-            <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
-              <AlertTriangle className="w-8 h-8 text-red-600" />
+            <div className="mx-auto w-16 h-16 bg-destructive/20 rounded-full flex items-center justify-center mb-6">
+              <AlertTriangle className="w-8 h-8 text-primary" />
             </div>
             
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Reset Link Invalid</h2>
@@ -147,14 +147,14 @@ export default function ResetPasswordPage() {
             <div className="space-y-3">
               <Link
                 href="/auth/forgot-password"
-                className="block w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-xl font-medium text-center hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+                className="block w-full bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-secondary py-3 px-4 rounded-xl font-medium text-center hover:from-primary/90 hover:to-secondary/90 transition-all duration-200"
               >
                 Request New Reset Link
               </Link>
               
               <Link
                 href="/auth/login"
-                className="block w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-xl font-medium text-center hover:bg-gray-200 transition-colors"
+                className="block w-full bg-muted/40 text-gray-700 py-3 px-4 rounded-xl font-medium text-center hover:bg-muted/60 transition-colors"
               >
                 Back to Sign In
               </Link>
@@ -168,7 +168,7 @@ export default function ResetPasswordPage() {
   // Success state
   if (success) {
     return (
-      <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="relative min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="relative w-full max-w-md space-y-8">
           <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 p-8 text-center">
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
@@ -188,7 +188,7 @@ export default function ResetPasswordPage() {
 
             <Link
               href="/auth/login"
-              className="block w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-xl font-medium text-center hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+              className="block w-full bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-secondary py-3 px-4 rounded-xl font-medium text-center hover:from-primary/90 hover:to-secondary/90 transition-all duration-200"
             >
               Continue to Sign In
             </Link>
@@ -199,7 +199,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
@@ -209,8 +209,8 @@ export default function ResetPasswordPage() {
       <div className="relative w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
-            <Lock className="w-8 h-8 text-blue-600" />
+          <div className="mx-auto w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mb-6">
+            <Lock className="w-8 h-8 text-secondary" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Reset Your Password
@@ -225,7 +225,7 @@ export default function ResetPasswordPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <div className="bg-primary/5 border border-red-200 rounded-xl p-4">
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                   <div>
@@ -269,7 +269,7 @@ export default function ResetPasswordPage() {
 
             {/* Security Info */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-blue-800 text-sm font-medium mb-2">Password Requirements:</p>
+              <p className="text-secondary text-sm font-medium mb-2">Password Requirements:</p>
               <ul className="text-blue-700 text-sm space-y-1">
                 <li>• At least 8 characters long</li>
                 <li>• Contains uppercase and lowercase letters</li>
@@ -282,7 +282,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={loading || !canSubmit()}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-xl font-medium text-lg shadow-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
+              className="w-full bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-secondary py-3 px-4 rounded-xl font-medium text-lg shadow-lg hover:from-primary/90 hover:to-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">
@@ -300,7 +300,7 @@ export default function ResetPasswordPage() {
         <div className="text-center">
           <p className="text-sm text-gray-500">
             Remember your password?{' '}
-            <Link href="/auth/login" className="text-blue-600 hover:text-blue-800">
+            <Link href="/auth/login" className="text-secondary hover:text-secondary">
               Sign in here
             </Link>
           </p>

@@ -19,19 +19,19 @@ export const metadata: Metadata = {
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
 
       {/* Hero Section */}
       <Section className="relative" background="transparent" spacing="lg">
         <Container size="lg" className="relative">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
               <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
               Our Story
             </div>
@@ -40,7 +40,7 @@ export default function About() {
               About Acadex
             </DisplayLG>
             
-            <H2 className="text-red-600 mb-8">
+            <H2 className="text-primary mb-8">
               Built from Scratch. Built with Heart.
             </H2>
           </div>
@@ -62,9 +62,9 @@ export default function About() {
             </div>
 
             {/* Founder Introduction */}
-            <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-3xl p-8 lg:p-12 mb-12 border border-red-100">
+            <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-3xl p-8 lg:p-12 mb-12 border border-red-100">
               <Flex align="center" gap="lg" className="flex-col md:flex-row">
-                <div className="w-32 h-32 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
+                <div className="w-32 h-32 bg-gradient-to-r from-primary to-primary/90 rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
                   <Icon name="user" size={64} color="white" />
                 </div>
                 <div className="text-center md:text-left">
@@ -88,8 +88,8 @@ export default function About() {
               
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-red-600 text-lg">•</span>
+                  <div className="w-8 h-8 bg-destructive/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-primary text-lg">•</span>
                   </div>
                   <BodyMD className="text-gray-700">
                     Students who thought they weren&apos;t smart — just because school didn&apos;t work for them
@@ -97,8 +97,8 @@ export default function About() {
                 </div>
                 
                 <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-red-600 text-lg">•</span>
+                  <div className="w-8 h-8 bg-destructive/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-primary text-lg">•</span>
                   </div>
                   <BodyMD className="text-gray-700">
                     Young people who felt left behind because they couldn&apos;t afford extra classes or didn&apos;t pass the right tests
@@ -106,8 +106,8 @@ export default function About() {
                 </div>
                 
                 <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-red-600 text-lg">•</span>
+                  <div className="w-8 h-8 bg-destructive/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-primary text-lg">•</span>
                   </div>
                   <BodyMD className="text-gray-700">
                     A system that rewarded memorization, not understanding
@@ -121,15 +121,15 @@ export default function About() {
             </div>
 
             {/* Beliefs Section */}
-            <div className="bg-gradient-to-br from-gray-700 to-gray-600 rounded-3xl p-8 lg:p-12 mb-12 text-white">
-              <H2 className="mb-8 text-center text-white">A Different Belief About Learning</H2>
+            <div className="bg-gradient-to-br from-primary/5 via-white to-secondary/5 text-secondary">
+              <H2 className="mb-8 text-center text-current">A Different Belief About Learning</H2>
               <BodyLG className="text-gray-200 leading-relaxed mb-8 text-center">
                 At Acadex, we believe this:
               </BodyLG>
               
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                     <Icon name="check" size={16} color="white" />
                   </div>
                   <BodyMD className="text-gray-200">
@@ -138,7 +138,7 @@ export default function About() {
                 </div>
                 
                 <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                     <Icon name="check" size={16} color="white" />
                   </div>
                   <BodyMD className="text-gray-200">
@@ -147,7 +147,7 @@ export default function About() {
                 </div>
                 
                 <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                     <Icon name="check" size={16} color="white" />
                   </div>
                   <BodyMD className="text-gray-200">
@@ -174,7 +174,7 @@ export default function About() {
               
               <Grid cols={1} className="md:grid-cols-2 gap-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary/90 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
                     <Icon name="book" size={24} color="white" />
                   </div>
                   <div>
@@ -184,7 +184,7 @@ export default function About() {
                 </div>
                 
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary/90 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
                     <Icon name="video" size={24} color="white" />
                   </div>
                   <div>
@@ -194,7 +194,7 @@ export default function About() {
                 </div>
                 
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary/90 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
                     <Icon name="heart" size={24} color="white" />
                   </div>
                   <div>
@@ -204,7 +204,7 @@ export default function About() {
                 </div>
                 
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary/90 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
                     <Icon name="user" size={24} color="white" />
                   </div>
                   <div>
@@ -236,7 +236,7 @@ export default function About() {
                 <br />
                 If you&apos;ve ever thought &quot;maybe I&apos;m just not good at learning&quot;…
                 <br />
-                <strong className="text-red-600">Acadex is here to prove otherwise.</strong>
+                <strong className="text-primary">Acadex is here to prove otherwise.</strong>
               </BodyLG>
               
               <H2 className="mb-6">Let&apos;s build this together.</H2>
@@ -247,13 +247,13 @@ export default function About() {
             <div className="text-center">
               <Flex direction="col" gap="md" className="sm:flex-row justify-center">
                 <Link href="/courses">
-                  <button className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 min-w-[200px]">
+                  <button className="bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 min-w-[200px]">
                     Start Learning
                     <span className="ml-3">→</span>
                   </button>
                 </Link>
                 <Link href="/">
-                  <button className="border-2 border-red-600 text-red-600 bg-white/80 backdrop-blur-sm hover:bg-red-600 hover:text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 min-w-[200px]">
+                  <button className="border-2 border-primary text-primary bg-white/80 backdrop-blur-sm hover:bg-primary text-black px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 min-w-[200px]">
                     Back to Home
                   </button>
                 </Link>

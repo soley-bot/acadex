@@ -33,7 +33,7 @@ const MetricCard = ({ title, value, description, icon, trend, loading }: MetricC
       <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
       <div className="text-gray-400">
         {loading ? (
-          <div className="w-4 h-4 bg-gray-200 animate-pulse rounded" />
+          <div className="w-4 h-4 bg-muted/60 animate-pulse rounded" />
         ) : (
           icon
         )}
@@ -42,8 +42,8 @@ const MetricCard = ({ title, value, description, icon, trend, loading }: MetricC
     <CardContent>
       {loading ? (
         <>
-          <div className="h-8 bg-gray-200 animate-pulse rounded mb-2" />
-          <div className="h-4 w-24 bg-gray-200 animate-pulse rounded" />
+          <div className="h-8 bg-muted/60 animate-pulse rounded mb-2" />
+          <div className="h-4 w-24 bg-muted/60 animate-pulse rounded" />
         </>
       ) : (
         <>
@@ -201,19 +201,19 @@ export default function AdminAnalytics() {
           {/* Header skeleton */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
             <div>
-              <div className="h-8 bg-gray-200 rounded w-48 mb-2" />
-              <div className="h-4 bg-gray-200 rounded w-64" />
+              <div className="h-8 bg-muted/60 rounded w-48 mb-2" />
+              <div className="h-4 bg-muted/60 rounded w-64" />
             </div>
-            <div className="h-10 bg-gray-200 rounded w-32" />
+            <div className="h-10 bg-muted/60 rounded w-32" />
           </div>
           
           {/* Cards skeleton */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                <div className="h-4 bg-gray-200 rounded w-24 mb-4" />
-                <div className="h-8 bg-gray-200 rounded w-16 mb-2" />
-                <div className="h-3 bg-gray-200 rounded w-32" />
+                <div className="h-4 bg-muted/60 rounded w-24 mb-4" />
+                <div className="h-8 bg-muted/60 rounded w-16 mb-2" />
+                <div className="h-3 bg-muted/60 rounded w-32" />
               </div>
             ))}
           </div>
@@ -226,10 +226,10 @@ export default function AdminAnalytics() {
     return (
       <div className="p-8">
         <div className="text-center bg-white p-8 rounded-xl shadow-lg border border-gray-200 max-w-md mx-auto">
-          <p className="text-red-600 mb-4 font-bold">{error}</p>
+          <p className="text-primary mb-4 font-bold">{error}</p>
           <button 
             onClick={handleRefresh}
-            className="text-red-600 hover:text-red-700 underline font-bold bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors"
+            className="text-primary hover:text-primary/80 underline font-bold bg-primary/5 hover:bg-destructive/20 px-4 py-2 rounded-lg transition-colors"
           >
             Try again
           </button>
@@ -268,7 +268,7 @@ export default function AdminAnalytics() {
           <div className="flex gap-2">
             <button 
               onClick={handleRefresh}
-              className="touch-target bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors font-medium shadow-sm text-sm min-w-[120px]"
+              className="touch-target bg-primary text-black px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors font-medium shadow-sm text-sm min-w-[120px]"
               disabled={loading || refreshing}
             >
               <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
@@ -288,14 +288,14 @@ export default function AdminAnalytics() {
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="bg-primary/5 border border-red-200 rounded-lg p-4">
           <div className="flex items-center gap-2 text-red-800">
             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
             </svg>
             <span className="font-medium">Failed to load analytics</span>
           </div>
-          <p className="text-red-600 text-sm mt-1">{error}</p>
+          <p className="text-primary text-sm mt-1">{error}</p>
           <button 
             onClick={handleRefresh}
             className="mt-3 text-red-700 underline text-sm font-medium"
@@ -311,7 +311,7 @@ export default function AdminAnalytics() {
           title="Total Users"
           value={analytics.totalUsers.toLocaleString()}
           description="Registered users"
-          icon={<Users className="h-4 w-4 text-blue-600" />}
+          icon={<Users className="h-4 w-4 text-secondary" />}
           trend={formattedAnalytics.growthRate}
           loading={loading}
         />
@@ -354,8 +354,8 @@ export default function AdminAnalytics() {
           <CardContent>
             {loading ? (
               <div className="animate-pulse">
-                <div className="h-10 bg-gray-200 rounded mb-2" />
-                <div className="h-4 bg-gray-200 rounded w-48" />
+                <div className="h-10 bg-muted/60 rounded mb-2" />
+                <div className="h-4 bg-muted/60 rounded w-48" />
               </div>
             ) : (
               <>
@@ -379,7 +379,7 @@ export default function AdminAnalytics() {
         <Card className="transition-all duration-200 hover:shadow-md">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-blue-600" />
+              <BarChart3 className="h-5 w-5 text-secondary" />
               Platform Growth
             </CardTitle>
             <CardDescription>Engagement and growth metrics</CardDescription>
@@ -389,8 +389,8 @@ export default function AdminAnalytics() {
               <div className="animate-pulse space-y-3">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="flex justify-between">
-                    <div className="h-4 bg-gray-200 rounded w-32" />
-                    <div className="h-4 bg-gray-200 rounded w-16" />
+                    <div className="h-4 bg-muted/60 rounded w-32" />
+                    <div className="h-4 bg-muted/60 rounded w-16" />
                   </div>
                 ))}
               </div>
@@ -398,7 +398,7 @@ export default function AdminAnalytics() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">New users this month</span>
-                  <span className="font-semibold text-blue-600">+{analytics.newUsersThisMonth}</span>
+                  <span className="font-semibold text-secondary">+{analytics.newUsersThisMonth}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Avg. enrollments per course</span>

@@ -47,7 +47,7 @@ export default function EditQuizPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-secondary" />
           <p className="text-gray-600">Loading quiz...</p>
         </div>
       </div>
@@ -58,10 +58,10 @@ export default function EditQuizPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error || 'Quiz not found'}</p>
+          <p className="text-primary mb-4">{error || 'Quiz not found'}</p>
           <Link 
             href="/admin/quizzes"
-            className="text-blue-600 hover:text-blue-700 underline"
+            className="text-secondary hover:text-blue-700 underline"
           >
             Back to Quizzes
           </Link>
@@ -84,7 +84,7 @@ export default function EditQuizPage() {
                 <ArrowLeft className="h-5 w-5" />
                 Back to Quizzes
               </Link>
-              <div className="h-6 w-px bg-gray-300" />
+              <div className="h-6 w-px bg-muted" />
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">Edit Quiz</h1>
                 <p className="text-sm text-gray-500">{quiz.title}</p>
@@ -94,7 +94,7 @@ export default function EditQuizPage() {
               <Link
                 href={`/quizzes/${quiz.id}`}
                 target="_blank"
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-muted/40 hover:bg-muted/60 rounded-lg transition-colors"
               >
                 <Eye className="h-4 w-4" />
                 Preview

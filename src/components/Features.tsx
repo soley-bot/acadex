@@ -33,15 +33,15 @@ export default function Features() {
     >
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-40 left-20 w-64 h-64 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob"></div>
-        <div className="absolute bottom-40 right-20 w-64 h-64 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-20 right-40 w-48 h-48 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-40 left-20 w-64 h-64 bg-primary/30 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob"></div>
+        <div className="absolute bottom-40 right-20 w-64 h-64 bg-warning/30 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-20 right-40 w-48 h-48 bg-secondary/30 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob animation-delay-4000"></div>
       </div>
 
       <Container size="xl" className="relative">
         {/* Section Header */}
         <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
             <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
             Why Learn with Acadex
           </div>
@@ -67,13 +67,13 @@ export default function Features() {
         <Grid cols={1} className="md:grid-cols-2 max-w-4xl mx-auto">
           {features.map((feature, index) => (
             <div key={index} className="group">
-              <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-8 h-full transition-all duration-300 hover:shadow-2xl hover:border-red-200 hover:-translate-y-2 shadow-lg">
+              <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-8 h-full transition-all duration-300 hover:shadow-2xl hover:border-secondary hover:-translate-y-2 shadow-lg">
                 {/* Icon Container */}
-                <div className="w-20 h-20 bg-gradient-to-r from-gray-600 to-gray-500 rounded-2xl flex items-center justify-center mb-8 group-hover:from-red-600 group-hover:to-red-700 transition-all duration-300 shadow-lg">
-                  <Icon name={feature.icon} size={36} color="white" />
+                <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center mb-8 group-hover:bg-secondary transition-all duration-300 shadow-lg">
+                  <Icon name={feature.icon} size={36} color="gray-900" className="group-hover:text-white transition-colors" />
                 </div>
                 
-                <H3 className="mb-4 group-hover:text-red-600 transition-colors">
+                <H3 className="mb-4 group-hover:text-primary transition-colors">
                   {feature.title}
                 </H3>
                 
@@ -83,7 +83,7 @@ export default function Features() {
                 
                 {/* Hover Arrow */}
                 <div className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 mt-8">
-                  <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center shadow-lg">
+                  <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center shadow-lg">
                     <Icon name="arrow-right" size={20} color="white" />
                   </div>
                 </div>

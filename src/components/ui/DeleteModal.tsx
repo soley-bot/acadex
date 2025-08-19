@@ -137,7 +137,7 @@ export function DeleteModal({
             <button
               onClick={handleDelete}
               disabled={loading || !canDelete()}
-              className="px-6 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2.5 bg-primary text-secondary rounded-xl hover:bg-primary/90 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {loading ? (
                 <>
@@ -157,9 +157,9 @@ export function DeleteModal({
     >
       <div className="space-y-6">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+          <div className="bg-primary/5 border border-destructive/30 text-red-700 px-4 py-3 rounded-xl">
             <div className="flex items-start gap-3">
-              <AlertTriangle size={20} className="text-red-600 mt-0.5 flex-shrink-0" />
+              <AlertTriangle size={20} className="text-primary mt-0.5 flex-shrink-0" />
               <div>
                 <p className="font-medium">Error</p>
                 <p className="text-sm mt-1">{error}</p>
@@ -169,8 +169,8 @@ export function DeleteModal({
         )}
 
         <div className="text-center py-4">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Trash2 size={24} className="text-red-600" />
+          <div className="w-16 h-16 bg-destructive/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Trash2 size={24} className="text-primary" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             Are you sure you want to delete this {typeLabel.toLowerCase()}?
@@ -183,12 +183,12 @@ export function DeleteModal({
         {warningMessage && (
           <div className={`p-4 rounded-xl border ${
             !canDelete() 
-              ? 'bg-red-50 border-red-200 text-red-700' 
+              ? 'bg-primary/5 border-destructive/30 text-red-700' 
               : 'bg-yellow-50 border-yellow-200 text-yellow-800'
           }`}>
             <div className="flex items-start gap-3">
               <AlertTriangle size={20} className={`mt-0.5 flex-shrink-0 ${
-                !canDelete() ? 'text-red-600' : 'text-yellow-600'
+                !canDelete() ? 'text-primary' : 'text-yellow-600'
               }`} />
               <div>
                 <p className="font-medium">

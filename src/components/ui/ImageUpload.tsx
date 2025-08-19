@@ -97,8 +97,8 @@ export function ImageUpload({
           onClick={() => setInputMode('upload')}
           className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
             inputMode === 'upload'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-secondary text-white'
+              : 'bg-muted/40 text-gray-700 hover:bg-muted/60'
           }`}
         >
           Upload File
@@ -108,8 +108,8 @@ export function ImageUpload({
           onClick={() => setInputMode('url')}
           className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
             inputMode === 'url'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-secondary text-white'
+              : 'bg-muted/40 text-gray-700 hover:bg-muted/60'
           }`}
         >
           Enter URL
@@ -142,7 +142,7 @@ export function ImageUpload({
           >
             {uploading ? (
               <div className="flex flex-col items-center">
-                <Loader2 className="h-8 w-8 text-blue-600 animate-spin mb-2" />
+                <Loader2 className="h-8 w-8 text-secondary animate-spin mb-2" />
                 <p className="text-gray-600">Uploading image...</p>
               </div>
             ) : (
@@ -175,7 +175,7 @@ export function ImageUpload({
             type="button"
             onClick={handleUrlSubmit}
             disabled={disabled}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors disabled:opacity-50"
           >
             Apply
           </button>
@@ -185,7 +185,7 @@ export function ImageUpload({
       {/* Preview */}
       {value && (
         <div className="relative">
-          <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
+          <div className="relative w-full h-48 bg-muted/40 rounded-lg overflow-hidden">
             <Image
               src={value}
               alt="Preview"
@@ -196,7 +196,7 @@ export function ImageUpload({
             <button
               type="button"
               onClick={handleRemove}
-              className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
+              className="absolute top-2 right-2 p-1 bg-primary text-secondary rounded-full hover:bg-primary/90 transition-colors"
             >
               <X className="h-4 w-4" />
             </button>
@@ -207,7 +207,7 @@ export function ImageUpload({
 
       {/* Fallback when no image */}
       {!value && (
-        <div className="flex items-center justify-center w-full h-32 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
+        <div className="flex items-center justify-center w-full h-32 bg-muted/40 rounded-lg border-2 border-dashed border-gray-300">
           <div className="text-center">
             <ImageIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
             <p className="text-sm text-gray-500">No image selected</p>

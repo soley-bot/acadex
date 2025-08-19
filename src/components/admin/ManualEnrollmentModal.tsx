@@ -130,8 +130,8 @@ export function ManualEnrollmentModal({ isOpen, onClose, onEnrollmentCreated }: 
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Plus className="w-6 h-6 text-blue-600" />
+              <div className="p-2 bg-secondary/10 rounded-lg">
+                <Plus className="w-6 h-6 text-secondary" />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-gray-900">Manual Enrollment</h2>
@@ -149,7 +149,7 @@ export function ManualEnrollmentModal({ isOpen, onClose, onEnrollmentCreated }: 
 
         <div className="p-6 space-y-6">
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="bg-primary/5 border border-destructive/30 rounded-lg p-4">
               <p className="text-red-800 text-sm">{error}</p>
             </div>
           )}
@@ -181,7 +181,7 @@ export function ManualEnrollmentModal({ isOpen, onClose, onEnrollmentCreated }: 
                     }`}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                      <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
                         <User className="w-4 h-4 text-gray-600" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -193,7 +193,7 @@ export function ManualEnrollmentModal({ isOpen, onClose, onEnrollmentCreated }: 
                         </p>
                       </div>
                       {selectedUserId === user.id && (
-                        <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                        <div className="w-5 h-5 bg-secondary rounded-full flex items-center justify-center">
                           <div className="w-2 h-2 bg-white rounded-full"></div>
                         </div>
                       )}
@@ -204,7 +204,7 @@ export function ManualEnrollmentModal({ isOpen, onClose, onEnrollmentCreated }: 
 
               {selectedUser && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <p className="text-sm text-blue-800">
+                  <p className="text-sm text-secondary">
                     <strong>Selected:</strong> {selectedUser.name} ({selectedUser.email})
                   </p>
                 </div>
@@ -239,7 +239,7 @@ export function ManualEnrollmentModal({ isOpen, onClose, onEnrollmentCreated }: 
                     }`}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                      <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
                         <BookOpen className="w-4 h-4 text-gray-600" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -251,7 +251,7 @@ export function ManualEnrollmentModal({ isOpen, onClose, onEnrollmentCreated }: 
                         </p>
                       </div>
                       {selectedCourseId === course.id && (
-                        <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                        <div className="w-5 h-5 bg-secondary rounded-full flex items-center justify-center">
                           <div className="w-2 h-2 bg-white rounded-full"></div>
                         </div>
                       )}
@@ -262,7 +262,7 @@ export function ManualEnrollmentModal({ isOpen, onClose, onEnrollmentCreated }: 
 
               {selectedCourse && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <p className="text-sm text-blue-800">
+                  <p className="text-sm text-secondary">
                     <strong>Selected:</strong> {selectedCourse.title} (${selectedCourse.price})
                   </p>
                 </div>
@@ -297,7 +297,7 @@ export function ManualEnrollmentModal({ isOpen, onClose, onEnrollmentCreated }: 
           <button
             onClick={handleEnroll}
             disabled={loading || !selectedUserId || !selectedCourseId}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+            className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
           >
             {loading && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>}
             <span>{loading ? 'Enrolling...' : 'Enroll Student'}</span>

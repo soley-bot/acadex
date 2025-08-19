@@ -119,8 +119,8 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
     switch (difficulty) {
       case 'beginner': return 'bg-emerald-100 text-emerald-800 border border-emerald-200'
       case 'intermediate': return 'bg-amber-100 text-amber-800 border border-amber-200'
-      case 'advanced': return 'bg-red-100 text-red-800 border border-red-200'
-      default: return 'bg-gray-100 text-gray-800 border border-gray-200'
+      case 'advanced': return 'bg-destructive/20 text-red-800 border border-destructive/30'
+      default: return 'bg-muted/40 text-gray-800 border border-gray-200'
     }
   }
 
@@ -176,7 +176,7 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
             </div>
             <button
               onClick={onClose}
-              className="text-tertiary hover:text-primary transition-colors p-2 hover:bg-gray-100 rounded-lg"
+              className="text-tertiary hover:text-primary transition-colors p-2 hover:bg-muted/40 rounded-lg"
             >
               <X className="h-5 w-5" />
             </button>
@@ -234,11 +234,11 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
                     <div className="surface-secondary border border-subtle p-6 rounded-xl">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-blue-600 text-sm font-semibold">Total Attempts</p>
+                          <p className="text-secondary text-sm font-semibold">Total Attempts</p>
                           <p className="text-2xl font-bold text-primary">{stats?.totalAttempts || 0}</p>
                         </div>
-                        <div className="bg-blue-100 p-3 rounded-lg">
-                          <Users className="h-6 w-6 text-blue-600" />
+                        <div className="bg-secondary/10 p-3 rounded-lg">
+                          <Users className="h-6 w-6 text-secondary" />
                         </div>
                       </div>
                     </div>
@@ -364,7 +364,7 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
                           {question.explanation && (
                             <div className="bg-blue-50 p-4 rounded-lg">
                               <h5 className="font-medium text-blue-900 mb-2">Explanation</h5>
-                              <p className="text-blue-800 text-sm">{question.explanation}</p>
+                              <p className="text-secondary text-sm">{question.explanation}</p>
                             </div>
                           )}
                         </div>
@@ -400,7 +400,7 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
                                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                     (attempt.score / attempt.total_questions * 100) >= 70
                                       ? 'bg-green-100 text-green-800'
-                                      : 'bg-red-100 text-red-800'
+                                      : 'bg-destructive/20 text-red-800'
                                   }`}>
                                     {Math.round(attempt.score / attempt.total_questions * 100)}%
                                   </span>

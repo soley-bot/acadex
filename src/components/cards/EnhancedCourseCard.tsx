@@ -62,12 +62,12 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
   }
 
   const getActionButtonStyle = () => {
-    if (!user) return 'bg-blue-600 hover:bg-blue-700 text-white'
+    if (!user) return 'bg-primary text-black'
     if (enrolled) {
-      if (progress?.completed_at) return 'bg-green-600 hover:bg-green-700 text-white'
-      return 'bg-blue-600 hover:bg-blue-700 text-white'
+      if (progress?.completed_at) return 'bg-success hover:bg-success/90 text-white'
+      return 'bg-primary text-black'
     }
-    return 'bg-red-600 hover:bg-red-700 text-white'
+    return 'bg-primary text-black'
   }
 
   return (
@@ -114,7 +114,7 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
       {/* Course Content */}
       <div className="p-6">
         {/* Course Title */}
-        <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+        <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-secondary transition-colors line-clamp-2">
           {course.title}
         </h3>
 
@@ -153,9 +153,9 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
         {/* Progress Bar for Enrolled Users */}
         {showProgress && user && enrolled && progress?.progress > 0 && !progress?.completed_at && (
           <div className="mb-4">
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-muted/60 rounded-full h-2">
               <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                className="bg-secondary h-2 rounded-full transition-all duration-300"
                 style={{ width: `${progress.progress}%` }}
               ></div>
             </div>
@@ -186,7 +186,7 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
           {/* Secondary Action - View Details */}
           <Link
             href={`/courses/${course.id}`}
-            className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold text-center transition-all duration-200 flex items-center justify-center"
+            className="px-4 py-3 bg-muted/40 hover:bg-muted/60 text-gray-700 rounded-lg font-semibold text-center transition-all duration-200 flex items-center justify-center"
           >
             <Icon name="info" size={16} color="current" />
           </Link>

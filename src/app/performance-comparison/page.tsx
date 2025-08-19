@@ -97,10 +97,10 @@ export default function PerformanceComparisonPage() {
 
   const getPerformanceRating = (time: number) => {
     if (time < 100) return { label: '🚀 Excellent', color: 'text-green-600', bg: 'bg-green-100' };
-    if (time < 300) return { label: '⚡ Good', color: 'text-blue-600', bg: 'bg-blue-100' };
+    if (time < 300) return { label: '⚡ Good', color: 'text-secondary', bg: 'bg-secondary/10' };
     if (time < 500) return { label: '👍 Fair', color: 'text-yellow-600', bg: 'bg-yellow-100' };
     if (time < 1000) return { label: '🐌 Slow', color: 'text-orange-600', bg: 'bg-orange-100' };
-    return { label: '❌ Very Slow', color: 'text-red-600', bg: 'bg-red-100' };
+    return { label: '❌ Very Slow', color: 'text-primary', bg: 'bg-destructive/20' };
   };
 
   const calculateImprovement = (oldTime: number, newTime: number) => {
@@ -144,7 +144,7 @@ export default function PerformanceComparisonPage() {
           </div>
 
           {currentTest && (
-            <div className="mt-4 text-blue-600 font-medium">
+            <div className="mt-4 text-secondary font-medium">
               {currentTest}
             </div>
           )}
@@ -330,27 +330,27 @@ export default function PerformanceComparisonPage() {
           <h2 className="text-2xl font-semibold text-blue-900 mb-4">🎯 Next Steps</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="font-semibold text-blue-800 mb-2">1. Database Indexes:</h3>
+              <h3 className="font-semibold text-secondary mb-2">1. Database Indexes:</h3>
               <p className="text-blue-700 text-sm mb-2">
                 Run the SQL file I created in your Supabase dashboard to create performance indexes.
               </p>
               <Link 
                 href="/performance-preview"
-                className="text-blue-600 hover:text-blue-800 underline text-sm"
+                className="text-secondary hover:text-secondary underline text-sm"
               >
                 View Performance Preview →
               </Link>
             </div>
             <div>
-              <h3 className="font-semibold text-blue-800 mb-2">2. Test Optimized Pages:</h3>
+              <h3 className="font-semibold text-secondary mb-2">2. Test Optimized Pages:</h3>
               <div className="space-y-1 text-sm">
-                <Link href="/optimized-search" className="block text-blue-600 hover:text-blue-800 underline">
+                <Link href="/optimized-search" className="block text-secondary hover:text-secondary underline">
                   Test Optimized Search →
                 </Link>
-                <Link href="/quizzes" className="block text-blue-600 hover:text-blue-800 underline">
+                <Link href="/quizzes" className="block text-secondary hover:text-secondary underline">
                   Test Quiz Performance →
                 </Link>
-                <Link href="/courses" className="block text-blue-600 hover:text-blue-800 underline">
+                <Link href="/courses" className="block text-secondary hover:text-secondary underline">
                   Test Course Performance →
                 </Link>
               </div>

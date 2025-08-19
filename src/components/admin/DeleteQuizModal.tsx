@@ -92,8 +92,8 @@ export function DeleteQuizModal({ quiz, isOpen, onClose, onSuccess }: DeleteQuiz
         {/* Header */}
         <div className="p-6 border-b border-subtle flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <AlertTriangle className="h-6 w-6 text-red-600" />
+            <div className="p-2 bg-destructive/20 rounded-lg">
+              <AlertTriangle className="h-6 w-6 text-primary" />
             </div>
             <div>
               <h2 className="heading-subsection">Delete Quiz</h2>
@@ -102,7 +102,7 @@ export function DeleteQuizModal({ quiz, isOpen, onClose, onSuccess }: DeleteQuiz
           </div>
           <button
             onClick={onClose}
-            className="text-tertiary hover:text-primary transition-colors p-2 hover:bg-gray-100 rounded-lg"
+            className="text-tertiary hover:text-primary transition-colors p-2 hover:bg-muted/40 rounded-lg"
           >
             <X className="h-5 w-5" />
           </button>
@@ -146,26 +146,26 @@ export function DeleteQuizModal({ quiz, isOpen, onClose, onSuccess }: DeleteQuiz
             <h4 className="font-medium text-gray-900 mb-3">This will permanently:</h4>
             <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-primary/50 rounded-full"></div>
                 Delete the quiz and all its questions
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-primary/50 rounded-full"></div>
                 Remove all student attempt records
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-primary/50 rounded-full"></div>
                 Clear any course associations
               </li>
               <li className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-primary/50 rounded-full"></div>
                 Remove quiz from all analytics and reports
               </li>
             </ul>
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div className="mb-4 p-3 bg-primary/5 border border-destructive/30 rounded-lg">
               <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
@@ -203,7 +203,7 @@ export function DeleteQuizModal({ quiz, isOpen, onClose, onSuccess }: DeleteQuiz
             <button
               onClick={handleDelete}
               disabled={loading}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 bg-primary hover:bg-primary/90 text-secondary rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               <Trash2 className="h-4 w-4" />
               {loading ? 'Deleting...' : 'Delete Quiz'}

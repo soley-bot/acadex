@@ -39,8 +39,8 @@ export function CourseViewModal({ course, isOpen, onClose, onEdit }: CourseViewM
     switch (level) {
       case 'beginner': return 'bg-emerald-100 text-emerald-800 border border-emerald-200'
       case 'intermediate': return 'bg-amber-100 text-amber-800 border border-amber-200'
-      case 'advanced': return 'bg-red-100 text-red-800 border border-red-200'
-      default: return 'bg-gray-100 text-gray-800 border border-gray-200'
+      case 'advanced': return 'bg-destructive/20 text-red-800 border border-destructive/30'
+      default: return 'bg-muted/40 text-gray-800 border border-gray-200'
     }
   }
 
@@ -54,7 +54,7 @@ export function CourseViewModal({ course, isOpen, onClose, onEdit }: CourseViewM
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-tertiary hover:text-primary"
+            className="p-2 hover:bg-muted/40 rounded-lg transition-colors text-tertiary hover:text-primary"
           >
             <X className="h-5 w-5" />
           </button>
@@ -101,7 +101,7 @@ export function CourseViewModal({ course, isOpen, onClose, onEdit }: CourseViewM
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center">
-                  <Users className="h-5 w-5 text-blue-600 mr-2" />
+                  <Users className="h-5 w-5 text-secondary mr-2" />
                   <div>
                     <p className="text-sm text-gray-600">Students</p>
                     <p className="text-lg font-semibold">{course.student_count}</p>

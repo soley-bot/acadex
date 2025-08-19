@@ -121,19 +121,19 @@ export default function PopularCourses() {
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-20 left-10 w-64 h-64 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob"></div>
-          <div className="absolute bottom-20 right-10 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-20 right-10 w-72 h-72 bg-warning/30 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob animation-delay-2000"></div>
         </div>
 
         <Container size="xl" className="relative">
           {/* Section Header */}
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
               <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
               Featured Courses
             </div>
             <DisplayLG className="mb-8 tracking-tight">
               Popular Learning
-              <span className="block text-red-600 mt-4">Courses</span>
+              <span className="block text-primary mt-4">Courses</span>
             </DisplayLG>
             <BodyLG 
               color="muted" 
@@ -147,15 +147,15 @@ export default function PopularCourses() {
           <Grid cols={1} className="md:grid-cols-2 lg:grid-cols-3">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20">
-                <div className="h-48 bg-gray-200 animate-pulse rounded-t-2xl"></div>
+                <div className="h-48 bg-muted/60 animate-pulse rounded-t-2xl"></div>
                 <div className="p-6">
-                  <div className="h-6 bg-gray-200 animate-pulse rounded mb-3"></div>
-                  <div className="h-4 bg-gray-200 animate-pulse rounded mb-2"></div>
-                  <div className="h-4 bg-gray-200 animate-pulse rounded mb-4 w-3/4"></div>
-                  <div className="h-4 bg-gray-200 animate-pulse rounded mb-6 w-1/2"></div>
+                  <div className="h-6 bg-muted/60 animate-pulse rounded mb-3"></div>
+                  <div className="h-4 bg-muted/60 animate-pulse rounded mb-2"></div>
+                  <div className="h-4 bg-muted/60 animate-pulse rounded mb-4 w-3/4"></div>
+                  <div className="h-4 bg-muted/60 animate-pulse rounded mb-6 w-1/2"></div>
                   <div className="flex justify-between items-center">
-                    <div className="h-8 bg-gray-200 animate-pulse rounded w-16"></div>
-                    <div className="h-10 bg-gray-200 animate-pulse rounded w-24"></div>
+                    <div className="h-8 bg-muted/60 animate-pulse rounded w-16"></div>
+                    <div className="h-10 bg-muted/60 animate-pulse rounded w-24"></div>
                   </div>
                 </div>
               </div>
@@ -174,20 +174,20 @@ export default function PopularCourses() {
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-64 h-64 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-warning/30 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-secondary/30 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
       </div>
 
       <Container size="xl" className="relative">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
             <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
             Featured Courses
           </div>
           <DisplayLG className="mb-8 tracking-tight">
             Popular Learning
-            <span className="block text-red-600 mt-4">Courses</span>
+            <span className="block text-primary mt-4">Courses</span>
           </DisplayLG>
           <BodyLG 
             color="muted" 
@@ -214,14 +214,14 @@ export default function PopularCourses() {
                     {course.level}
                   </div>
                   {/* Category overlay */}
-                  <div className="absolute bottom-4 left-4 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white text-sm font-bold rounded-full shadow-lg">
+                  <div className="absolute bottom-4 left-4 px-4 py-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 text-sm font-bold rounded-full shadow-lg">
                     {course.category}
                   </div>
                 </div>
 
                 <div className="p-8">
                   {/* Title */}
-                  <H3 className="mb-3 group-hover:text-red-600 transition-colors leading-tight">
+                  <H3 className="mb-3 group-hover:text-primary transition-colors leading-tight">
                     {course.title}
                   </H3>
 
@@ -238,7 +238,7 @@ export default function PopularCourses() {
                   {/* Stats */}
                   <Flex align="center" gap="md" className="mb-8 text-sm text-gray-600">
                     <Flex align="center" gap="sm">
-                      <div className="flex text-red-600">
+                      <div className="flex text-primary">
                         {[...Array(5)].map((_, i) => (
                           <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -268,7 +268,7 @@ export default function PopularCourses() {
                     </Typography>
                     <Link 
                       href={`/courses/${course.id}`}
-                      className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-bold rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                      className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary to-primary/90 text-gray-900 font-bold rounded-lg hover:from-primary/90 hover:to-primary/80 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                     >
                       <span>Enroll Now</span>
                       <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -283,7 +283,7 @@ export default function PopularCourses() {
           </Grid>
         ) : (
           <div className="text-center py-20">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-20 h-20 bg-muted/40 rounded-full flex items-center justify-center mx-auto mb-6">
               <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>

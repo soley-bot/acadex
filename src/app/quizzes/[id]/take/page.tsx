@@ -150,13 +150,13 @@ export default function TakeQuizPage() {
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         
         <Container className="relative flex items-center justify-center min-h-screen">
           <div className="text-center bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <BodyLG color="muted" className="font-medium">Loading quiz...</BodyLG>
           </div>
         </Container>
@@ -166,13 +166,13 @@ export default function TakeQuizPage() {
 
   if (error || !quiz || questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
         <div className="text-center p-6 rounded-xl bg-white/90 shadow-lg max-w-md">
-          <h1 className="text-xl font-bold text-red-600 mb-4">Unable to Load Quiz</h1>
+          <h1 className="text-xl font-bold text-primary mb-4">Unable to Load Quiz</h1>
           <p className="text-gray-600 mb-6">{error || 'The quiz questions could not be loaded.'}</p>
           <button
             onClick={() => router.push('/quizzes')}
-            className="bg-gradient-to-r from-red-600 to-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-all hover:shadow-lg"
+            className="bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-6 py-3 rounded-lg font-medium transition-all hover:shadow-lg"
           >
             Back to Quizzes
           </button>
@@ -183,9 +183,9 @@ export default function TakeQuizPage() {
 
   if (!quizStarted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
         <div className="text-center p-6 rounded-xl bg-white/90 shadow-lg max-w-md w-full">
-          <div className="inline-block p-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl mb-4">
+          <div className="inline-block p-3 bg-gradient-to-r from-primary to-warning rounded-xl mb-4">
             <Icon name="target" size={24} color="white" />
           </div>
           <h1 className="text-xl font-bold text-gray-800 mb-2">{quiz.title}</h1>
@@ -207,7 +207,7 @@ export default function TakeQuizPage() {
               setQuizStarted(true)
               setStartTime(new Date())
             }}
-            className="w-full bg-gradient-to-r from-red-600 to-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-all hover:shadow-lg"
+            className="w-full bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-6 py-3 rounded-lg font-medium transition-all hover:shadow-lg"
           >
             Start Quiz
           </button>
@@ -226,8 +226,8 @@ export default function TakeQuizPage() {
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
       
       <Container className="relative py-4 max-w-4xl">
@@ -250,9 +250,9 @@ export default function TakeQuizPage() {
             <span className="font-medium">Question {currentQuestionIndex + 1} of {questions.length}</span>
             <span className="font-medium">{Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}% Complete</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
+          <div className="w-full bg-muted/60 rounded-full h-3 shadow-inner">
             <div 
-              className="bg-gradient-to-r from-red-500 to-orange-500 h-3 rounded-full transition-all duration-500 shadow-lg"
+              className="bg-gradient-to-r from-primary to-warning h-3 rounded-full transition-all duration-500 shadow-lg"
               style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
             ></div>
           </div>
@@ -279,13 +279,13 @@ export default function TakeQuizPage() {
                         key={index}
                         className={`flex items-start gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                           answers[currentQuestion?.id ?? ''] === index
-                            ? 'border-red-500 bg-red-50'
+                            ? 'border-primary bg-primary/5'
                             : 'border-gray-200 bg-white hover:border-red-300 hover:bg-red-25'
                         }`}
                       >
                         <div className={`flex items-center justify-center w-5 h-5 rounded-full border-2 transition-all ${
                           answers[currentQuestion?.id ?? ''] === index
-                            ? 'border-red-500 bg-red-500'
+                            ? 'border-primary bg-primary/50'
                             : 'border-gray-400 bg-white'
                         }`}>
                           {answers[currentQuestion?.id ?? ''] === index && (
@@ -316,13 +316,13 @@ export default function TakeQuizPage() {
                         key={index}
                         className={`flex items-start gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                           answers[currentQuestion?.id ?? ''] === index
-                            ? 'border-red-500 bg-red-50'
+                            ? 'border-primary bg-primary/5'
                             : 'border-gray-200 bg-white hover:border-red-300 hover:bg-red-25'
                         }`}
                       >
                         <div className={`flex items-center justify-center w-5 h-5 rounded-full border-2 transition-all ${
                           answers[currentQuestion?.id ?? ''] === index
-                            ? 'border-red-500 bg-red-500'
+                            ? 'border-primary bg-primary/50'
                             : 'border-gray-400 bg-white'
                         }`}>
                           {answers[currentQuestion?.id ?? ''] === index && (
@@ -353,7 +353,7 @@ export default function TakeQuizPage() {
                       placeholder="Type your answer here..."
                       value={answers[currentQuestion?.id ?? ''] || ''}
                       onChange={(e) => currentQuestion && handleAnswerChange(currentQuestion.id, e.target.value)}
-                      className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:outline-none transition-all text-sm sm:text-base"
+                      className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-primary focus:outline-none transition-all text-sm sm:text-base"
                     />
                   </div>
                 )}
@@ -365,7 +365,7 @@ export default function TakeQuizPage() {
                       placeholder="Write your essay answer here..."
                       value={answers[currentQuestion?.id ?? ''] || ''}
                       onChange={(e) => currentQuestion && handleAnswerChange(currentQuestion.id, e.target.value)}
-                      className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:outline-none transition-all text-sm sm:text-base resize-vertical min-h-32"
+                      className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-primary focus:outline-none transition-all text-sm sm:text-base resize-vertical min-h-32"
                       rows={4}
                     />
                     <p className="text-xs text-gray-500">Take your time to provide a detailed answer.</p>
@@ -401,7 +401,7 @@ export default function TakeQuizPage() {
                                   handleAnswerChange(currentQuestion.id, currentAnswers.filter((i: number) => i !== index));
                                 }
                               }}
-                              className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                              className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-red-500"
                             />
                             <span className="text-sm">{String.fromCharCode(65 + index)}. {pair.right}</span>
                           </label>
@@ -419,7 +419,7 @@ export default function TakeQuizPage() {
                       {(currentQuestion.options as string[]).map((option, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg cursor-move hover:bg-gray-100 transition-all"
+                          className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg cursor-move hover:bg-muted/40 transition-all"
                         >
                           <div className="flex items-center justify-center w-6 h-6 bg-gray-600 text-white text-xs font-bold rounded">
                             {index + 1}
@@ -442,7 +442,7 @@ export default function TakeQuizPage() {
                 <button
                   onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
                   disabled={currentQuestionIndex === 0}
-                  className="px-2 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200"
+                  className="px-2 sm:px-4 py-2 bg-muted/40 text-gray-700 rounded-lg font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted/60"
                 >
                   <span className="hidden sm:inline">← Previous</span>
                   <span className="sm:hidden">←</span>
@@ -463,10 +463,10 @@ export default function TakeQuizPage() {
                           onClick={() => setCurrentQuestionIndex(actualIndex)}
                           className={`w-6 h-6 rounded-full text-xs font-medium transition-all flex-shrink-0 ${
                             actualIndex === currentQuestionIndex
-                              ? 'bg-red-500 text-white'
+                              ? 'bg-primary text-black'
                               : answers[questions[actualIndex]?.id ?? ''] !== undefined
                               ? 'bg-green-100 text-green-700 border border-green-300'
-                              : 'bg-gray-100 text-gray-600'
+                              : 'bg-muted/40 text-gray-600'
                           }`}
                         >
                           {actualIndex + 1}
@@ -487,10 +487,10 @@ export default function TakeQuizPage() {
                         onClick={() => setCurrentQuestionIndex(index)}
                         className={`w-6 h-6 rounded-full text-xs font-medium transition-all flex-shrink-0 ${
                           index === currentQuestionIndex
-                            ? 'bg-red-500 text-white'
+                            ? 'bg-primary text-black'
                             : answers[questions[index]?.id ?? ''] !== undefined
                             ? 'bg-green-100 text-green-700 border border-green-300'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            : 'bg-muted/40 text-gray-600 hover:bg-muted/60'
                         }`}
                       >
                         {index + 1}
@@ -504,7 +504,7 @@ export default function TakeQuizPage() {
                   <button
                     onClick={handleSubmitQuiz}
                     disabled={submitting}
-                    className="px-2 sm:px-4 py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-lg font-medium text-sm transition-all disabled:opacity-50 flex items-center gap-1 sm:gap-2"
+                    className="px-2 sm:px-4 py-2 bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 rounded-lg font-medium text-sm transition-all disabled:opacity-50 flex items-center gap-1 sm:gap-2"
                   >
                     {submitting ? (
                       <>

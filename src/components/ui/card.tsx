@@ -35,7 +35,7 @@ const CardTitle = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent",
+      "text-2xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent",
       className
     )}
     {...props}

@@ -210,13 +210,13 @@ export default function CourseStudyPage() {
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         
         <Container className="relative flex items-center justify-center min-h-screen">
           <div className="text-center bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <BodyLG color="muted" className="font-medium">Loading course content...</BodyLG>
           </div>
         </Container>
@@ -233,19 +233,19 @@ export default function CourseStudyPage() {
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         
         <Container className="relative flex items-center justify-center min-h-screen px-4">
           <div className="text-center bg-white/80 backdrop-blur-lg rounded-2xl p-12 shadow-xl border border-white/20 max-w-md w-full">
-            <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary/90 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
               <Icon name="warning" size={32} color="white" />
             </div>
             <H3 className="mb-4">{error || 'Course not found'}</H3>
             <button
               onClick={() => router.push('/courses')}
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 rounded-xl font-bold transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+              className="bg-primary hover:bg-secondary text-black hover:text-white px-6 py-3 rounded-xl font-bold transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
             >
               ← Back to Courses
             </button>
@@ -256,12 +256,12 @@ export default function CourseStudyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-6000"></div>
       </div>
 
@@ -284,7 +284,7 @@ export default function CourseStudyPage() {
           </div>
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="flex items-center space-x-1.5 bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1.5 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 flex-shrink-0 shadow-lg"
+            className="flex items-center space-x-1.5 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-3 py-1.5 rounded-lg hover:from-primary/90 hover:to-primary/80 transition-all duration-200 flex-shrink-0 shadow-lg"
           >
             <BookOpen className="w-4 h-4" />
             <span className="text-sm font-medium">Lessons</span>
@@ -296,7 +296,7 @@ export default function CourseStudyPage() {
         {currentLesson && (
           <div className="px-4 py-2 bg-gray-50/80">
             <div className="flex items-center space-x-2">
-              <PlayCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+              <PlayCircle className="w-4 h-4 text-primary flex-shrink-0" />
               <BodyMD color="muted" className="truncate font-medium">
                 {currentLesson.title}
               </BodyMD>
@@ -311,7 +311,7 @@ export default function CourseStudyPage() {
           <div className="flex items-center justify-between">
             <button
               onClick={() => router.push('/courses')}
-              className="text-red-600 hover:text-red-700 flex items-center text-sm font-semibold bg-white/80 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg border border-white/20 transition-all duration-200 hover:-translate-y-1"
+              className="bg-primary hover:bg-secondary text-black hover:text-white flex items-center text-sm font-semibold rounded-lg px-4 py-2 shadow-lg transition-all duration-200 hover:-translate-y-1"
             >
               ← Back to Courses
             </button>
@@ -323,7 +323,7 @@ export default function CourseStudyPage() {
               <div className="flex-shrink-0 ml-8">
                 <button
                   onClick={() => router.push(`/courses/${params.id}`)}
-                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 font-semibold rounded-lg transition-all duration-200 text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                  className="bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-4 py-2 font-semibold rounded-lg transition-all duration-200 text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                 >
                   Enroll Now
                 </button>
@@ -373,7 +373,7 @@ export default function CourseStudyPage() {
                     <p className="text-xs text-gray-500">{module.course_lessons.length} lessons</p>
                   </div>
                   {expandedModules.has(module.id) ? (
-                    <ChevronDown className="w-4 h-4 text-red-600 transition-transform duration-200 flex-shrink-0" />
+                    <ChevronDown className="w-4 h-4 text-primary transition-transform duration-200 flex-shrink-0" />
                   ) : (
                     <ChevronRight className="w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0" />
                   )}
@@ -392,7 +392,7 @@ export default function CourseStudyPage() {
                           onClick={() => selectLesson(lesson)}
                           disabled={isLocked}
                           className={`w-full p-4 text-left hover:bg-white/60 flex items-center gap-3 transition-all duration-200 border-b border-white/20 last:border-b-0 min-h-[70px] backdrop-blur-sm ${
-                            isCurrent ? 'bg-red-50/80 border-r-4 border-red-600 shadow-lg' : ''
+                            isCurrent ? 'bg-primary/5/80 border-r-4 border-primary shadow-lg' : ''
                           } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''} ${
                             !isLocked && !isCurrent ? 'hover:shadow-lg' : ''
                           }`}
@@ -403,7 +403,7 @@ export default function CourseStudyPage() {
                             ) : isCompleted ? (
                               <CheckCircle className="w-4 h-4 text-green-600" />
                             ) : (
-                              <PlayCircle className="w-4 h-4 text-red-600" />
+                              <PlayCircle className="w-4 h-4 text-primary" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -455,7 +455,7 @@ export default function CourseStudyPage() {
                           <p className="text-xs text-gray-500">{module.course_lessons.length} lessons</p>
                         </div>
                         {expandedModules.has(module.id) ? (
-                          <ChevronDown className="w-4 h-4 text-red-600 transition-transform duration-200 flex-shrink-0" />
+                          <ChevronDown className="w-4 h-4 text-primary transition-transform duration-200 flex-shrink-0" />
                         ) : (
                           <ChevronRight className="w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0" />
                         )}
@@ -474,7 +474,7 @@ export default function CourseStudyPage() {
                                 onClick={() => selectLesson(lesson)}
                                 disabled={isLocked}
                                 className={`w-full p-3 text-left hover:bg-white/60 flex items-center gap-3 transition-all duration-200 border-b border-white/20 last:border-b-0 min-h-[70px] backdrop-blur-sm ${
-                                  isCurrent ? 'bg-red-50/80 border-r-4 border-red-600 shadow-lg' : ''
+                                  isCurrent ? 'bg-primary/5/80 border-r-4 border-primary shadow-lg' : ''
                                 } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''} ${
                                   !isLocked && !isCurrent ? 'hover:shadow-lg' : ''
                                 }`}
@@ -485,7 +485,7 @@ export default function CourseStudyPage() {
                                   ) : isCompleted ? (
                                     <CheckCircle className="w-4 h-4 text-green-600" />
                                   ) : (
-                                    <PlayCircle className="w-4 h-4 text-red-600" />
+                                    <PlayCircle className="w-4 h-4 text-primary" />
                                   )}
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -529,7 +529,7 @@ export default function CourseStudyPage() {
                           className={`flex items-center gap-2 px-4 lg:px-6 py-2 lg:py-3 rounded-xl text-sm lg:text-base font-bold transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start ${
                             currentLesson.progress?.is_completed
                               ? 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800'
-                              : 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800'
+                              : 'bg-gradient-to-r from-primary to-primary/90 text-gray-900 hover:from-primary/90 hover:to-primary/80'
                           }`}
                         >
                           {currentLesson.progress?.is_completed ? (
@@ -553,7 +553,7 @@ export default function CourseStudyPage() {
                     {/* Video Player */}
                     {currentLesson.video_url && (
                       <div className="mb-6 lg:mb-8">
-                        <div className="aspect-video bg-gray-100/80 backdrop-blur-sm rounded-2xl overflow-hidden shadow-xl border border-white/20">
+                        <div className="aspect-video bg-muted/40/80 backdrop-blur-sm rounded-2xl overflow-hidden shadow-xl border border-white/20">
                           <VideoPlayer
                             url={currentLesson.video_url}
                             className="w-full h-full"
@@ -575,7 +575,7 @@ export default function CourseStudyPage() {
                     {/* Lesson Quiz Section */}
                     <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 lg:p-8 shadow-lg border border-white/20">
                       <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6 flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/90 rounded-full flex items-center justify-center">
                           <BookOpen className="w-4 h-4 text-white" />
                         </div>
                         Test Your Knowledge
@@ -583,7 +583,7 @@ export default function CourseStudyPage() {
                       <div className="p-4 lg:p-6 bg-white/80 backdrop-blur-lg rounded-xl border border-white/20 hover:border-red-300 hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                           <div className="flex items-start gap-3 lg:gap-4 flex-1">
-                            <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-red-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                            <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary/90 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
                               <CheckCircle className="w-5 h-5 text-white" />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -605,9 +605,9 @@ export default function CourseStudyPage() {
                           </div>
                           <button 
                             onClick={() => setShowQuizModal(true)}
-                            className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white flex items-center gap-2 text-sm lg:text-base font-bold px-4 py-2 rounded-xl transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start sm:self-center"
+                            className="bg-primary hover:bg-secondary text-black hover:text-white flex items-center gap-2 text-sm lg:text-base font-bold px-4 py-2 rounded-xl transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start sm:self-center"
                           >
-                            <PlayCircle className="w-4 h-4 text-white" />
+                            <PlayCircle className="w-4 h-4" />
                             Take Quiz
                           </button>
                         </div>
@@ -627,7 +627,7 @@ export default function CourseStudyPage() {
                           {currentLesson.resources.map((resource) => (
                             <div key={resource.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 lg:p-6 bg-white/80 backdrop-blur-lg rounded-xl border border-white/20 hover:border-red-300 hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
                               <div className="flex items-start gap-3 lg:gap-4 flex-1">
-                                <div className="w-10 h-10 bg-gradient-to-r from-red-600 to-red-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                                <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary/90 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
                                   <FileText className="w-5 h-5 text-white" />
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -642,7 +642,7 @@ export default function CourseStudyPage() {
                                   href={resource.file_url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white flex items-center gap-2 text-sm lg:text-base font-bold px-4 py-2 rounded-xl transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start sm:self-center"
+                                  className="bg-gradient-to-r from-primary to-primary/90 text-gray-900 flex items-center gap-2 text-sm lg:text-base font-bold px-4 py-2 rounded-xl transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start sm:self-center"
                                 >
                                   <Download className="w-4 lg:w-5 h-4 lg:h-5" />
                                   Download
@@ -657,7 +657,7 @@ export default function CourseStudyPage() {
                 </div>
               ) : (
                 <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-8 lg:p-16 text-center">
-                  <div className="p-4 lg:p-6 bg-gradient-to-r from-red-600 to-red-700 rounded-full w-fit mx-auto mb-6 lg:mb-8 shadow-xl">
+                  <div className="p-4 lg:p-6 bg-gradient-to-r from-primary to-primary/90 rounded-full w-fit mx-auto mb-6 lg:mb-8 shadow-xl">
                     <PlayCircle className="w-12 lg:w-16 h-12 lg:h-16 text-white" />
                   </div>
                   <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-3 lg:mb-4">Select a Lesson</h2>

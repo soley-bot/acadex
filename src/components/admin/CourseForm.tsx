@@ -491,7 +491,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
               logger.debug('❌ [COURSE_FORM] X button clicked - closing form')
               onClose()
             }}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-muted/40 rounded-lg transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -504,8 +504,8 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
         console.log('🎯 [DIRECT_LOG] Validation message:', (e.target as HTMLInputElement).validationMessage)
       }}>
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center">
-              <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+            <div className="bg-primary/5 border border-destructive/30 rounded-lg p-4 flex items-center">
+              <AlertCircle className="h-5 w-5 text-destructive mr-2" />
               <span className="text-red-700">{error}</span>
             </div>
           )}
@@ -527,7 +527,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                 onClick={() => setActiveTab('basic')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'basic'
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-blue-500 text-secondary'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -538,7 +538,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                 onClick={() => setActiveTab('modules')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'modules'
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-blue-500 text-secondary'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -699,7 +699,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                         const updated = formData.learning_objectives.filter((_, i) => i !== index)
                         setFormData({ ...formData, learning_objectives: updated })
                       }}
-                      className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded transition-colors"
+                      className="text-primary hover:text-primary/80 p-2 hover:bg-primary/5 rounded transition-colors"
                       title="Remove learning objective"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -722,7 +722,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                       learning_objectives: [...formData.learning_objectives, ''] 
                     })
                   }}
-                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors"
+                  className="inline-flex items-center gap-2 text-secondary hover:text-blue-700 text-sm font-medium hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   Add Learning Objective
@@ -740,7 +740,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                   type="checkbox"
                   checked={formData.is_published}
                   onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="rounded border-gray-300 text-secondary focus:ring-blue-500"
                 />
                 <span className="ml-2 text-sm text-gray-700">
                   Publish course (make it visible to students)
@@ -759,7 +759,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                 <button
                   type="button"
                   onClick={addModule}
-                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  className="inline-flex items-center gap-2 bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   Add Module
@@ -775,7 +775,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                   <button
                     type="button"
                     onClick={addModule}
-                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    className="inline-flex items-center gap-2 bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                   >
                     <Plus className="w-4 h-4" />
                     Add Your First Module
@@ -822,7 +822,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                             <button
                               type="button"
                               onClick={() => deleteModule(moduleIndex)}
-                              className="text-red-600 hover:text-red-700 p-1 hover:bg-red-50 rounded transition-colors"
+                              className="text-primary hover:text-primary/80 p-1 hover:bg-primary/5 rounded transition-colors"
                               title="Delete module"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -839,7 +839,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                             <button
                               type="button"
                               onClick={() => addLesson(moduleIndex)}
-                              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium hover:bg-blue-50 px-3 py-1 rounded transition-colors"
+                              className="inline-flex items-center gap-2 text-secondary hover:text-blue-700 text-sm font-medium hover:bg-blue-50 px-3 py-1 rounded transition-colors"
                             >
                               <Plus className="w-4 h-4" />
                               Add Lesson
@@ -853,7 +853,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                               <button
                                 type="button"
                                 onClick={() => addLesson(moduleIndex)}
-                                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
+                                className="inline-flex items-center gap-2 text-secondary hover:text-blue-700 text-sm font-medium"
                               >
                                 <Plus className="w-4 h-4" />
                                 Add First Lesson
@@ -995,7 +995,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                                         type="checkbox"
                                         checked={lesson.is_free_preview}
                                         onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'is_free_preview', e.target.checked)}
-                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        className="rounded border-gray-300 text-secondary focus:ring-blue-500"
                                       />
                                       <span className="ml-2 text-sm text-gray-700">
                                         Free preview lesson
@@ -1004,7 +1004,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                                     <button
                                       type="button"
                                       onClick={() => deleteLesson(moduleIndex, lessonIndex)}
-                                      className="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded transition-colors"
+                                      className="text-primary hover:text-primary/80 p-2 hover:bg-primary/5 rounded transition-colors"
                                       title="Delete lesson"
                                     >
                                       <Trash2 className="w-4 h-4" />

@@ -28,7 +28,7 @@ const typographyVariants = {
   'overline': 'text-xs uppercase tracking-wider text-gray-500 font-semibold',
   
   // Interactive text
-  'link': 'text-red-600 hover:text-red-700 font-medium underline decoration-2 underline-offset-2 transition-colors',
+  'link': 'text-primary hover:text-primary/80 font-medium underline decoration-2 underline-offset-2 transition-colors',
   'button-text': 'font-semibold leading-none',
   
   // Status text
@@ -46,7 +46,7 @@ const colorVariants = {
   'muted-light': 'text-gray-300', // Better for dark backgrounds
   'subtle': 'text-gray-500',
   'white': 'text-white',
-  'gradient': 'bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent',
+  'gradient': 'bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent',
   'success': 'text-green-700',
   'warning': 'text-yellow-700',
   'error': 'text-red-700',
@@ -347,8 +347,8 @@ interface BadgeProps {
 }
 
 const badgeVariants = {
-  primary: 'bg-red-50 text-red-600 border-red-200',
-  secondary: 'bg-red-600 text-white border-red-600',
+  primary: 'bg-primary/5 text-primary border-destructive/30',
+  secondary: 'bg-primary text-secondary border-primary',
   white: 'bg-white text-gray-700 border-gray-200'
 }
 

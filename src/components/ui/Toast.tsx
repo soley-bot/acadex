@@ -30,9 +30,9 @@ function ToastComponent({ toast, onClose }: ToastProps) {
       case 'success':
         return <CheckCircle className="h-5 w-5 text-green-600" />
       case 'error':
-        return <AlertCircle className="h-5 w-5 text-red-600" />
+        return <AlertCircle className="h-5 w-5 text-primary" />
       case 'info':
-        return <Info className="h-5 w-5 text-blue-600" />
+        return <Info className="h-5 w-5 text-secondary" />
     }
   }
 
@@ -41,7 +41,7 @@ function ToastComponent({ toast, onClose }: ToastProps) {
       case 'success':
         return 'bg-green-50 border-green-200'
       case 'error':
-        return 'bg-red-50 border-red-200'
+        return 'bg-primary/5 border-destructive/30'
       case 'info':
         return 'bg-blue-50 border-blue-200'
     }

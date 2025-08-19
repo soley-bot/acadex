@@ -81,12 +81,12 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         
         <Container className="pt-28 pb-12">
@@ -113,12 +113,12 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         
         <Container size="sm" className="pt-32">
@@ -130,7 +130,7 @@ export default function Dashboard() {
             <Typography variant="lead" className="mb-12">{error}</Typography>
             <button
               onClick={() => window.location.reload()}
-              className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105"
+              className="bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105"
             >
               Try Again
             </button>
@@ -141,18 +141,18 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
       
       <Container className="pt-28 pb-12">
         {/* Header */}
         <div className="mb-12 text-center p-8 sm:p-12 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl">
-          <div className="inline-block p-4 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl mb-6">
+          <div className="inline-block p-4 bg-gradient-to-r from-primary to-warning rounded-2xl mb-6">
             <Icon name="chart" size={32} color="white" />
           </div>
           <Typography variant="display-lg" color="gradient" as="h1" className="mb-4">Dashboard</Typography>
@@ -210,7 +210,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Current Courses */}
           <div className="rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl overflow-hidden">
-            <div className="p-8 bg-gradient-to-r from-red-600 to-orange-600">
+            <div className="p-8 bg-gradient-to-r from-primary/5 via-white to-secondary/5">
               <Typography variant="h2" color="white" className="flex items-center gap-3">
                 <Icon name="book" size={24} color="white" />
                 Current Courses
@@ -225,12 +225,12 @@ export default function Dashboard() {
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center mb-4">
-                            <div className="w-4 h-4 bg-gradient-to-r from-red-500 to-orange-500 rounded-full mr-4 shadow-sm"></div>
+                            <div className="w-4 h-4 bg-gradient-to-r from-primary to-warning rounded-full mr-4 shadow-sm"></div>
                             <p className="text-lg font-bold text-gray-800">{course.title}</p>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-3 mb-3 overflow-hidden">
+                          <div className="w-full bg-muted/60 rounded-full h-3 mb-3 overflow-hidden">
                             <div 
-                              className="bg-gradient-to-r from-red-500 to-orange-500 h-3 rounded-full transition-all duration-500 shadow-sm" 
+                              className="bg-gradient-to-r from-primary to-warning h-3 rounded-full transition-all duration-500 shadow-sm" 
                               style={{ width: `${course.progress_percentage}%` }}
                             />
                           </div>
@@ -240,7 +240,7 @@ export default function Dashboard() {
                         </div>
                         <Link
                           href={`/courses/${course.id}/study`}
-                          className="ml-6 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                          className="ml-6 bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                         >
                           Continue
                         </Link>
@@ -250,7 +250,7 @@ export default function Dashboard() {
                   {courses.length > 5 && (
                     <Link
                       href="/courses"
-                      className="block text-center text-red-600 hover:text-orange-600 text-base font-bold pt-4 transition-colors"
+                      className="block text-center text-primary hover:text-orange-600 text-base font-bold pt-4 transition-colors"
                     >
                       View all courses →
                     </Link>
@@ -265,7 +265,7 @@ export default function Dashboard() {
                   <p className="text-gray-600 mb-8 text-lg leading-relaxed">Start your learning journey by enrolling in a course</p>
                   <Link
                     href="/courses"
-                    className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105 inline-block"
+                    className="bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105 inline-block"
                   >
                     Browse Courses
                   </Link>
@@ -276,7 +276,7 @@ export default function Dashboard() {
 
           {/* Recent Quiz Results */}
           <div className="rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl overflow-hidden">
-            <div className="p-8 bg-gradient-to-r from-red-600 to-orange-600">
+            <div className="p-8 bg-gradient-to-r from-primary/5 via-white to-secondary/5">
               <Typography variant="h2" color="white" className="flex items-center gap-3">
                 <Icon name="target" size={24} color="white" />
                 Recent Quiz Results
@@ -301,7 +301,7 @@ export default function Dashboard() {
                         </div>
                         <div className={`text-2xl font-bold ${
                           attempt.score >= 80 ? 'bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent' : 
-                          attempt.score >= 60 ? 'bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent' : 'bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent'
+                          attempt.score >= 60 ? 'bg-gradient-to-r from-yellow-600 to-secondary bg-clip-text text-transparent' : 'bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent'
                         }`}>
                           {attempt.score}%
                         </div>
@@ -311,7 +311,7 @@ export default function Dashboard() {
                   {quizAttempts.length > 5 && (
                     <Link
                       href="/dashboard/results"
-                      className="block text-center text-red-600 hover:text-orange-600 text-base font-bold pt-4 transition-colors"
+                      className="block text-center text-primary hover:text-orange-600 text-base font-bold pt-4 transition-colors"
                     >
                       View all results →
                     </Link>
@@ -326,7 +326,7 @@ export default function Dashboard() {
                   <p className="text-gray-600 mb-8 text-lg leading-relaxed">Test your knowledge with our interactive quizzes</p>
                   <Link
                     href="/quizzes"
-                    className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105 inline-block"
+                    className="bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105 inline-block"
                   >
                     Take a Quiz
                   </Link>
@@ -339,7 +339,7 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <div className="mt-12">
           <div className="rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl overflow-hidden">
-            <div className="p-8 bg-gradient-to-r from-red-600 to-orange-600">
+            <div className="p-8 bg-gradient-to-r from-primary/5 via-white to-secondary/5">
               <h2 className="text-3xl font-bold text-white flex items-center gap-3">
                 <Icon name="lightning" size={24} color="white" />
                 Quick Actions
@@ -352,7 +352,7 @@ export default function Dashboard() {
                   href="/courses"
                   className="flex items-center p-8 rounded-2xl backdrop-blur-sm bg-gradient-to-r from-white/60 to-gray-50/60 border-2 border-white/30 hover:border-red-300 hover:bg-gradient-to-r hover:from-red-50/80 hover:to-orange-50/80 transition-all duration-300 group shadow-lg hover:shadow-xl hover:scale-105"
                 >
-                  <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-orange-600 rounded-2xl flex items-center justify-center mr-6 group-hover:from-red-700 group-hover:to-orange-700 transition-all duration-300 shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-r from-primary/5 via-white to-secondary/5 rounded-2xl flex items-center justify-center mr-6 group-hover:from-red-700 group-hover:to-secondary/90 transition-all duration-300 shadow-lg">
                     <Icon name="book" size={24} color="white" />
                   </div>
                   <div>
@@ -365,7 +365,7 @@ export default function Dashboard() {
                   href="/quizzes"
                   className="flex items-center p-8 rounded-2xl backdrop-blur-sm bg-gradient-to-r from-white/60 to-gray-50/60 border-2 border-white/30 hover:border-red-300 hover:bg-gradient-to-r hover:from-red-50/80 hover:to-orange-50/80 transition-all duration-300 group shadow-lg hover:shadow-xl hover:scale-105"
                 >
-                  <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-orange-600 rounded-2xl flex items-center justify-center mr-6 group-hover:from-red-700 group-hover:to-orange-700 transition-all duration-300 shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-r from-primary/5 via-white to-secondary/5 rounded-2xl flex items-center justify-center mr-6 group-hover:from-red-700 group-hover:to-secondary/90 transition-all duration-300 shadow-lg">
                     <Icon name="target" size={24} color="white" />
                   </div>
                   <div>
@@ -378,7 +378,7 @@ export default function Dashboard() {
                   href="/profile"
                   className="flex items-center p-8 rounded-2xl backdrop-blur-sm bg-gradient-to-r from-white/60 to-gray-50/60 border-2 border-white/30 hover:border-red-300 hover:bg-gradient-to-r hover:from-red-50/80 hover:to-orange-50/80 transition-all duration-300 group shadow-lg hover:shadow-xl hover:scale-105"
                 >
-                  <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-orange-600 rounded-2xl flex items-center justify-center mr-6 group-hover:from-red-700 group-hover:to-orange-700 transition-all duration-300 shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-r from-primary/5 via-white to-secondary/5 rounded-2xl flex items-center justify-center mr-6 group-hover:from-red-700 group-hover:to-secondary/90 transition-all duration-300 shadow-lg">
                     <Icon name="user" size={24} color="white" />
                   </div>
                   <div>

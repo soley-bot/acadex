@@ -107,31 +107,31 @@ export default function QuizzesPage() {
         case 'intermediate':
           return 'text-yellow-700 bg-yellow-100/80 border-yellow-200'
         case 'advanced':
-          return 'text-red-700 bg-red-100/80 border-red-200'
+          return 'text-red-700 bg-destructive/20/80 border-red-200'
         default:
-          return 'text-gray-600 bg-gray-100 border-gray-200'
+          return 'text-gray-600 bg-muted/40 border-gray-200'
       }
     }
   }, [])
 
   if (isLoading && currentPage === 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-20 right-20 w-64 h-64 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob"></div>
-          <div className="absolute bottom-20 left-20 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-20 left-20 w-72 h-72 bg-warning/30 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob animation-delay-2000"></div>
         </div>
         
         <Section spacing="lg" className="pt-24 px-6 lg:px-8 overflow-hidden">
           <Container size="md" className="text-center">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
               <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
               Quiz Practice
             </div>
             <H1 className="mb-8 text-center">
               Practice What You Know,
-              <span className="block text-red-600 mt-4">Without the Stress</span>
+              <span className="block text-primary mt-4">Without the Stress</span>
             </H1>
             <BodyLG color="muted" className="mb-12 text-center">Loading quizzes...</BodyLG>
             <div className="mt-8">
@@ -144,25 +144,25 @@ export default function QuizzesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-6000"></div>
       </div>
 
       {/* Hero Section */}
       <Section spacing="lg" className="text-center px-6">
         <Container size="md">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
             <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
             Quiz Practice
           </div>
           <H1 className="mb-8 text-center">
             Practice What You Know,
-            <span className="block text-red-600 mt-4">Without the Stress</span>
+            <span className="block text-primary mt-4">Without the Stress</span>
           </H1>
           <BodyLG className="max-w-3xl mx-auto text-center" color="muted">
             Try simple quizzes to test your understanding, build confidence, and see what you&apos;re ready to learn next. No grades. Just learning.
@@ -195,7 +195,7 @@ export default function QuizzesPage() {
                     id="category"
                     value={selectedCategory}
                     onChange={(e) => handleCategoryChange(e.target.value)}
-                    className="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/80 backdrop-blur-lg text-gray-600 font-medium focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600 shadow-lg"
+                    className="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/80 backdrop-blur-lg text-gray-600 font-medium focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-primary shadow-lg"
                   >
                     <option value="all">All Categories</option>
                     <option value="Grammar">Grammar</option>
@@ -219,7 +219,7 @@ export default function QuizzesPage() {
                     id="difficulty"
                     value={selectedDifficulty}
                     onChange={(e) => handleDifficultyChange(e.target.value)}
-                    className="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/80 backdrop-blur-lg text-gray-600 font-medium focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600 shadow-lg"
+                    className="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/80 backdrop-blur-lg text-gray-600 font-medium focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-primary shadow-lg"
                   >
                     <option value="all">All Levels</option>
                     <option value="beginner">Beginner</option>
@@ -242,7 +242,7 @@ export default function QuizzesPage() {
           {error && (
             <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-xl border border-white/20">
               <BodyMD className="font-bold text-red-800">Error loading quizzes</BodyMD>
-              <BodyMD className="text-sm mt-1 text-red-600">{error}</BodyMD>
+              <BodyMD className="text-sm mt-1 text-primary">{error}</BodyMD>
               <button 
                 onClick={fetchQuizzes}
                 className="mt-3 text-sm underline hover:no-underline font-medium text-red-700 transition-all duration-200"
@@ -259,7 +259,7 @@ export default function QuizzesPage() {
                 Not many quizzes yet? That&apos;s okay — we&apos;re building more each week.
               </BodyMD>
               <BodyMD color="muted">
-                Want to request a topic? <Link href="/contact" className="text-red-600 hover:text-red-700 underline font-medium">Send us a message</Link>.
+                Want to request a topic? <Link href="/contact" className="text-primary hover:text-primary/80 underline font-medium">Send us a message</Link>.
               </BodyMD>
             </div>
           )}
@@ -270,18 +270,18 @@ export default function QuizzesPage() {
               // Loading skeleton cards for pagination
               Array.from({ length: 6 }).map((_, index) => (
                 <div key={index} className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden hover:shadow-2xl transition-all duration-300">
-                  <div className="h-48 bg-gradient-to-br from-gray-200/80 to-gray-300/80 animate-pulse backdrop-blur-sm"></div>
+                  <div className="h-48 bg-gradient-to-br from-muted/60 to-muted/80 animate-pulse backdrop-blur-sm"></div>
                   <div className="p-6 space-y-4 bg-white/50 backdrop-blur-sm">
                     <div className="flex gap-2">
-                      <div className="h-6 w-16 bg-gradient-to-r from-gray-200/80 to-gray-300/80 animate-pulse rounded-full backdrop-blur-sm"></div>
-                      <div className="h-6 w-20 bg-gradient-to-r from-gray-200/80 to-gray-300/80 animate-pulse rounded-full backdrop-blur-sm"></div>
+                      <div className="h-6 w-16 bg-gradient-to-r from-muted/60 to-muted/80 animate-pulse rounded-full backdrop-blur-sm"></div>
+                      <div className="h-6 w-20 bg-gradient-to-r from-muted/60 to-muted/80 animate-pulse rounded-full backdrop-blur-sm"></div>
                     </div>
-                    <div className="h-8 bg-gradient-to-r from-gray-200/80 to-gray-300/80 animate-pulse rounded-lg backdrop-blur-sm"></div>
-                    <div className="h-5 bg-gradient-to-r from-gray-200/80 to-gray-300/80 animate-pulse rounded w-3/4 backdrop-blur-sm"></div>
-                    <div className="h-5 bg-gradient-to-r from-gray-200/80 to-gray-300/80 animate-pulse rounded w-1/2 backdrop-blur-sm"></div>
+                    <div className="h-8 bg-gradient-to-r from-muted/60 to-muted/80 animate-pulse rounded-lg backdrop-blur-sm"></div>
+                    <div className="h-5 bg-gradient-to-r from-muted/60 to-muted/80 animate-pulse rounded w-3/4 backdrop-blur-sm"></div>
+                    <div className="h-5 bg-gradient-to-r from-muted/60 to-muted/80 animate-pulse rounded w-1/2 backdrop-blur-sm"></div>
                     <div className="flex justify-between items-center pt-4">
-                      <div className="h-8 w-16 bg-gradient-to-r from-gray-200/80 to-gray-300/80 animate-pulse rounded backdrop-blur-sm"></div>
-                      <div className="h-10 w-24 bg-gradient-to-r from-gray-200/80 to-gray-300/80 animate-pulse rounded-xl backdrop-blur-sm"></div>
+                      <div className="h-8 w-16 bg-gradient-to-r from-muted/60 to-muted/80 animate-pulse rounded backdrop-blur-sm"></div>
+                      <div className="h-10 w-24 bg-gradient-to-r from-muted/60 to-muted/80 animate-pulse rounded-xl backdrop-blur-sm"></div>
                     </div>
                   </div>
                 </div>
@@ -295,7 +295,7 @@ export default function QuizzesPage() {
               <div className="col-span-full text-center py-12">
                 <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20 max-w-md mx-auto">
                   <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Brain className="text-red-600 h-8 w-8" />
+                    <Brain className="text-primary h-8 w-8" />
                   </div>
                   <H3 className="mb-4">No quizzes found</H3>
                   <BodyMD color="muted" className="mb-6">
@@ -306,7 +306,7 @@ export default function QuizzesPage() {
                       setSelectedCategory('all')
                       setSelectedDifficulty('all')
                     }}
-                    className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300"
+                    className="bg-gradient-to-r from-primary to-primary/90 text-gray-900 font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300"
                   >
                     Clear Filters
                   </button>

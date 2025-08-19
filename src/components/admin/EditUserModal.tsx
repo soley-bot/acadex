@@ -78,8 +78,8 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: 
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-subtle">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <User className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
+              <User className="w-5 h-5 text-secondary" />
             </div>
             <div>
               <h2 className="text-xl font-semibold text-gray-900">Edit User</h2>
@@ -97,7 +97,7 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+            <div className="bg-primary/5 border border-destructive/30 rounded-lg p-3">
               <p className="text-red-800 text-sm">{error}</p>
             </div>
           )}
@@ -178,7 +178,7 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: 
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+              className="flex-1 bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
             >
               {loading ? (
                 <>

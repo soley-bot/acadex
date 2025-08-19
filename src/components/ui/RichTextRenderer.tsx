@@ -19,8 +19,8 @@ export function RichTextRenderer({ content, className = "" }: RichTextRendererPr
     formatted = formatted.replace(/==(.*?)==/g, '<mark class="bg-yellow-200 text-yellow-900 px-1 rounded font-medium">$1</mark>')
     
     // Colored text: {{color:text}} → <span class="text-color-600">text</span>
-    formatted = formatted.replace(/\{\{red:(.*?)\}\}/g, '<span class="text-red-600 font-semibold">$1</span>')
-    formatted = formatted.replace(/\{\{blue:(.*?)\}\}/g, '<span class="text-blue-600 font-semibold">$1</span>')
+    formatted = formatted.replace(/\{\{red:(.*?)\}\}/g, '<span class="text-primary font-semibold">$1</span>')
+    formatted = formatted.replace(/\{\{blue:(.*?)\}\}/g, '<span class="text-secondary font-semibold">$1</span>')
     formatted = formatted.replace(/\{\{green:(.*?)\}\}/g, '<span class="text-green-600 font-semibold">$1</span>')
     formatted = formatted.replace(/\{\{orange:(.*?)\}\}/g, '<span class="text-orange-600 font-semibold">$1</span>')
     formatted = formatted.replace(/\{\{purple:(.*?)\}\}/g, '<span class="text-purple-600 font-semibold">$1</span>')

@@ -63,7 +63,7 @@ export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) 
         <div className="lg:hidden flex justify-end p-4">
           <button
             onClick={onMobileClose}
-            className="p-2 rounded-md hover:bg-gray-100 text-gray-600"
+            className="p-2 rounded-md hover:bg-muted/40 text-gray-600"
             aria-label="Close menu"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,7 +82,7 @@ export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) 
       {user && (
         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center">
-            <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
               {user.avatar_url ? (
                 <Image src={user.avatar_url} alt={user.name} width={40} height={40} className="w-10 h-10 rounded-full" />
               ) : (
@@ -110,8 +110,8 @@ export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) 
                 className={cn(
                   'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200',
                   isActive
-                    ? 'bg-red-100 text-red-700 border border-red-200 shadow-sm'
-                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'bg-destructive/20 text-red-700 border border-destructive/30 shadow-sm'
+                    : 'text-gray-700 hover:bg-muted/40 hover:text-gray-900'
                 )}
               >
                 {item.title}

@@ -261,7 +261,7 @@ export default function OptimizedSearchPage() {
                     >
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="text-lg font-semibold text-gray-900">{quiz.title}</h3>
-                        <span className="text-sm px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                        <span className="text-sm px-2 py-1 bg-primary/10 text-primary rounded">
                           {quiz.difficulty}
                         </span>
                       </div>
@@ -292,7 +292,7 @@ export default function OptimizedSearchPage() {
                     >
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="text-lg font-semibold text-gray-900">{course.title}</h3>
-                        <span className="text-sm px-2 py-1 bg-green-100 text-green-800 rounded">
+                        <span className="text-sm px-2 py-1 bg-success/10 text-success rounded">
                           {course.level}
                         </span>
                       </div>
@@ -324,7 +324,7 @@ export default function OptimizedSearchPage() {
 
         {/* Performance Stats */}
         {process.env.NODE_ENV === 'development' && (
-          <div className="mt-8 bg-gray-100 rounded-lg p-4">
+          <div className="mt-8 bg-muted/40 rounded-lg p-4">
             <h3 className="font-semibold mb-2">Search Performance:</h3>
             <pre className="text-xs">
               {JSON.stringify(QueryPerformance.getStats(), null, 2)}

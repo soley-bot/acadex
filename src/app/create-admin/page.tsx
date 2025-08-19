@@ -56,7 +56,7 @@ export default function CreateAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-muted/40 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
         <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
           Create Admin User
@@ -69,13 +69,13 @@ export default function CreateAdminPage() {
           
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
             <h3 className="font-medium text-blue-900 mb-2">Admin Credentials:</h3>
-            <p className="text-sm text-blue-800">Email: admin01@acadex.com</p>
-            <p className="text-sm text-blue-800">Password: admin123</p>
+            <p className="text-sm text-secondary">Email: admin01@acadex.com</p>
+            <p className="text-sm text-secondary">Password: admin123</p>
           </div>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+          <div className="bg-primary/5 border border-red-200 rounded-lg p-4 mb-4">
             <p className="text-red-800 text-sm whitespace-pre-line">{error}</p>
           </div>
         )}
@@ -89,7 +89,7 @@ export default function CreateAdminPage() {
         <button
           onClick={createAdminUser}
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          className="w-full bg-secondary hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2 px-4 rounded-lg transition-colors"
         >
           {loading ? 'Creating Admin User...' : 'Create Admin User'}
         </button>
@@ -97,7 +97,7 @@ export default function CreateAdminPage() {
         <div className="mt-6 text-center">
           <a 
             href="/login" 
-            className="text-blue-600 hover:text-blue-700 text-sm"
+            className="text-secondary hover:text-blue-700 text-sm"
           >
             ← Back to Login
           </a>

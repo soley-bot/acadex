@@ -122,9 +122,9 @@ export default function CoursePage() {
       case 'intermediate':
         return 'bg-yellow-100 text-yellow-800'
       case 'advanced':
-        return 'bg-red-100 text-red-800'
+        return 'bg-destructive/20 text-red-800'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted/40 text-gray-800'
     }
   }
 
@@ -137,13 +137,13 @@ export default function CoursePage() {
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         
         <Container size="lg" className="relative flex items-center justify-center py-20 pt-24">
           <div className="text-center bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <BodyLG color="muted" className="font-medium">Loading course...</BodyLG>
           </div>
         </Container>
@@ -160,20 +160,20 @@ export default function CoursePage() {
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         
         <Container size="lg" className="relative py-20 pt-24 text-center">
           <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-12 shadow-xl border border-white/20">
-            <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary/90 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
               <Icon name="close" size={32} color="white" />
             </div>
             <H1 className="mb-4">Course Not Found</H1>
             <BodyLG color="muted" className="mb-8 leading-relaxed">{error || 'The course you are looking for does not exist.'}</BodyLG>
             <button
               onClick={() => router.push('/courses')}
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+              className="bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-8 py-4 rounded-xl font-bold text-lg transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
             >
               Back to Courses
             </button>
@@ -191,8 +191,8 @@ export default function CoursePage() {
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-6000"></div>
       </div>
       
@@ -218,11 +218,11 @@ export default function CoursePage() {
               <span className={`px-4 py-2 rounded-full text-sm font-bold backdrop-blur-sm border border-white/20 shadow-lg ${
                 course.level.toLowerCase() === 'beginner' ? 'bg-green-100/80 text-green-800' :
                 course.level.toLowerCase() === 'intermediate' ? 'bg-yellow-100/80 text-yellow-800' :
-                'bg-red-100/80 text-red-800'
+                'bg-destructive/20/80 text-red-800'
               }`}>
                 {course.level}
               </span>
-              <span className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white text-sm font-bold rounded-full shadow-lg">
+              <span className="px-4 py-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 text-sm font-bold rounded-full shadow-lg">
                 {course.category}
               </span>
             </Flex>
@@ -289,7 +289,7 @@ export default function CoursePage() {
                 <ul className="space-y-4">
                   {course.prerequisites.map((prerequisite, index) => (
                     <li key={index} className="flex items-start gap-3 p-3 bg-blue-50/80 backdrop-blur-sm rounded-xl border border-blue-200/50">
-                      <span className="text-blue-600 mt-1 text-lg font-bold">•</span>
+                      <span className="text-secondary mt-1 text-lg font-bold">•</span>
                       <BodyMD className="font-medium">{prerequisite}</BodyMD>
                     </li>
                   ))}
@@ -321,7 +321,7 @@ export default function CoursePage() {
                 Instructor
               </H2>
               <Flex align="center" gap="lg">
-                <div className="w-20 h-20 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                <div className="w-20 h-20 bg-gradient-to-r from-primary to-primary/90 text-gray-900 text-2xl font-bold shadow-lg">
                   {course.instructor_name.charAt(0).toUpperCase()}
                 </div>
                 <div>
@@ -343,7 +343,7 @@ export default function CoursePage() {
               </div>
               
               {error && (
-                <div className="bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-xl p-4 mb-6 shadow-lg">
+                <div className="bg-primary/5/80 backdrop-blur-sm border border-red-200 rounded-xl p-4 mb-6 shadow-lg">
                   <BodyMD color="error" className="font-medium">{error}</BodyMD>
                 </div>
               )}
@@ -356,7 +356,7 @@ export default function CoursePage() {
                   </div>
                   <Link
                     href={`/courses/${course.id}/study`}
-                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-4 rounded-xl font-bold text-lg transition-all duration-200 transform hover:-translate-y-1 text-center block shadow-lg hover:shadow-xl"
+                    className="w-full bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-4 rounded-xl font-bold text-lg transition-all duration-200 transform hover:-translate-y-1 text-center block shadow-lg hover:shadow-xl"
                   >
                     Continue Learning
                   </Link>
@@ -366,7 +366,7 @@ export default function CoursePage() {
                   <button
                     onClick={handleEnroll}
                     disabled={enrolling}
-                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-4 rounded-xl font-bold text-lg transition-all duration-200 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mb-4 shadow-lg hover:shadow-xl"
+                    className="w-full bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-4 rounded-xl font-bold text-lg transition-all duration-200 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mb-4 shadow-lg hover:shadow-xl"
                   >
                     {enrolling ? (
                       <div className="flex items-center justify-center gap-2">
@@ -379,7 +379,7 @@ export default function CoursePage() {
                   </button>
                   {!user && (
                     <BodyMD color="muted" className="text-center">
-                      <Link href="/auth/login" className="text-red-600 hover:text-red-700 font-bold">
+                      <Link href="/auth/login" className="text-primary hover:text-primary/80 font-bold">
                         Sign in
                       </Link>
                       {' '}to enroll in this course

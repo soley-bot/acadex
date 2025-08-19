@@ -12,7 +12,7 @@ export default function DevBanner() {
   if (!user || user.role !== 'admin') return null
 
   return (
-    <div className="bg-yellow-500 text-black text-center py-2 text-sm font-medium">
+    <div className="bg-warning text-black text-center py-2 text-sm font-medium">
       🔧 DEV MODE: You are logged in as ADMIN ({user.email})
     </div>
   )

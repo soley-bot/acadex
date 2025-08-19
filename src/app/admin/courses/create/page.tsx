@@ -26,7 +26,7 @@ export default function CreateCoursePage() {
                 <ArrowLeft className="h-5 w-5" />
                 Back to Courses
               </Link>
-              <div className="h-6 w-px bg-gray-300" />
+              <div className="h-6 w-px bg-muted" />
               <h1 className="text-xl font-semibold text-gray-900">Create New Course</h1>
             </div>
           </div>

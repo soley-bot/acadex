@@ -66,7 +66,7 @@ const sectionBackgrounds = {
   transparent: '',
   white: 'bg-white',
   glass: 'backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl',
-  gradient: 'bg-gradient-to-br from-red-50 via-white to-orange-50',
+  gradient: 'bg-gradient-to-br from-primary/10 via-white to-secondary/10',
   muted: 'bg-gray-50',
   dark: 'bg-gray-900',
 }

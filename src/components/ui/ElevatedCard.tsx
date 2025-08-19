@@ -40,8 +40,8 @@ export function ValueCard({ icon, title, description, className = '' }: ValueCar
   return (
     <ElevatedCard className={`group ${className}`}>
       <div className="flex justify-center mb-4">
-        <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-          <span className="text-red-600 text-xl">{icon}</span>
+        <div className="w-14 h-14 bg-destructive/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+          <span className="text-primary text-xl">{icon}</span>
         </div>
       </div>
       <h3 className="text-lg font-bold text-gray-900 mb-3 text-center">{title}</h3>
@@ -63,7 +63,7 @@ export function StatCard({ value, label, highlight = false, className = '' }: St
   return (
     <div className="text-center">
       <ElevatedCard hover className={className}>
-        <div className={`text-3xl md:text-4xl font-black mb-2 ${highlight ? 'text-red-600' : 'text-gray-900'}`}>
+        <div className={`text-3xl md:text-4xl font-black mb-2 ${highlight ? 'text-primary' : 'text-gray-900'}`}>
           {value}
         </div>
         <div className="text-sm text-gray-600 font-medium">{label}</div>

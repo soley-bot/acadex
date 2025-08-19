@@ -237,12 +237,12 @@ export interface IconProps {
 }
 
 const colorClasses = {
-  primary: 'text-blue-600',
+  primary: 'text-secondary',
   secondary: 'text-gray-600', 
   muted: 'text-gray-400',
   success: 'text-green-600',
   warning: 'text-yellow-600',
-  error: 'text-red-600',
+  error: 'text-primary',
   white: 'text-white',
   current: 'text-current'
 }

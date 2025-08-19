@@ -106,14 +106,60 @@ interface Course {
 - **Error Handling**: Try-catch blocks with proper error typing
 - **Database Operations**: Type-safe Supabase queries
 - **Forms**: Controlled components with validation
+- **Button Styling**: MUST follow standardized `bg-primary hover:bg-secondary text-black hover:text-white` pattern
+- **Color Usage**: Always use semantic color classes, never hardcoded hex values
+- **Accessibility**: Ensure proper text contrast (black text on primary yellow, white text on secondary blue)
 
-## Design System
-- **Primary**: Blue (#3b82f6) for actions and highlights
+## Design System & Color Standards
+
+### Color Palette
+- **Primary**: Yellow (#FFCE32) - Main brand color for primary actions
+- **Secondary**: Prussian Blue (#1D63FF) - Accent color for hover states and secondary actions
 - **Success**: Green for completed states and confirmations
-- **Warning**: Yellow for draft states and cautions
-- **Error**: Red (#ef4444) for errors and deletions
+- **Warning**: Yellow for draft states and cautions  
+- **Error/Destructive**: Red (#ef4444) for errors and deletions
 - **Neutral**: Gray scale for text and backgrounds
 - **Typography**: Inter font family with consistent hierarchy
+
+### Button Standardization Rules
+**CRITICAL**: All buttons must follow this standardized pattern:
+
+#### Primary Buttons (Default)
+```tsx
+// ✅ CORRECT: Primary background with black text, hover to secondary with white text
+className="bg-primary hover:bg-secondary text-black hover:text-white"
+
+// ❌ INCORRECT: Any other color combination for primary buttons
+className="bg-primary text-white" // Wrong - primary needs black text
+className="bg-blue-600 hover:bg-blue-700" // Wrong - use semantic colors
+```
+
+#### Outline Buttons
+```tsx
+// ✅ CORRECT: Primary border, hover to primary background with black text
+className="border-2 border-primary text-primary hover:bg-primary hover:text-black"
+```
+
+#### Button Component Usage
+- Use `/src/components/ui/button.tsx` with `variant="default"` for primary actions
+- Custom buttons must follow: `bg-primary hover:bg-secondary text-black hover:text-white`
+- Icons should use `color="current"` to inherit text color
+- CSS classes must follow same pattern in `/src/app/globals.css`
+
+### Design System Implementation
+- **CSS Variables**: Use HSL values in `/src/app/globals.css`
+  - `--primary: 47 100% 59%` (Yellow)
+  - `--secondary: 220 91% 56%` (Prussian Blue)
+- **Semantic Classes**: Always use `bg-primary`, `text-primary`, etc. instead of hardcoded colors
+- **Accessibility**: Primary yellow background REQUIRES black text for proper contrast
+- **Consistency**: All interactive elements follow primary→secondary hover pattern
+
+### Color Usage Guidelines
+1. **Primary Yellow**: Always pair with black text for readability
+2. **Secondary Blue**: Always pair with white text for contrast  
+3. **Hover States**: Transition from primary/black to secondary/white
+4. **Gradients**: Use light versions (`primary/5 via white to secondary/5`) for backgrounds
+5. **Icons**: Use `color="current"` to inherit parent text color
 
 ## Current Project State
 ✅ **Build Status**: Successfully compiling without TypeScript errors
@@ -123,6 +169,8 @@ interface Course {
 ✅ **Student Interface**: Course study page with progress tracking
 ✅ **Admin Panel**: Comprehensive management interface
 ✅ **Type Safety**: All major components properly typed
+✅ **Design System**: Standardized Primary Yellow (#FFCE32) and Secondary Prussian Blue (#1D63FF) theme
+✅ **Button Standards**: All buttons follow primary→secondary hover pattern with proper text contrast
 
 ## Development Notes
 - Always run `npm run build` before committing changes
@@ -130,3 +178,6 @@ interface Course {
 - New components must include proper TypeScript interfaces
 - Form components require safety checks for array operations
 - Admin features need proper role validation
+- **Button Components**: All new buttons must follow `bg-primary hover:bg-secondary text-black hover:text-white`
+- **Color Consistency**: Use semantic classes (`bg-primary`, `text-secondary`) never hardcoded colors
+- **Accessibility**: Primary yellow backgrounds MUST use black text for readability

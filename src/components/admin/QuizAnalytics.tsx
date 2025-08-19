@@ -264,7 +264,7 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
                         <p className="text-sm font-medium text-gray-600">Total Attempts</p>
                         <p className="text-2xl font-bold text-gray-900">{analytics.totalAttempts.toLocaleString()}</p>
                       </div>
-                      <Users className="h-8 w-8 text-blue-600" />
+                      <Users className="h-8 w-8 text-secondary" />
                     </div>
                   </CardContent>
                 </Card>
@@ -348,12 +348,12 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
                             <span className="font-medium capitalize">{diff.difficulty}</span>
                             <span className="text-sm text-gray-600">{diff.count} attempts</span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="w-full bg-muted/60 rounded-full h-2">
                             <div 
                               className={`h-2 rounded-full ${
                                 diff.difficulty === 'beginner' ? 'bg-green-500' :
                                 diff.difficulty === 'intermediate' ? 'bg-yellow-500' :
-                                'bg-red-500'
+                                'bg-primary/50'
                               }`}
                               style={{ width: `${diff.avgScore}%` }}
                             />
@@ -382,7 +382,7 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
                             <span className="text-sm text-gray-600">{trend.attempts} attempts</span>
                             <span className={`text-sm font-medium ${
                               trend.avgScore >= 80 ? 'text-green-600' :
-                              trend.avgScore >= 60 ? 'text-yellow-600' : 'text-red-600'
+                              trend.avgScore >= 60 ? 'text-yellow-600' : 'text-primary'
                             }`}>
                               {trend.avgScore.toFixed(1)}% avg
                             </span>
