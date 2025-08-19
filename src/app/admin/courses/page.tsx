@@ -2,28 +2,34 @@
 
 import { logger } from '@/lib/logger'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Course } from '@/lib/supabase'
-import { EnhancedAPICourseForm } from '@/components/admin/EnhancedAPICourseForm'
 import { DeleteCourseModal } from '@/components/admin/DeleteCourseModal'
 import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
 import { CourseViewModal } from '@/components/admin/CourseViewModal'
 import { CategoryManagement } from '@/components/admin/CategoryManagement'
 import Icon from '@/components/ui/Icon'
 import { useAuth } from '@/contexts/AuthContext'
+import { authenticatedGet, authenticatedPost } from '@/lib/auth-api'
 
 export default function CoursesPage() {
+  const router = useRouter()
   const { user } = useAuth()
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 50,
+    total: 0,
+    totalPages: 0
+  })
   
-  // Modal states
-  const [showCourseForm, setShowCourseForm] = useState(false)
-  const [editingCourse, setEditingCourse] = useState<Course | null>(null)
+  // Modal states  
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deletingCourse, setDeletingCourse] = useState<Course | null>(null)
   const [showEnhancedDeleteModal, setShowEnhancedDeleteModal] = useState(false)
@@ -31,17 +37,25 @@ export default function CoursesPage() {
   const [viewingCourse, setViewingCourse] = useState<Course | null>(null)
   const [showCategoryManagement, setShowCategoryManagement] = useState(false)
 
-  // Fetch courses using API route
-  const fetchCourses = useCallback(async () => {
+  // Fetch courses using API route with server-side filtering and pagination
+  const fetchCourses = useCallback(async (page = 1, search = '', category = 'all') => {
     try {
       setLoading(true)
       setError(null)
       
-      const response = await fetch('/api/admin/courses')
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: '50', // Show more courses for admin view
+        search,
+        category
+      })
+      
+      const response = await authenticatedGet(`/api/admin/courses?${params}`)
       const result = await response.json()
       
       if (result.success) {
         setCourses(result.data || [])
+        setPagination(result.pagination || { page: 1, limit: 50, total: 0, totalPages: 0 })
       } else {
         setError(result.error || 'Failed to fetch courses')
       }
@@ -52,17 +66,38 @@ export default function CoursesPage() {
     }
   }, [])
 
-  useEffect(() => {
-    fetchCourses()
-  }, [fetchCourses])
+  // Debounced search to avoid too many API calls
+  const debouncedSearchTerm = useMemo(() => {
+    const timer = setTimeout(() => {
+      return searchTerm
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
 
-  // Filter courses based on search and category
-  const filteredCourses = courses.filter(course => {
-    const matchesSearch = course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         course.instructor_name?.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+  useEffect(() => {
+    fetchCourses(1, searchTerm, selectedCategory)
+  }, [fetchCourses, searchTerm, selectedCategory])
+
+  // Handle search input change
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setPagination(prev => ({ ...prev, page: 1 })) // Reset to first page when searching
+  }
+
+  // Handle category change
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category)
+    setPagination(prev => ({ ...prev, page: 1 })) // Reset to first page when filtering
+  }
+
+  // Handle pagination
+  const handlePageChange = (newPage: number) => {
+    setPagination(prev => ({ ...prev, page: newPage }))
+    fetchCourses(newPage, searchTerm, selectedCategory)
+  }
+
+  // Remove client-side filtering since we now do server-side filtering
+  const filteredCourses = courses
 
   // Calculate statistics
   const courseStats = {
@@ -82,13 +117,11 @@ export default function CoursesPage() {
   }
 
   const handleCreateCourse = () => {
-    setEditingCourse(null)
-    setShowCourseForm(true)
+    router.push('/admin/courses/create')
   }
 
   const handleEditCourse = (course: Course) => {
-    setEditingCourse(course)
-    setShowCourseForm(true)
+    router.push(`/admin/courses/${course.id}/edit`)
   }
 
   const handleDeleteCourse = (course: Course) => {
@@ -101,15 +134,8 @@ export default function CoursesPage() {
     setShowViewModal(true)
   }
 
-  const handleFormSuccess = () => {
-    fetchCourses() // Refresh courses after successful form submission
-    // Don't auto-close the form - let users choose when to close
-    // setShowCourseForm(false)
-    // setEditingCourse(null)
-  }
-
   const handleDeleteSuccess = () => {
-    fetchCourses() // Refresh courses after successful deletion
+    fetchCourses(pagination.page, searchTerm, selectedCategory) // Refresh courses after successful deletion
     setShowDeleteModal(false)
     setShowEnhancedDeleteModal(false)
     setDeletingCourse(null)
@@ -117,19 +143,13 @@ export default function CoursesPage() {
 
   const handleTogglePublish = async (course: Course) => {
     try {
-      const response = await fetch('/api/admin/courses', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await authenticatedPost('/api/admin/courses', {
+        courseData: {
+          id: course.id,
+          is_published: !course.is_published
         },
-        body: JSON.stringify({
-          courseData: {
-            id: course.id,
-            is_published: !course.is_published
-          },
-          action: 'update',
-          userId: user?.id
-        })
+        action: 'update'
+        // SECURITY: No longer sending userId - server will use authenticated user
       })
 
       const result = await response.json()
@@ -476,16 +496,6 @@ export default function CoursesPage() {
       )}
 
       {/* Modals */}
-      <EnhancedAPICourseForm
-        course={editingCourse || undefined}
-        isOpen={showCourseForm}
-        onClose={() => {
-          setShowCourseForm(false)
-          setEditingCourse(null)
-        }}
-        onSuccess={handleFormSuccess}
-      />
-
       <DeleteCourseModal
         course={deletingCourse}
         isOpen={showDeleteModal}

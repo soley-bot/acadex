@@ -12,6 +12,7 @@ import { RichTextRenderer } from '@/components/ui/RichTextRenderer'
 import { LessonQuiz } from '@/components/lesson/LessonQuiz'
 import { Typography, DisplayLG, H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
+import { VideoPlayer } from '@/components/ui/VideoPlayer'
 import Icon from '@/components/ui/Icon'
 
 interface ModuleWithContent extends CourseModule {
@@ -553,10 +554,9 @@ export default function CourseStudyPage() {
                     {currentLesson.video_url && (
                       <div className="mb-6 lg:mb-8">
                         <div className="aspect-video bg-gray-100/80 backdrop-blur-sm rounded-2xl overflow-hidden shadow-xl border border-white/20">
-                          <video
-                            src={currentLesson.video_url}
-                            controls
-                            className="w-full h-full object-cover"
+                          <VideoPlayer
+                            url={currentLesson.video_url}
+                            className="w-full h-full"
                           />
                         </div>
                       </div>

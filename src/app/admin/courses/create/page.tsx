@@ -41,6 +41,7 @@ export default function CreateCoursePage() {
             onClose={() => router.push('/admin/courses')}
             onSuccess={handleSuccess}
             course={undefined}
+            embedded={true}
           />
         </div>
       </div>

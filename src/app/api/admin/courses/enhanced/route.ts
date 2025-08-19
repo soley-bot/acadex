@@ -1,21 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@supabase/ssr'
 
 import { logger } from '@/lib/logger'
 
-// Create Supabase client with service role key to bypass RLS
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+// Helper function to create authenticated Supabase client
+function createAuthenticatedClient(request: NextRequest) {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get: (name: string) => request.cookies.get(name)?.value,
+        set: () => {}, // Not needed for API routes
+        remove: () => {} // Not needed for API routes
+      }
+    }
+  )
+}
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
+// Helper function to verify admin authentication
+async function verifyAdminAuth(supabase: any) {
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  
+  if (authError || !user) {
+    throw new Error('Authentication required')
   }
-})
+
+  // Verify admin role from database
+  const { data: userRecord, error: userError } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (userError || !userRecord || userRecord.role !== 'admin') {
+    throw new Error('Admin access required')
+  }
+
+  return user
+}
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createAuthenticatedClient(request)
+    
+    // Verify admin authentication
+    await verifyAdminAuth(supabase)
+    
     const { searchParams } = new URL(request.url)
     const courseId = searchParams.get('id')
     
@@ -72,7 +103,22 @@ export async function GET(request: NextRequest) {
       })
     }
   } catch (error: any) {
-    logger.error('Unexpected error:', error)
+    logger.error('Authentication or authorization error:', error)
+    
+    if (error.message === 'Authentication required') {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Please log in to access this resource' 
+      }, { status: 401 })
+    }
+    
+    if (error.message === 'Admin access required') {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Admin privileges required for this operation' 
+      }, { status: 403 })
+    }
+    
     return NextResponse.json({ 
       success: false, 
       error: 'Internal server error' 
@@ -82,30 +128,22 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createAuthenticatedClient(request)
+    
+    // Verify admin authentication and get user
+    const user = await verifyAdminAuth(supabase)
+    
     const body = await request.json()
-    const { courseData, action, userId } = body
-
-    // Verify user is admin
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', userId)
-      .single()
-
-    if (userError || !user || user.role !== 'admin') {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Unauthorized: Admin access required' 
-      }, { status: 403 })
-    }
+    const { courseData, action } = body
+    // SECURITY: No longer trusting userId from client - using authenticated user.id
 
     if (action === 'create') {
       // Create new course with full structure
-      const courseResult = await createEnhancedCourse(courseData)
+      const courseResult = await createEnhancedCourse(courseData, supabase, user.id)
       return NextResponse.json(courseResult)
     } else if (action === 'update') {
       // Update existing course with full structure
-      const courseResult = await updateEnhancedCourse(courseData)
+      const courseResult = await updateEnhancedCourse(courseData, supabase, user.id)
       return NextResponse.json(courseResult)
     } else {
       return NextResponse.json({ 
@@ -115,6 +153,21 @@ export async function POST(request: NextRequest) {
     }
   } catch (error: any) {
     logger.error('Error processing request:', error)
+    
+    if (error.message === 'Authentication required') {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Please log in to access this resource' 
+      }, { status: 401 })
+    }
+    
+    if (error.message === 'Admin access required') {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Admin privileges required for this operation' 
+      }, { status: 403 })
+    }
+    
     return NextResponse.json({ 
       success: false, 
       error: 'Internal server error' 
@@ -122,7 +175,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function createEnhancedCourse(courseData: any) {
+async function createEnhancedCourse(courseData: any, supabase: any, authenticatedUserId: string) {
   try {
     // Start transaction by creating the main course record
     const { data: course, error: courseError } = await supabase
@@ -130,7 +183,7 @@ async function createEnhancedCourse(courseData: any) {
       .insert({
         title: courseData.title,
         description: courseData.description,
-        instructor_id: courseData.instructor_id, // Add this line
+        instructor_id: courseData.instructor_id || authenticatedUserId, // Use authenticated user if no instructor specified
         instructor_name: courseData.instructor_name,
         category: courseData.category,
         level: courseData.level,
@@ -139,9 +192,9 @@ async function createEnhancedCourse(courseData: any) {
         image_url: courseData.image_url,
         is_published: courseData.is_published,
         // Enhanced fields
-        learning_outcomes: courseData.learning_outcomes.map((o: any) => o.description).filter(Boolean),
-        prerequisites: courseData.prerequisites.filter(Boolean),
-        tags: courseData.tags.filter(Boolean),
+        learning_outcomes: courseData.learning_outcomes?.map((o: any) => o.description).filter(Boolean) || [],
+        prerequisites: courseData.prerequisites?.filter(Boolean) || [],
+        tags: courseData.tags?.filter(Boolean) || [],
         certificate_enabled: courseData.certificate_enabled,
         estimated_completion_time: courseData.estimated_completion_time,
         difficulty_rating: courseData.difficulty_rating
@@ -205,14 +258,15 @@ async function createEnhancedCourse(courseData: any) {
   }
 }
 
-async function updateEnhancedCourse(courseData: any) {
+async function updateEnhancedCourse(courseData: any, supabase: any, authenticatedUserId: string) {
   try {
-    // Update main course record
+    // Update the main course record
     const { data: course, error: courseError } = await supabase
       .from('courses')
       .update({
         title: courseData.title,
         description: courseData.description,
+        instructor_id: courseData.instructor_id || authenticatedUserId, // Use authenticated user if no instructor specified
         instructor_name: courseData.instructor_name,
         category: courseData.category,
         level: courseData.level,
@@ -221,20 +275,17 @@ async function updateEnhancedCourse(courseData: any) {
         image_url: courseData.image_url,
         is_published: courseData.is_published,
         // Enhanced fields
-        learning_outcomes: courseData.learning_outcomes.map((o: any) => o.description).filter(Boolean),
-        prerequisites: courseData.prerequisites.filter(Boolean),
-        tags: courseData.tags.filter(Boolean),
+        learning_outcomes: courseData.learning_outcomes?.map((o: any) => o.description).filter(Boolean) || [],
+        prerequisites: courseData.prerequisites?.filter(Boolean) || [],
+        tags: courseData.tags?.filter(Boolean) || [],
         certificate_enabled: courseData.certificate_enabled,
         estimated_completion_time: courseData.estimated_completion_time,
-        difficulty_rating: courseData.difficulty_rating
+        difficulty_rating: courseData.difficulty_rating,
+        updated_at: new Date().toISOString()
       })
       .eq('id', courseData.id)
       .select()
       .single()
-
-    if (courseError) {
-      throw new Error(`Course update failed: ${courseError.message}`)
-    }
 
     // Get existing modules and lessons for comparison
     const { data: existingModules, error: fetchError } = await supabase
@@ -273,7 +324,7 @@ async function updateEnhancedCourse(courseData: any) {
           let moduleId = moduleData.id
           
           // Check if this is an existing module or new one
-          if (moduleId && existingModules?.find(m => m.id === moduleId)) {
+          if (moduleId && existingModules?.find((m: any) => m.id === moduleId)) {
             // Update existing module
             const { data: updatedModule, error: moduleError } = await supabase
               .from('course_modules')
@@ -314,7 +365,7 @@ async function updateEnhancedCourse(courseData: any) {
 
           // Handle lessons for this module
           if (moduleData.lessons && moduleData.lessons.length > 0) {
-            const existingModule = existingModules?.find(m => m.id === moduleId)
+            const existingModule = existingModules?.find((m: any) => m.id === moduleId)
             const existingLessons = existingModule?.course_lessons || []
             const keptLessonIds = new Set()
 
@@ -325,7 +376,7 @@ async function updateEnhancedCourse(courseData: any) {
                 let lessonId = lessonData.id
                 
                 // Check if this is an existing lesson or new one
-                if (lessonId && existingLessons.find(l => l.id === lessonId)) {
+                if (lessonId && existingLessons.find((l: any) => l.id === lessonId)) {
                   // Update existing lesson
                   const { error: lessonError } = await supabase
                     .from('course_lessons')
@@ -371,8 +422,8 @@ async function updateEnhancedCourse(courseData: any) {
 
             // Delete lessons that are no longer in the module
             const lessonsToDelete = existingLessons
-              .filter(l => !keptLessonIds.has(l.id))
-              .map(l => l.id)
+              .filter((l: any) => !keptLessonIds.has(l.id))
+              .map((l: any) => l.id)
 
             if (lessonsToDelete.length > 0) {
               // Clear references in enrollments first
@@ -397,8 +448,8 @@ async function updateEnhancedCourse(courseData: any) {
 
       // Delete modules that are no longer in the course
       const modulesToDelete = existingModules
-        ?.filter(m => !keptModuleIds.has(m.id))
-        .map(m => m.id) || []
+        ?.filter((m: any) => !keptModuleIds.has(m.id))
+        .map((m: any) => m.id) || []
 
       if (modulesToDelete.length > 0) {
         // Get lesson IDs from modules to be deleted
@@ -412,7 +463,7 @@ async function updateEnhancedCourse(courseData: any) {
           await supabase
             .from('enrollments')
             .update({ current_lesson_id: null })
-            .in('current_lesson_id', lessonsToDelete.map(l => l.id))
+            .in('current_lesson_id', lessonsToDelete.map((l: any) => l.id))
         }
 
         // Delete the modules (lessons will cascade)
@@ -429,8 +480,8 @@ async function updateEnhancedCourse(courseData: any) {
       // No modules provided - clear all existing modules and lessons
       if (existingModules && existingModules.length > 0) {
         // Get all lesson IDs
-        const allLessonIds = existingModules.flatMap(m => 
-          m.course_lessons?.map(l => l.id) || []
+        const allLessonIds = existingModules.flatMap((m: any) => 
+          m.course_lessons?.map((l: any) => l.id) || []
         )
 
         if (allLessonIds.length > 0) {

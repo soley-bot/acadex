@@ -163,14 +163,16 @@ export function prepareQuizForDatabase(quiz: Partial<Quiz>): Partial<Quiz> {
 export const COURSE_FIELDS = [
   'id', 'title', 'description', 'instructor_id', 'instructor_name',
   'category', 'level', 'price', 'duration', 'image_url', 
-  'rating', 'student_count', 'is_published', 
-  'created_at', 'updated_at'
+  'thumbnail_url', 'video_preview_url', 'tags', 'prerequisites', 'learning_objectives',
+  'status', 'published_at', 'archived_at', 'original_price', 'discount_percentage',
+  'is_free', 'rating', 'student_count', 'is_published', 'created_at', 'updated_at'
 ] as const
 
 export const QUIZ_FIELDS = [
   'id', 'title', 'description', 'category', 'difficulty', 'duration_minutes',
   'total_questions', 'course_id', 'lesson_id', 'passing_score', 'max_attempts',
-  'time_limit_minutes', 'is_published', 'created_at', 'updated_at'
+  'time_limit_minutes', 'image_url', 'attempts_count', 'average_score',
+  'is_published', 'created_at', 'updated_at'
 ] as const
 
 export const USER_FIELDS = [

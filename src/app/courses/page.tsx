@@ -9,6 +9,7 @@ import { getCourses } from '@/lib/database-operations'
 import { Typography, DisplayLG, H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
 import Icon from '@/components/ui/Icon'
+import { EnhancedCourseCard } from '@/components/cards/EnhancedCourseCard'
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([])
@@ -231,106 +232,7 @@ export default function CoursesPage() {
               ))
             ) : courses.length > 0 ? (
               courses.map((course) => (
-                <div key={course.id} className="group">
-                  <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:scale-[1.02] hover:-translate-y-2">
-                    
-                    {/* Course Image */}
-                    <div className="relative h-48 bg-gradient-to-br from-gray-100/80 to-gray-200/80 overflow-hidden">
-                      {course.image_url ? (
-                        <Image
-                          src={course.image_url}
-                          alt={course.title}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-500"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-red-100/80 via-orange-100/80 to-pink-100/80 backdrop-blur-sm flex items-center justify-center">
-                          <div className="text-4xl font-bold text-red-500 group-hover:scale-110 transition-transform duration-300">
-                            {course.title.charAt(0).toUpperCase()}
-                          </div>
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      
-                      {/* Floating Rating Badge */}
-                      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-lg rounded-full px-3 py-1.5 shadow-lg border border-white/20">
-                        <div className="flex items-center gap-1">
-                          <Icon name="star" size={14} color="warning" />
-                          <span className="text-sm font-bold text-gray-700">{course.rating}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Content Section */}
-                    <div className="p-6 bg-white/60 backdrop-blur-lg">
-                      {/* Category and Level Badges */}
-                      <div className="flex gap-2 mb-4">
-                        <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs lg:text-sm font-medium bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg backdrop-blur-sm">
-                          {course.category || 'Grammar'}
-                        </div>
-                        <div className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs lg:text-sm font-medium shadow-lg backdrop-blur-sm ${
-                          course.level.toLowerCase() === 'beginner' ? 'bg-gradient-to-r from-green-600 to-green-700 text-white' :
-                          course.level.toLowerCase() === 'intermediate' ? 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white' :
-                          'bg-gradient-to-r from-purple-600 to-purple-700 text-white'
-                        }`}>
-                          {formatLevel(course.level)}
-                        </div>
-                      </div>
-
-                      {/* Title */}
-                      <H3 className="mb-3 leading-tight group-hover:text-red-600 transition-colors duration-200">
-                        {course.title}
-                      </H3>
-
-                      {/* Description */}
-                      <BodyMD color="muted" className="mb-4 line-clamp-2 leading-relaxed">
-                        {course.description}
-                      </BodyMD>
-
-                      {/* Instructor */}
-                      <div className="flex items-center gap-3 mb-4 p-3 bg-white/50 backdrop-blur-sm rounded-xl border border-white/20">
-                        <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
-                          {course.instructor_name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <BodyMD className="font-medium">
-                            {course.instructor_name}
-                          </BodyMD>
-                          <BodyMD color="muted" className="text-xs">Instructor</BodyMD>
-                        </div>
-                      </div>
-
-                      {/* Duration and Students */}
-                      <Flex gap="md" className="text-sm text-gray-600 mb-6">
-                        <div className="flex items-center gap-1 bg-white/50 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
-                          <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <BodyMD className="font-medium">{course.duration}</BodyMD>
-                        </div>
-                        <div className="flex items-center gap-1 bg-white/50 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
-                          <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                          </svg>
-                          <BodyMD className="font-medium">{course.student_count}</BodyMD>
-                        </div>
-                      </Flex>
-
-                      {/* Price and Button */}
-                      <Flex align="center" justify="between" className="pt-4 border-t border-white/20">
-                        <Typography variant="display-sm" className="font-bold">
-                          ${course.price}
-                        </Typography>
-                        <Link href={`/courses/${course.id}`}>
-                          <button className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 rounded-xl font-bold transition-all duration-200 transform hover:scale-105 hover:-translate-y-1 shadow-lg hover:shadow-xl text-sm lg:text-base backdrop-blur-sm">
-                            View Course
-                          </button>
-                        </Link>
-                      </Flex>
-                    </div>
-                  </div>
-                </div>
+                <EnhancedCourseCard key={course.id} course={course} showProgress={true} />
               ))
             ) : (
               <div className="col-span-full text-center py-20">
