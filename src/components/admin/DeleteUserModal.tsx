@@ -49,8 +49,8 @@ export default function DeleteUserModal({ isOpen, onClose, onUserDeleted, user }
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
+            <div className="w-10 h-10 bg-destructive/20 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-primary" />
             </div>
             <div>
               <h2 className="text-xl font-semibold text-gray-900">Delete User</h2>
@@ -69,7 +69,7 @@ export default function DeleteUserModal({ isOpen, onClose, onUserDeleted, user }
         {/* Content */}
         <div className="p-6">
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+            <div className="bg-primary/5 border border-destructive/30 rounded-lg p-3 mb-4">
               <p className="text-red-800 text-sm">{error}</p>
             </div>
           )}
@@ -86,8 +86,8 @@ export default function DeleteUserModal({ isOpen, onClose, onUserDeleted, user }
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Role:</span>
                 <span className={`inline-flex px-2 py-1 rounded text-xs font-medium ${
-                  user.role === 'admin' ? 'bg-red-100 text-red-800' :
-                  user.role === 'instructor' ? 'bg-blue-100 text-blue-800' :
+                  user.role === 'admin' ? 'bg-destructive/20 text-red-800' :
+                  user.role === 'instructor' ? 'bg-secondary/10 text-secondary' :
                   'bg-green-100 text-green-800'
                 }`}>
                   {user.role}
@@ -112,7 +112,7 @@ export default function DeleteUserModal({ isOpen, onClose, onUserDeleted, user }
             <button
               onClick={handleDelete}
               disabled={loading}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+              className="flex-1 bg-primary hover:bg-primary/90 text-secondary px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
             >
               {loading ? (
                 <>

@@ -162,7 +162,7 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="surface-primary rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-subtle">
-        <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6 text-white">
+        <div className="bg-gradient-to-r from-secondary to-secondary/90 p-6 text-current">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold">Category Management</h2>
@@ -195,7 +195,7 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
                 })
                 setShowForm(true)
               }}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              className="bg-primary text-black px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
             >
               <Plus size={16} />
               Add Category
@@ -299,7 +299,7 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
                   <div className="flex gap-3 pt-4">
                     <button
                       type="submit"
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                      className="bg-primary text-black px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
                     >
                       <Save size={16} />
                       {editingCategory ? 'Update' : 'Create'} Category
@@ -310,7 +310,7 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
                         setShowForm(false)
                         setEditingCategory(null)
                       }}
-                      className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg transition-colors"
+                      className="bg-muted/40 hover:bg-muted/60 text-gray-700 px-6 py-2 rounded-lg transition-colors"
                     >
                       Cancel
                     </button>
@@ -347,7 +347,7 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
                       </button>
                       <button
                         onClick={() => handleDelete(category.id)}
-                        className="text-gray-400 hover:text-red-600 p-1 transition-colors"
+                        className="text-gray-400 hover:text-primary p-1 transition-colors"
                       >
                         <Trash2 size={14} />
                       </button>

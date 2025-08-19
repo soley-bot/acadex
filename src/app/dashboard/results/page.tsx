@@ -70,7 +70,7 @@ export default function AllResultsPage() {
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600 bg-green-100'
     if (score >= 60) return 'text-yellow-600 bg-yellow-100'
-    return 'text-red-600 bg-red-100'
+    return 'text-primary bg-destructive/20'
   }
 
   const getAverageScore = () => {
@@ -137,8 +137,8 @@ export default function AllResultsPage() {
               <div className="bg-white border rounded-lg shadow-sm">
                 <div className="p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <span className="text-blue-600 font-bold text-lg">T</span>
+                    <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
+                      <span className="text-secondary font-bold text-lg">T</span>
                     </div>
                     <div>
                       <p className="text-xs text-gray-600">Total Quizzes</p>
@@ -190,7 +190,7 @@ export default function AllResultsPage() {
                     {quizAttempts.map((attempt) => (
                       <div
                         key={attempt.id}
-                        className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors"
+                        className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-muted/40 transition-colors"
                       >
                         <div className="flex-1 min-w-0">
                           <h3 className="text-sm font-medium text-gray-900 mb-0.5 truncate">

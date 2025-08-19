@@ -51,10 +51,10 @@ export function PasswordStrengthMeter({ password, onValidationChange }: Password
     // Determine strength label and color
     if (strengthPercentage === 0) {
       setStrengthLabel('')
-      setStrengthColor('bg-gray-200')
+      setStrengthColor('bg-muted/60')
     } else if (strengthPercentage < 40) {
       setStrengthLabel('Weak')
-      setStrengthColor('bg-red-500')
+      setStrengthColor('bg-primary/50')
     } else if (strengthPercentage < 80) {
       setStrengthLabel('Good')
       setStrengthColor('bg-yellow-500')
@@ -78,7 +78,7 @@ export function PasswordStrengthMeter({ password, onValidationChange }: Password
           <span className="text-sm font-medium text-gray-700">Password Strength</span>
           {strengthLabel && (
             <span className={`text-sm font-medium ${
-              strengthLabel === 'Weak' ? 'text-red-600' :
+              strengthLabel === 'Weak' ? 'text-primary' :
               strengthLabel === 'Good' ? 'text-yellow-600' :
               'text-green-600'
             }`}>
@@ -86,7 +86,7 @@ export function PasswordStrengthMeter({ password, onValidationChange }: Password
             </span>
           )}
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-muted/60 rounded-full h-2">
           <div 
             className={`h-2 rounded-full transition-all duration-300 ${strengthColor}`}
             style={{ width: `${strength}%` }}
@@ -105,7 +105,7 @@ export function PasswordStrengthMeter({ password, onValidationChange }: Password
                 req.met 
                   ? 'bg-green-50 border border-green-200' 
                   : password.length > 0 
-                    ? 'bg-red-50 border border-red-200' 
+                    ? 'bg-primary/5 border border-destructive/30' 
                     : 'bg-white border border-gray-100'
               }`}
             >
@@ -113,8 +113,8 @@ export function PasswordStrengthMeter({ password, onValidationChange }: Password
                 req.met 
                   ? 'bg-green-500 text-white' 
                   : password.length > 0
-                    ? 'bg-red-500 text-white'
-                    : 'bg-gray-300 text-gray-500'
+                    ? 'bg-primary text-black'
+                    : 'bg-muted text-gray-500'
               }`}>
                 {req.met ? (
                   <Check className="w-3 h-3" />

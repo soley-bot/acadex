@@ -12,16 +12,16 @@ export default function Hero() {
     >
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-6000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-primary/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-warning/30 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-6000"></div>
       </div>
       
       <Container size="xl" className="relative text-center">
         <div className="max-w-4xl mx-auto">
           {/* Hero Badge */}
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-2 lg:px-6 lg:py-3 rounded-full text-sm lg:text-base font-medium mb-8 lg:mb-12 shadow-lg transform hover:scale-105 transition-all duration-200">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-4 py-2 lg:px-6 lg:py-3 rounded-full text-sm lg:text-base font-medium mb-8 lg:mb-12 shadow-lg transform hover:scale-105 transition-all duration-200">
             <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
             Made for Cambodian Learners
           </div>
@@ -29,7 +29,7 @@ export default function Hero() {
           {/* Main Heading */}
           <DisplayXL className="mb-8 lg:mb-12 leading-tight">
             Learn Real Skills,
-            <span className="block text-red-600 mt-4">
+            <span className="block text-primary mt-4">
               Your Way
             </span>
           </DisplayXL>
@@ -46,13 +46,13 @@ export default function Hero() {
           {/* CTA Buttons */}
           <Flex direction="col" gap="md" className="sm:flex-row justify-center mb-20 lg:mb-24">
             <Link href="/courses">
-              <button className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 lg:px-10 lg:py-5 rounded-2xl font-bold text-lg lg:text-xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 min-w-[200px]">
+              <button className="bg-primary hover:bg-secondary text-black hover:text-white px-8 py-4 lg:px-10 lg:py-5 rounded-2xl font-bold text-lg lg:text-xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 min-w-[200px]">
                 Browse Courses
                 <span className="ml-3 text-xl">→</span>
               </button>
             </Link>
             <Link href="/quizzes">
-              <button className="border-2 border-red-600 text-red-600 bg-white/80 backdrop-blur-sm hover:bg-red-600 hover:text-white px-8 py-4 lg:px-10 lg:py-5 rounded-2xl font-bold text-lg lg:text-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 min-w-[200px] flex items-center justify-center">
+              <button className="border-2 border-secondary text-secondary bg-white/80 backdrop-blur-sm hover:bg-primary hover:text-black px-8 py-4 lg:px-10 lg:py-5 rounded-2xl font-bold text-lg lg:text-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 min-w-[200px] flex items-center justify-center">
                 Try Our Quiz
                 <span className="ml-3"></span>
               </button>
@@ -89,7 +89,7 @@ export default function Hero() {
                 className="mb-8 lg:mb-12 pb-6 lg:pb-8 border-b border-gray-200"
               >
                 <Flex align="center" gap="md">
-                  <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-secondary to-secondary/90 rounded-2xl flex items-center justify-center shadow-lg">
                     <Icon name="target" size={32} color="white" />
                   </div>
                   <div>
@@ -97,7 +97,7 @@ export default function Hero() {
                     <BodyMD color="muted">Your personalized learning journey</BodyMD>
                   </div>
                 </Flex>
-                <BodyMD color="muted" className="font-medium bg-gray-100 px-3 py-1 rounded-full">Today</BodyMD>
+                <BodyMD color="muted" className="font-medium bg-muted/40 px-3 py-1 rounded-full">Today</BodyMD>
               </Flex>
               
               {/* Course Progress Grid */}
@@ -105,20 +105,20 @@ export default function Hero() {
                 <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 lg:p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
                   <Flex align="center" justify="between" className="mb-4 lg:mb-6">
                     <H3>Everyday English</H3>
-                    <Typography variant="body-md" color="primary" className="font-bold bg-red-50 px-3 py-1 lg:px-4 lg:py-2 rounded-full">70%</Typography>
+                    <Typography variant="body-md" color="primary" className="font-bold bg-primary/10 px-3 py-1 lg:px-4 lg:py-2 rounded-full">70%</Typography>
                   </Flex>
-                  <div className="w-full bg-gray-200 rounded-full h-3 lg:h-4">
-                    <div className="bg-gradient-to-r from-red-600 to-red-700 h-3 lg:h-4 rounded-full transition-all duration-500 shadow-sm" style={{ width: '70%' }}></div>
+                  <div className="w-full bg-muted/60 rounded-full h-3 lg:h-4">
+                    <div className="bg-gradient-to-r from-primary to-primary/90 h-3 lg:h-4 rounded-full transition-all duration-500 shadow-sm" style={{ width: '70%' }}></div>
                   </div>
                 </div>
                 
                 <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 lg:p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
                   <Flex align="center" justify="between" className="mb-4 lg:mb-6">
                     <H3>Study Skills</H3>
-                    <Typography variant="body-md" color="primary" className="font-bold bg-red-50 px-3 py-1 lg:px-4 lg:py-2 rounded-full">45%</Typography>
+                    <Typography variant="body-md" color="primary" className="font-bold bg-primary/10 px-3 py-1 lg:px-4 lg:py-2 rounded-full">45%</Typography>
                   </Flex>
-                  <div className="w-full bg-gray-200 rounded-full h-3 lg:h-4">
-                    <div className="bg-gradient-to-r from-red-600 to-red-700 h-3 lg:h-4 rounded-full transition-all duration-500 shadow-sm" style={{ width: '45%' }}></div>
+                  <div className="w-full bg-muted/60 rounded-full h-3 lg:h-4">
+                    <div className="bg-gradient-to-r from-primary to-primary/90 h-3 lg:h-4 rounded-full transition-all duration-500 shadow-sm" style={{ width: '45%' }}></div>
                   </div>
                 </div>
               </Grid>
@@ -127,14 +127,14 @@ export default function Hero() {
               <Flex 
                 align="center" 
                 gap="md" 
-                className="p-6 lg:p-8 bg-gradient-to-r from-gray-700 to-gray-600 rounded-2xl text-white shadow-xl"
+                className="p-6 lg:p-8 bg-gradient-to-r from-primary/5 via-white to-secondary/5 rounded-2xl text-secondary shadow-xl"
               >
-                <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-red-600 to-red-700 rounded-full flex items-center justify-center shadow-lg">
-                  <Icon name="trophy" size={32} color="white" />
+                <div className="w-12 h-12 lg:w-16 lg:h-16 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                  <Icon name="trophy" size={32} color="gray-900" />
                 </div>
                 <div>
-                  <Typography variant="h3" className="text-white mb-1">Great progress!</Typography>
-                  <BodyMD className="text-gray-300">You completed 3 lessons this week</BodyMD>
+                  <Typography variant="h3" className="text-secondary mb-1">Great progress!</Typography>
+                  <BodyMD className="text-gray-600">You completed 3 lessons this week</BodyMD>
                 </div>
               </Flex>
             </div>

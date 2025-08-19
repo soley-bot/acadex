@@ -82,19 +82,19 @@ export default function ContactPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
       
       {/* Hero Section */}
       <Section className="relative" background="transparent" spacing="lg">
         <Container size="lg" className="relative">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
               <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
               Contact Us
             </div>
@@ -103,7 +103,7 @@ export default function ContactPage() {
               Get in Touch
             </DisplayLG>
             
-            <H2 className="text-red-600 mb-8">
+            <H2 className="text-primary mb-8">
               We&apos;re Here to Listen — Not Just Sell
             </H2>
             
@@ -127,10 +127,10 @@ export default function ContactPage() {
               {success && (
                 <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-4 mb-6 shadow-xl border border-white/20">
                   <Flex align="center" gap="sm">
-                    <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+                    <div className="w-6 h-6 bg-success rounded-full flex items-center justify-center">
                       <Icon name="check" size={16} color="white" />
                     </div>
-                    <BodyMD className="text-green-800 font-medium">
+                    <BodyMD className="text-success font-medium">
                       Thank you for your message! We&apos;ll get back to you within 1-2 business days.
                     </BodyMD>
                   </Flex>
@@ -140,10 +140,10 @@ export default function ContactPage() {
               {error && (
                 <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-4 mb-6 shadow-xl border border-white/20">
                   <Flex align="center" gap="sm">
-                    <div className="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center">
+                    <div className="w-6 h-6 bg-destructive rounded-full flex items-center justify-center">
                       <Icon name="close" size={16} color="white" />
                     </div>
-                    <BodyMD className="text-red-800 font-medium">{error}</BodyMD>
+                    <BodyMD className="text-destructive font-medium">{error}</BodyMD>
                   </Flex>
                 </div>
               )}
@@ -160,7 +160,7 @@ export default function ContactPage() {
                     required
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white/50 backdrop-blur-sm"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary bg-white/50 backdrop-blur-sm"
                     placeholder="Your full name"
                   />
                 </div>
@@ -176,7 +176,7 @@ export default function ContactPage() {
                     required
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white/50 backdrop-blur-sm"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary bg-white/50 backdrop-blur-sm"
                     placeholder="your.email@example.com"
                   />
                 </div>
@@ -191,7 +191,7 @@ export default function ContactPage() {
                     required
                     value={formData.subject}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white/50 backdrop-blur-sm"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary bg-white/50 backdrop-blur-sm"
                   >
                     <option value="">Select a subject</option>
                     <option value="general">General Question</option>
@@ -213,7 +213,7 @@ export default function ContactPage() {
                     rows={6}
                     value={formData.message}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white/50 backdrop-blur-sm resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary bg-white/50 backdrop-blur-sm resize-none"
                     placeholder="Tell us how we can help you..."
                   />
                 </div>
@@ -221,7 +221,7 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-gray-900 font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <Flex align="center" justify="center" gap="sm">
@@ -241,19 +241,19 @@ export default function ContactPage() {
               {/* Email */}
               <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20">
                 <Flex align="center" gap="md" className="mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary/90 rounded-2xl flex items-center justify-center shadow-lg">
                     <Icon name="mail" size={24} color="white" />
                   </div>
                   <H3>Email Us</H3>
                 </Flex>
                 <BodyMD className="text-gray-600 mb-2" color="muted">Send us an email anytime</BodyMD>
-                <BodyLG className="text-red-600 font-medium">acadex@gmail.com</BodyLG>
+                <BodyLG className="text-primary font-medium">acadex@gmail.com</BodyLG>
               </div>
 
               {/* Support Hours */}
               <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20">
                 <Flex align="center" gap="md" className="mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary/90 rounded-2xl flex items-center justify-center shadow-lg">
                     <Icon name="clock" size={24} color="white" />
                   </div>
                   <H3>Support Hours</H3>
@@ -270,7 +270,7 @@ export default function ContactPage() {
               {/* Response Time */}
               <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-xl border border-white/20">
                 <Flex align="center" gap="md" className="mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary/90 rounded-2xl flex items-center justify-center shadow-lg">
                     <Icon name="timer" size={24} color="white" />
                   </div>
                   <H3>Response Time</H3>

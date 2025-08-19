@@ -65,9 +65,9 @@ export default function AdminUsers() {
 
   const getRoleBadge = (role: string) => {
     const colors = {
-      admin: 'bg-red-100 text-red-800',
-      instructor: 'bg-red-100 text-red-800',
-      student: 'bg-red-100 text-red-800'
+      admin: 'bg-destructive/20 text-red-800',
+      instructor: 'bg-destructive/20 text-red-800',
+      student: 'bg-destructive/20 text-red-800'
     }
     return colors[role as keyof typeof colors] || colors.student
   }
@@ -84,7 +84,7 @@ export default function AdminUsers() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex items-center gap-2 bg-white p-8 rounded-xl shadow-lg border border-gray-200">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600"></div>
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
           <span className="text-gray-700 font-medium">Loading users...</span>
         </div>
       </div>
@@ -98,7 +98,7 @@ export default function AdminUsers() {
           <p className="text-red-700 font-bold">Error loading users: {error}</p>
           <button 
             onClick={fetchUsers}
-            className="mt-3 text-red-600 hover:text-red-700 underline font-bold bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors"
+            className="mt-3 text-primary hover:text-primary/80 underline font-bold bg-primary/5 hover:bg-destructive/20 px-3 py-2 rounded-lg transition-colors"
           >
             Try again
           </button>
@@ -117,7 +117,7 @@ export default function AdminUsers() {
           </div>
           <button 
             onClick={() => setShowAddUser(true)}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-bold shadow-md hover:shadow-lg"
+            className="bg-primary hover:bg-primary/90 text-secondary px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-bold shadow-md hover:shadow-lg"
           >
             <Icon name="add" size={16} color="white" />
             Add User
@@ -186,13 +186,13 @@ export default function AdminUsers() {
             placeholder="Search users by name or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600"
+            className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-primary"
           />
         </div>
         <select 
           value={roleFilter} 
           onChange={(e) => setRoleFilter(e.target.value)}
-          className="px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-red-600"
+          className="px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-primary"
         >
           <option value="all">All Roles</option>
           <option value="admin">Admin</option>
@@ -210,7 +210,7 @@ export default function AdminUsers() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-100">
+              <thead className="bg-muted/40">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Name
@@ -253,7 +253,7 @@ export default function AdminUsers() {
                     <tr key={user.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 rounded-full bg-red-600 flex items-center justify-center">
+                          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
                             <span className="text-sm font-bold text-white">
                               {user.name.split(' ').map(n => n[0]).join('')}
                             </span>
@@ -270,7 +270,7 @@ export default function AdminUsers() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex px-2 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800">
+                        <span className="inline-flex px-2 py-1 text-xs font-bold rounded-full bg-destructive/20 text-red-800">
                           active
                         </span>
                       </td>
@@ -287,13 +287,13 @@ export default function AdminUsers() {
                         <div className="flex space-x-2">
                           <button 
                             onClick={() => handleEditUser(user)}
-                            className="text-red-600 hover:text-red-700 transition-colors"
+                            className="text-primary hover:text-primary/80 transition-colors"
                           >
                             Edit
                           </button>
                           <button 
                             onClick={() => handleDeleteUser(user)}
-                            className="text-red-600 hover:text-red-700 transition-colors"
+                            className="text-primary hover:text-primary/80 transition-colors"
                           >
                             Delete
                           </button>

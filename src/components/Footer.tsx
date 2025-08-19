@@ -18,10 +18,10 @@ export default function Footer() {
   const displayYear = isClient ? new Date().getFullYear() : 2025
 
   return (
-    <footer className="relative bg-gradient-to-br from-gray-800 via-gray-700 to-gray-600 overflow-hidden">
+    <footer className="relative bg-white overflow-hidden">
       {/* Background Elements */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-red-600/20 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-orange-600/20 rounded-full blur-3xl"></div>
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"></div>
       
       {/* Main Footer */}
       <Container size="xl" className="relative py-16">
@@ -30,20 +30,20 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center space-x-3 mb-6 group">
               <span className="text-3xl font-black tracking-tight">
-                <span className="text-white">ACAD</span>
-                <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">E</span>
-                <span className="text-white">X</span>
+                <span className="text-secondary">ACAD</span>
+                <span className="text-[hsl(var(--primary))]">E</span>
+                <span className="text-secondary">X</span>
               </span>
             </Link>
-            <BodyLG color="muted-light" className="mb-6 leading-relaxed">
+            <BodyLG color="muted" className="mb-6 leading-relaxed">
               Built from scratch for Cambodian learners.
               Simple lessons. Real skills. No pressure.
             </BodyLG>
             <div className="mb-8">
-              <BodyMD color="muted-light" className="mb-2">
+              <BodyMD color="muted" className="mb-2">
                 Email: acadex@gmail.com
               </BodyMD>
-              <BodyMD color="muted-light">
+              <BodyMD color="muted">
                 Based in Phnom Penh, Cambodia
               </BodyMD>
             </div>
@@ -51,7 +51,7 @@ export default function Footer() {
 
           {/* Courses */}
           <div>
-            <H3 className="mb-6 text-white">Courses</H3>
+            <H3 className="mb-6 text-secondary">Courses</H3>
             <ul className="space-y-4">
               {[
                 { name: "English for Daily Use", href: "/courses/english-daily" },
@@ -62,9 +62,9 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="hover:text-white transition-colors duration-200"
+                    className="hover:text-secondary transition-colors duration-200"
                   >
-                    <BodyMD color="muted-light">{link.name}</BodyMD>
+                    <BodyMD color="muted">{link.name}</BodyMD>
                   </Link>
                 </li>
               ))}
@@ -73,7 +73,7 @@ export default function Footer() {
 
           {/* Support */}
           <div>
-            <H3 className="mb-6 text-white">Support</H3>
+            <H3 className="mb-6 text-secondary">Support</H3>
             <ul className="space-y-4">
               {[
                 { name: "Help Center (coming soon)", href: "#" },
@@ -84,9 +84,9 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="hover:text-red-400 transition-colors duration-300 font-medium"
+                    className="hover:text-primary transition-colors duration-300 font-medium"
                   >
-                    <BodyMD color="muted-light">{link.name}</BodyMD>
+                    <BodyMD color="muted">{link.name}</BodyMD>
                   </Link>
                 </li>
               ))}
@@ -95,7 +95,7 @@ export default function Footer() {
 
           {/* Company */}
           <div>
-            <H3 className="mb-6 text-white">Company</H3>
+            <H3 className="mb-6 text-secondary">Company</H3>
             <ul className="space-y-4">
               {[
                 { name: "About Acadex", href: "/about" },
@@ -105,9 +105,9 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="hover:text-red-400 transition-colors duration-300 font-medium"
+                    className="hover:text-primary transition-colors duration-300 font-medium"
                   >
-                    <BodyMD color="muted-light">{link.name}</BodyMD>
+                    <BodyMD color="muted">{link.name}</BodyMD>
                   </Link>
                 </li>
               ))}
@@ -117,11 +117,11 @@ export default function Footer() {
       </Container>
 
       {/* Newsletter Section */}
-      <div className="relative border-t border-white/20">
+      <div className="relative border-t border-gray-200">
         <Container size="xl" className="py-12">
           <div className="text-center">
-            <H2 className="mb-4 text-white">Join Our Learning Community</H2>
-            <BodyLG color="muted-light" className="mb-8 max-w-3xl mx-auto leading-relaxed">
+            <H2 className="mb-4 text-secondary">Join Our Learning Community</H2>
+            <BodyLG color="muted" className="mb-8 max-w-3xl mx-auto leading-relaxed">
               Get tips, mini-lessons, and new course updates — sent right to your inbox.
             </BodyLG>
             <div className="max-w-lg mx-auto">
@@ -129,9 +129,9 @@ export default function Footer() {
                 <input 
                   type="email" 
                   placeholder="Enter your email"
-                  className="flex-1 px-4 py-3 sm:px-6 sm:py-4 border border-white/30 backdrop-blur-lg bg-white/20 text-white rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder-gray-200 font-medium text-sm sm:text-base"
+                  className="flex-1 px-4 py-3 sm:px-6 sm:py-4 border border-gray-300 bg-white text-secondary rounded-xl focus:ring-2 focus:ring-primary focus:border-primary placeholder-gray-500 font-medium text-sm sm:text-base"
                 />
-                <button className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base whitespace-nowrap">
+                <button className="bg-primary hover:bg-secondary text-black hover:text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base whitespace-nowrap">
                   Subscribe
                 </button>
               </Flex>
@@ -141,10 +141,10 @@ export default function Footer() {
       </div>
 
       {/* Bottom Footer */}
-      <div className="relative border-t border-white/20">
+      <div className="relative border-t border-gray-200">
         <Container size="xl" className="py-8">
           <Flex direction="col" align="center" justify="between" className="md:flex-row gap-4 md:gap-0">
-            <BodyMD color="muted-light" className="font-medium text-center md:text-left">
+            <BodyMD color="muted" className="font-medium text-center md:text-left">
               © {displayYear} Acadex. All rights reserved.
               <br className="sm:hidden" />
               <span className="block sm:inline sm:ml-2">Made with love in Cambodia. Powered by persistence.</span>
@@ -158,9 +158,9 @@ export default function Footer() {
                 <Link 
                   key={link.name}
                   href={link.href} 
-                  className="hover:text-red-400 transition-colors duration-300 font-medium text-sm"
+                  className="hover:text-primary transition-colors duration-300 font-medium text-sm"
                 >
-                  <BodyMD color="muted-light">{link.name}</BodyMD>
+                  <BodyMD color="muted">{link.name}</BodyMD>
                 </Link>
               ))}
             </Flex>

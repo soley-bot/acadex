@@ -92,7 +92,7 @@ export default function PerformancePreviewPage() {
               className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                 isClearing
                   ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                  : 'bg-red-500 hover:bg-red-600 text-white'
+                  : 'bg-primary/50 hover:bg-primary text-secondary'
               }`}
             >
               {isClearing ? '🧹 Clearing...' : '🧹 Clear All Caches'}
@@ -164,7 +164,7 @@ export default function PerformancePreviewPage() {
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">{query}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{data.avg}ms</td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        <span className={data.max > 1000 ? 'text-red-600 font-bold' : data.max > 500 ? 'text-yellow-600' : 'text-green-600'}>
+                        <span className={data.max > 1000 ? 'text-primary font-bold' : data.max > 500 ? 'text-yellow-600' : 'text-green-600'}>
                           {data.max}ms
                         </span>
                       </td>
@@ -173,7 +173,7 @@ export default function PerformancePreviewPage() {
                         <span className={`px-2 py-1 rounded-full text-xs ${
                           data.avg < 200 ? 'bg-green-100 text-green-800' :
                           data.avg < 500 ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
+                          'bg-destructive/20 text-red-800'
                         }`}>
                           {data.avg < 200 ? '🚀 Fast' : data.avg < 500 ? '⚡ Good' : '🐌 Slow'}
                         </span>
@@ -219,7 +219,7 @@ export default function PerformancePreviewPage() {
           <h2 className="text-2xl font-semibold text-blue-900 mb-4">🎯 Performance Optimization Results</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
             <div>
-              <h3 className="font-semibold text-blue-800 mb-2">✅ Implemented Optimizations:</h3>
+              <h3 className="font-semibold text-secondary mb-2">✅ Implemented Optimizations:</h3>
               <ul className="space-y-1 text-blue-700">
                 <li>• Database indexes for faster queries</li>
                 <li>• Selective field fetching (.select specific fields)</li>
@@ -232,7 +232,7 @@ export default function PerformancePreviewPage() {
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-blue-800 mb-2">📈 Expected Improvements:</h3>
+              <h3 className="font-semibold text-secondary mb-2">📈 Expected Improvements:</h3>
               <ul className="space-y-1 text-blue-700">
                 <li>• Quiz page: 3-5s → 200-500ms (90% faster)</li>
                 <li>• Course page: 2-4s → 300-600ms (85% faster)</li>
@@ -262,7 +262,7 @@ const TestLink: React.FC<{
     <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
     <p className="text-gray-600 text-sm mb-3">{description}</p>
     <div className="flex items-center justify-between">
-      <span className="text-xs text-blue-600 font-medium">{metrics}</span>
+      <span className="text-xs text-secondary font-medium">{metrics}</span>
       <span className="text-[#ff5757] font-medium">Test →</span>
     </div>
   </Link>

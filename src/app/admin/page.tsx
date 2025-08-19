@@ -110,17 +110,17 @@ export default function AdminDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10">
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center bg-white p-8 rounded-2xl shadow-xl border border-gray-200 max-w-md mx-auto">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-destructive/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <Icon name="warning" size={24} color="error" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to Load Dashboard</h3>
-            <p className="text-red-600 mb-4 text-sm">{error}</p>
+            <p className="text-primary mb-4 text-sm">{error}</p>
             <button 
               onClick={fetchDashboardStats}
-              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-md hover:shadow-lg"
+              className="bg-primary hover:bg-primary/90 text-secondary px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-md hover:shadow-lg"
             >
             </button>
           </div>
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
       value: stats.totalUsers.toLocaleString(),
       description: 'Registered learners',
       icon: 'users',
-      color: 'text-blue-600',
+      color: 'text-secondary',
       bgColor: 'bg-blue-50'
     },
     {
@@ -175,8 +175,8 @@ export default function AdminDashboard() {
       value: `$${stats.totalRevenue.toLocaleString()}`,
       description: 'Platform earnings',
       icon: 'dollar',
-      color: 'text-red-600',
-      bgColor: 'bg-red-50'
+      color: 'text-primary',
+      bgColor: 'bg-primary/5'
     }
   ]
 
@@ -232,7 +232,7 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center p-3 rounded-lg bg-blue-50 border border-blue-100">
-                <div className="w-3 h-3 bg-blue-600 rounded-full mr-4"></div>
+                <div className="w-3 h-3 bg-secondary rounded-full mr-4"></div>
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-gray-900">New user registered</p>
                   <p className="text-xs text-gray-500">2 minutes ago</p>
@@ -266,10 +266,10 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 group">
+              <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-primary/10 transition-all duration-200 group">
                 <div className="flex items-center">
-                  <div className="bg-blue-100 p-2 rounded-lg mr-3 group-hover:bg-blue-200 transition-colors">
-                    <Icon name="user" size={20} color="current" className="text-blue-600" />
+                  <div className="bg-secondary/10 p-2 rounded-lg mr-3 group-hover:bg-primary/20 transition-colors">
+                    <Icon name="user" size={20} color="current" className="text-secondary" />
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">Add New User</div>

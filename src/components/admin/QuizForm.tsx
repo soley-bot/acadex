@@ -674,7 +674,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           {autoSaving && (
-            <div className="flex items-center gap-2 text-blue-600 text-sm">
+            <div className="flex items-center gap-2 text-secondary text-sm">
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-300 border-t-blue-600"></div>
               Auto-saving...
             </div>
@@ -712,13 +712,13 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
               onClick={() => setActiveTab(tab as any)}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 capitalize ${
                 activeTab === tab
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-blue-500 text-secondary'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
               {tab === 'questions' ? `Questions (${questions.length})` : tab}
               {tab === 'questions' && errors.some(e => e.questionIndex !== undefined) && (
-                <span className="ml-2 inline-flex items-center justify-center w-2 h-2 bg-red-500 rounded-full"></span>
+                <span className="ml-2 inline-flex items-center justify-center w-2 h-2 bg-primary/50 rounded-full"></span>
               )}
             </button>
           ))}
@@ -727,7 +727,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
 
       {/* Error Summary */}
       {errors.length > 0 && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mb-6 p-4 bg-primary/5 border border-destructive/30 rounded-lg">
           <div className="flex items-center gap-2 text-red-800 font-medium mb-2">
             <AlertCircle className="h-5 w-5" />
             Please fix the following issues:
@@ -761,7 +761,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                     value={formData.title}
                     onChange={(e) => updateFormData('title', e.target.value)}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                      errors.some(e => e.field === 'title') ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      errors.some(e => e.field === 'title') ? 'border-red-300 bg-primary/5' : 'border-gray-300'
                     }`}
                     placeholder="Enter quiz title"
                     required
@@ -776,7 +776,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                     value={formData.category}
                     onChange={(e) => updateFormData('category', e.target.value)}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                      errors.some(e => e.field === 'category') ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      errors.some(e => e.field === 'category') ? 'border-red-300 bg-primary/5' : 'border-gray-300'
                     }`}
                     required
                   >
@@ -802,7 +802,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                 onChange={(e) => updateFormData('description', e.target.value)}
                 rows={4}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                  errors.some(e => e.field === 'description') ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                  errors.some(e => e.field === 'description') ? 'border-red-300 bg-primary/5' : 'border-gray-300'
                 }`}
                 placeholder="Describe what this quiz covers..."
                 required
@@ -837,7 +837,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                   min="1"
                   max="180"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                    errors.some(e => e.field === 'duration_minutes') ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                    errors.some(e => e.field === 'duration_minutes') ? 'border-red-300 bg-primary/5' : 'border-gray-300'
                   }`}
                 />
               </div>
@@ -864,7 +864,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                 id="is_published"
                 checked={formData.is_published}
                 onChange={(e) => updateFormData('is_published', e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 text-secondary focus:ring-blue-500 border-gray-300 rounded"
               />
               <label htmlFor="is_published" className="ml-2 block text-sm text-gray-900">
                 Publish quiz (make visible to students)
@@ -891,7 +891,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                   <button
                     type="button"
                     onClick={() => addQuestion('multiple_choice')}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors"
                   >
                     <Plus className="h-4 w-4" />
                     Add Question
@@ -905,7 +905,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                           key={type}
                           type="button"
                           onClick={() => addQuestion(type as QuestionType)}
-                          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-muted/40 rounded-md transition-colors"
                         >
                           {label}
                         </button>
@@ -934,7 +934,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                     <button
                       type="button"
                       onClick={() => addQuestion('multiple_choice')}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors"
                     >
                       <Plus className="h-4 w-4" />
                       Add Question
@@ -967,7 +967,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                 : 'border-gray-100 hover:border-gray-200'
                             } ${
                               errors.some(e => e.questionIndex === questionIndex) 
-                                ? 'border-red-200 bg-red-50/30' 
+                                ? 'border-destructive/30 bg-primary/5/30' 
                                 : ''
                             }`}
                           >
@@ -982,7 +982,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                 </div>
                                 <div className="flex items-center gap-3">
                                   <div className="flex items-center gap-2">
-                                    <span className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                                    <span className="flex items-center justify-center w-6 h-6 bg-secondary/10 text-blue-700 text-xs font-medium rounded-full">
                                       {questionIndex + 1}
                                     </span>
                                     <div>
@@ -996,7 +996,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                     </div>
                                   </div>
                                   {errors.some(e => e.questionIndex === questionIndex) && (
-                                    <AlertCircle className="h-4 w-4 text-red-500" />
+                                    <AlertCircle className="h-4 w-4 text-destructive" />
                                   )}
                                 </div>
                               </div>
@@ -1005,7 +1005,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                 <button
                                   type="button"
                                   onClick={() => duplicateQuestion(questionIndex)}
-                                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
+                                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-muted/40 rounded-lg transition-all"
                                   title="Duplicate question"
                                 >
                                   <Copy className="h-4 w-4" />
@@ -1013,7 +1013,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                 <button
                                   type="button"
                                   onClick={() => toggleQuestionExpansion(questionIndex)}
-                                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
+                                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-muted/40 rounded-lg transition-all"
                                 >
                                   {expandedQuestions.has(questionIndex) ? 
                                     <ChevronUp className="h-4 w-4" /> : 
@@ -1023,7 +1023,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                 <button
                                   type="button"
                                   onClick={() => deleteQuestion(questionIndex)}
-                                  className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                  className="p-2 text-red-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </button>
@@ -1044,7 +1044,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                     rows={3}
                                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                                       errors.some(e => e.questionIndex === questionIndex && e.field === 'question') 
-                                        ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                        ? 'border-red-300 bg-primary/5' : 'border-gray-300'
                                     }`}
                                     placeholder="Enter your question..."
                                   />
@@ -1149,7 +1149,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                                 updateQuestion(questionIndex, 'correct_answer', optionIndex)
                                               }
                                             }}
-                                            className="h-4 w-4 text-blue-600"
+                                            className="h-4 w-4 text-secondary"
                                           />
                                           <input
                                             type="text"
@@ -1161,7 +1161,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                             }}
                                             className={`flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                                               errors.some(e => e.questionIndex === questionIndex && e.field === 'options') 
-                                                ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                                ? 'border-red-300 bg-primary/5' : 'border-gray-300'
                                             }`}
                                             placeholder={`Option ${optionIndex + 1}`}
                                           />
@@ -1178,7 +1178,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                                   .map(i => i > optionIndex ? i - 1 : i)
                                                 updateQuestion(questionIndex, 'correct_answer', newAnswers)
                                               }}
-                                              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                                              className="p-2 text-gray-400 hover:text-destructive transition-colors"
                                             >
                                               <Trash2 className="h-4 w-4" />
                                             </button>
@@ -1268,7 +1268,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                                   const newOptions = currentOptions.filter((_, i) => i !== pairIndex)
                                                   updateQuestion(questionIndex, 'options', newOptions)
                                                 }}
-                                                className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                                                className="p-2 text-gray-400 hover:text-destructive transition-colors"
                                               >
                                                 <Trash2 className="h-4 w-4" />
                                               </button>
@@ -1306,7 +1306,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                     <div className="space-y-2">
                                       {(question.options as string[]).map((item, itemIndex) => (
                                         <div key={itemIndex} className="flex items-center gap-3">
-                                          <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded text-sm font-medium">
+                                          <div className="flex items-center justify-center w-8 h-8 bg-muted/40 rounded text-sm font-medium">
                                             {itemIndex + 1}
                                           </div>
                                           <input
@@ -1366,7 +1366,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                                   const newOptions = (question.options as string[]).filter((_, i) => i !== itemIndex)
                                                   updateQuestion(questionIndex, 'options', newOptions)
                                                 }}
-                                                className="p-2 text-gray-400 hover:text-red-500 transition-colors bg-gray-50 rounded border"
+                                                className="p-2 text-gray-400 hover:text-destructive transition-colors bg-gray-50 rounded border"
                                                 title="Remove item"
                                               >
                                                 <Trash2 className="h-4 w-4" />
@@ -1401,7 +1401,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                       onChange={(e) => updateQuestion(questionIndex, 'correct_answer', e.target.value)}
                                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                                         errors.some(e => e.questionIndex === questionIndex && e.field === 'correct_answer') 
-                                          ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                                          ? 'border-red-300 bg-primary/5' : 'border-gray-300'
                                       }`}
                                       placeholder="Enter the correct answer..."
                                     />
@@ -1528,7 +1528,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
             <button
               type="submit"
               disabled={loading || errors.length > 0}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium"
+              className="px-6 py-2 bg-secondary hover:bg-secondary/90 text-white rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium"
             >
               {loading ? (
                 <>

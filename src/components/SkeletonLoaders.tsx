@@ -13,7 +13,7 @@ export const SkeletonBase: React.FC<{
   className?: string 
   children?: React.ReactNode 
 }> = ({ className = '', children }) => (
-  <div className={`animate-pulse bg-gray-200 rounded ${className}`}>
+  <div className={`animate-pulse bg-muted/60 rounded ${className}`}>
     {children}
   </div>
 );

@@ -68,7 +68,7 @@ function CacheStatsDisplay({ title, cache, color }: CacheStatsDisplayProps) {
               <span className="font-medium">{stats.stale}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-red-600">Expired</span>
+              <span className="text-primary">Expired</span>
               <span className="font-medium">{stats.expired}</span>
             </div>
           </div>
@@ -100,7 +100,7 @@ function CacheStatsDisplay({ title, cache, color }: CacheStatsDisplayProps) {
               variant="outline"
               size="sm"
               onClick={clearCache}
-              className="flex-1 text-red-600 hover:text-red-700"
+              className="flex-1 text-primary hover:text-primary/80"
             >
               <Trash2 className="w-4 h-4 mr-1" />
               Clear

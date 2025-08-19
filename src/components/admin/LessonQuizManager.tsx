@@ -280,14 +280,14 @@ export function LessonQuizManager({ lessonId, lessonTitle, onQuizUpdated }: Less
     return (
       <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-purple-700 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Book className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-gradient-to-r from-secondary to-secondary/90 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Book className="w-8 h-8 text-current" />
           </div>
           <h3 className="text-lg font-bold text-gray-900 mb-2">No Quiz Available</h3>
           <p className="text-gray-600 mb-6">Create a quiz to test student understanding of this lesson.</p>
           <button
             onClick={handleCreateQuiz}
-            className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 mx-auto transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+            className="bg-gradient-to-r from-secondary to-secondary/90 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 mx-auto transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
           >
             <Plus className="w-5 h-5" />
             Create Lesson Quiz
@@ -302,8 +302,8 @@ export function LessonQuizManager({ lessonId, lessonTitle, onQuizUpdated }: Less
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-purple-700 rounded-full flex items-center justify-center">
-            <CheckCircle className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 bg-gradient-to-r from-secondary to-secondary/90 rounded-full flex items-center justify-center">
+            <CheckCircle className="w-5 h-5 text-current" />
           </div>
           <div>
             <h3 className="text-lg font-bold text-gray-900">Lesson Quiz</h3>
@@ -324,14 +324,14 @@ export function LessonQuizManager({ lessonId, lessonTitle, onQuizUpdated }: Less
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsEditing(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+              className="bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
             >
               <Edit3 className="w-4 h-4" />
               Edit
             </button>
             <button
               onClick={handleDeleteQuiz}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+              className="bg-primary hover:bg-primary/90 text-secondary px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
             >
               <Trash2 className="w-4 h-4" />
               Delete
@@ -341,7 +341,7 @@ export function LessonQuizManager({ lessonId, lessonTitle, onQuizUpdated }: Less
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div className="bg-primary/5 border border-destructive/30 rounded-lg p-4 mb-6">
           <p className="text-red-800 text-sm">{error}</p>
         </div>
       )}
@@ -396,7 +396,7 @@ export function LessonQuizManager({ lessonId, lessonTitle, onQuizUpdated }: Less
               <h4 className="text-md font-bold text-gray-900">Questions</h4>
               <button
                 onClick={addQuestion}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+                className="bg-primary text-black px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Add Question
@@ -410,7 +410,7 @@ export function LessonQuizManager({ lessonId, lessonTitle, onQuizUpdated }: Less
                   {quiz.questions.length > 1 && (
                     <button
                       onClick={() => removeQuestion(qIndex)}
-                      className="text-red-600 hover:text-red-700 p-1"
+                      className="text-primary hover:text-primary/80 p-1"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -492,7 +492,7 @@ export function LessonQuizManager({ lessonId, lessonTitle, onQuizUpdated }: Less
             <button
               onClick={handleSaveQuiz}
               disabled={loading}
-              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:transform-none"
+              className="bg-gradient-to-r from-secondary to-secondary/90 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:transform-none"
             >
               {loading ? (
                 <>

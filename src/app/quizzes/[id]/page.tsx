@@ -63,9 +63,9 @@ export default function QuizPage() {
       case 'medium':
         return 'bg-yellow-100 text-yellow-800'
       case 'hard':
-        return 'bg-red-100 text-red-800'
+        return 'bg-destructive/20 text-red-800'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-muted/40 text-gray-800'
     }
   }
 
@@ -81,17 +81,17 @@ export default function QuizPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         
         <Section spacing="lg" className="pt-24 px-6 lg:px-8 overflow-hidden">
           <Container size="md" className="text-center">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
               <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
               Quiz Loading
             </div>
@@ -107,22 +107,22 @@ export default function QuizPage() {
 
   if (error || !quiz) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         
         <Section spacing="lg" className="pt-24 px-6 lg:px-8">
           <Container size="md" className="text-center">
             <div className="bg-white/80 backdrop-blur-lg border border-red-200 rounded-2xl p-12 max-w-md mx-auto shadow-xl">
-              <H1 className="mb-6 text-red-600">Quiz Not Found</H1>
+              <H1 className="mb-6 text-primary">Quiz Not Found</H1>
               <BodyLG color="muted" className="mb-8">{error || 'The quiz you are looking for does not exist.'}</BodyLG>
               <Link
                 href="/quizzes"
-                className="inline-block px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
+                className="inline-block px-8 py-4 bg-gradient-to-r from-primary to-primary/90 text-gray-900 font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
               >
                 Back to Quizzes
               </Link>
@@ -134,12 +134,12 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
 
       {/* Streamlined Quiz Start */}
@@ -147,11 +147,11 @@ export default function QuizPage() {
         <Container size="lg">
           {/* Quiz Header */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-6 shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-6 shadow-lg">
               <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
               Ready to Start
             </div>
-            <H1 className="mb-4 text-red-600">{quiz.title}</H1>
+            <H1 className="mb-4 text-primary">{quiz.title}</H1>
             <BodyLG color="muted" className="max-w-2xl mx-auto">
               {quiz.description}
             </BodyLG>
@@ -160,7 +160,7 @@ export default function QuizPage() {
           {/* Quick Info Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12 max-w-4xl mx-auto">
             <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-xl text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-secondary to-secondary/90 rounded-xl mx-auto mb-3 flex items-center justify-center">
                 <Icon name="clock" size={20} color="white" />
               </div>
               <BodyMD className="font-bold text-gray-800">{quiz.duration_minutes} min</BodyMD>
@@ -168,7 +168,7 @@ export default function QuizPage() {
             </div>
 
             <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-xl text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-success to-success/90 rounded-xl mx-auto mb-3 flex items-center justify-center">
                 <Icon name="help" size={20} color="white" />
               </div>
               <BodyMD className="font-bold text-gray-800">{quiz.question_count}</BodyMD>
@@ -176,7 +176,7 @@ export default function QuizPage() {
             </div>
 
             <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-xl text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-warning to-secondary rounded-xl mx-auto mb-3 flex items-center justify-center">
                 <Icon name="target" size={20} color="white" />
               </div>
               <BodyMD className={`font-bold px-3 py-1 rounded-full text-sm ${getDifficultyColor(quiz.difficulty)}`}>
@@ -186,7 +186,7 @@ export default function QuizPage() {
             </div>
 
             <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-xl text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-secondary to-secondary/90 rounded-xl mx-auto mb-3 flex items-center justify-center">
                 <Icon name="book" size={20} color="white" />
               </div>
               <BodyMD className="font-bold text-gray-800">{quiz.category}</BodyMD>
@@ -197,7 +197,7 @@ export default function QuizPage() {
           {/* Key Instructions */}
           <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-8 shadow-xl max-w-3xl mx-auto mb-12">
             <div className="flex items-center gap-3 mb-6 justify-center">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-r from-secondary to-secondary/90 rounded-xl flex items-center justify-center">
                 <Icon name="info" size={20} color="white" />
               </div>
               <H3>Quick Instructions</H3>
@@ -227,9 +227,9 @@ export default function QuizPage() {
             <div className="inline-flex flex-col sm:flex-row gap-4">
               <button
                 onClick={handleStartQuiz}
-                className="group relative px-16 py-5 bg-gradient-to-r from-red-600 to-red-700 text-white text-2xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+                className="group relative px-16 py-5 bg-gradient-to-r from-primary to-primary/90 text-gray-900 text-2xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <span className="relative flex items-center gap-4">
                   <Icon name="play" size={28} color="white" />
                   Start Quiz Now

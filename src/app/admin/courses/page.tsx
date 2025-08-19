@@ -186,7 +186,7 @@ export default function CoursesPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
         <div className="flex items-center justify-center min-h-screen p-6">
           <div className="bg-white rounded-2xl shadow-lg border border-red-200 p-8 max-w-md w-full text-center">
-            <div className="bg-red-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <div className="bg-destructive/20 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <Icon name="warning" size={24} color="error" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-3">Access Denied</h1>
@@ -222,11 +222,11 @@ export default function CoursesPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
         <div className="flex items-center justify-center min-h-screen p-6">
           <div className="bg-white rounded-2xl shadow-lg border border-red-200 p-8 max-w-md w-full text-center">
-            <div className="bg-red-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <div className="bg-destructive/20 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
               <Icon name="warning" size={24} color="error" />
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-3">Failed to load courses</h2>
-            <p className="text-red-600 mb-6 font-medium">{error}</p>
+            <p className="text-primary mb-6 font-medium">{error}</p>
             <button 
               onClick={() => fetchCourses()}
               className="bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-lg transition-colors font-semibold w-full flex items-center justify-center gap-2"
@@ -296,7 +296,7 @@ export default function CoursesPage() {
                 <p className="text-3xl font-bold text-gray-900 mb-1">{courseStats.draft}</p>
                 <p className="text-sm text-orange-600 font-medium">In Progress</p>
               </div>
-              <div className="bg-orange-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-orange-200 transition-colors">
+              <div className="bg-orange-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-warning/30 transition-colors">
                 <Icon name="edit" size={24} color="warning" />
               </div>
             </div>
@@ -309,9 +309,9 @@ export default function CoursesPage() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-600 mb-2">Total Students</p>
                 <p className="text-3xl font-bold text-gray-900 mb-1">{courseStats.totalStudents}</p>
-                <p className="text-sm text-blue-600 font-medium">Enrolled Learners</p>
+                <p className="text-sm text-secondary font-medium">Enrolled Learners</p>
               </div>
-              <div className="bg-blue-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-blue-200 transition-colors">
+              <div className="bg-secondary/10 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-primary/20 transition-colors">
                 <Icon name="users" size={24} color="primary" />
               </div>
             </div>
@@ -385,7 +385,7 @@ export default function CoursesPage() {
                     
                     <div className="flex flex-col">
                       <span className="text-gray-500 text-xs font-medium mb-1">Students</span>
-                      <span className="font-semibold text-blue-600">{course.student_count}</span>
+                      <span className="font-semibold text-secondary">{course.student_count}</span>
                     </div>
                     
                     <div className="flex flex-col">
@@ -470,7 +470,7 @@ export default function CoursesPage() {
           <Card className="border-2 border-dashed border-gray-300 bg-gray-50">
             <CardContent className="p-12">
               <div className="text-center">
-                <div className="bg-gray-200 p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+                <div className="bg-muted/60 p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
                   <Icon name="book" size={32} color="muted" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3">No courses found</h3>

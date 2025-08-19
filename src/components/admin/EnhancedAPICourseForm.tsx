@@ -491,8 +491,8 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
       <div className="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-xl border border-gray-200">
         <div className="flex items-center justify-between p-6 sm:p-8 border-b bg-gradient-to-r from-gray-50 via-white to-purple-50">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg">
-              <Icon name="book" size={24} className="text-white" />
+            <div className="w-12 h-12 bg-gradient-to-r from-secondary to-secondary/90 rounded-xl flex items-center justify-center shadow-lg">
+              <Icon name="book" size={24} className="text-current" />
             </div>
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
@@ -509,9 +509,9 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
               <button
                 type="button"
                 onClick={() => setShowAICourseBuilder(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-lg hover:from-secondary/90 hover:to-secondary transition-all shadow-lg hover:shadow-xl"
               >
-                <Icon name="lightning" size={16} className="text-white" />
+                <Icon name="lightning" size={16} className="text-current" />
                 <span className="hidden sm:inline">Generate with AI</span>
                 <span className="sm:hidden">AI</span>
               </button>
@@ -534,7 +534,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
               className={`flex items-center gap-2 px-6 sm:px-8 py-4 text-base font-semibold transition-all duration-200 ${
                 activeTab === tab.id
                   ? 'text-purple-700 border-b-3 border-purple-600 bg-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-muted/40'
               }`}
             >
               <Icon name={tab.icon} size={16} className={activeTab === tab.id ? 'text-purple-600' : 'text-gray-600'} />
@@ -561,7 +561,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="bg-emerald-500 p-1 rounded-full mr-3">
-                      <Icon name="check" size={16} className="text-white" />
+                      <Icon name="check" size={16} className="text-current" />
                     </div>
                     <span className="text-emerald-800 font-semibold">{success}</span>
                   </div>
@@ -581,9 +581,9 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
 
             {/* Error Message */}
             {error && (
-              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div className="mb-4 p-4 bg-primary/5 border border-destructive/30 rounded-lg">
                 <div className="flex items-center">
-                  <Icon name="warning" size={20} className="text-red-600 mr-2" />
+                  <Icon name="warning" size={20} className="text-primary mr-2" />
                   <span className="text-red-800">{error}</span>
                 </div>
               </div>
@@ -743,9 +743,9 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                     <button
                       type="button"
                       onClick={addLearningOutcome}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2"
+                      className="bg-primary text-black px-3 py-1 rounded-lg text-sm flex items-center gap-2"
                     >
-                      <Icon name="add" size={16} className="text-white" />
+                      <Icon name="add" size={16} className="text-current" />
                       Add Outcome
                     </button>
                   </div>
@@ -768,7 +768,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                           <button
                             type="button"
                             onClick={() => removeLearningOutcome(outcome.id)}
-                            className="text-red-600 hover:text-red-700 p-2"
+                            className="text-primary hover:text-primary/80 p-2"
                           >
                             <Icon name="close" size={16} />
                           </button>
@@ -784,9 +784,9 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                     <button
                       type="button"
                       onClick={addPrerequisite}
-                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2"
+                      className="bg-primary text-black px-3 py-1 rounded-lg text-sm flex items-center gap-2"
                     >
-                      <Icon name="add" size={16} className="text-white" />
+                      <Icon name="add" size={16} className="text-current" />
                       Add Prerequisite
                     </button>
                   </div>
@@ -809,7 +809,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                           <button
                             type="button"
                             onClick={() => removePrerequisite(index)}
-                            className="text-red-600 hover:text-red-700 p-2"
+                            className="text-primary hover:text-primary/80 p-2"
                           >
                             <Icon name="close" size={16} />
                           </button>
@@ -832,9 +832,9 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                   <button
                     type="button"
                     onClick={addModule}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                    className="bg-primary text-black px-4 py-2 rounded-lg flex items-center gap-2"
                   >
-                    <Icon name="add" size={16} className="text-white" />
+                    <Icon name="add" size={16} className="text-current" />
                     Add Module
                   </button>
                 </div>
@@ -848,7 +848,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                           <button
                             type="button"
                             onClick={() => removeModule(moduleIndex)}
-                            className="text-red-600 hover:text-red-700 p-1"
+                            className="text-primary hover:text-primary/80 p-1"
                           >
                             <Icon name="ban" size={16} />
                           </button>
@@ -890,9 +890,9 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                           <button
                             type="button"
                             onClick={() => addLesson(moduleIndex)}
-                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm flex items-center gap-2"
+                            className="bg-primary text-black px-3 py-1 rounded text-sm flex items-center gap-2"
                           >
-                            <Icon name="add" size={14} className="text-white" />
+                            <Icon name="add" size={14} className="text-current" />
                             Add Lesson
                           </button>
                         </div>
@@ -908,7 +908,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                                   <button
                                     type="button"
                                     onClick={() => removeLesson(moduleIndex, lessonIndex)}
-                                    className="text-red-600 hover:text-red-700 p-1"
+                                    className="text-primary hover:text-primary/80 p-1"
                                   >
                                     <Icon name="close" size={14} />
                                   </button>
@@ -1028,9 +1028,9 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                     <button
                       type="button"
                       onClick={addTag}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2"
+                      className="bg-primary text-black px-3 py-1 rounded-lg text-sm flex items-center gap-2"
                     >
-                      <Icon name="add" size={16} className="text-white" />
+                      <Icon name="add" size={16} className="text-current" />
                       Add Tag
                     </button>
                   </div>
@@ -1048,7 +1048,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                           <button
                             type="button"
                             onClick={() => removeTag(index)}
-                            className="text-red-600 hover:text-red-700 p-2"
+                            className="text-primary hover:text-primary/80 p-2"
                           >
                             <Icon name="close" size={16} />
                           </button>
@@ -1090,7 +1090,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
               <button
                 type="submit"
                 disabled={loading}
-                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none"
+                className="px-8 py-3 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none"
               >
                 {loading ? (
                   <>
@@ -1099,7 +1099,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                   </>
                 ) : (
                   <>
-                    <Icon name="check" size={16} className="text-white" />
+                    <Icon name="check" size={16} className="text-current" />
                     {course ? 'Update Course' : 'Create Course'}
                   </>
                 )}

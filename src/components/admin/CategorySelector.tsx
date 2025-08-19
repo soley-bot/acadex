@@ -158,7 +158,7 @@ export function CategorySelector({
                   )}
                 </div>
                 {category.type !== 'general' && (
-                  <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                  <span className="text-xs px-2 py-1 bg-muted/40 text-gray-600 rounded-full">
                     {category.type}
                   </span>
                 )}

@@ -88,7 +88,7 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-red-300 border-t-red-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-red-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading quiz...</p>
           </div>
         </div>
@@ -108,7 +108,7 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
           </button>
           
           <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary/90 rounded-full flex items-center justify-center mx-auto mb-4">
               <X className="w-8 h-8 text-white" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">No Quiz Available</h3>
@@ -117,7 +117,7 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
             </p>
             <button
               onClick={onClose}
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-2 rounded-xl font-medium transition-all"
+              className="bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-2 rounded-xl font-medium transition-all"
             >
               Continue Learning
             </button>
@@ -143,14 +143,14 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
           </button>
           
           <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary/90 rounded-full flex items-center justify-center mx-auto mb-4">
               <X className="w-8 h-8 text-white" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Quiz Error</h3>
             <p className="text-gray-600 mb-6">Unable to load quiz question.</p>
             <button
               onClick={onClose}
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-2 rounded-xl font-medium transition-all"
+              className="bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-2 rounded-xl font-medium transition-all"
             >
               Close
             </button>
@@ -215,7 +215,7 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
           </button>
 
           <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gradient-to-r from-success to-success/90 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="w-8 h-8 text-white" />
             </div>
             
@@ -227,7 +227,7 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
             <div className="flex gap-3">
               <button
                 onClick={onClose}
-                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-xl font-medium transition-colors"
+                className="flex-1 bg-muted/40 hover:bg-muted/60 text-gray-800 px-4 py-2 rounded-xl font-medium transition-colors"
               >
                 Close
               </button>
@@ -237,7 +237,7 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
                   setAnswers({})
                   setShowResults(false)
                 }}
-                className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-xl font-medium transition-all"
+                className="flex-1 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-4 py-2 rounded-xl font-medium transition-all"
               >
                 Retake Quiz
               </button>
@@ -252,7 +252,7 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-red-600 to-red-700 p-6 rounded-t-2xl">
+        <div className="bg-gradient-to-r from-primary to-primary/90 p-6 rounded-t-2xl">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-white">{quiz.title}</h2>
@@ -270,7 +270,7 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
 
           {/* Progress Bar */}
           <div className="mt-4">
-            <div className="w-full bg-red-800/30 rounded-full h-2">
+            <div className="w-full bg-primary/80/30 rounded-full h-2">
               <div 
                 className="bg-white h-2 rounded-full transition-all duration-500"
                 style={{ width: `${getProgressPercentage()}%` }}
@@ -292,14 +292,14 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
                 onClick={() => handleAnswerSelect(index)}
                 className={`w-full text-left p-4 border-2 rounded-xl transition-all duration-200 ${
                   answers[currentQuestion.id] === index
-                    ? 'border-red-500 bg-red-50 text-red-700'
-                    : 'border-gray-200 hover:border-red-300 hover:bg-red-50/50'
+                    ? 'border-primary bg-primary/5 text-primary'
+                    : 'border-gray-200 hover:border-primary/30 hover:bg-primary/5/50'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                     answers[currentQuestion.id] === index
-                      ? 'border-red-500 bg-red-500'
+                      ? 'border-primary bg-primary/50'
                       : 'border-gray-300'
                   }`}>
                     {answers[currentQuestion.id] === index && (
@@ -332,7 +332,7 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
             <button
               onClick={handleNext}
               disabled={answers[currentQuestion.id] === undefined}
-              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {currentQuestionIndex === quizQuestions.length - 1 ? 'Finish' : 'Next'}
               {currentQuestionIndex < quizQuestions.length - 1 && <ChevronRight className="w-4 h-4" />}

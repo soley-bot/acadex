@@ -10,8 +10,8 @@ export default function UnauthorizedPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-          <Shield className="w-6 h-6 text-red-600" />
+        <div className="mx-auto w-12 h-12 bg-destructive/20 rounded-full flex items-center justify-center">
+          <Shield className="w-6 h-6 text-primary" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Access Denied
@@ -43,7 +43,7 @@ export default function UnauthorizedPage() {
             <div className="space-y-3">
               <Link
                 href="/"
-                className="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                className="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-secondary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
               >
                 <Home className="w-4 h-4 mr-2" />
                 Go to Homepage
@@ -61,7 +61,7 @@ export default function UnauthorizedPage() {
                   
                   <button
                     onClick={() => signOut()}
-                    className="w-full flex justify-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                    className="w-full flex justify-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-primary/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
                   >
                     Sign Out
                   </button>

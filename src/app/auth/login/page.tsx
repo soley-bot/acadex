@@ -118,18 +118,18 @@ function EnhancedLoginForm() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex items-center justify-center py-6 px-4 sm:py-12 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 flex items-center justify-center py-6 px-4 sm:py-12 sm:px-6 lg:px-8">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
       
       <div className="relative w-full max-w-md space-y-6 lg:space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-3 py-1.5 lg:px-4 lg:py-2 rounded-full text-xs lg:text-sm font-medium mb-4 lg:mb-6 shadow-lg">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-3 py-1.5 lg:px-4 lg:py-2 rounded-full text-xs lg:text-sm font-medium mb-4 lg:mb-6 shadow-lg">
             <Sparkles className="w-3 h-3 lg:w-4 lg:h-4" />
             Welcome Back to Acadex
           </div>
@@ -146,7 +146,7 @@ function EnhancedLoginForm() {
           <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
             {/* Global Error */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-3 lg:p-4">
+              <div className="bg-primary/5 border border-red-200 rounded-xl p-3 lg:p-4">
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                   <div>
@@ -185,7 +185,7 @@ function EnhancedLoginForm() {
             <div className="text-right">
               <Link 
                 href="/auth/forgot-password" 
-                className="text-sm text-red-600 hover:text-red-800 font-medium transition-colors"
+                className="text-sm text-primary hover:text-red-800 font-medium transition-colors"
               >
                 Forgot your password?
               </Link>
@@ -195,7 +195,7 @@ function EnhancedLoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-4 rounded-xl font-medium text-lg shadow-lg hover:from-red-700 hover:to-red-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
+              className="w-full bg-gradient-to-r from-primary to-primary/90 text-gray-900 py-3 px-4 rounded-xl font-medium text-lg shadow-lg hover:from-primary/90 hover:to-primary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">
@@ -251,7 +251,7 @@ function EnhancedLoginForm() {
               New to Acadex?{' '}
               <Link 
                 href="/auth/signup" 
-                className="text-red-600 hover:text-red-800 font-medium transition-colors"
+                className="text-primary hover:text-red-800 font-medium transition-colors"
               >
                 Create your free account
               </Link>
@@ -274,9 +274,9 @@ function EnhancedLoginForm() {
         {/* Footer */}
         <p className="text-center text-sm text-gray-500">
           By signing in, you agree to our{' '}
-          <Link href="/terms" className="text-red-600 hover:text-red-800">Terms of Service</Link>
+          <Link href="/terms" className="text-primary hover:text-red-800">Terms of Service</Link>
           {' '}and{' '}
-          <Link href="/privacy" className="text-red-600 hover:text-red-800">Privacy Policy</Link>
+          <Link href="/privacy" className="text-primary hover:text-red-800">Privacy Policy</Link>
         </p>
       </div>
     </div>

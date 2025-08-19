@@ -189,9 +189,9 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
                 ) : apiConnected ? (
                   <CheckCircle className="w-4 h-4 text-green-500" />
                 ) : (
-                  <AlertCircle className="w-4 h-4 text-red-500" />
+                  <AlertCircle className="w-4 h-4 text-destructive" />
                 )}
-                <span className={testingConnection ? 'text-gray-500' : apiConnected ? 'text-green-600' : 'text-red-600'}>
+                <span className={testingConnection ? 'text-gray-500' : apiConnected ? 'text-green-600' : 'text-primary'}>
                   {testingConnection ? 'Testing...' : apiConnected ? 'API Connected' : 'API Error'}
                 </span>
               </div>
@@ -220,7 +220,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                     step >= stepInfo.num 
                       ? 'bg-purple-600 text-white' 
-                      : 'bg-gray-200 text-gray-600'
+                      : 'bg-muted/60 text-gray-600'
                   }`}>
                     {stepInfo.num}
                   </div>
@@ -229,7 +229,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
                   </div>
                   {stepInfo.num < 5 && (
                     <div className={`w-12 sm:w-16 h-1 mx-2 ${
-                      step > stepInfo.num ? 'bg-purple-600' : 'bg-gray-200'
+                      step > stepInfo.num ? 'bg-purple-600' : 'bg-muted/60'
                     }`} />
                   )}
                 </div>
@@ -383,7 +383,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
                         <span className="text-sm">{topic}</span>
                         <button
                           onClick={() => removeTopic(index)}
-                          className="text-red-500 hover:text-red-700"
+                          className="text-destructive hover:text-primary/80"
                         >
                           ×
                         </button>
@@ -420,7 +420,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
                         <span className="text-sm">{objective}</span>
                         <button
                           onClick={() => removeObjective(index)}
-                          className="text-red-500 hover:text-red-700"
+                          className="text-destructive hover:text-primary/80"
                         >
                           ×
                         </button>
@@ -585,7 +585,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
                       type="checkbox"
                       checked={formData.include_examples}
                       onChange={(e) => setFormData(prev => ({ ...prev, include_examples: e.target.checked }))}
-                      className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                      className="rounded border-gray-300 text-primary focus:ring-red-500"
                     />
                     <label htmlFor="include_examples" className="text-sm text-gray-700">
                       Include practical examples and scenarios
@@ -598,7 +598,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
                       type="checkbox"
                       checked={formData.include_exercises}
                       onChange={(e) => setFormData(prev => ({ ...prev, include_exercises: e.target.checked }))}
-                      className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                      className="rounded border-gray-300 text-primary focus:ring-red-500"
                     />
                     <label htmlFor="include_exercises" className="text-sm text-gray-700">
                       Include practice exercises and activities
@@ -611,7 +611,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
                       type="checkbox"
                       checked={formData.rich_text_format}
                       onChange={(e) => setFormData(prev => ({ ...prev, rich_text_format: e.target.checked }))}
-                      className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                      className="rounded border-gray-300 text-primary focus:ring-red-500"
                     />
                     <label htmlFor="rich_text_format" className="text-sm text-gray-700">
                       Use rich text formatting (headers, lists, emphasis)
@@ -624,7 +624,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
                       type="checkbox"
                       checked={formData.include_lesson_quizzes}
                       onChange={(e) => setFormData(prev => ({ ...prev, include_lesson_quizzes: e.target.checked }))}
-                      className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                      className="rounded border-gray-300 text-primary focus:ring-red-500"
                     />
                     <label htmlFor="include_lesson_quizzes" className="text-sm text-gray-700">
                       Include lesson quizzes
@@ -634,7 +634,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
 
                 {/* Quiz Configuration */}
                 {formData.include_lesson_quizzes && (
-                  <div className="space-y-4 p-4 bg-red-50 rounded-lg border border-red-200">
+                  <div className="space-y-4 p-4 bg-primary/5 rounded-lg border border-destructive/30">
                     <h5 className="text-sm font-medium text-red-900">Quiz Configuration</h5>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -770,7 +770,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
                 <button
                   onClick={handleGenerate}
                   disabled={generating || !apiConnected || (useCustomPrompt && !customPrompt.trim())}
-                  className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-lg hover:from-secondary/90 hover:to-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {generating ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -843,8 +843,8 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
 
               {/* Error Display */}
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-red-600 text-sm">{error}</p>
+                <div className="bg-primary/5 border border-destructive/30 rounded-lg p-4">
+                  <p className="text-primary text-sm">{error}</p>
                 </div>
               )}
 
@@ -880,9 +880,9 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
 
           {/* Global Error Display */}
           {error && step !== 4 && (
-            <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="mt-6 bg-primary/5 border border-destructive/30 rounded-lg p-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 className="text-red-800 font-medium">Generation Error</h4>
                   <p className="text-red-700 text-sm mt-1">{error}</p>
@@ -890,7 +890,7 @@ export function AICourseBuilder({ onCourseGenerated, onClose }: AICourseBuilderP
                     <button
                       onClick={testAPIConnection}
                       disabled={testingConnection}
-                      className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+                      className="mt-2 text-sm text-primary hover:text-red-800 underline"
                     >
                       {testingConnection ? 'Testing...' : 'Test API Connection'}
                     </button>

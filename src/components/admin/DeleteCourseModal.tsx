@@ -63,8 +63,8 @@ export function DeleteCourseModal({ course, isOpen, onClose, onSuccess }: Delete
       <div className="surface-primary rounded-2xl shadow-2xl max-w-md w-full border border-subtle">
         <div className="flex items-center justify-between p-6 border-b border-subtle">
           <div className="flex items-center">
-            <div className="p-2 bg-red-100 rounded-lg mr-3">
-              <AlertTriangle className="h-6 w-6 text-red-600" />
+            <div className="p-2 bg-destructive/20 rounded-lg mr-3">
+              <AlertTriangle className="h-6 w-6 text-primary" />
             </div>
             <div>
               <h2 className="heading-subsection">Delete Course</h2>
@@ -73,7 +73,7 @@ export function DeleteCourseModal({ course, isOpen, onClose, onSuccess }: Delete
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-tertiary hover:text-primary"
+            className="p-2 hover:bg-muted/40 rounded-lg transition-colors text-tertiary hover:text-primary"
           >
             <X className="h-5 w-5" />
           </button>
@@ -96,7 +96,7 @@ export function DeleteCourseModal({ course, isOpen, onClose, onSuccess }: Delete
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <div className="bg-primary/5 border border-destructive/30 rounded-lg p-4 mb-4">
               <span className="text-red-700 text-sm">{error}</span>
             </div>
           )}
@@ -104,14 +104,14 @@ export function DeleteCourseModal({ course, isOpen, onClose, onSuccess }: Delete
           <div className="flex justify-end space-x-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="px-4 py-2 text-gray-700 bg-muted/40 hover:bg-muted/60 rounded-lg transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleDelete}
               disabled={loading}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center"
+              className="px-4 py-2 bg-primary hover:bg-primary/90 text-secondary rounded-lg transition-colors disabled:opacity-50 flex items-center"
             >
               {loading ? (
                 <>

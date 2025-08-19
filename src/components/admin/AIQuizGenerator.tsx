@@ -92,7 +92,7 @@ export function AIQuizGenerator({ isOpen, onClose, onQuizGenerated }: AIQuizGene
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="p-4 bg-primary/5 border border-destructive/30 rounded-lg">
             <p className="text-red-700">{error}</p>
           </div>
         )}
@@ -151,7 +151,7 @@ export function AIQuizGenerator({ isOpen, onClose, onQuizGenerated }: AIQuizGene
         {/* Info Box */}
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-start gap-3">
-            <Brain className="h-5 w-5 text-blue-600 mt-0.5" />
+            <Brain className="h-5 w-5 text-secondary mt-0.5" />
             <div>
               <h4 className="font-medium text-blue-900">AI Quiz Generation</h4>
               <p className="text-sm text-blue-700 mt-1">

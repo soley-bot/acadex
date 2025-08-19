@@ -153,7 +153,7 @@ export function EnhancedDeleteModal({ item, isOpen, onClose, onSuccess }: Enhanc
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         {/* Header */}
-        <div className="bg-red-600 p-6 text-white flex items-center justify-between rounded-t-2xl">
+        <div className="bg-primary text-black flex items-center justify-between rounded-t-2xl">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
               <Trash2 size={20} />
@@ -270,7 +270,7 @@ export function EnhancedDeleteModal({ item, isOpen, onClose, onSuccess }: Enhanc
                   {/* Force Delete Option */}
                   <div
                     className={`border-2 rounded-xl p-4 cursor-pointer transition-all ${
-                      deleteOption === 'cascade' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                      deleteOption === 'cascade' ? 'border-red-500 bg-primary/5' : 'border-gray-200 hover:border-gray-300'
                     }`}
                     onClick={() => setDeleteOption('cascade')}
                   >
@@ -284,7 +284,7 @@ export function EnhancedDeleteModal({ item, isOpen, onClose, onSuccess }: Enhanc
                       <div>
                         <h4 className="font-medium text-gray-800 flex items-center gap-2">
                           Force Delete Everything
-                          <AlertTriangle size={16} className="text-red-500" />
+                          <AlertTriangle size={16} className="text-destructive" />
                         </h4>
                         <p className="text-sm text-gray-600">
                           Delete the {item.type} and all related data permanently. This cannot be undone.
@@ -302,7 +302,7 @@ export function EnhancedDeleteModal({ item, isOpen, onClose, onSuccess }: Enhanc
               )}
 
               {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                <div className="mb-4 p-3 bg-primary/5 border border-destructive/30 text-red-700 rounded-lg text-sm">
                   {error}
                 </div>
               )}
@@ -324,7 +324,7 @@ export function EnhancedDeleteModal({ item, isOpen, onClose, onSuccess }: Enhanc
               <button
                 onClick={handleCleanDelete}
                 disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 flex items-center gap-2"
+                className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 font-medium disabled:opacity-50 flex items-center gap-2"
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -337,7 +337,7 @@ export function EnhancedDeleteModal({ item, isOpen, onClose, onSuccess }: Enhanc
             <button
               onClick={deleteOption === 'cascade' ? handleCascadeDelete : canDelete ? handleCascadeDelete : undefined}
               disabled={loading || (hasUsage && !deleteOption)}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 bg-primary text-secondary rounded-lg hover:bg-primary/90 font-medium disabled:opacity-50 flex items-center gap-2"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

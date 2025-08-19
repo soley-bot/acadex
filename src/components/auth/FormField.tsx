@@ -62,7 +62,7 @@ export function FormField({
     <div className="space-y-3">
       <label htmlFor={name} className="block text-sm font-bold text-gray-800">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-destructive ml-1">*</span>}
       </label>
       
       <div className="relative">
@@ -118,7 +118,7 @@ export function FormField({
             {validation.isValid ? (
               <CheckCircle className="w-5 h-5 text-green-500" />
             ) : (
-              <AlertCircle className="w-5 h-5 text-red-500" />
+              <AlertCircle className="w-5 h-5 text-destructive" />
             )}
           </div>
         )}
@@ -126,7 +126,7 @@ export function FormField({
       
       {/* Error Message */}
       {showError && (
-        <div className="flex items-start gap-2 text-red-600">
+        <div className="flex items-start gap-2 text-primary">
           <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <span className="text-sm">{error}</span>
         </div>
@@ -134,7 +134,7 @@ export function FormField({
       
       {/* Validation Message */}
       {showValidation && validation.message && (
-        <div className={`flex items-start gap-2 ${validation.isValid ? 'text-green-600' : 'text-red-600'}`}>
+        <div className={`flex items-start gap-2 ${validation.isValid ? 'text-green-600' : 'text-primary'}`}>
           {validation.isValid ? (
             <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           ) : (

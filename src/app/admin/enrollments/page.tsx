@@ -141,7 +141,7 @@ export default function AdminEnrollmentsPage() {
   const getProgressColor = (progress: number) => {
     if (progress >= 80) return 'bg-green-500'
     if (progress >= 50) return 'bg-yellow-500'
-    return 'bg-red-500'
+    return 'bg-primary/50'
   }
 
   const getStatusBadge = (enrollment: EnrollmentWithDetails) => {
@@ -156,7 +156,7 @@ export default function AdminEnrollmentsPage() {
     
     if (enrollment.progress > 0) {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary">
           <TrendingUp className="w-3 h-3 mr-1" />
           In Progress
         </span>
@@ -164,7 +164,7 @@ export default function AdminEnrollmentsPage() {
     }
     
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted/40 text-gray-800">
         <Clock className="w-3 h-3 mr-1" />
         Not Started
       </span>
@@ -174,7 +174,7 @@ export default function AdminEnrollmentsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     )
   }
@@ -183,17 +183,17 @@ export default function AdminEnrollmentsPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
-            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
-              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-primary/5 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+            <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-destructive/20 rounded-full">
+              <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.728-.833-2.498 0L4.316 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
             </div>
             <h3 className="text-lg font-medium text-red-800 mb-2">Authentication Error</h3>
-            <p className="text-red-600 text-sm mb-4">{error}</p>
+            <p className="text-primary text-sm mb-4">{error}</p>
             <button
               onClick={() => window.location.href = '/auth/login?redirect=/admin/enrollments'}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="px-4 py-2 bg-primary text-secondary rounded-lg hover:bg-primary/90 transition-colors"
             >
               Login Again
             </button>
@@ -215,7 +215,7 @@ export default function AdminEnrollmentsPage() {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setShowManualEnrollmentModal(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-primary text-black hover:bg-secondary hover:text-white rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4" />
               <span>Manual Enrollment</span>
@@ -232,8 +232,8 @@ export default function AdminEnrollmentsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Users className="w-6 h-6 text-blue-600" />
+            <div className="p-3 bg-secondary/10 rounded-lg">
+              <Users className="w-6 h-6 text-secondary" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Enrollments</p>
@@ -292,7 +292,7 @@ export default function AdminEnrollmentsPage() {
                 placeholder="Search by student name, email, or course..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-primary"
               />
             </div>
           </div>
@@ -301,7 +301,7 @@ export default function AdminEnrollmentsPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'completed')}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-primary"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
@@ -365,7 +365,7 @@ export default function AdminEnrollmentsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="w-full bg-gray-200 rounded-full h-2 mr-2">
+                      <div className="w-full bg-muted/60 rounded-full h-2 mr-2">
                         <div
                           className={`h-2 rounded-full ${getProgressColor(enrollment.progress)}`}
                           style={{ width: `${enrollment.progress}%` }}
@@ -395,14 +395,14 @@ export default function AdminEnrollmentsPage() {
                           setSelectedEnrollment(enrollment)
                           setShowEnrollmentModal(true)
                         }}
-                        className="text-blue-600 hover:text-blue-900 p-1 rounded-md hover:bg-blue-50"
+                        className="text-secondary hover:text-blue-900 p-1 rounded-md hover:bg-primary/10"
                         title="View Details"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleUnenrollStudent(enrollment.id)}
-                        className="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50"
+                        className="text-primary hover:text-red-900 p-1 rounded-md hover:bg-primary/5"
                         title="Unenroll Student"
                       >
                         <UserMinus className="w-4 h-4" />
@@ -491,7 +491,7 @@ export default function AdminEnrollmentsPage() {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Progress:</span>
                     <div className="flex items-center space-x-2">
-                      <div className="w-24 bg-gray-200 rounded-full h-2">
+                      <div className="w-24 bg-muted/60 rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${getProgressColor(selectedEnrollment.progress)}`}
                           style={{ width: `${selectedEnrollment.progress}%` }}
@@ -536,7 +536,7 @@ export default function AdminEnrollmentsPage() {
                   handleUnenrollStudent(selectedEnrollment.id)
                   setShowEnrollmentModal(false)
                 }}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="px-4 py-2 bg-primary text-secondary rounded-lg hover:bg-primary/90"
               >
                 Unenroll Student
               </button>

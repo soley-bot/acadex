@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="relative min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="relative w-full max-w-md space-y-8">
           <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 p-8 text-center">
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
             </p>
             
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <p className="text-blue-800 text-sm">
+              <p className="text-secondary text-sm">
                 <strong>Next steps:</strong>
               </p>
               <ol className="text-blue-700 text-sm mt-2 list-decimal list-inside space-y-1">
@@ -89,14 +89,14 @@ export default function ForgotPasswordPage() {
                   setSent(false)
                   setEmail('')
                 }}
-                className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+                className="w-full bg-muted/40 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-muted/60 transition-colors"
               >
                 Send to different email
               </button>
               
               <Link
                 href="/auth/login"
-                className="block w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-xl font-medium text-center hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+                className="block w-full bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-secondary py-3 px-4 rounded-xl font-medium text-center hover:from-primary/90 hover:to-secondary/90 transition-all duration-200"
               >
                 Back to Sign In
               </Link>
@@ -108,7 +108,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
@@ -118,8 +118,8 @@ export default function ForgotPasswordPage() {
       <div className="relative w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
-            <Mail className="w-8 h-8 text-blue-600" />
+          <div className="mx-auto w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mb-6">
+            <Mail className="w-8 h-8 text-secondary" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Forgot your password?
@@ -134,7 +134,7 @@ export default function ForgotPasswordPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <div className="bg-primary/5 border border-red-200 rounded-xl p-4">
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                   <div>
@@ -158,7 +158,7 @@ export default function ForgotPasswordPage() {
 
             {/* Info Box */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-blue-800 text-sm">
+              <p className="text-secondary text-sm">
                 <strong>What happens next?</strong>
               </p>
               <p className="text-blue-700 text-sm mt-1">
@@ -171,7 +171,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading || !validateEmail(email).isValid}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-xl font-medium text-lg shadow-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
+              className="w-full bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-secondary py-3 px-4 rounded-xl font-medium text-lg shadow-lg hover:from-primary/90 hover:to-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">
@@ -200,7 +200,7 @@ export default function ForgotPasswordPage() {
         <div className="text-center">
           <p className="text-sm text-gray-500">
             Still having trouble?{' '}
-            <Link href="/contact" className="text-blue-600 hover:text-blue-800">
+            <Link href="/contact" className="text-secondary hover:text-secondary">
               Contact our support team
             </Link>
           </p>

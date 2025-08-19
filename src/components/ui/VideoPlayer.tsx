@@ -107,7 +107,7 @@ export function VideoPlayer({ url, className = "" }: VideoPlayerProps) {
     
     if (!videoId) {
       return (
-        <div className={`flex items-center justify-center bg-gray-100 ${className}`}>
+        <div className={`flex items-center justify-center bg-muted/40 ${className}`}>
           <p className="text-gray-500">Invalid YouTube URL</p>
         </div>
       )
@@ -132,7 +132,7 @@ export function VideoPlayer({ url, className = "" }: VideoPlayerProps) {
     
     if (!videoId) {
       return (
-        <div className={`flex items-center justify-center bg-gray-100 ${className}`}>
+        <div className={`flex items-center justify-center bg-muted/40 ${className}`}>
           <p className="text-gray-500">Invalid Vimeo URL</p>
         </div>
       )
@@ -157,7 +157,7 @@ export function VideoPlayer({ url, className = "" }: VideoPlayerProps) {
     
     if (!canvaInfo.isValid) {
       return (
-        <div className={`flex items-center justify-center bg-gray-100 ${className}`}>
+        <div className={`flex items-center justify-center bg-muted/40 ${className}`}>
           <div className="text-center p-4">
             <p className="text-gray-500 mb-2">Invalid Canva URL</p>
             <p className="text-xs text-gray-400">
@@ -185,7 +185,7 @@ export function VideoPlayer({ url, className = "" }: VideoPlayerProps) {
     
     if (!videoId) {
       return (
-        <div className={`flex items-center justify-center bg-gray-100 ${className}`}>
+        <div className={`flex items-center justify-center bg-muted/40 ${className}`}>
           <p className="text-gray-500">Invalid Dailymotion URL</p>
         </div>
       )

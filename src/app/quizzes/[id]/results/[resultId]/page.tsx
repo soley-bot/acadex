@@ -69,7 +69,7 @@ export default function QuizResultsPage() {
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600'
     if (score >= 60) return 'text-yellow-600'
-    return 'text-red-600'
+    return 'text-primary'
   }
 
   const getScoreMessage = (score: number) => {
@@ -82,12 +82,12 @@ export default function QuizResultsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         
         <div className="relative flex items-center justify-center py-20 pt-32">
@@ -102,21 +102,21 @@ export default function QuizResultsPage() {
 
   if (error || !results) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
         
         <div className="relative max-w-2xl mx-auto pt-32 text-center px-6">
           <div className="p-12 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent mb-6">Results Not Found</h1>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent mb-6">Results Not Found</h1>
             <p className="text-gray-700 mb-12 text-xl leading-relaxed">{error || 'The quiz results could not be found.'}</p>
             <Link
               href="/quizzes"
-              className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105 inline-block"
+              className="bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105 inline-block"
             >
               Back to Quizzes
             </Link>
@@ -129,12 +129,12 @@ export default function QuizResultsPage() {
   const scoreMessage = getScoreMessage(results.score)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
       
       <div className="relative max-w-6xl mx-auto pt-20 sm:pt-28 pb-12 px-4 sm:px-6">
@@ -145,12 +145,12 @@ export default function QuizResultsPage() {
             <div className="inline-block p-3 sm:p-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl mb-4 sm:mb-6">
               <Icon name="celebration" size={32} color="white" />
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent mb-2 sm:mb-4">Quiz Complete!</h1>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent mb-2 sm:mb-4">Quiz Complete!</h1>
             <h2 className="text-lg sm:text-xl text-gray-700 mb-6 sm:mb-8 font-medium px-4">{results.quiz_title}</h2>
             
             <div className={`text-5xl sm:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 ${
               results.score >= 80 ? 'bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent' : 
-              results.score >= 60 ? 'bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent' : 
+              results.score >= 60 ? 'bg-gradient-to-r from-yellow-600 to-secondary bg-clip-text text-transparent' : 
               'bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent'
             }`}>
               {results.score}%
@@ -166,7 +166,7 @@ export default function QuizResultsPage() {
                 <div className="text-xs sm:text-sm font-bold text-gray-600 uppercase tracking-wide">Correct Answers</div>
               </div>
               <div className="text-center p-4 sm:p-6 rounded-2xl backdrop-blur-lg bg-white/60 border border-white/30 shadow-lg">
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1 sm:mb-2">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent mb-1 sm:mb-2">
                   {results.total_questions}
                 </div>
                 <div className="text-xs sm:text-sm font-bold text-gray-600 uppercase tracking-wide">Total Questions</div>
@@ -183,7 +183,7 @@ export default function QuizResultsPage() {
 
         {/* Detailed Results */}
         <div className="rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl mb-12 overflow-hidden">
-          <div className="p-4 sm:p-8 bg-gradient-to-r from-red-600 to-orange-600">
+          <div className="p-4 sm:p-8 bg-gradient-to-r from-primary/5 via-white to-secondary/5">
             <h2 className="text-xl sm:text-3xl font-bold text-white flex items-center gap-2 sm:gap-3">
               <Icon name="chart" size={24} color="white" />
               Detailed Results
@@ -250,7 +250,7 @@ export default function QuizResultsPage() {
                         <Icon name="lightbulb" size={16} color="primary" />
                         Explanation:
                       </h4>
-                      <p className="text-blue-800 leading-relaxed text-sm sm:text-base break-words">{answer.explanation}</p>
+                      <p className="text-secondary leading-relaxed text-sm sm:text-base break-words">{answer.explanation}</p>
                     </div>
                   )}
                 </div>
@@ -263,7 +263,7 @@ export default function QuizResultsPage() {
         <div className="flex flex-col gap-4 sm:gap-6 justify-center mb-8 sm:mb-12 px-4 sm:px-0">
           <Link
             href={`/quizzes/${params.id}`}
-            className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 text-center shadow-2xl hover:shadow-3xl transform hover:scale-105 flex items-center justify-center gap-2"
+            className="bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-6 py-3 sm:px-8 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 text-center shadow-2xl hover:shadow-3xl transform hover:scale-105 flex items-center justify-center gap-2"
           >
             <Icon name="refresh" size={18} color="white" />
             Retake Quiz
@@ -278,7 +278,7 @@ export default function QuizResultsPage() {
             </Link>
             <Link
               href="/dashboard"
-              className="bg-gradient-to-r from-gray-800 to-black hover:from-gray-900 hover:to-gray-800 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 text-center shadow-2xl hover:shadow-3xl transform hover:scale-105 flex items-center justify-center gap-2 flex-1"
+              className="bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-secondary px-6 py-3 sm:px-8 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 text-center shadow-2xl hover:shadow-3xl transform hover:scale-105 flex items-center justify-center gap-2 flex-1"
             >
               <Icon name="chart" size={18} color="white" />
               View Dashboard
@@ -289,7 +289,7 @@ export default function QuizResultsPage() {
         {/* Performance Tips */}
         <div className="rounded-3xl backdrop-blur-lg bg-gradient-to-r from-gray-900/90 to-black/90 border border-white/20 p-6 sm:p-12 text-white shadow-2xl">
           <div className="text-center mb-6 sm:mb-8">
-            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-red-600 to-orange-600 rounded-full mb-4 sm:mb-6 shadow-lg">
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-primary/5 via-white to-secondary/5 rounded-full mb-4 sm:mb-6 shadow-lg">
               <Icon name="lightbulb" size={24} color="white" />
             </div>
             <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-4">Tips for Improvement</h3>
@@ -356,7 +356,7 @@ export default function QuizResultsPage() {
             <div className="flex flex-col gap-3 sm:gap-4 justify-center">
               <Link
                 href="/courses"
-                className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 text-center shadow-2xl hover:shadow-3xl transform hover:scale-105 flex items-center justify-center gap-2"
+                className="bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-6 py-3 sm:px-8 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 text-center shadow-2xl hover:shadow-3xl transform hover:scale-105 flex items-center justify-center gap-2"
               >
                 <Icon name="book" size={18} color="white" />
                 Browse Courses

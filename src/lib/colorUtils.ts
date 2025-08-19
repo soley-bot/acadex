@@ -2,29 +2,29 @@
 
 // Main button style variants that use design system colors
 export const buttonVariants = {
-  // Primary actions - uses brand color (red)
-  primary: "bg-brand hover:bg-brand-hover text-brand-foreground",
+  // Primary actions - primary background with black text, secondary background with white text on hover
+  primary: "bg-primary hover:bg-secondary text-black hover:text-white",
   
   // Secondary actions - uses muted colors  
-  secondary: "bg-secondary hover:bg-secondary/80 text-secondary-foreground",
+  secondary: "bg-gray-200 hover:bg-gray-300 text-gray-800",
   
   // Destructive actions - uses destructive color
-  destructive: "bg-destructive hover:bg-destructive/90 text-destructive-foreground",
+  destructive: "bg-red-600 hover:bg-red-700 text-white",
   
   // Success actions - uses success color
-  success: "bg-success hover:bg-success/90 text-success-foreground",
+  success: "bg-green-600 hover:bg-green-700 text-white",
   
   // Warning actions - uses warning color
-  warning: "bg-warning hover:bg-warning/90 text-warning-foreground",
+  warning: "bg-yellow-500 hover:bg-yellow-600 text-white",
   
   // Outline variant
-  outline: "border border-border bg-background hover:bg-accent hover:text-accent-foreground",
+  outline: "border-2 border-primary text-primary bg-white hover:bg-primary hover:text-black",
   
   // Ghost variant
-  ghost: "hover:bg-accent hover:text-accent-foreground",
+  ghost: "bg-transparent text-primary hover:bg-primary hover:text-black",
   
   // Muted variant
-  muted: "bg-muted hover:bg-muted/80 text-muted-foreground"
+  muted: "bg-gray-100 hover:bg-gray-200 text-gray-700"
 }
 
 // Text color variants using design system
@@ -76,18 +76,15 @@ export function getButtonClasses(
 
 // Helper to migrate old hardcoded colors to design system
 export const colorMigrations = {
-  // Old blue buttons should become primary (brand red)
-  'bg-blue-600 hover:bg-blue-700': buttonVariants.primary,
-  'bg-blue-500 hover:bg-blue-600': buttonVariants.primary,
+  // All primary buttons should use primary → secondary hover pattern
+  'bg-secondary hover:bg-blue-700': buttonVariants.primary,
+  'bg-blue-500 hover:bg-secondary': buttonVariants.primary,
+  'bg-purple-600 hover:bg-purple-700': buttonVariants.primary,
+  'bg-green-600 hover:bg-green-700': buttonVariants.primary,
   
-  // Purple stays as accent color for AI features
-  'bg-purple-600 hover:bg-purple-700': 'bg-purple-600 hover:bg-purple-700', // Keep for AI features
-  
-  // Green becomes success variant
-  'bg-green-600 hover:bg-green-700': buttonVariants.success,
-  
-  // Red becomes destructive
-  'bg-red-600 hover:bg-red-700': buttonVariants.destructive,
+  // Success and destructive keep their specific colors
+  'bg-success hover:bg-success/90': buttonVariants.success,
+  'bg-primary hover:bg-primary/90': buttonVariants.destructive,
   
   // Gray becomes secondary
   'bg-gray-100 hover:bg-gray-200': buttonVariants.secondary,
