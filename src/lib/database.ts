@@ -528,7 +528,7 @@ export const getQuizQuestions = async (quizId: string) => {
 export const submitQuizAttempt = async (attemptData: {
   quiz_id: string
   user_id: string
-  answers: Record<string, number>
+  answers: Record<string, any> // Changed from number to any to support different answer types
   time_taken_seconds?: number
 }) => {
   // First, get the correct answers
@@ -541,12 +541,51 @@ export const submitQuizAttempt = async (attemptData: {
     return { data: null, error: { message: 'Questions not found' } }
   }
 
-  // Calculate score
+  // Calculate score with support for different question types
   let correctAnswers = 0
   const totalQuestions = questions.length
 
   questions.forEach(question => {
-    if (attemptData.answers[question.id] === question.correct_answer) {
+    const userAnswer = attemptData.answers[question.id]
+    if (userAnswer === undefined || userAnswer === null) return // Skip unanswered questions
+    
+    let isCorrect = false
+    
+    // Handle different question types
+    if (['fill_blank', 'essay'].includes(question.question_type)) {
+      // Text-based answers - compare with correct_answer_text
+      if (question.correct_answer_text) {
+        if (question.question_type === 'fill_blank') {
+          // For fill-in-the-blank, do case-insensitive comparison and trim whitespace
+          isCorrect = String(userAnswer).toLowerCase().trim() === question.correct_answer_text.toLowerCase().trim()
+        } else {
+          // For essays, consider any non-empty answer as correct for now
+          // (proper essay grading would require manual review or AI)
+          isCorrect = String(userAnswer).trim().length > 0
+        }
+      }
+    } else if (['matching', 'ordering'].includes(question.question_type)) {
+      // Array-based answers - compare with JSON deserialized correct_answer_text
+      if (question.correct_answer_text) {
+        try {
+          const correctAnswer = JSON.parse(question.correct_answer_text)
+          // For arrays, compare length and contents
+          if (Array.isArray(correctAnswer) && Array.isArray(userAnswer)) {
+            isCorrect = correctAnswer.length === userAnswer.length && 
+                       correctAnswer.every((val, index) => val === userAnswer[index])
+          }
+        } catch (err) {
+          // If JSON parsing fails, mark as incorrect
+          console.error('Error parsing correct answer JSON:', err)
+          isCorrect = false
+        }
+      }
+    } else {
+      // Simple numeric answers (multiple_choice, single_choice, true_false)
+      isCorrect = userAnswer === question.correct_answer
+    }
+    
+    if (isCorrect) {
       correctAnswers++
     }
   })

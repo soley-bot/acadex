@@ -29,6 +29,8 @@ const nextConfig = {
   experimental: {
     // Improve Fast Refresh reliability
     optimizePackageImports: ['@/components', '@/lib'],
+    // optimizeCss: true, // Disabled due to critters dependency issue
+    optimizeServerReact: true,
   },
   images: {
     remotePatterns: [
@@ -50,21 +52,10 @@ const nextConfig = {
     minimumCacheTTL: 31536000, // 1 year
     dangerouslyAllowSVG: false,
   },
-  // Performance optimizations
-  experimental: {
-    // optimizeCss: true, // Disabled due to critters dependency issue
-    optimizeServerReact: true,
-  },
   // Compiler optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  // Bundle analyzer for debugging
-  ...(process.env.ANALYZE === 'true' && {
-    experimental: {
-      bundlePagesRouterDependencies: true,
-    },
-  }),
 }
 
 module.exports = nextConfig

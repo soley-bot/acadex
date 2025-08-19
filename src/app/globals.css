@@ -502,26 +502,26 @@
     
     /* Core Brand Colors */
     --background: 0 0% 100%;        /* Pure white background */
-    --foreground: 220 13% 9%;       /* Near-black text (WCAG AAA) */
-    --card: 0 0% 98%;               /* Off-white cards */
-    --card-foreground: 220 13% 9%;  /* Near-black text on cards */
+    --foreground: 0 0% 3.9%;       /* Near-black text (WCAG AAA) */
+    --card: 0 0% 100%;               /* Off-white cards */
+    --card-foreground: 0 0% 3.9%;  /* Near-black text on cards */
     --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 9%;
-    --primary: 0 72% 55%;           /* Professional red for actions */
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;           /* Professional red for actions */
     --primary-hover: 0 72% 50%;     /* Darker red for hover */
-    --primary-foreground: 0 0% 100%; /* White text on red */
-    --secondary: 220 13% 96%;       /* Light gray */
-    --secondary-foreground: 220 13% 9%;
-    --muted: 220 13% 96%;           /* Light gray background */
-    --muted-foreground: 220 9% 45%; /* Medium gray text */
-    --accent: 220 13% 96%;          /* Light gray for accents */
-    --accent-foreground: 220 13% 9%;
-    --destructive: 0 84% 55%;       /* Bright red for destructive actions */
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 85%;          /* Standard gray border */
-    --input: 0 0% 98%;              /* Light gray input background */
-    --ring: 0 72% 55%;              /* Red focus ring */
-    --radius: 0.75rem;              /* Consistent border radius */
+    --primary-foreground: 0 0% 98%; /* White text on red */
+    --secondary: 0 0% 96.1%;       /* Light gray */
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;           /* Light gray background */
+    --muted-foreground: 0 0% 45.1%; /* Medium gray text */
+    --accent: 0 0% 96.1%;          /* Light gray for accents */
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;       /* Bright red for destructive actions */
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;          /* Standard gray border */
+    --input: 0 0% 89.8%;              /* Light gray input background */
+    --ring: 0 0% 3.9%;              /* Red focus ring */
+    --radius: 0.5rem;              /* Consistent border radius */
     --brand: 0 72% 55%;             /* Brand red color */
     --brand-foreground: 0 0% 100%;  /* White on red */
     --success: 142 76% 36%;         /* Green for success states */
@@ -549,35 +549,35 @@
     --border-focus: 0 72% 55%;      /* Focus indicators */
     
     /* Chart colors - professional theme */
-    --chart-1: 220 13% 9%;          /* Primary dark */
-    --chart-2: 142 76% 36%;         /* Success green */
-    --chart-3: 38 92% 50%;          /* Warning yellow */
-    --chart-4: 221 83% 53%;         /* Blue */
-    --chart-5: 0 72% 55%;           /* Brand red */
+    --chart-1: 12 76% 61%;          /* Primary dark */
+    --chart-2: 173 58% 39%;         /* Success green */
+    --chart-3: 197 37% 24%;          /* Warning yellow */
+    --chart-4: 43 74% 66%;         /* Blue */
+    --chart-5: 27 87% 67%;           /* Brand red */
   }
 
   .dark {
     /* Dark Theme - Optimized for Accessibility */
-    --background: 220 13% 9%;       /* Dark background */
+    --background: 0 0% 3.9%;       /* Dark background */
     --foreground: 0 0% 98%;         /* Off-white text */
-    --card: 220 13% 11%;            /* Slightly lighter cards */
+    --card: 0 0% 3.9%;            /* Slightly lighter cards */
     --card-foreground: 0 0% 98%;    /* Off-white text on cards */
-    --popover: 220 13% 11%;
+    --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 84% 60%;           /* Brighter red for dark mode */
+    --primary: 0 0% 98%;           /* Brighter red for dark mode */
     --primary-hover: 0 84% 55%;     /* Darker red for hover in dark mode */
-    --primary-foreground: 0 0% 100%; /* White text on red */
-    --secondary: 220 13% 15%;       /* Darker gray */
+    --primary-foreground: 0 0% 9%; /* White text on red */
+    --secondary: 0 0% 14.9%;       /* Darker gray */
     --secondary-foreground: 0 0% 98%;
-    --muted: 220 13% 15%;           /* Darker gray background */
-    --muted-foreground: 220 9% 65%; /* Light gray text */
-    --accent: 220 13% 18%;          /* Darker gray for accents */
+    --muted: 0 0% 14.9%;           /* Darker gray background */
+    --muted-foreground: 0 0% 63.9%; /* Light gray text */
+    --accent: 0 0% 14.9%;          /* Darker gray for accents */
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 84% 60%;       /* Brighter red for dark mode */
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 25%;          /* Lighter border for dark */
-    --input: 220 13% 12%;           /* Dark input background */
-    --ring: 0 84% 60%;              /* Brighter focus ring */
+    --destructive: 0 62.8% 30.6%;       /* Brighter red for dark mode */
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;          /* Lighter border for dark */
+    --input: 0 0% 14.9%;           /* Dark input background */
+    --ring: 0 0% 83.1%;              /* Brighter focus ring */
     --brand: 0 84% 60%;             /* Brighter brand color */
     --brand-foreground: 0 0% 100%;  /* White on red */
     --success: 142 76% 45%;         /* Brighter green */
@@ -605,11 +605,11 @@
     --border-focus: 0 84% 60%;      /* Bright focus for visibility */
     
     /* Chart colors - dark mode */
-    --chart-1: 0 0% 100%;           /* White primary */  
-    --chart-2: 142 76% 45%;         /* Brighter green */
-    --chart-3: 38 92% 60%;          /* Brighter yellow */
-    --chart-4: 221 83% 60%;         /* Brighter blue */
-    --chart-5: 0 84% 60%;           /* Brighter red */
+    --chart-1: 220 70% 50%;           /* White primary */  
+    --chart-2: 160 60% 45%;         /* Brighter green */
+    --chart-3: 30 80% 55%;          /* Brighter yellow */
+    --chart-4: 280 65% 60%;         /* Brighter blue */
+    --chart-5: 340 75% 55%;           /* Brighter red */
   }
 }
 

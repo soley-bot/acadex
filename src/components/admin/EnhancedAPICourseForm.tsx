@@ -971,7 +971,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                                   lessonTitle={lesson.title || `Lesson ${lessonIndex + 1}`}
                                   onQuizUpdated={(quiz) => {
                                     // Optional: Handle quiz updates if needed
-                                    console.log('Quiz updated for lesson:', lesson.title, quiz)
+                                    logger.debug('Quiz updated for lesson:', { lessonTitle: lesson.title, quizId: quiz?.id })
                                   }}
                                 />
                               </div>

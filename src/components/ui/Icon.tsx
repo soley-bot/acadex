@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { logger } from '@/lib/logger'
 import { 
   // Navigation & Core
   Home, User, Users, Search, Settings, Menu, ArrowLeft, ArrowRight,
@@ -256,7 +257,7 @@ export default function Icon({
   const IconComponent = ICON_MAP[name] as LucideIcon
   
   if (!IconComponent) {
-    console.warn(`Icon "${name}" not found in ICON_MAP`)
+    logger.warn(`Icon "${name}" not found in ICON_MAP`)
     return null
   }
   

@@ -142,160 +142,111 @@ export default function QuizPage() {
         <div className="absolute top-40 left-40 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
 
-      {/* Hero Section */}
-      <Section spacing="lg" className="pt-24 text-center px-6">
-        <Container size="md">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
-            <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-            Quiz Details
+      {/* Streamlined Quiz Start */}
+      <Section spacing="lg" className="pt-24 px-6 lg:px-8">
+        <Container size="lg">
+          {/* Quiz Header */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-6 shadow-lg">
+              <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+              Ready to Start
+            </div>
+            <H1 className="mb-4 text-red-600">{quiz.title}</H1>
+            <BodyLG color="muted" className="max-w-2xl mx-auto">
+              {quiz.description}
+            </BodyLG>
           </div>
-          <H1 className="mb-6 text-red-600">{quiz.title}</H1>
-          <BodyLG color="muted" className="max-w-2xl mx-auto leading-relaxed">
-            {quiz.description}
-          </BodyLG>
-        </Container>
-      </Section>
 
-      {/* Main Content */}
-      <Section spacing="lg" className="px-6 lg:px-8">
-        <Container size="xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-            {/* Quiz Details */}
-            <div className="group">
-              <div className="p-8 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-105">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center">
-                    <Icon name="chart" size={24} color="white" />
-                  </div>
-                  <H2>Quiz Details</H2>
-                </div>
-              
-              <div className="space-y-6">
-                <div className="flex justify-between items-center p-4 rounded-xl bg-gradient-to-r from-red-50 to-red-50/50 border border-red-100">
-                  <BodyMD color="muted" className="font-medium">Difficulty:</BodyMD>
-                  <span className={`px-4 py-2 rounded-full text-sm font-bold ${getDifficultyColor(quiz.difficulty)} shadow-lg`}>
-                    {quiz.difficulty}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center p-4 rounded-xl bg-gradient-to-r from-blue-50 to-blue-50/50 border border-blue-100">
-                  <BodyMD color="muted" className="font-medium">Category:</BodyMD>
-                  <span className="font-bold text-gray-600 bg-white px-4 py-2 rounded-full shadow-md">{quiz.category}</span>
-                </div>
-                <div className="flex justify-between items-center p-4 rounded-xl bg-gradient-to-r from-green-50 to-green-50/50 border border-green-100">
-                  <BodyMD color="muted" className="font-medium">Questions:</BodyMD>
-                  <span className="font-bold text-gray-600 bg-white px-4 py-2 rounded-full shadow-md">{quiz.question_count}</span>
-                </div>
-                <div className="flex justify-between items-center p-4 rounded-xl bg-gradient-to-r from-orange-50 to-orange-50/50 border border-orange-100">
-                  <BodyMD color="muted" className="font-medium">Time Limit:</BodyMD>
-                  <span className="font-bold text-gray-600 bg-white px-4 py-2 rounded-full shadow-md">{quiz.duration_minutes} minutes</span>
-                </div>
+          {/* Quick Info Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12 max-w-4xl mx-auto">
+            <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-xl text-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
+                <Icon name="clock" size={20} color="white" />
               </div>
+              <BodyMD className="font-bold text-gray-800">{quiz.duration_minutes} min</BodyMD>
+              <BodyMD color="muted" className="text-sm">Time Limit</BodyMD>
+            </div>
+
+            <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-xl text-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
+                <Icon name="help" size={20} color="white" />
+              </div>
+              <BodyMD className="font-bold text-gray-800">{quiz.question_count}</BodyMD>
+              <BodyMD color="muted" className="text-sm">Questions</BodyMD>
+            </div>
+
+            <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-xl text-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
+                <Icon name="target" size={20} color="white" />
+              </div>
+              <BodyMD className={`font-bold px-3 py-1 rounded-full text-sm ${getDifficultyColor(quiz.difficulty)}`}>
+                {quiz.difficulty}
+              </BodyMD>
+              <BodyMD color="muted" className="text-sm mt-1">Difficulty</BodyMD>
+            </div>
+
+            <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-6 shadow-xl text-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
+                <Icon name="book" size={20} color="white" />
+              </div>
+              <BodyMD className="font-bold text-gray-800">{quiz.category}</BodyMD>
+              <BodyMD color="muted" className="text-sm">Category</BodyMD>
             </div>
           </div>
 
-          {/* Instructions */}
-          <div className="group">
-            <div className="p-8 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-500 hover:scale-105">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-                  <Icon name="edit" size={24} color="white" />
-                </div>
-                <H2>Instructions</H2>
+          {/* Key Instructions */}
+          <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-8 shadow-xl max-w-3xl mx-auto mb-12">
+            <div className="flex items-center gap-3 mb-6 justify-center">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                <Icon name="info" size={20} color="white" />
               </div>
-              
-              <ul className="space-y-4">
-                {[
-                  "Read each question carefully before answering",
-                  `You have ${quiz.duration_minutes} minutes to complete the quiz`,
-                  "You can navigate between questions during the quiz",
-                  "Submit your answers before time runs out",
-                  "Your results will be available immediately"
-                ].map((instruction, index) => (
-                  <li key={index} className="flex items-start gap-3 p-3 rounded-xl bg-gradient-to-r from-blue-50 to-blue-50/50 border border-blue-100 hover:shadow-md transition-all duration-300">
-                    <span className="w-6 h-6 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center text-white text-sm font-bold mt-0.5">
-                      {index + 1}
-                    </span>
-                    <BodyMD color="muted" className="font-medium">{instruction}</BodyMD>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        {/* Quiz Tips */}
-        <div className="mb-16">
-          <div className="p-10 rounded-3xl backdrop-blur-lg bg-gradient-to-r from-yellow-100/80 to-orange-100/80 border border-yellow-200/50 shadow-2xl">
-            <div className="text-center mb-8">
-              <div className="inline-block p-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl mb-4">
-                <Icon name="lightbulb" size={32} color="white" />
-              </div>
-              <H3 className="text-center">Tips for Success</H3>
+              <H3>Quick Instructions</H3>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="p-6 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/30">
-                <H4 className="mb-6 flex items-center gap-2">
-                  <span className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-400 rounded-full flex items-center justify-center">
-                    <Icon name="file" size={16} color="white" />
-                  </span>
-                  Before Starting:
-                </H4>
-                <ul className="space-y-3">
-                  {["Find a quiet environment", "Ensure stable internet connection", "Have scratch paper ready if needed"].map((tip, index) => (
-                    <li key={index} className="flex items-center gap-3">
-                      <span className="w-2 h-2 bg-gradient-to-r from-green-400 to-blue-400 rounded-full"></span>
-                      <BodyMD color="muted" className="font-medium">{tip}</BodyMD>
-                    </li>
-                  ))}
-                </ul>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center p-4 rounded-xl bg-blue-50 border border-blue-100">
+                <Icon name="clock" size={24} color="primary" className="mx-auto mb-2" />
+                <BodyMD className="font-semibold text-gray-800">Time Management</BodyMD>
+                <BodyMD color="muted" className="text-sm">{quiz.duration_minutes} minutes total</BodyMD>
               </div>
-              
-              <div className="p-6 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/30">
-                <h4 className="font-bold mb-6 text-xl text-gray-800 flex items-center gap-2">
-                  <span className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
-                    <Icon name="lightning" size={16} color="white" />
-                  </span>
-                  During the Quiz:
-                </h4>
-                <ul className="space-y-3">
-                  {["Read questions thoroughly", "Manage your time wisely", "Review answers before submitting"].map((tip, index) => (
-                    <li key={index} className="flex items-center gap-3 text-gray-700">
-                      <span className="w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></span>
-                      <span className="font-medium">{tip}</span>
-                    </li>
-                  ))}
-                </ul>
+              <div className="text-center p-4 rounded-xl bg-green-50 border border-green-100">
+                <Icon name="map" size={24} color="success" className="mx-auto mb-2" />
+                <BodyMD className="font-semibold text-gray-800">Navigation</BodyMD>
+                <BodyMD color="muted" className="text-sm">Move between questions freely</BodyMD>
+              </div>
+              <div className="text-center p-4 rounded-xl bg-orange-50 border border-orange-100">
+                <Icon name="check" size={24} color="warning" className="mx-auto mb-2" />
+                <BodyMD className="font-semibold text-gray-800">Submission</BodyMD>
+                <BodyMD color="muted" className="text-sm">Review before final submit</BodyMD>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="text-center">
-          <div className="inline-flex flex-col sm:flex-row gap-6">
-            <button
-              onClick={handleStartQuiz}
-              className="group relative px-12 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <span className="relative flex items-center gap-3">
-                <Icon name="rocket" size={24} color="white" />
-                Start Quiz
-              </span>
-            </button>
-            
-            <Link
-              href="/quizzes"
-              className="group relative px-12 py-4 bg-white/80 backdrop-blur-lg text-gray-600 text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 border border-white/30"
-            >
-              <span className="relative flex items-center gap-3">
-                <Icon name="arrow-left" size={24} color="current" />
-                Back to Quizzes
-              </span>
-            </Link>
+          {/* Action Buttons */}
+          <div className="text-center">
+            <div className="inline-flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={handleStartQuiz}
+                className="group relative px-16 py-5 bg-gradient-to-r from-red-600 to-red-700 text-white text-2xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <span className="relative flex items-center gap-4">
+                  <Icon name="play" size={28} color="white" />
+                  Start Quiz Now
+                </span>
+              </button>
+              
+              <Link
+                href="/quizzes"
+                className="group px-12 py-5 bg-white/80 backdrop-blur-lg text-gray-600 text-xl font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 border border-white/30"
+              >
+                <span className="flex items-center gap-3">
+                  <Icon name="arrow-left" size={20} color="current" />
+                  Back to Quizzes
+                </span>
+              </Link>
+            </div>
           </div>
-        </div>
         </Container>
       </Section>
     </div>
