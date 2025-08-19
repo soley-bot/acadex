@@ -6,15 +6,16 @@ import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Course } from '@/lib/supabase'
 import { EnhancedAPICourseForm } from '@/components/admin/EnhancedAPICourseForm'
-import { DeleteCourseModal } from '@/components/admin/DeleteCourseModal'
 import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
 import { CourseViewModal } from '@/components/admin/CourseViewModal'
 import { CategoryManagement } from '@/components/admin/CategoryManagement'
 import Icon from '@/components/ui/Icon'
 import { useAuth } from '@/contexts/AuthContext'
+import { useToast } from '@/components/ui/Toast'
 
 export default function CoursesPage() {
   const { user } = useAuth()
+  const { success: showSuccessToast, error: showErrorToast } = useToast()
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -24,7 +25,6 @@ export default function CoursesPage() {
   // Modal states
   const [showCourseForm, setShowCourseForm] = useState(false)
   const [editingCourse, setEditingCourse] = useState<Course | null>(null)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deletingCourse, setDeletingCourse] = useState<Course | null>(null)
   const [showEnhancedDeleteModal, setShowEnhancedDeleteModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
@@ -110,7 +110,6 @@ export default function CoursesPage() {
 
   const handleDeleteSuccess = () => {
     fetchCourses() // Refresh courses after successful deletion
-    setShowDeleteModal(false)
     setShowEnhancedDeleteModal(false)
     setDeletingCourse(null)
   }
@@ -146,9 +145,10 @@ export default function CoursesPage() {
             : c
         )
       )
+      showSuccessToast('Course updated', `Course "${course.title}" has been ${!course.is_published ? 'published' : 'unpublished'}.`)
     } catch (err: any) {
       logger.error('Error toggling publish status:', err)
-      setError(err.message || 'Failed to update course status. Please try again.')
+      showErrorToast('Update failed', err.message || 'Failed to update course status.')
     }
   }
 
@@ -484,13 +484,6 @@ export default function CoursesPage() {
           setEditingCourse(null)
         }}
         onSuccess={handleFormSuccess}
-      />
-
-      <DeleteCourseModal
-        course={deletingCourse}
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onSuccess={handleDeleteSuccess}
       />
 
       <EnhancedDeleteModal

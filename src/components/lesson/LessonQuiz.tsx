@@ -10,6 +10,27 @@ interface QuizQuestion {
   options: string[]
   correct_answer: number
   explanation?: string
+  order_index: number
+}
+
+interface QuizData {
+  id: string
+  title: string
+  description: string
+  passing_score: number
+  questions: QuizQuestion[]
+}
+
+export interface QuizAttemptResult {
+  quiz_id: string
+  lesson_id: string
+  total_questions: number
+  answers: Record<string, number>
+  score: number
+  time_taken_seconds: number
+  passed: boolean
+  percentage_score: number
+  attempt_number: number
 }
 
 interface LessonQuizProps {
@@ -17,29 +38,41 @@ interface LessonQuizProps {
   lessonTitle: string
   isOpen: boolean
   onClose: () => void
-  onComplete?: (score: number) => void
+  onComplete?: (result: QuizAttemptResult) => void
 }
 
 export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete }: LessonQuizProps) {
-  const [quiz, setQuiz] = useState<{ questions: QuizQuestion[], title: string, description: string } | null>(null)
+  const [quiz, setQuiz] = useState<QuizData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string, number>>({})
   const [showResults, setShowResults] = useState(false)
+  const [startTime, setStartTime] = useState<number | null>(null)
 
   // Load quiz data when component opens
   useEffect(() => {
     const loadLessonQuiz = async () => {
       setLoading(true)
       setError(null)
+      setStartTime(Date.now()) // Start timer
       
       try {
         const { data, error } = await supabase
           .from('quizzes')
           .select(`
-            *,
-            quiz_questions (*)
+            id,
+            title,
+            description,
+            passing_score,
+            quiz_questions (
+              id,
+              question,
+              options,
+              correct_answer,
+              explanation,
+              order_index
+            )
           `)
           .eq('lesson_id', lessonId)
           .eq('is_published', true)
@@ -57,16 +90,11 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
 
         if (data) {
           setQuiz({
+            id: data.id,
             title: data.title,
             description: data.description,
-            questions: data.quiz_questions?.map((q: any) => ({
-              id: q.id,
-              question: q.question,
-              options: q.options,
-              correct_answer: q.correct_answer,
-              explanation: q.explanation,
-              order_index: q.order_index
-            })).sort((a: any, b: any) => a.order_index - b.order_index) || []
+            passing_score: data.passing_score,
+            questions: data.quiz_questions?.sort((a: any, b: any) => a.order_index - b.order_index) || []
           })
         }
       } catch (err: any) {
@@ -173,10 +201,30 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
     if (currentQuestionIndex < quizQuestions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1)
     } else {
-      // Calculate score and show results
-      const score = calculateScore()
+      // Finish quiz
+      if (!quiz) return
+
+      const endTime = Date.now()
+      const timeTaken = Math.round((endTime - (startTime || endTime)) / 1000)
+
+      const correctAnswers = quiz.questions.filter(q => answers[q.id] === q.correct_answer).length
+      const percentageScore = Math.round((correctAnswers / quiz.questions.length) * 100)
+      const passed = percentageScore >= (quiz.passing_score || 70)
+
+      const result: QuizAttemptResult = {
+        quiz_id: quiz.id,
+        lesson_id: lessonId,
+        total_questions: quiz.questions.length,
+        answers: answers,
+        score: correctAnswers,
+        time_taken_seconds: timeTaken,
+        passed: passed,
+        percentage_score: percentageScore,
+        attempt_number: 1 // Default to 1 for now
+      }
+
       setShowResults(true)
-      onComplete?.(score)
+      onComplete?.(result)
     }
   }
 
@@ -187,13 +235,14 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
   }
 
   const calculateScore = () => {
+    if (!quiz) return 0
     let correct = 0
-    quizQuestions.forEach(question => {
+    quiz.questions.forEach(question => {
       if (answers[question.id] === question.correct_answer) {
         correct++
       }
     })
-    return Math.round((correct / quizQuestions.length) * 100)
+    return Math.round((correct / quiz.questions.length) * 100)
   }
 
   const getProgressPercentage = () => {

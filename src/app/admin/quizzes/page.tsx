@@ -20,10 +20,11 @@ import { AIQuizGenerator, GeneratedQuiz } from '@/components/admin/AIQuizGenerat
 import { SimpleAIQuizCreator } from '@/components/admin/SimpleAIQuizCreator'
 import { BulkQuizGenerator } from '@/components/admin/BulkQuizGenerator'
 import { QuizAnalytics } from '@/components/admin/QuizAnalytics'
-import { DeleteModal } from '@/components/ui/DeleteModal'
 import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
+import { useToast } from '@/components/ui/Toast'
 
 export default function QuizzesPage() {
+  const { success: showSuccessToast, error: showErrorToast } = useToast()
   const [quizzes, setQuizzes] = useState<Quiz[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -36,7 +37,6 @@ export default function QuizzesPage() {
   // Modal states
   const [showQuizForm, setShowQuizForm] = useState(false)
   const [editingQuiz, setEditingQuiz] = useState<Quiz | null>(null)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deletingQuiz, setDeletingQuiz] = useState<Quiz | null>(null)
   const [showEnhancedDeleteModal, setShowEnhancedDeleteModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
@@ -55,57 +55,17 @@ export default function QuizzesPage() {
       setLoading(true)
       setError(null)
       
-      const { data, error } = await supabase
-        .from('quizzes')
-        .select('*')
-        .order('created_at', { ascending: false })
+      const response = await fetch('/api/admin/quizzes/with-stats')
+      const result = await response.json()
 
-      if (error) throw error
-
-      // Get attempt counts and average scores for each quiz
-      const quizIds = data.map(quiz => quiz.id)
-      
-      const { data: attempts, error: attemptsError } = await supabase
-        .from('quiz_attempts')
-        .select('quiz_id, score, total_questions')
-        .in('quiz_id', quizIds)
-
-      if (attemptsError) {
-        logger.error('Error fetching quiz attempts:', attemptsError)
+      if (result.success) {
+        setQuizzes(result.data || [])
+      } else {
+        throw new Error(result.error || 'Failed to fetch quizzes')
       }
-
-      // Get actual question counts from database
-      const { data: questionCounts, error: questionCountError } = await supabase
-        .from('quiz_questions')
-        .select('quiz_id')
-        .in('quiz_id', quizIds)
-
-      if (questionCountError) {
-        logger.error('Error fetching question counts:', questionCountError)
-      }
-
-      // Process quizzes with actual statistics
-      const processedQuizzes = data.map(quiz => {
-        const quizAttempts = attempts?.filter(attempt => attempt.quiz_id === quiz.id) || []
-        const actualQuestionCount = questionCounts?.filter(q => q.quiz_id === quiz.id).length || 0
-        
-        const attemptsCount = quizAttempts.length
-        const averageScore = attemptsCount > 0 
-          ? Math.round(quizAttempts.reduce((sum, attempt) => sum + (attempt.score / attempt.total_questions * 100), 0) / attemptsCount)
-          : 0
-
-        return {
-          ...quiz,
-          total_questions: actualQuestionCount, // Use actual count from database
-          attempts_count: attemptsCount,
-          average_score: averageScore
-        }
-      })
-
-      setQuizzes(processedQuizzes || [])
-    } catch (err) {
+    } catch (err: any) {
       logger.error('Error fetching quizzes:', err)
-      setError('Failed to load quizzes. Please try again.')
+      setError(err.message)
     } finally {
       setLoading(false)
     }
@@ -322,9 +282,10 @@ export default function QuizzesPage() {
             : q
         )
       )
+      showSuccessToast('Quiz updated', `Quiz "${quiz.title}" has been ${!quiz.is_published ? 'published' : 'unpublished'}.`)
     } catch (err: any) {
       logger.error('Error toggling quiz publish status:', err)
-      setError('Failed to update quiz status. Please try again.')
+      showErrorToast('Update failed', 'Failed to update quiz status.')
     }
   }
 
@@ -336,28 +297,8 @@ export default function QuizzesPage() {
 
   const handleDeleteSuccess = () => {
     fetchQuizzes()
-    setShowDeleteModal(false)
     setShowEnhancedDeleteModal(false)
     setDeletingQuiz(null)
-  }
-
-  const deleteQuiz = async (quiz: any) => {
-    const { error } = await supabase
-      .from('quizzes')
-      .delete()
-      .eq('id', quiz.id)
-
-    if (error) throw error
-  }
-
-  const checkQuizUsage = async (quiz: any) => {
-    const { count, error } = await supabase
-      .from('quiz_attempts')
-      .select('*', { count: 'exact', head: true })
-      .eq('quiz_id', quiz.id)
-
-    if (error) throw error
-    return { count: count || 0 }
   }
 
   const formatDate = (dateString: string) => {
@@ -819,15 +760,6 @@ export default function QuizzesPage() {
         isOpen={showQuizForm}
         onClose={() => setShowQuizForm(false)}
         onSuccess={handleFormSuccess}
-      />
-
-      <DeleteModal
-        item={deletingQuiz ? { ...deletingQuiz, type: 'quiz' } : null}
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onSuccess={handleDeleteSuccess}
-        onDelete={deleteQuiz}
-        usageCheck={checkQuizUsage}
       />
 
       <EnhancedDeleteModal

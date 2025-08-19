@@ -9,10 +9,11 @@ import { supabase, Course, CourseModule, CourseLesson, CourseResource, LessonPro
 import { getCourseWithModulesAndLessons, updateEnrollmentProgress } from '@/lib/database-operations'
 import { useAuth } from '@/contexts/AuthContext'
 import { RichTextRenderer } from '@/components/ui/RichTextRenderer'
-import { LessonQuiz } from '@/components/lesson/LessonQuiz'
+import { LessonQuiz, QuizAttemptResult } from '@/components/lesson/LessonQuiz'
 import { Typography, DisplayLG, H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
 import Icon from '@/components/ui/Icon'
+import { useToast } from '@/components/ui/Toast'
 
 interface ModuleWithContent extends CourseModule {
   course_lessons: (CourseLesson & {
@@ -40,67 +41,76 @@ export default function CourseStudyPage() {
   const [enrollmentProgress, setEnrollmentProgress] = useState(0)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [showQuizModal, setShowQuizModal] = useState(false)
+  const { success: showSuccessToast, error: showErrorToast } = useToast()
 
   const loadCourseContent = useCallback(async () => {
     try {
-      setLoading(true)
-      
+      setLoading(true);
       if (!user) {
-        router.push('/auth/login')
-        return
+        router.push('/auth/login');
+        return;
       }
-      
-      // Check enrollment first
+
       const { data: enrollmentData, error: enrollmentError } = await supabase
         .from('enrollments')
         .select('*')
         .eq('user_id', user.id)
         .eq('course_id', params.id)
-        .single()
+        .single();
 
       if (enrollmentError || !enrollmentData) {
-        setIsEnrolled(false)
-        setError('You are not enrolled in this course.')
-        return
+        setIsEnrolled(false);
+        setError('You are not enrolled in this course.');
+        return;
       }
 
-      setIsEnrolled(true)
-      setEnrollmentProgress(enrollmentData.progress || 0)
-      
-      // Load course with modules and lessons
-      const courseData = await getCourseWithModulesAndLessons(params.id as string)
-      setCourse(courseData)
-      
-      // Load lesson progress for user
+      setIsEnrolled(true);
+      setEnrollmentProgress(enrollmentData.progress || 0);
+
+      const courseData = await getCourseWithModulesAndLessons(params.id as string);
+      setCourse(courseData);
+
       const { data: progressData } = await supabase
         .from('lesson_progress')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', user.id);
 
-      // Combine modules with progress data
       const modulesWithProgress = courseData.modules.map((module: any) => ({
         ...module,
         course_lessons: module.course_lessons.map((lesson: any) => ({
           ...lesson,
-          progress: progressData?.find(p => p.lesson_id === lesson.id)
-        }))
-      }))
+          progress: progressData?.find(p => p.lesson_id === lesson.id),
+        })),
+      }));
 
-      setModules(modulesWithProgress)
-      
-      // Set first lesson as current if no lesson is selected
-      if (modulesWithProgress.length > 0 && modulesWithProgress[0].course_lessons.length > 0) {
-        setCurrentLesson(modulesWithProgress[0].course_lessons[0])
-        setExpandedModules(new Set([modulesWithProgress[0].id]))
+      setModules(modulesWithProgress);
+
+      let lessonToSet = null;
+      if (enrollmentData.current_lesson_id) {
+        for (const module of modulesWithProgress) {
+          const foundLesson = module.course_lessons.find(l => l.id === enrollmentData.current_lesson_id);
+          if (foundLesson) {
+            lessonToSet = foundLesson;
+            setExpandedModules(new Set([module.id]));
+            break;
+          }
+        }
       }
-      
+
+      if (lessonToSet) {
+        setCurrentLesson(lessonToSet);
+      } else if (modulesWithProgress.length > 0 && modulesWithProgress[0].course_lessons.length > 0) {
+        setCurrentLesson(modulesWithProgress[0].course_lessons[0]);
+        setExpandedModules(new Set([modulesWithProgress[0].id]));
+      }
+
     } catch (err) {
-      logger.error('Error loading course content:', err)
-      setError('Failed to load course content')
+      logger.error('Error loading course content:', err);
+      setError('Failed to load course content');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [user, params.id, router])
+  }, [user, params.id, router]);
 
   useEffect(() => {
     if (!user) {
@@ -121,75 +131,92 @@ export default function CourseStudyPage() {
   }
 
   const selectLesson = (lesson: LessonWithProgress) => {
-    // Check if lesson is accessible
     if (!isEnrolled && !lesson.is_free_preview) {
-      return // Don't allow access to locked lessons
+      return;
     }
-    setCurrentLesson(lesson)
-    // Close sidebar on mobile after selecting lesson
-    setIsSidebarOpen(false)
-  }
+    setCurrentLesson(lesson);
+    setIsSidebarOpen(false);
+
+    // Fire-and-forget update to the backend
+    fetch('/api/enrollments/progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        course_id: params.id,
+        lesson_id: lesson.id,
+      }),
+    }).catch(err => {
+      logger.error('Failed to update current lesson progress:', err);
+    });
+  };
 
   const toggleLessonCompletion = async (lessonId: string) => {
-    if (!user || !isEnrolled) return
+    if (!user || !isEnrolled || !currentLesson) return;
 
-    // Get current completion status
-    const currentProgress = currentLesson?.progress
-    const isCurrentlyCompleted = currentProgress?.is_completed || false
-    const newCompletionStatus = !isCurrentlyCompleted
+    const originalModules = modules;
+    const originalLesson = currentLesson;
+
+    const newCompletionStatus = !originalLesson.progress?.is_completed;
+
+    // Optimistic UI update
+    const updatedModules = modules.map(module => ({
+      ...module,
+      course_lessons: module.course_lessons.map(lesson => {
+        if (lesson.id === lessonId) {
+          return {
+            ...lesson,
+            progress: { ...lesson.progress, is_completed: newCompletionStatus },
+          };
+        }
+        return lesson;
+      }),
+    }));
+    setModules(updatedModules);
+    setCurrentLesson({
+      ...originalLesson,
+      progress: { ...originalLesson.progress, is_completed: newCompletionStatus },
+    });
 
     try {
-      // Step 1: Check if record exists
-      const { data: existingRecord, error: checkError } = await supabase
+      const { data: existingRecord } = await supabase
         .from('lesson_progress')
-        .select('id, is_completed')
+        .select('id')
         .eq('user_id', user.id)
         .eq('lesson_id', lessonId)
-        .maybeSingle()
+        .maybeSingle();
 
-      if (checkError) {
-        logger.error('Error checking existing record:', checkError)
-        throw checkError
-      }
+      const progressData = {
+        is_completed: newCompletionStatus,
+        completed_at: newCompletionStatus ? new Date().toISOString() : null,
+      };
 
-      let result
+      let result;
       if (existingRecord) {
-        // Step 2a: Update existing record
-        logger.debug('Updating existing lesson progress record')
         result = await supabase
           .from('lesson_progress')
-          .update({
-            is_completed: newCompletionStatus,
-            completed_at: newCompletionStatus ? new Date().toISOString() : null
-          })
-          .eq('id', existingRecord.id)
+          .update(progressData)
+          .eq('id', existingRecord.id);
       } else {
-        // Step 2b: Create new record
-        logger.debug('Creating new lesson progress record')
-        result = await supabase
-          .from('lesson_progress')
-          .insert({
-            user_id: user.id,
-            lesson_id: lessonId,
-            is_completed: newCompletionStatus,
-            completed_at: newCompletionStatus ? new Date().toISOString() : null
-          })
+        result = await supabase.from('lesson_progress').insert({
+          ...progressData,
+          user_id: user.id,
+          lesson_id: lessonId,
+        });
       }
 
-      if (result.error) {
-        logger.error('Lesson progress operation failed:', result.error)
-        throw result.error
-      }
-
-      logger.debug('Lesson progress updated successfully')
-      // Reload progress to reflect changes
-      await loadCourseContent()
+      if (result.error) throw result.error;
       
+      showSuccessToast('Progress updated!', newCompletionStatus ? 'Lesson marked as complete.' : 'Lesson marked as incomplete.');
+
     } catch (err) {
-      logger.error('Error toggling lesson completion:', err)
-      alert('Failed to update lesson progress. Please try again.')
+      logger.error('Error toggling lesson completion:', err);
+      showErrorToast('Update failed', 'Could not update lesson progress. Please try again.');
+
+      // Revert UI on error
+      setModules(originalModules);
+      setCurrentLesson(originalLesson);
     }
-  }
+  };
 
   const formatDuration = (minutes: number) => {
     if (minutes < 60) {
@@ -681,9 +708,26 @@ export default function CourseStudyPage() {
           lessonTitle={currentLesson.title}
           isOpen={showQuizModal}
           onClose={() => setShowQuizModal(false)}
-          onComplete={(score) => {
-            console.log('Quiz completed with score:', score)
-            // TODO: Save quiz attempt to database
+          onComplete={async (result: QuizAttemptResult) => {
+            logger.info('Quiz completed, saving attempt...', result)
+            try {
+              const response = await fetch('/api/quizzes/attempts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(result),
+              })
+
+              if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Failed to save quiz attempt')
+              }
+
+              logger.info('Quiz attempt saved successfully')
+              // Optionally, show a success toast here
+            } catch (error) {
+              logger.error('Error saving quiz attempt:', error)
+              // Optionally, show an error toast here
+            }
           }}
         />
       )}

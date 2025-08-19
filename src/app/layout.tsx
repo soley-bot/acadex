@@ -5,6 +5,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ConditionalLayout } from '@/components/ConditionalLayout'
+import { ToastProvider } from '@/components/ui/ToastProvider'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -85,9 +86,11 @@ html {
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <AuthProvider>
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
+          <ToastProvider>
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>

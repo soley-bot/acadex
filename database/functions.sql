@@ -67,3 +67,48 @@ BEGIN
     (SELECT COALESCE(AVG(score::DECIMAL / total_questions * 100), 0) FROM public.quiz_attempts WHERE user_id = user_uuid) as avg_quiz_score;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Function to get all quizzes with their statistics
+CREATE OR REPLACE FUNCTION get_quizzes_with_stats()
+RETURNS TABLE (
+  id UUID,
+  title TEXT,
+  description TEXT,
+  category TEXT,
+  difficulty TEXT,
+  duration_minutes INTEGER,
+  total_questions INTEGER,
+  course_id UUID,
+  lesson_id UUID,
+  passing_score INTEGER,
+  max_attempts INTEGER,
+  time_limit_minutes INTEGER,
+  image_url TEXT,
+  is_published BOOLEAN,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ,
+  attempts_count BIGINT,
+  average_score DECIMAL
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    q.*,
+    stats.attempts_count,
+    stats.average_score
+  FROM
+    public.quizzes q
+  LEFT JOIN (
+    SELECT
+      qa.quiz_id,
+      COUNT(qa.id) as attempts_count,
+      COALESCE(AVG(qa.score::DECIMAL / qa.total_questions * 100), 0) as average_score
+    FROM
+      public.quiz_attempts qa
+    GROUP BY
+      qa.quiz_id
+  ) as stats ON q.id = stats.quiz_id
+  ORDER BY
+    q.created_at DESC;
+END;
+$$ LANGUAGE plpgsql;
