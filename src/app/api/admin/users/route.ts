@@ -3,21 +3,35 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { logger } from '@/lib/logger'
 
-// Create admin client with service role key - same pattern as other working APIs
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
+// Helper function to create admin client
+function createAdminClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl) {
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
   }
-)
+
+  if (!supabaseServiceKey) {
+    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable')
+  }
+
+  return createClient(
+    supabaseUrl,
+    supabaseServiceKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
+}
 
 // GET - Fetch all users for admin
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createAdminClient()
     // Fetch users
     const { data: users, error } = await supabase
       .from('users')
@@ -38,6 +52,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createAdminClient()
     const { name, email, password, role } = await request.json()
 
     // Validate required fields
