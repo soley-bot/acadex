@@ -21,7 +21,7 @@ export default function Hero() {
       <Container size="xl" className="relative text-center">
         <div className="max-w-4xl mx-auto">
           {/* Hero Badge */}
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-4 py-2 lg:px-6 lg:py-3 rounded-full text-sm lg:text-base font-medium mb-8 lg:mb-12 shadow-lg transform hover:scale-105 transition-all duration-200">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-4 py-2 lg:px-6 lg:py-3 rounded-full hero-badge mb-8 lg:mb-12 shadow-lg transform hover:scale-105 transition-all duration-200">
             <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
             Made for Cambodian Learners
           </div>
@@ -46,13 +46,13 @@ export default function Hero() {
           {/* CTA Buttons */}
           <Flex direction="col" gap="md" className="sm:flex-row justify-center mb-20 lg:mb-24">
             <Link href="/courses">
-              <button className="bg-primary hover:bg-secondary text-black hover:text-white px-8 py-4 lg:px-10 lg:py-5 rounded-2xl font-bold text-lg lg:text-xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 min-w-[200px]">
+              <button className="bg-primary hover:bg-secondary text-black hover:text-white px-8 py-4 lg:px-10 lg:py-5 rounded-2xl btn-text-xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 min-w-[200px]">
                 Browse Courses
                 <span className="ml-3 text-xl">→</span>
               </button>
             </Link>
             <Link href="/quizzes">
-              <button className="border-2 border-secondary text-secondary bg-white/80 backdrop-blur-sm hover:bg-primary hover:text-black px-8 py-4 lg:px-10 lg:py-5 rounded-2xl font-bold text-lg lg:text-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 min-w-[200px] flex items-center justify-center">
+              <button className="border-2 border-primary text-primary hover:bg-primary hover:text-black px-8 py-4 lg:px-10 lg:py-5 rounded-2xl btn-text-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 min-w-[200px] flex items-center justify-center">
                 Try Our Quiz
                 <span className="ml-3"></span>
               </button>
@@ -63,19 +63,19 @@ export default function Hero() {
           <Grid cols={2} className="md:grid-cols-4 max-w-5xl mx-auto mb-20 lg:mb-24">
             <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-xl border border-white/20 transform hover:scale-105 transition-all duration-300">
               <Typography variant="display-md" color="primary" className="mb-2">100+</Typography>
-              <BodyMD color="muted" className="font-medium">Early Learners</BodyMD>
+              <Typography variant="stat-label" color="muted">Early Learners</Typography>
             </div>
             <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-xl border border-white/20 transform hover:scale-105 transition-all duration-300">
               <Typography variant="display-md" className="mb-2">50+</Typography>
-              <BodyMD color="muted" className="font-medium">Practice Questions</BodyMD>
+              <Typography variant="stat-label" color="muted">Practice Questions</Typography>
             </div>
             <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-xl border border-white/20 transform hover:scale-105 transition-all duration-300">
               <Typography variant="display-md" className="mb-2">5+</Typography>
-              <BodyMD color="muted" className="font-medium">Quality Courses</BodyMD>
+              <Typography variant="stat-label" color="muted">Quality Courses</Typography>
             </div>
             <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-xl border border-white/20 transform hover:scale-105 transition-all duration-300">
               <Typography variant="display-md" color="primary" className="mb-2">100%</Typography>
-              <BodyMD color="muted" className="font-medium">Made with Care</BodyMD>
+              <Typography variant="stat-label" color="muted">Made with Care</Typography>
             </div>
           </Grid>
 
@@ -97,7 +97,7 @@ export default function Hero() {
                     <BodyMD color="muted">Your personalized learning journey</BodyMD>
                   </div>
                 </Flex>
-                <BodyMD color="muted" className="font-medium bg-muted/40 px-3 py-1 rounded-full">Today</BodyMD>
+                <Typography variant="badge-sm" className="bg-muted/40 px-3 py-1 rounded-full" color="muted">Today</Typography>
               </Flex>
               
               {/* Course Progress Grid */}
@@ -105,7 +105,7 @@ export default function Hero() {
                 <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 lg:p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
                   <Flex align="center" justify="between" className="mb-4 lg:mb-6">
                     <H3>Everyday English</H3>
-                    <Typography variant="body-md" color="primary" className="font-bold bg-primary/10 px-3 py-1 lg:px-4 lg:py-2 rounded-full">70%</Typography>
+                    <Typography variant="stat-value" className="bg-primary/10 px-3 py-1 lg:px-4 lg:py-2 rounded-full">70%</Typography>
                   </Flex>
                   <div className="w-full bg-muted/60 rounded-full h-3 lg:h-4">
                     <div className="bg-gradient-to-r from-primary to-primary/90 h-3 lg:h-4 rounded-full transition-all duration-500 shadow-sm" style={{ width: '70%' }}></div>
@@ -115,7 +115,7 @@ export default function Hero() {
                 <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 lg:p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
                   <Flex align="center" justify="between" className="mb-4 lg:mb-6">
                     <H3>Study Skills</H3>
-                    <Typography variant="body-md" color="primary" className="font-bold bg-primary/10 px-3 py-1 lg:px-4 lg:py-2 rounded-full">45%</Typography>
+                    <Typography variant="stat-value" className="bg-primary/10 px-3 py-1 lg:px-4 lg:py-2 rounded-full">45%</Typography>
                   </Flex>
                   <div className="w-full bg-muted/60 rounded-full h-3 lg:h-4">
                     <div className="bg-gradient-to-r from-primary to-primary/90 h-3 lg:h-4 rounded-full transition-all duration-500 shadow-sm" style={{ width: '45%' }}></div>

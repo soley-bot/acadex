@@ -25,6 +25,35 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Acadex - Learn Real Skills, Your Way',
     description: 'Simple lessons and clear explanations made for Cambodian learners. Short videos, friendly visuals, and zero pressure. Start learning today!',
+    url: 'https://acadex.com',
+    siteName: 'Acadex',
+    locale: 'en_US',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Acadex - Online Learning Platform for Cambodians',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Acadex - Learn Real Skills, Your Way',
+    description: 'Simple lessons and clear explanations made for Cambodian learners. Short videos, friendly visuals, and zero pressure.',
+    images: ['/og-image.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 }
 
@@ -54,22 +83,22 @@ export default function Home() {
       <Hero />
       
       {/* Features Section */}
-      <Section background="glass" spacing="lg">
+      <Section background="glass" spacing="sm">
         <Features />
       </Section>
       
       {/* Honest Section */}
-      <Section background="transparent" spacing="lg">
+      <Section background="glass" spacing="sm">
         <HonestSection />
       </Section>
       
       {/* Quiz Section */}
-      <Section background="transparent" spacing="lg">
+      <Section background="glass" spacing="sm">
         <QuizPreview />
       </Section>
       
       {/* Popular Courses Section */}
-      <Section background="glass" spacing="lg">
+      <Section background="glass" spacing="sm">
         <PopularCourses />
       </Section>
       </div>

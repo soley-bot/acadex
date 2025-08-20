@@ -42,39 +42,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get initial session with timeout
     const initializeAuth = async () => {
       try {
-        // Set a timeout for initial session check
-        const sessionPromise = supabase.auth.getSession()
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Session timeout')), 5000)
-        )
-
-        const { data: { session } } = await Promise.race([
-          sessionPromise,
-          timeoutPromise
-        ]) as any
+        // Get session with better error handling
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          logger.error('Auth session error:', error)
+          setUser(null)
+          setSupabaseUser(null)
+          return
+        }
 
         if (!mounted) return
 
         if (session?.user) {
           setSupabaseUser(session.user)
           
-          // Try to get user profile with timeout
+          // Try to get user profile
           try {
-            const userPromise = userAPI.getCurrentUser()
-            const userTimeoutPromise = new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('User fetch timeout')), 3000)
-            )
-            
-            const userResult = await Promise.race([
-              userPromise,
-              userTimeoutPromise
-            ]) as any
+            const userResult = await userAPI.getCurrentUser()
 
             if (userResult?.data && mounted) {
               setUser(userResult.data)
+            } else if (mounted) {
+              // No user profile found, create fallback user
+              const userRole = AuthSecurity.determineRole(session.user.email!)
+              const secureUser = {
+                id: session.user.id,
+                email: session.user.email!,
+                name: session.user.user_metadata?.name || session.user.email!.split('@')[0],
+                role: userRole,
+                created_at: session.user.created_at,
+                updated_at: session.user.updated_at || session.user.created_at
+              }
+              
+              setUser(AuthSecurity.sanitizeUser(secureUser))
+              AuthSecurity.auditSecurityEvent('fallback_session_created', secureUser)
             }
           } catch (userError) {
-            console.warn('Failed to fetch user profile, using basic session data')
+            logger.warn('Failed to fetch user profile, using basic session data:', userError)
             // Fallback to basic user data from session with enhanced role determination
             if (mounted) {
               const userRole = AuthSecurity.determineRole(session.user.email!)
@@ -91,6 +96,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               AuthSecurity.auditSecurityEvent('fallback_session_created', secureUser)
             }
           }
+        } else {
+          // No session
+          setUser(null)
+          setSupabaseUser(null)
         }
       } catch (error) {
         console.warn('Session initialization failed:', error)
@@ -118,6 +127,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               const userResult = await userAPI.getCurrentUser()
               if (userResult?.data && mounted) {
                 setUser(userResult.data)
+              } else if (mounted) {
+                // No user profile found, create fallback user
+                const userRole = AuthSecurity.determineRole(session.user.email!)
+                const secureUser = {
+                  id: session.user.id,
+                  email: session.user.email!,
+                  name: session.user.user_metadata?.name || session.user.email!.split('@')[0],
+                  role: userRole,
+                  created_at: session.user.created_at,
+                  updated_at: session.user.updated_at || session.user.created_at
+                }
+                
+                setUser(AuthSecurity.sanitizeUser(secureUser))
+                logger.debug('Auth state change fallback', { event, userId: secureUser.id })
               }
             } catch (error) {
               // Fallback to session data if profile fetch fails with enhanced security
@@ -327,16 +350,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {loading ? (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading your session...</p>
-          </div>
-        </div>
-      ) : (
-        children
-      )}
+      {children}
     </AuthContext.Provider>
   )
 }

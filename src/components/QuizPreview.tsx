@@ -71,7 +71,7 @@ export default function QuizPreview() {
       <Container size="xl" className="relative">
         {/* Section Header */}
         <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full hero-badge mb-8 shadow-lg">
             <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
             Quiz Platform
           </div>
@@ -92,8 +92,8 @@ export default function QuizPreview() {
           {stats.map((stat, index) => (
             <div key={index} className="text-center p-8 bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
               <Typography variant="display-md" color="primary" className="mb-3">{stat.value}</Typography>
-              <BodyLG className="font-bold mb-2">{stat.title}</BodyLG>
-              <Typography variant="caption" className="text-gray-600 font-medium uppercase tracking-wide">{stat.description}</Typography>
+              <Typography variant="stat-value" className="mb-2">{stat.title}</Typography>
+              <Typography variant="stat-label">{stat.description}</Typography>
             </div>
           ))}
         </Grid>
@@ -155,8 +155,8 @@ export default function QuizPreview() {
             {/* Mock Interface Preview */}
             <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
               <Flex align="center" justify="between" className="mb-4">
-                <Typography variant="caption" className="text-gray-600 font-medium">Question 3 of 10</Typography>
-                <Typography variant="caption" color="primary" className="font-bold">85% Complete</Typography>
+                <Typography variant="stat-label">Question 3 of 10</Typography>
+                <Typography variant="stat-value">85% Complete</Typography>
               </Flex>
               <div className="w-full bg-muted/60 rounded-full h-3 mb-6">
                 <div className="bg-gradient-to-r from-primary to-primary/90 h-3 rounded-full transition-all duration-500" style={{ width: '85%' }}></div>
@@ -167,7 +167,7 @@ export default function QuizPreview() {
               </H5>
               
               <div className="space-y-3">
-                <div className="p-4 rounded-lg border-2 border-primary bg-primary/10 text-primary font-medium">
+                <div className="p-4 rounded-lg border-2 border-primary bg-primary/10 text-primary emphasis-important">
                   I have lived in London for five years.
                 </div>
                 <div className="p-4 rounded-lg border border-gray-300 text-gray-700 hover:border-gray-400 transition-colors">
@@ -197,13 +197,17 @@ export default function QuizPreview() {
               Join thousands of students who are improving their skills with our interactive quiz platform.
             </BodyLG>
             <Flex direction="col" gap="md" className="sm:flex-row justify-center">
-              <Link href="/quizzes" className="inline-flex items-center justify-center gap-3 bg-primary hover:bg-secondary text-black hover:text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                <Icon name="check" size={20} color="current" />
-                Start Free Quiz
+              <Link href="/quizzes">
+                <button className="bg-primary hover:bg-secondary text-black hover:text-white px-8 py-4 rounded-2xl btn-text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 min-w-[180px] flex items-center justify-center gap-3">
+                  <Icon name="check" size={20} color="current" />
+                  Start Free Quiz
+                </button>
               </Link>
-              <Link href="/courses" className="inline-flex items-center justify-center gap-3 border-2 border-secondary text-secondary hover:bg-primary hover:text-black px-8 py-4 rounded-lg font-bold text-lg transition-all duration-200 transform hover:-translate-y-1">
-                <Icon name="book" size={20} color="current" />
-                Explore Courses
+              <Link href="/courses">
+                <button className="border-2 border-primary text-primary hover:bg-primary hover:text-black px-8 py-4 rounded-2xl btn-text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 min-w-[180px] flex items-center justify-center gap-3">
+                  <Icon name="book" size={20} color="current" />
+                  Explore Courses
+                </button>
               </Link>
             </Flex>
           </div>

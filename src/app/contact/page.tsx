@@ -130,9 +130,9 @@ export default function ContactPage() {
                     <div className="w-6 h-6 bg-success rounded-full flex items-center justify-center">
                       <Icon name="check" size={16} color="white" />
                     </div>
-                    <BodyMD className="text-success font-medium">
+                    <Typography variant="status-success">
                       Thank you for your message! We&apos;ll get back to you within 1-2 business days.
-                    </BodyMD>
+                    </Typography>
                   </Flex>
                 </div>
               )}
@@ -143,77 +143,72 @@ export default function ContactPage() {
                     <div className="w-6 h-6 bg-destructive rounded-full flex items-center justify-center">
                       <Icon name="close" size={16} color="white" />
                     </div>
-                    <BodyMD className="text-destructive font-medium">{error}</BodyMD>
+                    <Typography variant="status-error">{error}</Typography>
                   </Flex>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+                            <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name *
+                  <label htmlFor="name" className="form-label block mb-2">
+                    Name
                   </label>
                   <input
                     type="text"
                     id="name"
-                    name="name"
-                    required
                     value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary bg-white/50 backdrop-blur-sm"
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white/90 backdrop-blur-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm"
                     placeholder="Your full name"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address *
+                  <label htmlFor="email" className="form-label block mb-2">
+                    Email
                   </label>
                   <input
                     type="email"
                     id="email"
-                    name="email"
-                    required
                     value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary bg-white/50 backdrop-blur-sm"
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white/90 backdrop-blur-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm"
                     placeholder="your.email@example.com"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject *
+                  <label htmlFor="subject" className="form-label block mb-2">
+                    Subject
                   </label>
                   <select
                     id="subject"
-                    name="subject"
-                    required
                     value={formData.subject}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary bg-white/50 backdrop-blur-sm"
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white/90 backdrop-blur-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm"
                   >
-                    <option value="">Select a subject</option>
-                    <option value="general">General Question</option>
-                    <option value="course-help">Course Help</option>
-                    <option value="report-issue">Report an Issue</option>
-                    <option value="feedback">Feedback</option>
-                    <option value="other">Other</option>
+                    <option value="">Select a topic</option>
+                    <option value="Course Question">Course Question</option>
+                    <option value="Quiz Feedback">Quiz Feedback</option>
+                    <option value="Technical Support">Technical Support</option>
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Partnership">Partnership</option>
                   </select>
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                    Message *
+                  <label htmlFor="message" className="form-label block mb-2">
+                    Message
                   </label>
                   <textarea
                     id="message"
-                    name="message"
-                    required
-                    rows={6}
                     value={formData.message}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary bg-white/50 backdrop-blur-sm resize-none"
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    required
+                    rows={5}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white/90 backdrop-blur-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm resize-none"
                     placeholder="Tell us how we can help you..."
                   />
                 </div>
@@ -221,11 +216,11 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-gray-900 font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-primary hover:bg-secondary text-black hover:text-white btn-text-lg py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <Flex align="center" justify="center" gap="sm">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                       Sending...
                     </Flex>
                   ) : (

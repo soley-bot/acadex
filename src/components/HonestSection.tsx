@@ -32,9 +32,9 @@ export default function HonestSection() {
                   but cared deeply about learning. No team. No investor. Just a dream and many sleepless nights.
                 </BodyMD>
                 <Link href="/about">
-                  <button className="text-primary hover:text-primary/80 font-medium underline text-sm">
+                  <Typography variant="link" className="text-sm">
                     Read the full story →
-                  </button>
+                  </Typography>
                 </Link>
               </div>
             </div>          {/* Call to Action */}
@@ -48,13 +48,13 @@ export default function HonestSection() {
             
             <Flex direction="col" gap="md" className="sm:flex-row justify-center">
               <Link href="/courses">
-                <button className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-gray-900 px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 min-w-[180px]">
+                <button className="bg-primary hover:bg-secondary text-black hover:text-white px-8 py-4 rounded-2xl btn-text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 min-w-[180px]">
                   Browse Courses
                   <span className="ml-3">→</span>
                 </button>
               </Link>
               <Link href="/contact">
-                <button className="border-2 border-primary text-primary bg-white/80 backdrop-blur-sm hover:bg-primary hover:text-black px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 min-w-[180px]">
+                <button className="border-2 border-primary text-primary hover:bg-primary hover:text-black px-8 py-4 rounded-2xl btn-text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 min-w-[180px]">
                   Contact Us
                 </button>
               </Link>
