@@ -386,12 +386,12 @@ export default function QuizzesPage() {
 
       {/* Enhanced Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
-        <Card className="bg-white border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+        <Card variant="interactive" size="md" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-600 mb-2">Total Quizzes</p>
-                <p className="text-3xl font-bold text-gray-900 mb-1">{quizStats.total}</p>
+                <p className="text-sm font-semibold text-muted-foreground mb-2">Total Quizzes</p>
+                <p className="text-3xl font-bold mb-1">{quizStats.total}</p>
                 <p className="text-sm text-secondary font-medium">All Assessments</p>
               </div>
               <div className="bg-secondary/10 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-primary/20 transition-colors">
