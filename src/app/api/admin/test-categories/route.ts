@@ -1,8 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+
+// Helper function to create admin client
+function createAdminClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl) {
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
+  }
+
+  if (!supabaseServiceKey) {
+    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable')
+  }
+
+  return createClient(
+    supabaseUrl,
+    supabaseServiceKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
+}
 
 export async function GET() {
   try {
+    const supabase = createAdminClient()
     // Test reading categories
     const { data: categories, error: readError } = await supabase
       .from('categories')
@@ -36,6 +62,7 @@ export async function GET() {
 
 export async function POST() {
   try {
+    const supabase = createAdminClient()
     // Test creating a category
     const testCategory = {
       name: `Test Category ${Date.now()}`,
