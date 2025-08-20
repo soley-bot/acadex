@@ -273,11 +273,11 @@ export default function CoursesPage() {
 
       {/* Statistics Cards - Enhanced design */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <Card className="bg-white border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+        <Card variant="interactive" size="md" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-600 mb-2">Published Courses</p>
+                <p className="text-sm font-semibold text-muted-foreground mb-2">Published Courses</p>
                 <p className="text-3xl font-bold text-gray-900 mb-1">{courseStats.published}</p>
                 <p className="text-sm text-emerald-600 font-medium">Active & Live</p>
               </div>
@@ -288,11 +288,11 @@ export default function CoursesPage() {
           </CardContent>
         </Card>
         
-        <Card className="bg-white border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+        <Card variant="interactive" size="md" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-600 mb-2">Draft Courses</p>
+                <p className="text-sm font-semibold text-muted-foreground mb-2">Draft Courses</p>
                 <p className="text-3xl font-bold text-gray-900 mb-1">{courseStats.draft}</p>
                 <p className="text-sm text-orange-600 font-medium">In Progress</p>
               </div>
@@ -303,11 +303,11 @@ export default function CoursesPage() {
           </CardContent>
         </Card>
         
-        <Card className="bg-white border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group sm:col-span-2 lg:col-span-1">
+        <Card variant="interactive" size="md" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group sm:col-span-2 lg:col-span-1">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-600 mb-2">Total Students</p>
+                <p className="text-sm font-semibold text-muted-foreground mb-2">Total Students</p>
                 <p className="text-3xl font-bold text-gray-900 mb-1">{courseStats.totalStudents}</p>
                 <p className="text-sm text-secondary font-medium">Enrolled Learners</p>
               </div>
@@ -358,12 +358,12 @@ export default function CoursesPage() {
       {/* Courses Grid - Enhanced card design */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredCourses.map((course) => (
-          <Card key={course.id} className="hover:shadow-xl transition-all duration-300 bg-white border-gray-200 transform hover:-translate-y-1 group">
+          <Card key={course.id} variant="interactive" size="md" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
             <CardHeader className="pb-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <CardTitle className="text-lg font-bold text-gray-900 leading-tight mb-2">{course.title}</CardTitle>
-                  <CardDescription className="text-gray-600 line-clamp-2">{course.description}</CardDescription>
+                  <CardTitle className="text-lg font-bold leading-tight mb-2">{course.title}</CardTitle>
+                  <CardDescription className="line-clamp-2">{course.description}</CardDescription>
                 </div>
                 <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full flex-shrink-0 ${
                   course.is_published 
@@ -467,7 +467,7 @@ export default function CoursesPage() {
       {/* Empty State - Enhanced design */}
       {filteredCourses.length === 0 && !loading && (
         <div className="mt-12">
-          <Card className="border-2 border-dashed border-gray-300 bg-gray-50">
+          <Card variant="base" size="xl" className="border-2 border-dashed border-muted bg-muted/30">
             <CardContent className="p-12">
               <div className="text-center">
                 <div className="bg-muted/60 p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
