@@ -225,7 +225,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
 
       if (error) throw error
 
-      setQuestions(data.map(q => {
+      setQuestions(data.map((q: any) => {
         // Determine media type and URL from database fields
         let media_type: 'image' | 'audio' | 'video' | undefined
         let media_url: string | undefined

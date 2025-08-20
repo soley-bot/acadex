@@ -1,27 +1,47 @@
 import { createClient } from '@supabase/supabase-js'
 import type { UserRole } from './auth-security'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+function createSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    storageKey: 'acadex-auth-token',
-    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    flowType: 'pkce'
-  },
-  global: {
-    headers: {
-      'x-application-name': 'Acadex'
+  if (!supabaseUrl) {
+    if (typeof window === 'undefined') {
+      // During build/prerender, return a mock client that won't be used
+      return {} as any
     }
-  },
-  db: {
-    schema: 'public'
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
   }
-})
+
+  if (!supabaseAnonKey) {
+    if (typeof window === 'undefined') {
+      // During build/prerender, return a mock client that won't be used
+      return {} as any
+    }
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
+  }
+
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storageKey: 'acadex-auth-token',
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+      flowType: 'pkce'
+    },
+    global: {
+      headers: {
+        'x-application-name': 'Acadex'
+      }
+    },
+    db: {
+      schema: 'public'
+    }
+  })
+}
+
+export const supabase = createSupabaseClient()
 
 // Database Types matching exact schema
 export interface User {

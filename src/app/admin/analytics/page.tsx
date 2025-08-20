@@ -146,12 +146,12 @@ export default function AdminAnalytics() {
       const now = new Date()
       const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
       
-      const newUsersThisMonth = users.filter(user => 
+      const newUsersThisMonth = users.filter((user: { created_at: string }) => 
         new Date(user.created_at) >= thisMonth
       ).length
 
       // Calculate total revenue from course prices
-      const totalRevenue = courses.reduce((sum, course) => sum + (Number(course.price) || 0), 0)
+      const totalRevenue = courses.reduce((sum: number, course: { price: number }) => sum + (Number(course.price) || 0), 0)
 
       const analyticsData = {
         totalUsers: users.length,

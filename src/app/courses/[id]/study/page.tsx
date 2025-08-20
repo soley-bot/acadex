@@ -83,7 +83,7 @@ export default function CourseStudyPage() {
         ...module,
         course_lessons: module.course_lessons.map((lesson: any) => ({
           ...lesson,
-          progress: progressData?.find(p => p.lesson_id === lesson.id)
+          progress: progressData?.find((p: any) => p.lesson_id === lesson.id)
         }))
       }))
 

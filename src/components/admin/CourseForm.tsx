@@ -291,7 +291,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
 
       if (modulesError) throw modulesError
 
-      const moduleData: ModuleData[] = (modules || []).map(module => ({
+      const moduleData: ModuleData[] = (modules || []).map((module: any) => ({
         id: module.id,
         title: module.title,
         description: module.description || '',

@@ -221,10 +221,10 @@ export const optimizedUserAPI = {
         recentAttempts: attemptsResult.data || [],
         stats: {
           coursesEnrolled: enrollmentsResult.data?.length || 0,
-          coursesCompleted: enrollmentsResult.data?.filter(e => e.progress === 100).length || 0,
+          coursesCompleted: enrollmentsResult.data?.filter((e: any) => e.progress === 100).length || 0,
           quizzesTaken: attemptsResult.data?.length || 0,
           averageScore: attemptsResult.data?.length 
-            ? Math.round(attemptsResult.data.reduce((sum, a) => sum + a.score, 0) / attemptsResult.data.length)
+            ? Math.round(attemptsResult.data.reduce((sum: number, a: any) => sum + a.score, 0) / attemptsResult.data.length)
             : 0
         }
       }

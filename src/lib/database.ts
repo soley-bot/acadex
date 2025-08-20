@@ -156,7 +156,7 @@ export const courseAPI = {
       .limit(limit)
 
     // Calculate student count from enrollments if not set
-    const coursesWithCounts = data?.map(course => ({
+    const coursesWithCounts = data?.map((course: any) => ({
       ...course,
       student_count: course.student_count || course.enrollments?.length || 0,
       rating: course.rating || 4.5 // Default rating if not set
@@ -283,7 +283,7 @@ export const quizAPI = {
 
     const attempts = data.length
     const avgScore = attempts > 0 
-      ? data.reduce((sum, attempt) => sum + (attempt.score / attempt.total_questions), 0) / attempts * 100
+      ? data.reduce((sum: number, attempt: any) => sum + (attempt.score / attempt.total_questions), 0) / attempts * 100
       : 0
 
     return { 
@@ -448,7 +448,7 @@ export async function getQuizzes(filters?: { category?: string; difficulty?: str
   }
 
   // Transform the data to include question_count as a number
-  return data?.map(quiz => ({
+  return data?.map((quiz: any) => ({
     ...quiz,
     question_count: quiz.question_count?.[0]?.count || 0
   })) || []
@@ -545,7 +545,7 @@ export const submitQuizAttempt = async (attemptData: {
   let correctAnswers = 0
   const totalQuestions = questions.length
 
-  questions.forEach(question => {
+  questions.forEach((question: any) => {
     const userAnswer = attemptData.answers[question.id]
     if (userAnswer === undefined || userAnswer === null) return // Skip unanswered questions
     
@@ -650,10 +650,10 @@ export const getUserProgress = async (userId: string) => {
   ])
 
   const coursesEnrolled = enrollments.data?.length || 0
-  const coursesCompleted = enrollments.data?.filter(e => e.progress === 100).length || 0
+  const coursesCompleted = enrollments.data?.filter((e: any) => e.progress === 100).length || 0
   const quizzesTaken = attempts.data?.length || 0
   const averageScore = attempts.data?.length 
-    ? Math.round(attempts.data.reduce((sum, attempt) => sum + attempt.score, 0) / attempts.data.length)
+    ? Math.round(attempts.data.reduce((sum: number, attempt: any) => sum + attempt.score, 0) / attempts.data.length)
     : 0
 
   return {
@@ -677,7 +677,7 @@ export const getUserCourses = async (userId: string) => {
     .eq('user_id', userId)
     .order('enrolled_at', { ascending: false })
 
-  const formattedData = data?.map(enrollment => ({
+  const formattedData = data?.map((enrollment: any) => ({
     id: enrollment.courses.id,
     title: enrollment.courses.title,
     progress_percentage: enrollment.progress || 0,
@@ -703,7 +703,7 @@ export const getUserQuizAttempts = async (userId: string, limit?: number) => {
 
   const { data, error } = await query
 
-  const formattedData = data?.map(attempt => ({
+  const formattedData = data?.map((attempt: any) => ({
     id: attempt.id,
     quiz_title: attempt.quizzes.title,
     score: attempt.score,
@@ -751,7 +751,7 @@ export const getQuizResults = async (resultId: string) => {
   }
 
   // Step 3: Format the results, combining attempt data with question data
-  const answers = questions.map((question) => {
+  const answers = questions.map((question: any) => {
     const userAnswerIndex = attempt.answers[question.id]
     const userAnswer = question.options[userAnswerIndex] ?? 'No answer'
     const correctAnswer = question.options[question.correct_answer]
@@ -766,7 +766,7 @@ export const getQuizResults = async (resultId: string) => {
     }
   })
 
-  const correctAnswersCount = answers.filter(a => a.is_correct).length
+  const correctAnswersCount = answers.filter((a: any) => a.is_correct).length
 
   const formattedData = {
     id: attempt.id,
