@@ -81,12 +81,12 @@ export function useUserProgress(courseId?: string, quizId?: string) {
 
         // Convert to Maps for O(1) lookup
         const enrollmentMap = new Map()
-        enrollmentData?.forEach(enrollment => {
+        enrollmentData?.forEach((enrollment: any) => {
           enrollmentMap.set(enrollment.course_id, enrollment)
         })
 
         const attemptMap = new Map()
-        attemptData?.forEach(attempt => {
+        attemptData?.forEach((attempt: any) => {
           if (!attemptMap.has(attempt.quiz_id)) {
             attemptMap.set(attempt.quiz_id, attempt)
           }

@@ -69,7 +69,7 @@ class CoursePreloadingService {
     if (error) throw error
 
     // Cache each course
-    courses?.forEach(course => {
+    courses?.forEach((course: any) => {
       courseCache.set(`course:${course.id}`, course, ['courses', `course:${course.id}`])
     })
   }
@@ -90,7 +90,7 @@ class CoursePreloadingService {
         .limit(5)
 
       if (relatedCourses) {
-        this.preloadCourses(relatedCourses.map(c => c.id))
+        this.preloadCourses(relatedCourses.map((c: any) => c.id))
       }
     } catch (error) {
       logger.warn('Related course preloading failed:', error)
@@ -162,7 +162,7 @@ class CourseSearchService {
       })
 
       // Also cache individual courses
-      results.forEach(course => {
+      results.forEach((course: any) => {
         courseCache.set(`course:${course.id}`, course, ['courses', `course:${course.id}`])
       })
 
@@ -341,7 +341,7 @@ export const courseUtils = {
         .limit(10)
 
       if (popular) {
-        coursePreloader.preloadCourses(popular.map(c => c.id))
+        coursePreloader.preloadCourses(popular.map((c: any) => c.id))
       }
     } catch (error) {
       logger.warn('Failed to warm up popular courses:', error)

@@ -60,7 +60,7 @@ export default function QuizzesPage() {
       if (error) throw error
 
       // Get attempt counts and average scores for each quiz
-      const quizIds = data.map(quiz => quiz.id)
+      const quizIds = data.map((quiz: { id: string }) => quiz.id)
       
       const { data: attempts, error: attemptsError } = await supabase
         .from('quiz_attempts')
@@ -82,13 +82,13 @@ export default function QuizzesPage() {
       }
 
       // Process quizzes with actual statistics
-      const processedQuizzes = data.map(quiz => {
-        const quizAttempts = attempts?.filter(attempt => attempt.quiz_id === quiz.id) || []
-        const actualQuestionCount = questionCounts?.filter(q => q.quiz_id === quiz.id).length || 0
+      const processedQuizzes = data.map((quiz: any) => {
+        const quizAttempts = attempts?.filter((attempt: any) => attempt.quiz_id === quiz.id) || []
+        const actualQuestionCount = questionCounts?.filter((q: any) => q.quiz_id === quiz.id).length || 0
         
         const attemptsCount = quizAttempts.length
         const averageScore = attemptsCount > 0 
-          ? Math.round(quizAttempts.reduce((sum, attempt) => sum + attempt.score, 0) / attemptsCount)
+          ? Math.round(quizAttempts.reduce((sum: number, attempt: any) => sum + attempt.score, 0) / attemptsCount)
           : 0
 
         return {

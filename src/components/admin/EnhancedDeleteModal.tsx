@@ -54,7 +54,7 @@ export function EnhancedDeleteModal({ item, isOpen, onClose, onSuccess }: Enhanc
           supabase.from('course_modules').select('id, course_lessons(id)').eq('course_id', item.id)
         ])
 
-        const totalLessons = modulesResult.data?.reduce((total, module: any) => 
+        const totalLessons = modulesResult.data?.reduce((total: number, module: any) => 
           total + (module.course_lessons?.length || 0), 0) || 0
 
         setUsageInfo({

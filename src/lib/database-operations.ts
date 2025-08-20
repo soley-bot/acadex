@@ -318,9 +318,9 @@ export async function getCourseAnalytics(courseId: string) {
   if (quizError) throw quizError
 
   const totalEnrollments = enrollments?.length || 0
-  const completedEnrollments = enrollments?.filter(e => e.completed_at)?.length || 0
-  const avgProgress = enrollments?.reduce((sum, e) => sum + e.progress, 0) / totalEnrollments || 0
-  const avgQuizScore = quizAttempts?.reduce((sum, a) => sum + (a.score / a.total_questions * 100), 0) / (quizAttempts?.length || 1) || 0
+  const completedEnrollments = enrollments?.filter((e: any) => e.completed_at)?.length || 0
+  const avgProgress = enrollments?.reduce((sum: number, e: any) => sum + e.progress, 0) / totalEnrollments || 0
+  const avgQuizScore = quizAttempts?.reduce((sum: number, a: any) => sum + (a.score / a.total_questions * 100), 0) / (quizAttempts?.length || 1) || 0
 
   return {
     totalEnrollments,
@@ -328,7 +328,7 @@ export async function getCourseAnalytics(courseId: string) {
     completionRate: totalEnrollments > 0 ? (completedEnrollments / totalEnrollments) * 100 : 0,
     avgProgress,
     avgQuizScore,
-    enrollmentTrend: enrollments?.map(e => ({
+    enrollmentTrend: enrollments?.map((e: any) => ({
       date: e.enrolled_at,
       count: 1
     })) || []

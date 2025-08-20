@@ -69,7 +69,7 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
 
       if (questionsError) throw questionsError
 
-      setQuestions(questionsData.map(q => ({
+      setQuestions(questionsData.map((q: any) => ({
         id: q.id,
         question: q.question,
         question_type: q.question_type,
@@ -91,7 +91,7 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
       // Calculate stats
       const totalAttempts = attempts.length
       const averageScore = totalAttempts > 0 
-        ? Math.round(attempts.reduce((sum, attempt) => sum + (attempt.score / attempt.total_questions * 100), 0) / totalAttempts)
+        ? Math.round(attempts.reduce((sum: number, attempt: any) => sum + (attempt.score / attempt.total_questions * 100), 0) / totalAttempts)
         : 0
       const completionRate = 100 // For now, assume all attempts are completions
 

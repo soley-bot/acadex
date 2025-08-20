@@ -83,26 +83,26 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
 
       // Calculate basic metrics
       const totalAttempts = attempts.length
-      const totalScore = attempts.reduce((sum, attempt) => {
+      const totalScore = attempts.reduce((sum: number, attempt: any) => {
         // Score is already stored as percentage
         return sum + attempt.score
       }, 0)
       const averageScore = totalScore / totalAttempts
 
-      const passedAttempts = attempts.filter(attempt => {
+      const passedAttempts = attempts.filter((attempt: any) => {
         // Score is already stored as percentage
         return attempt.score >= (attempt.quizzes?.passing_score || 70)
       }).length
       const passRate = (passedAttempts / totalAttempts) * 100
 
       // Calculate average completion time (mock data for now)
-      const averageCompletionTime = attempts.reduce((sum, attempt) => {
+      const averageCompletionTime = attempts.reduce((sum: number, attempt: any) => {
         return sum + (attempt.quizzes?.duration_minutes || 20)
       }, 0) / totalAttempts
 
       // Popular categories
       const categoryMap = new Map<string, number>()
-      attempts.forEach(attempt => {
+      attempts.forEach((attempt: any) => {
         const category = attempt.quizzes?.category || 'Unknown'
         categoryMap.set(category, (categoryMap.get(category) || 0) + 1)
       })
@@ -113,7 +113,7 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
 
       // Difficulty distribution
       const difficultyMap = new Map<string, { count: number; totalScore: number }>()
-      attempts.forEach(attempt => {
+      attempts.forEach((attempt: any) => {
         const difficulty = attempt.quizzes?.difficulty || 'unknown'
         // Score is already stored as percentage
         const current = difficultyMap.get(difficulty) || { count: 0, totalScore: 0 }
@@ -136,12 +136,12 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
         date.setDate(date.getDate() - i)
         const dateStr = date.toISOString().split('T')[0]
         
-        const dayAttempts = attempts.filter(attempt => 
+        const dayAttempts = attempts.filter((attempt: any) => 
           attempt.created_at.startsWith(dateStr)
         )
         
         const dayAvgScore = dayAttempts.length > 0 
-          ? dayAttempts.reduce((sum, attempt) => {
+          ? dayAttempts.reduce((sum: number, attempt: any) => {
               // Score is already stored as percentage
               return sum + attempt.score
             }, 0) / dayAttempts.length
@@ -162,7 +162,7 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
         title: string
       }>()
       
-      attempts.forEach(attempt => {
+      attempts.forEach((attempt: any) => {
         const quizTitle = attempt.quizzes?.title || 'Unknown Quiz'
         // Score is already stored as percentage
         const isPassed = attempt.score >= (attempt.quizzes?.passing_score || 70)
