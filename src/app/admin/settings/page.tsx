@@ -96,7 +96,7 @@ export default function AdminSettings() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Settings Navigation */}
         <div className="lg:col-span-1">
-          <Card className="bg-white border-gray-200 shadow-md">
+          <Card variant="elevated" size="sm" className="shadow-md">
             <CardContent className="p-0">
               <nav className="space-y-1">
                 {tabs.map((tab) => (

@@ -127,9 +127,9 @@ export default function AdminUsers() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow">
+        <Card variant="elevated" size="md" className="shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold text-gray-900">Total Users</CardTitle>
+            <CardTitle className="text-sm font-bold">Total Users</CardTitle>
             <Icon name="users" size={16} color="primary" />
           </CardHeader>
           <CardContent>

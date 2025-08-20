@@ -31,7 +31,7 @@ function CacheStatsDisplay({ title, cache, color }: CacheStatsDisplayProps) {
   }
 
   return (
-    <Card className="h-full">
+    <Card variant="elevated" size="md" className="h-full">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg">
           <div className={`w-3 h-3 rounded-full ${color}`}></div>
