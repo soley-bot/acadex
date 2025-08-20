@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Users, BookOpen, Calendar, Clock, Search, Filter, UserMinus, Eye, MoreHorizontal, TrendingUp, Award, Plus } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import type { Enrollment, Course, User } from '@/lib/supabase'
@@ -27,6 +28,7 @@ interface EnrollmentStats {
 }
 
 export default function AdminEnrollmentsPage() {
+  const router = useRouter()
   const [enrollments, setEnrollments] = useState<EnrollmentWithDetails[]>([])
   const [stats, setStats] = useState<EnrollmentStats>({
     totalEnrollments: 0,
@@ -192,8 +194,8 @@ export default function AdminEnrollmentsPage() {
             <h3 className="text-lg font-medium text-red-800 mb-2">Authentication Error</h3>
             <p className="text-primary text-sm mb-4">{error}</p>
             <button
-              onClick={() => window.location.href = '/auth/login?redirect=/admin/enrollments'}
-              className="px-4 py-2 bg-primary text-secondary rounded-lg hover:bg-primary/90 transition-colors"
+              onClick={() => router.push('/auth/login?redirect=/admin/enrollments')}
+              className="px-4 py-2 bg-primary hover:bg-secondary text-black hover:text-white rounded-lg transition-colors"
             >
               Login Again
             </button>

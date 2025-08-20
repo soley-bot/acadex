@@ -1,21 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
 import Icon from '@/components/ui/Icon'
 import { Typography, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
 
 export default function Footer() {
-  // Fix hydration issue by using a static year initially
-  const [isClient, setIsClient] = useState(false)
-  
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
-
   // Use static year to prevent hydration mismatch
-  const displayYear = isClient ? new Date().getFullYear() : 2025
+  const currentYear = 2025
 
   return (
     <footer className="relative bg-white overflow-hidden">
@@ -146,7 +138,7 @@ export default function Footer() {
         <Container size="xl" className="py-8">
           <Flex direction="col" align="center" justify="between" className="md:flex-row gap-4 md:gap-0">
             <BodyMD color="muted" className="font-medium text-center md:text-left">
-              © {displayYear} Acadex. All rights reserved.
+              © {currentYear} Acadex. All rights reserved.
               <br className="sm:hidden" />
               <span className="block sm:inline sm:ml-2">Made with love in Cambodia. Powered by persistence.</span>
             </BodyMD>

@@ -51,7 +51,52 @@ export default function CourseStudyPage() {
         return
       }
       
-      // Check enrollment first
+      // Admin users can access any course without enrollment check
+      if (user.role === 'admin') {
+        setIsEnrolled(true)
+        setEnrollmentProgress(0)
+        
+        // Load course with modules and lessons
+        const courseData = await getCourseWithModulesAndLessons(params.id as string)
+        setCourse(courseData)
+        
+        // Load lesson progress for user (if any)
+        const { data: progressData } = await supabase
+          .from('lesson_progress')
+          .select('*')
+          .eq('user_id', user.id)
+        
+        // Process progress data...
+        const progressMap = new Map()
+        progressData?.forEach((progress: LessonProgress) => {
+          progressMap.set(progress.lesson_id, progress)
+        })
+        
+        // Apply progress to lessons
+        const modulesWithProgress = courseData.modules.map((module: ModuleWithContent) => ({
+          ...module,
+          course_lessons: module.course_lessons.map((lesson: LessonWithProgress) => ({
+            ...lesson,
+            progress: progressMap.get(lesson.id)
+          }))
+        }))
+        
+        setModules(modulesWithProgress)
+        setExpandedModules(new Set(courseData.modules.map((m: CourseModule) => m.id)))
+        
+        const firstModule = modulesWithProgress[0]
+        if (firstModule?.course_lessons && firstModule.course_lessons.length > 0) {
+          const firstLesson = firstModule.course_lessons[0]
+          if (firstLesson) {
+            setCurrentLesson(firstLesson)
+          }
+        }
+        
+        setLoading(false)
+        return
+      }
+      
+      // Regular enrollment check for non-admin users
       const { data: enrollmentData, error: enrollmentError } = await supabase
         .from('enrollments')
         .select('*')

@@ -1,15 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Loader2, ArrowRight, AlertTriangle, Sparkles } from 'lucide-react'
 import { EmailField, PasswordField } from '@/components/auth/FormField'
 
 function EnhancedLoginForm() {
   const { signIn, signUp, user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -21,10 +22,18 @@ function EnhancedLoginForm() {
   // Handle redirect if already logged in
   useEffect(() => {
     if (user) {
-      const redirectTo = user.role === 'admin' ? '/admin' : '/dashboard'
-      router.push(redirectTo)
+      // Check for redirect parameter first
+      const redirectTo = searchParams.get('redirect') || searchParams.get('redirectTo')
+      
+      if (redirectTo) {
+        router.push(redirectTo)
+      } else {
+        // Default redirect based on role
+        const defaultRedirect = user.role === 'admin' ? '/admin' : '/dashboard'
+        router.push(defaultRedirect)
+      }
     }
-  }, [user, router])
+  }, [user, router, searchParams])
 
   // Don't render the form if user is already logged in
   if (user) {
@@ -286,7 +295,16 @@ function EnhancedLoginForm() {
 export default function EnhancedLoginPage() {
   return (
     <div>
-      <EnhancedLoginForm />
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      }>
+        <EnhancedLoginForm />
+      </Suspense>
     </div>
   )
 }
