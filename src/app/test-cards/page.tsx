@@ -3,6 +3,7 @@
 import { UnifiedCard, cardVariants, backgroundVariants, gridVariants } from '@/components/ui/CardVariants'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { ElevatedCard, ValueCard, StatCard } from '@/components/ui/ElevatedCard'
+import { EnhancedQuizCard } from '@/components/cards/EnhancedQuizCard'
 
 export default function TestCardsPage() {
   return (
@@ -167,6 +168,61 @@ export default function TestCardsPage() {
                 ))}
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Enhanced Component Cards */}
+        <section className="space-y-6">
+          <h2 className="text-2xl font-bold text-primary">Enhanced Component Cards (Migrated)</h2>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <EnhancedQuizCard 
+              quiz={{
+                id: '1',
+                title: 'English Grammar Basics',
+                description: 'Test your knowledge of fundamental English grammar rules including verb tenses, sentence structure, and common usage patterns.',
+                category: 'Grammar',
+                difficulty: 'beginner',
+                duration_minutes: 15,
+                total_questions: 10,
+                image_url: null,
+                is_published: true,
+                created_at: '2024-01-01T00:00:00Z'
+              }}
+              showProgress={true}
+            />
+            
+            <EnhancedQuizCard 
+              quiz={{
+                id: '2',
+                title: 'Advanced Vocabulary',
+                description: 'Challenge yourself with sophisticated vocabulary words and their proper usage in different contexts.',
+                category: 'Vocabulary',
+                difficulty: 'advanced',
+                duration_minutes: 25,
+                total_questions: 20,
+                image_url: null,
+                is_published: true,
+                created_at: '2024-01-01T00:00:00Z'
+              }}
+              showProgress={false}
+            />
+            
+            <EnhancedQuizCard 
+              quiz={{
+                id: '3',
+                title: 'Business English',
+                description: 'Professional communication skills for the workplace including email etiquette and presentation skills.',
+                category: 'Business',
+                difficulty: 'intermediate',
+                duration_minutes: 20,
+                total_questions: 15,
+                image_url: null,
+                is_published: true,
+                created_at: '2024-01-01T00:00:00Z'
+              }}
+              showProgress={true}
+            />
           </div>
         </section>
 

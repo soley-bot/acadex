@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useUserProgress } from '@/hooks/useUserProgress'
 import { Course } from '@/lib/supabase'
@@ -16,6 +17,7 @@ interface EnhancedCourseCardProps {
 
 export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCourseCardProps) {
   const { user } = useAuth()
+  const router = useRouter()
   const { isEnrolled, getCourseProgress, quickActions } = useUserProgress()
   const [actionLoading, setActionLoading] = useState(false)
   
@@ -24,28 +26,34 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
 
   const handleQuickAction = async () => {
     if (!user) {
-      window.location.href = '/auth/login'
+      router.push('/auth/login')
       return
     }
 
     setActionLoading(true)
     
     try {
+      // Admin users can access any course directly without enrollment
+      if (user.role === 'admin') {
+        router.push(`/courses/${course.id}/study`)
+        return
+      }
+
       if (enrolled) {
-        // Resume course
-        await quickActions.resumeCourse(course.id, progress?.current_lesson_id)
+        // Go directly to study page
+        router.push(`/courses/${course.id}/study`)
       } else {
         // Quick enroll and study
         const result = await quickActions.quickEnrollAndStudy(course.id, user.id)
         if (!result.success) {
-          // Fall back to regular enrollment flow
-          window.location.href = `/courses/${course.id}`
+          // Go directly to study page
+          router.push(`/courses/${course.id}/study`)
         }
       }
     } catch (error) {
       console.error('Quick action failed:', error)
-      // Fall back to regular flow
-      window.location.href = `/courses/${course.id}`
+      // Go directly to study page
+      router.push(`/courses/${course.id}/study`)
     } finally {
       setActionLoading(false)
     }
@@ -54,6 +62,12 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
   const getActionButtonText = () => {
     if (actionLoading) return 'Loading...'
     if (!user) return 'Start Learning'
+    
+    // Admin users can access any course
+    if (user.role === 'admin') {
+      return 'Access Course'
+    }
+    
     if (enrolled) {
       if (progress?.completed_at) return 'Review Course'
       if (progress?.progress > 0) return `Continue (${Math.round(progress.progress)}%)`
@@ -166,11 +180,11 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
 
         {/* Action Buttons */}
         <div className="flex gap-2">
-          {/* Primary Action - Quick Start/Continue */}
+          {/* Primary Action - Enroll/Continue */}
           <button
             onClick={handleQuickAction}
             disabled={actionLoading}
-            className={`flex-1 px-4 py-3 rounded-lg font-semibold text-center transition-all duration-200 ${getActionButtonStyle()} disabled:opacity-50 disabled:cursor-not-allowed`}
+            className={`w-full px-4 py-3 rounded-lg font-semibold text-center transition-all duration-200 ${getActionButtonStyle()} disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             <span className="flex items-center justify-center gap-2">
               {actionLoading ? (
@@ -183,14 +197,6 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
               {getActionButtonText()}
             </span>
           </button>
-
-          {/* Secondary Action - View Details */}
-          <Link
-            href={`/courses/${course.id}`}
-            className="px-4 py-3 bg-muted/40 hover:bg-muted/60 text-secondary rounded-lg font-semibold text-center transition-all duration-200 flex items-center justify-center"
-          >
-            <Icon name="info" size={16} color="current" />
-          </Link>
         </div>
       </div>
     </UnifiedCard>

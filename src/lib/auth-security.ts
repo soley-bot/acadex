@@ -200,15 +200,16 @@ export class AuthSecurity {
       '/admin/settings',
     ]
 
-    // Student routes (includes admin access)
+    // Student routes (includes admin access) - using regex patterns for dynamic routes
     const studentRoutes = [
       '/dashboard',
       '/profile',
-      '/courses/[id]/study',
-      '/quizzes/[id]/take',
-      '/quizzes/[id]/results',
+      { pattern: /^\/courses\/[^\/]+\/study/, path: '/courses/[id]/study' },
+      { pattern: /^\/quizzes\/[^\/]+\/take/, path: '/quizzes/[id]/take' },
+      { pattern: /^\/quizzes\/[^\/]+\/results/, path: '/quizzes/[id]/results' },
     ]
 
+    // Check public routes
     if (publicRoutes.some(publicRoute => route === publicRoute || route.startsWith(publicRoute))) {
       return {
         requiresAuth: false,
@@ -217,6 +218,7 @@ export class AuthSecurity {
       }
     }
 
+    // Check admin routes
     if (adminRoutes.some(adminRoute => route.startsWith(adminRoute))) {
       return {
         requiresAuth: true,
@@ -225,7 +227,16 @@ export class AuthSecurity {
       }
     }
 
-    if (studentRoutes.some(studentRoute => route === studentRoute || route.startsWith(studentRoute))) {
+    // Check student routes with dynamic route support
+    const matchesStudentRoute = studentRoutes.some(studentRoute => {
+      if (typeof studentRoute === 'string') {
+        return route === studentRoute || route.startsWith(studentRoute)
+      } else {
+        return studentRoute.pattern.test(route)
+      }
+    })
+
+    if (matchesStudentRoute) {
       return {
         requiresAuth: true,
         allowedRoles: ['student', 'admin'], // Admin can access student features
