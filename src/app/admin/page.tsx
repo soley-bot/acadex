@@ -197,7 +197,7 @@ export default function AdminDashboard() {
       {/* Statistics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {dashboardCards.map((stat) => (
-          <Card key={stat.title} className="bg-white border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+          <Card key={stat.title} variant="interactive" size="md" className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
@@ -221,9 +221,9 @@ export default function AdminDashboard() {
 
       {/* Additional Dashboard Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="bg-white border-gray-200 shadow-lg">
+        <Card variant="elevated" size="lg" className="shadow-lg">
           <CardHeader>
-            <CardTitle className="text-gray-900 font-bold flex items-center">
+            <CardTitle className="font-bold flex items-center">
               <Icon name="activity" size={20} color="primary" className="mr-2" />
               Recent Activity
             </CardTitle>
@@ -256,9 +256,9 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-gray-200 shadow-lg">
+        <Card variant="elevated" size="lg" className="shadow-lg">
           <CardHeader>
-            <CardTitle className="text-gray-900 font-bold flex items-center">
+            <CardTitle className="font-bold flex items-center">
               <Icon name="lightning" size={20} color="primary" className="mr-2" />
               Quick Actions
             </CardTitle>

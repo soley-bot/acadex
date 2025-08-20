@@ -28,9 +28,9 @@ interface MetricCardProps {
 }
 
 const MetricCard = ({ title, value, description, icon, trend, loading }: MetricCardProps) => (
-  <Card className="transition-all duration-200 hover:shadow-md">
+  <Card variant="elevated" size="md" className="transition-all duration-200 hover:shadow-md">
     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
+      <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
       <div className="text-gray-400">
         {loading ? (
           <div className="w-4 h-4 bg-muted/60 animate-pulse rounded" />
@@ -343,7 +343,7 @@ export default function AdminAnalytics() {
 
       {/* Revenue and Performance - Responsive Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        <Card className="transition-all duration-200 hover:shadow-md">
+        <Card variant="elevated" size="lg" className="transition-all duration-200 hover:shadow-md">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="h-5 w-5 text-green-600" />
@@ -376,7 +376,7 @@ export default function AdminAnalytics() {
           </CardContent>
         </Card>
         
-        <Card className="transition-all duration-200 hover:shadow-md">
+        <Card variant="elevated" size="lg" className="transition-all duration-200 hover:shadow-md">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-secondary" />
@@ -421,7 +421,7 @@ export default function AdminAnalytics() {
 
       {/* Chart Placeholders - Responsive */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-        <Card className="transition-all duration-200 hover:shadow-md">
+        <Card variant="elevated" size="lg" className="transition-all duration-200 hover:shadow-md">
           <CardHeader>
             <CardTitle>User Growth Trends</CardTitle>
             <CardDescription>User registrations and activity over time</CardDescription>
@@ -437,7 +437,7 @@ export default function AdminAnalytics() {
           </CardContent>
         </Card>
         
-        <Card className="transition-all duration-200 hover:shadow-md">
+        <Card variant="elevated" size="lg" className="transition-all duration-200 hover:shadow-md">
           <CardHeader>
             <CardTitle>Course Performance</CardTitle>
             <CardDescription>Enrollment trends and course popularity</CardDescription>
