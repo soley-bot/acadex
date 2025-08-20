@@ -1,5 +1,4 @@
 import { ReactNode } from 'react'
-import { UnifiedCard } from './CardVariants'
 
 interface ElevatedCardProps {
   children: ReactNode
@@ -8,11 +7,10 @@ interface ElevatedCardProps {
   padding?: 'sm' | 'md' | 'lg'
 }
 
-// Map old padding system to new size system
-const paddingToSize = {
-  sm: 'sm' as const,
-  md: 'md' as const, 
-  lg: 'lg' as const
+const cardPadding = {
+  sm: 'p-4',
+  md: 'p-6', 
+  lg: 'p-8'
 }
 
 export function ElevatedCard({ 
@@ -21,14 +19,13 @@ export function ElevatedCard({
   hover = true,
   padding = 'md' 
 }: ElevatedCardProps) {
-  // Use new UnifiedCard system internally while maintaining same external API
-  const variant = hover ? 'elevated' : 'base'
-  const size = paddingToSize[padding]
+  const paddingClass = cardPadding[padding]
+  const hoverClass = hover ? 'hover:shadow-xl transition-all duration-300 hover:-translate-y-1' : ''
   
   return (
-    <UnifiedCard variant={variant} size={size} className={className}>
+    <div className={`bg-white border border-gray-200 rounded-xl shadow-lg ${paddingClass} ${hoverClass} ${className}`}>
       {children}
-    </UnifiedCard>
+    </div>
   )
 }
 
@@ -43,12 +40,12 @@ export function ValueCard({ icon, title, description, className = '' }: ValueCar
   return (
     <ElevatedCard className={`group ${className}`}>
       <div className="flex justify-center mb-4">
-        <div className="w-14 h-14 bg-primary/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-          <span className="text-secondary text-xl">{icon}</span>
+        <div className="w-14 h-14 bg-destructive/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+          <span className="text-primary text-xl">{icon}</span>
         </div>
       </div>
-      <h3 className="text-lg font-bold text-primary mb-3 text-center">{title}</h3>
-      <p className="text-secondary text-center leading-relaxed">
+      <h3 className="text-lg font-bold text-gray-900 mb-3 text-center">{title}</h3>
+      <p className="text-gray-600 text-center leading-relaxed">
         {description}
       </p>
     </ElevatedCard>
@@ -66,10 +63,10 @@ export function StatCard({ value, label, highlight = false, className = '' }: St
   return (
     <div className="text-center">
       <ElevatedCard hover className={className}>
-        <div className={`text-3xl md:text-4xl font-black mb-2 ${highlight ? 'text-primary' : 'text-primary'}`}>
+        <div className={`text-3xl md:text-4xl font-black mb-2 ${highlight ? 'text-primary' : 'text-gray-900'}`}>
           {value}
         </div>
-        <div className="text-sm text-secondary font-medium">{label}</div>
+        <div className="text-sm text-gray-600 font-medium">{label}</div>
       </ElevatedCard>
     </div>
   )

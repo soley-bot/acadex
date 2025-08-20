@@ -2,7 +2,7 @@
 
 import { UnifiedCard, cardVariants, backgroundVariants, gridVariants } from '@/components/ui/CardVariants'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { ElevatedCard } from '@/components/ui/ElevatedCard'
+import { ElevatedCard, ValueCard, StatCard } from '@/components/ui/ElevatedCard'
 
 export default function TestCardsPage() {
   return (
@@ -90,9 +90,23 @@ export default function TestCardsPage() {
 
             {/* ElevatedCard Component */}
             <ElevatedCard>
-              <h3 className="text-lg font-bold text-primary mb-2">ElevatedCard</h3>
-              <p className="text-secondary">Existing elevated card component with hover effects.</p>
+              <h3 className="text-lg font-bold text-primary mb-2">ElevatedCard (Migrated)</h3>
+              <p className="text-secondary">Now using UnifiedCard internally with semantic colors!</p>
             </ElevatedCard>
+
+            {/* ValueCard Component */}
+            <ValueCard 
+              icon="🎓"
+              title="ValueCard Example"
+              description="Migrated ValueCard with semantic colors and new card system."
+            />
+
+            {/* StatCard Component */}
+            <StatCard 
+              value="123"
+              label="StatCard Example"
+              highlight={true}
+            />
 
             {/* Plain div for comparison */}
             <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
