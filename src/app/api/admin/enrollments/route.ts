@@ -1,39 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// Use service role key for server-side operations (bypasses RLS) - same as courses API
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
+// Helper function to create admin client
+function createAdminClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!supabaseUrl) {
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
   }
-)
+
+  if (!supabaseServiceKey) {
+    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable')
+  }
+
+  return createClient(
+    supabaseUrl,
+    supabaseServiceKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
+}
 
 // GET - Fetch all enrollments with details
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    // Fetch enrollments with course and user details
+    const supabase = createAdminClient()
+    
     const { data: enrollments, error } = await supabase
       .from('enrollments')
       .select(`
         *,
-        course:courses(id, title, instructor_name, price, level),
-        user:users(id, name, email)
+        courses (
+          id,
+          title,
+          thumbnail_url,
+          price
+        ),
+        users (
+          id,
+          full_name,
+          email
+        )
       `)
-      .order('enrolled_at', { ascending: false })
+      .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Database error:', error)
+      console.error('Error fetching enrollments:', error)
       return NextResponse.json({ error: 'Failed to fetch enrollments' }, { status: 500 })
     }
 
     return NextResponse.json({ enrollments })
   } catch (error) {
-    console.error('API error:', error)
+    console.error('Error in GET /api/admin/enrollments:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -41,6 +64,7 @@ export async function GET(request: NextRequest) {
 // POST - Create new enrollment (manual enrollment by admin)
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createAdminClient()
     const { user_id, course_id } = await request.json()
 
     if (!user_id || !course_id) {
@@ -87,6 +111,7 @@ export async function POST(request: NextRequest) {
 // DELETE - Remove enrollment (unenroll student)
 export async function DELETE(request: NextRequest) {
   try {
+    const supabase = createAdminClient()
     const { searchParams } = new URL(request.url)
     const enrollmentId = searchParams.get('id')
 
