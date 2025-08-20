@@ -12,17 +12,23 @@ import { Typography, DisplayXL, H1, H2, H3, BodyLG, BodyMD } from '@/components/
 import { Container, Section, Grid } from '@/components/ui/Layout'
 import { EnhancedQuizCard } from '@/components/cards/EnhancedQuizCard'
 
-interface Quiz {
+// Quiz list item type - subset of full Quiz with required display fields
+interface QuizListItem {
   id: string
   title: string
   description: string
   category: string
   difficulty: string
   duration_minutes: number
-  image_url?: string | null
+  total_questions: number
   is_published: boolean
   created_at: string
-  total_questions: number
+  // Optional fields for card display
+  image_url?: string | null
+  passing_score?: number
+  max_attempts?: number
+  time_limit_minutes?: number | null
+  updated_at?: string
 }
 
 interface PaginationData {
@@ -34,7 +40,7 @@ interface PaginationData {
 }
 
 export default function QuizzesPage() {
-  const [quizzes, setQuizzes] = useState<Quiz[]>([])
+  const [quizzes, setQuizzes] = useState<QuizListItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
@@ -288,7 +294,21 @@ export default function QuizzesPage() {
               ))
             ) : quizzes.length > 0 ? (
               quizzes.map((quiz) => (
-                <EnhancedQuizCard key={quiz.id} quiz={quiz} showProgress={true} />
+                <EnhancedQuizCard 
+                  key={quiz.id}
+                  quiz={{
+                    id: quiz.id,
+                    title: quiz.title,
+                    description: quiz.description,
+                    category: quiz.category,
+                    difficulty: quiz.difficulty,
+                    total_questions: quiz.total_questions,
+                    duration_minutes: quiz.duration_minutes,
+                    image_url: quiz.image_url,
+                    is_published: true,
+                    created_at: quiz.created_at || new Date().toISOString()
+                  }}
+                />
               ))
             ) : (
               // Empty State

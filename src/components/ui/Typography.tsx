@@ -18,9 +18,9 @@ const typographyVariants = {
   'h6': 'text-base md:text-lg font-semibold text-gray-900',
   
   // Body text variants
-  'body-lg': 'text-body-lg text-gray-700 leading-relaxed',
-  'body-md': 'text-body-md text-gray-700 leading-relaxed', 
-  'body-sm': 'text-body-sm text-gray-600 leading-relaxed',
+  'body-lg': 'text-body-lg text-gray-700 leading-relaxed font-normal',
+  'body-md': 'text-body-md text-gray-700 leading-relaxed font-normal', 
+  'body-sm': 'text-body-sm text-gray-600 leading-relaxed font-normal',
   
   // Special text variants
   'lead': 'text-xl md:text-2xl text-gray-600 font-medium leading-relaxed',
@@ -29,13 +29,37 @@ const typographyVariants = {
   
   // Interactive text
   'link': 'text-primary hover:text-primary/80 font-medium underline decoration-2 underline-offset-2 transition-colors',
-  'button-text': 'font-semibold leading-none',
+  'button-text': 'font-bold leading-none',
+  'button-text-lg': 'font-bold text-base md:text-lg leading-none',
+  'button-text-xl': 'font-bold text-lg md:text-xl leading-none',
+  
+  // Form elements
+  'form-label': 'text-sm font-medium text-gray-700',
+  'form-helper': 'text-xs font-normal text-gray-500',
+  'form-error': 'text-xs font-medium text-red-600',
   
   // Status text
   'success': 'text-green-700 font-medium',
   'warning': 'text-yellow-700 font-medium', 
   'error': 'text-red-700 font-medium',
   'info': 'text-blue-700 font-medium',
+  
+  // Badge variants
+  'badge-sm': 'text-xs font-medium',
+  'badge-md': 'text-sm font-medium',
+  'badge-lg': 'text-base font-medium',
+  
+  // Semantic emphasis variants with complete styling
+  'stat-value': 'font-bold text-primary text-base md:text-lg lg:text-xl',
+  'stat-label': 'font-medium text-muted-foreground uppercase tracking-wide text-xs md:text-sm',
+  'emphasis-critical': 'font-bold text-destructive text-sm md:text-base',
+  'emphasis-important': 'font-semibold text-foreground text-sm md:text-base',
+  'emphasis-subtle': 'font-medium text-muted-foreground text-xs md:text-sm',
+  'status-success': 'font-medium text-success text-xs md:text-sm',
+  'status-warning': 'font-medium text-warning text-xs md:text-sm',
+  'status-error': 'font-medium text-destructive text-xs md:text-sm',
+  'visual-emphasis': 'font-semibold text-sm md:text-base',
+  'visual-subtle': 'font-light text-muted-foreground text-xs md:text-sm',
 }
 
 // Color variants for different contexts
