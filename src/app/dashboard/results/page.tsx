@@ -1,6 +1,7 @@
 'use client'
 
 import { logger } from '@/lib/logger'
+import { Card, CardContent } from '@/components/ui/card'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -105,82 +106,82 @@ export default function AllResultsPage() {
         <div className="mb-6">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-3"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-3"
           >
             ← Back to Dashboard
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">All Quiz Results</h1>
-          <p className="text-gray-600 mt-1">Complete overview of your quiz performance</p>
+          <h1 className="text-2xl font-bold text-foreground">All Quiz Results</h1>
+          <p className="text-muted-foreground mt-1">Complete overview of your quiz performance</p>
         </div>
 
         {error && (
-          <div className="bg-white border rounded-lg shadow-sm mb-8">
+          <Card variant="elevated" size="md" className="mb-8">
             <div className="p-6">
               <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to Load Results</h3>
-                <p className="text-gray-600 mb-6">{error}</p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Unable to Load Results</h3>
+                <p className="text-muted-foreground mb-6">{error}</p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-black transition-colors"
+                  className="bg-primary hover:bg-secondary text-black hover:text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   Try Again
                 </button>
               </div>
             </div>
-          </div>
+          </Card>
         )}
 
         {!error && (
           <>
             {/* Statistics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-white border rounded-lg shadow-sm">
-                <div className="p-4">
+              <Card variant="elevated" size="sm">
+                <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
                       <span className="text-secondary font-bold text-lg">T</span>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-600">Total Quizzes</p>
-                      <p className="text-xl font-bold text-gray-900">{getTotalQuizzes()}</p>
+                      <p className="text-xs text-muted-foreground">Total Quizzes</p>
+                      <p className="text-xl font-bold text-foreground">{getTotalQuizzes()}</p>
                     </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
-              <div className="bg-white border rounded-lg shadow-sm">
-                <div className="p-4">
+              <Card variant="elevated" size="sm">
+                <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                       <span className="text-green-600 font-bold text-lg">A</span>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-600">Average Score</p>
-                      <p className="text-xl font-bold text-gray-900">{getAverageScore()}%</p>
+                      <p className="text-xs text-muted-foreground">Average Score</p>
+                      <p className="text-xl font-bold text-foreground">{getAverageScore()}%</p>
                     </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
-              <div className="bg-white border rounded-lg shadow-sm">
-                <div className="p-4">
+              <Card variant="elevated" size="sm">
+                <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
                       <span className="text-yellow-600 font-bold text-lg">B</span>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-600">Best Score</p>
-                      <p className="text-xl font-bold text-gray-900">{getBestScore()}%</p>
+                      <p className="text-xs text-muted-foreground">Best Score</p>
+                      <p className="text-xl font-bold text-foreground">{getBestScore()}%</p>
                     </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Results List */}
-            <div className="bg-white border rounded-lg shadow-sm">
-              <div className="px-4 py-2 border-b">
-                <h2 className="text-base font-medium text-gray-900 flex items-center gap-2">
+            <Card variant="elevated" size="md">
+              <div className="px-4 py-2 border-b border-muted">
+                <h2 className="text-base font-medium text-foreground flex items-center gap-2">
                   Quiz Results
                 </h2>
               </div>
@@ -193,10 +194,10 @@ export default function AllResultsPage() {
                         className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-muted/40 transition-colors"
                       >
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-medium text-gray-900 mb-0.5 truncate">
+                          <h3 className="text-sm font-medium text-foreground mb-0.5 truncate">
                             {attempt.quiz_title}
                           </h3>
-                          <div className="flex items-center gap-3 text-xs text-gray-600">
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <span>{attempt.time_taken_minutes}m</span>
                               <span>{attempt.time_taken_minutes} min</span>
@@ -212,18 +213,18 @@ export default function AllResultsPage() {
                   </div>
                 ) : (
                   <div className="text-center py-6">
-                    <h3 className="text-sm font-medium text-gray-900 mb-1">No Quiz Results Yet</h3>
-                    <p className="text-xs text-gray-600 mb-3">You haven&apos;t taken any quizzes yet. Start your learning journey!</p>
+                    <h3 className="text-sm font-medium text-foreground mb-1">No Quiz Results Yet</h3>
+                    <p className="text-xs text-muted-foreground mb-3">You haven&apos;t taken any quizzes yet. Start your learning journey!</p>
                     <Link
                       href="/quizzes"
-                      className="bg-gray-900 text-white px-3 py-1.5 rounded text-xs hover:bg-black transition-colors inline-block"
+                      className="bg-primary hover:bg-secondary text-black hover:text-white px-3 py-1.5 rounded text-xs transition-colors inline-block"
                     >
                       Browse Quizzes
                     </Link>
                   </div>
                 )}
               </div>
-            </div>
+            </Card>
           </>
         )}
       </div>

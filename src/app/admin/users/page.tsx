@@ -138,36 +138,36 @@ export default function AdminUsers() {
           </CardContent>
         </Card>
         
-        <Card className="bg-white border-gray-200 shadow-md hover:shadow-lg transition-shadow">
+        <Card variant="elevated" size="md" className="shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold text-gray-900">Students</CardTitle>
+            <CardTitle className="text-sm font-bold">Students</CardTitle>
             <Icon name="users" size={16} color="primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{userStats.students}</div>
-            <p className="text-xs text-gray-500">Student accounts</p>
+            <div className="text-2xl font-bold">{userStats.students}</div>
+            <p className="text-xs text-muted-foreground">Student accounts</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-gray-800">
+        <Card variant="elevated" size="md" className="border-secondary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold text-black">Instructors</CardTitle>
+            <CardTitle className="text-sm font-bold">Instructors</CardTitle>
             <Icon name="briefcase" size={16} color="primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-black">{userStats.instructors}</div>
-            <p className="text-xs text-gray-500">Instructor accounts</p>
+            <div className="text-2xl font-bold">{userStats.instructors}</div>
+            <p className="text-xs text-muted-foreground">Instructor accounts</p>
           </CardContent>
         </Card>
         
-        <Card className="bg-white border-gray-800">
+        <Card variant="elevated" size="md" className="border-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold text-black">Admins</CardTitle>
+            <CardTitle className="text-sm font-bold">Admins</CardTitle>
             <Icon name="shield" size={16} color="primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-black">{userStats.admins}</div>
-            <p className="text-xs text-gray-500">Admin accounts</p>
+            <div className="text-2xl font-bold">{userStats.admins}</div>
+            <p className="text-xs text-muted-foreground">Admin accounts</p>
           </CardContent>
         </Card>
       </div>
@@ -202,9 +202,9 @@ export default function AdminUsers() {
       </div>
 
       {/* Users Table */}
-      <Card className="bg-white border-gray-800">
+      <Card variant="elevated" size="lg">
         <CardHeader>
-          <CardTitle className="text-black font-bold">All Users</CardTitle>
+          <CardTitle className="font-bold">All Users</CardTitle>
           <CardDescription>A list of all users on the platform</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
