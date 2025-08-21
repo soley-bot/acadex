@@ -172,7 +172,7 @@ export const optimizedDashboardAPI = {
         // User profile (minimal fields)
         supabase
           .from('users')
-          .select('id, full_name, email, role, avatar_url')
+          .select('id, name, email, role, avatar_url')
           .eq('id', userId)
           .single(),
 
@@ -256,7 +256,7 @@ export const optimizedAdminAPI = {
           .select(`
             id,
             enrolled_at,
-            users (full_name),
+            users (name),
             courses (title)
           `)
           .order('enrolled_at', { ascending: false })

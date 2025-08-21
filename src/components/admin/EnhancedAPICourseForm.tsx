@@ -387,7 +387,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
         duration: generatedCourse.course.duration,
         price: generatedCourse.course.price,
         is_published: false, // Always start as draft
-        instructor_name: (user as any)?.user_metadata?.full_name || user?.email || '',
+        instructor_name: user?.name || user?.email || '',
         image_url: '',
         learning_outcomes: generatedCourse.course.learning_objectives.map((obj, index) => ({
           id: (index + 1).toString(),

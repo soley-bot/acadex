@@ -156,7 +156,7 @@ export default function Dashboard() {
             <Icon name="chart" size={32} color="white" />
           </div>
           <Typography variant="display-lg" color="gradient" as="h1" className="mb-4">Dashboard</Typography>
-          <Typography variant="lead">Welcome back, {(user as any)?.user_metadata?.full_name || user?.email}</Typography>
+          <Typography variant="lead">Welcome back, {user?.name || user?.email}</Typography>
         </div>
 
         {/* Stats Overview */}
