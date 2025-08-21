@@ -47,7 +47,7 @@ export async function GET() {
           email
         )
       `)
-      .order('created_at', { ascending: false })
+      .order('enrolled_at', { ascending: false })
 
     if (error) {
       console.error('Error fetching enrollments:', error)

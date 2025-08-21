@@ -5,7 +5,9 @@ import Icon from '@/components/ui/Icon'
 import { Typography, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
 
-export default function Footer() {
+import { NewsletterSignup } from './NewsletterSignup'
+
+export function Footer() {
   // Use static year to prevent hydration mismatch
   const currentYear = 2025
 
@@ -116,19 +118,7 @@ export default function Footer() {
             <BodyLG color="muted" className="mb-8 max-w-3xl mx-auto leading-relaxed">
               Get tips, mini-lessons, and new course updates — sent right to your inbox.
             </BodyLG>
-            <div className="max-w-lg mx-auto">
-              <Flex direction="col" gap="sm" className="sm:flex-row sm:gap-md">
-                <input 
-                  type="email" 
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-3 sm:px-6 sm:py-4 border border-gray-300 bg-white text-secondary rounded-xl focus:ring-2 focus:ring-primary focus:border-primary placeholder-gray-500 font-medium text-sm sm:text-base"
-                  suppressHydrationWarning
-                />
-                <button className="bg-primary hover:bg-secondary text-black hover:text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base whitespace-nowrap">
-                  Subscribe
-                </button>
-              </Flex>
-            </div>
+            <NewsletterSignup />
           </div>
         </Container>
       </div>
