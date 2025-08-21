@@ -165,6 +165,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || ''
     const category = searchParams.get('category') || 'all'
 
+    // Query courses with pagination and filtering
     let query = supabase
       .from('courses')
       .select('*', { count: 'exact' })
@@ -185,6 +186,8 @@ export async function GET(request: NextRequest) {
     const { data, error, count } = await query
       .range(from, to)
       .order('created_at', { ascending: false })
+
+    if (error) throw error
 
     if (error) throw error
 

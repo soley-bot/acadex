@@ -5,6 +5,7 @@ import { logger } from '@/lib/logger'
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Pagination } from '@/components/ui/Pagination'
 import { Course } from '@/lib/supabase'
 import { DeleteCourseModal } from '@/components/admin/DeleteCourseModal'
 import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
@@ -490,6 +491,23 @@ export default function CoursesPage() {
                   </button>
                 )}
               </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {pagination.totalPages > 1 && (
+        <div className="mt-12 flex justify-center">
+          <Card variant="glass">
+            <CardContent className="p-4">
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                totalItems={pagination.total}
+                itemsPerPage={pagination.limit}
+                onPageChange={handlePageChange}
+              />
             </CardContent>
           </Card>
         </div>
