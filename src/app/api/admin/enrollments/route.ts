@@ -43,7 +43,7 @@ export async function GET() {
         ),
         users (
           id,
-          full_name,
+          name,
           email
         )
       `)
