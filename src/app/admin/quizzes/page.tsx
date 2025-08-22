@@ -191,17 +191,17 @@ export default function QuizzesPage() {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'beginner': return 'bg-green-100 text-green-800'
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800'
-      case 'advanced': return 'bg-destructive/20 text-red-800'
-      default: return 'bg-muted/40 text-gray-800'
+      case 'beginner': return 'bg-success/20 text-success'
+      case 'intermediate': return 'bg-warning/20 text-warning'
+      case 'advanced': return 'bg-destructive/20 text-destructive'
+      default: return 'bg-muted/40 text-muted-foreground'
     }
   }
 
   const getStatusBadge = (isPublished: boolean) => {
     return isPublished 
-      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-      : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+      ? 'bg-success/20 text-success border border-success/30'
+      : 'bg-warning/20 text-warning border border-warning/30'
   }
 
   const handleCreateQuiz = () => {
@@ -373,18 +373,17 @@ export default function QuizzesPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50">
       {/* Enhanced Header Section */}
       <div className="mb-8">
-        <Card variant="elevated" size="lg" className="p-6 sm:p-8">
+        <Card variant="glass" className="p-6 sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0 flex-1">
-              <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight mb-2">Quiz Management</h1>
+              <h1 className="text-4xl font-bold text-foreground leading-tight mb-2">Quiz Management</h1>
               <p className="text-muted-foreground text-lg">Create, edit, and manage interactive assessments for your students</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <div className="relative group">
                 <Link
                   href="/admin/quizzes/create"
-                                    className="bg-gradient-to-r from-secondary to-secondary/90 hover:from-secondary/80 hover:to-secondary/90
- text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full sm:w-auto"
+                  className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 sm:px-8 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full sm:w-auto"
                 >
                   <Plus size={20} />
                   <span>Create New Quiz</span>
@@ -392,30 +391,30 @@ export default function QuizzesPage() {
                 <div className="absolute top-full left-0 mt-2 bg-background border border-muted rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-52">
                   <Link
                     href="/admin/quizzes/create"
-                    className="w-full text-left px-4 py-3 hover:bg-surface-primary rounded-t-lg flex items-center gap-2"
+                    className="w-full text-left px-4 py-3 hover:bg-muted rounded-t-lg flex items-center gap-2"
                   >
                     <Plus size={16} />
                     Create Manually
                   </Link>
                   <button
                     onClick={() => setShowAIGenerator(true)}
-                    className="w-full text-left px-4 py-3 hover:bg-surface-primary rounded-b-lg flex items-center gap-2"
+                    className="w-full text-left px-4 py-3 hover:bg-muted rounded-b-lg flex items-center gap-2"
                   >
-                    <Brain size={16} className="text-purple-600" />
+                    <Brain size={16} className="text-primary" />
                     Create with AI
                   </button>
                 </div>
               </div>
               <button
                 onClick={() => setShowCategoryManagement(true)}
-                className="bg-background border border-muted hover:border-muted-foreground text-muted-foreground px-6 py-3 sm:px-6 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold hover:shadow-md"
+                className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-6 py-3 sm:px-6 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold hover:shadow-md"
               >
                 <Settings size={20} />
                 <span>Categories</span>
               </button>
               <button
                 onClick={() => setShowAnalytics(true)}
-                className="bg-gradient-to-r from-primary to-warning hover:from-primary/90 hover:to-warning/90 text-white px-6 py-3 sm:px-6 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
+                className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 sm:px-6 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
               >
                 <BarChart3 size={20} />
                 <span>Analytics</span>
@@ -427,76 +426,76 @@ export default function QuizzesPage() {
 
       {/* Enhanced Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
-        <Card variant="interactive" size="md" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+        <Card variant="interactive" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-muted-foreground mb-2">Total Quizzes</p>
                 <p className="text-3xl font-bold mb-1">{quizStats.total}</p>
-                <p className="text-sm text-secondary font-medium">All Assessments</p>
+                <p className="text-sm text-primary font-medium">All Assessments</p>
               </div>
-              <div className="bg-secondary/10 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-primary/20 transition-colors">
-                <Brain className="h-6 w-6 text-secondary" />
+              <div className="bg-primary/10 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                <Brain className="h-6 w-6 text-primary" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card variant="interactive" size="md" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+        <Card variant="interactive" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-muted-foreground mb-2">Published</p>
                 <p className="text-3xl font-bold mb-1">{quizStats.published}</p>
-                <p className="text-sm text-emerald-600 font-medium">Active & Live</p>
+                <p className="text-sm text-success font-medium">Active & Live</p>
               </div>
-              <div className="bg-emerald-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-emerald-200 transition-colors">
-                <Eye className="h-6 w-6 text-emerald-600" />
+              <div className="bg-success/10 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-success/20 transition-colors">
+                <Eye className="h-6 w-6 text-success" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="hover:shadow-lg transition-shadow duration-200 touch-target">
-          <CardContent className="p-4 sm:p-6">
+        <Card variant="interactive" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-muted-foreground mb-2">Drafts</p>
                 <p className="text-3xl font-bold text-foreground mb-1">{quizStats.draft}</p>
-                <p className="text-sm text-orange-600 font-medium">In Progress</p>
+                <p className="text-sm text-warning font-medium">In Progress</p>
               </div>
-              <div className="bg-orange-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-warning/30 transition-colors">
-                <Edit className="h-6 w-6 text-orange-600" />
+              <div className="bg-warning/10 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-warning/20 transition-colors">
+                <Edit className="h-6 w-6 text-warning" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card variant="interactive" size="md" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group sm:col-span-2 lg:col-span-1">
+        <Card variant="interactive" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group sm:col-span-2 lg:col-span-1">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-muted-foreground mb-2">Total Questions</p>
                 <p className="text-3xl font-bold text-foreground mb-1">{quizStats.totalQuestions}</p>
-                <p className="text-sm text-purple-600 font-medium">Assessment Items</p>
+                <p className="text-sm text-secondary font-medium">Assessment Items</p>
               </div>
-              <div className="bg-purple-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-purple-200 transition-colors">
-                <Users className="h-6 w-6 text-purple-600" />
+              <div className="bg-secondary/10 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-secondary/20 transition-colors">
+                <Users className="h-6 w-6 text-secondary" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card variant="interactive" size="md" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group sm:col-span-2 xl:col-span-1">
+        <Card variant="interactive" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group sm:col-span-2 xl:col-span-1">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-muted-foreground mb-2">Avg Passing Score</p>
                 <p className="text-3xl font-bold text-foreground mb-1">{quizStats.averagePassingScore}%</p>
-                <p className="text-sm text-indigo-600 font-medium">Success Rate</p>
+                <p className="text-sm text-primary font-medium">Success Rate</p>
               </div>
-              <div className="bg-indigo-100 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-indigo-200 transition-colors">
-                <BarChart3 className="h-6 w-6 text-indigo-600" />
+              <div className="bg-primary/10 p-4 rounded-xl ml-4 flex-shrink-0 group-hover:bg-primary/20 transition-colors">
+                <BarChart3 className="h-6 w-6 text-primary" />
               </div>
             </div>
           </CardContent>
@@ -505,14 +504,14 @@ export default function QuizzesPage() {
 
       {/* Enhanced Search and Filters */}
       <div className="mb-8">
-        <Card variant="elevated" size="md" className="p-6">
+        <Card variant="base" className="p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
               <input
                 type="text"
                 placeholder="Search quizzes by title or category..."
-                className="w-full pl-12 pr-4 py-4 border border-muted rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-surface-primary hover:bg-background transition-colors text-base font-medium"
+                className="w-full pl-12 pr-4 py-4 border border-muted rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-background hover:bg-muted/20 transition-colors text-base font-medium"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -523,7 +522,7 @@ export default function QuizzesPage() {
                 <button
                   type="button"
                   onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                  className="px-6 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors text-base font-medium min-w-48 flex items-center justify-between"
+                  className="px-6 py-4 border-2 border-primary text-primary hover:bg-primary hover:text-white rounded-xl transition-colors text-base font-medium min-w-48 flex items-center justify-between"
                 >
                   <span>
                     {selectedCategories.length === 0 
@@ -537,11 +536,11 @@ export default function QuizzesPage() {
                 </button>
                 
                 {showCategoryDropdown && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-xl shadow-xl z-50 py-2 max-h-64 overflow-y-auto">
-                    <div className="px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-muted rounded-xl shadow-xl z-50 py-2 max-h-64 overflow-y-auto">
+                    <div className="px-4 py-2 border-b border-muted flex justify-between items-center">
                       <button
                         onClick={() => setSelectedCategories([])}
-                        className="text-sm text-purple-600 hover:text-purple-700 font-medium"
+                        className="text-sm text-primary hover:text-primary/80 font-medium"
                       >
                         Clear All
                       </button>
