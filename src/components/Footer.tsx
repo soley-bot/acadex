@@ -1,14 +1,25 @@
 'use client'
 
 import Link from 'next/link'
-import Icon from '@/components/ui/Icon'
-import { Typography, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
-import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
-
+import { 
+  Heart, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Facebook, 
+  Twitter, 
+  Linkedin, 
+  Instagram 
+} from 'lucide-react'
+import { Container } from '@/components/ui/Layout'
+import { useHydrationSafe } from '@/hooks/useHydrationSafe'
 import { NewsletterSignup } from './NewsletterSignup'
 
 export function Footer() {
-  // Use static year to prevent hydration mismatch
+  const mounted = useHydrationSafe()
+  
+  // Always use same year to prevent hydration mismatch
+  // Update manually when year changes, or use mounted state for dynamic year
   const currentYear = 2025
 
   return (
@@ -19,7 +30,7 @@ export function Footer() {
       
       {/* Main Footer */}
       <Container size="xl" className="relative py-16">
-        <Grid cols={1} className="md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center space-x-3 mb-6 group">
@@ -29,23 +40,23 @@ export function Footer() {
                 <span className="text-secondary">X</span>
               </span>
             </Link>
-            <BodyLG color="muted" className="mb-6 leading-relaxed">
+            <p className="text-gray-600 mb-6 leading-relaxed">
               Built from scratch for Cambodian learners.
               Simple lessons. Real skills. No pressure.
-            </BodyLG>
+            </p>
             <div className="mb-8">
-              <BodyMD color="muted" className="mb-2">
+              <p className="text-gray-600 mb-2">
                 Email: acadex@gmail.com
-              </BodyMD>
-              <BodyMD color="muted">
+              </p>
+              <p className="text-gray-600">
                 Based in Phnom Penh, Cambodia
-              </BodyMD>
+              </p>
             </div>
           </div>
 
           {/* Courses */}
           <div>
-            <H3 className="mb-6 text-secondary">Courses</H3>
+            <h3 className="text-lg font-semibold text-secondary mb-6">Courses</h3>
             <ul className="space-y-4">
               {[
                 { name: "English for Daily Use", href: "/courses/english-daily" },
@@ -56,9 +67,9 @@ export function Footer() {
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="hover:text-secondary transition-colors duration-200"
+                    className="text-gray-600 hover:text-secondary transition-colors duration-200"
                   >
-                    <BodyMD color="muted">{link.name}</BodyMD>
+                    {link.name}
                   </Link>
                 </li>
               ))}
@@ -67,7 +78,7 @@ export function Footer() {
 
           {/* Support */}
           <div>
-            <H3 className="mb-6 text-secondary">Support</H3>
+            <h3 className="text-lg font-semibold text-secondary mb-6">Support</h3>
             <ul className="space-y-4">
               {[
                 { name: "Help Center (coming soon)", href: "#" },
@@ -78,9 +89,9 @@ export function Footer() {
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="hover:text-primary transition-colors duration-300 font-medium"
+                    className="text-gray-600 hover:text-primary transition-colors duration-300 font-medium"
                   >
-                    <BodyMD color="muted">{link.name}</BodyMD>
+                    {link.name}
                   </Link>
                 </li>
               ))}
@@ -89,7 +100,7 @@ export function Footer() {
 
           {/* Company */}
           <div>
-            <H3 className="mb-6 text-secondary">Company</H3>
+            <h3 className="text-lg font-semibold text-secondary mb-6">Company</h3>
             <ul className="space-y-4">
               {[
                 { name: "About Acadex", href: "/about" },
@@ -99,25 +110,25 @@ export function Footer() {
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="hover:text-primary transition-colors duration-300 font-medium"
+                    className="text-gray-600 hover:text-primary transition-colors duration-300 font-medium"
                   >
-                    <BodyMD color="muted">{link.name}</BodyMD>
+                    {link.name}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
-        </Grid>
+        </div>
       </Container>
 
       {/* Newsletter Section */}
       <div className="relative border-t border-gray-200">
         <Container size="xl" className="py-12">
           <div className="text-center">
-            <H2 className="mb-4 text-secondary">Join Our Learning Community</H2>
-            <BodyLG color="muted" className="mb-8 max-w-3xl mx-auto leading-relaxed">
+            <h2 className="text-3xl font-bold text-secondary mb-4">Join Our Learning Community</h2>
+            <p className="text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
               Get tips, mini-lessons, and new course updates — sent right to your inbox.
-            </BodyLG>
+            </p>
             <NewsletterSignup />
           </div>
         </Container>
@@ -126,13 +137,15 @@ export function Footer() {
       {/* Bottom Footer */}
       <div className="relative border-t border-gray-200">
         <Container size="xl" className="py-8">
-          <Flex direction="col" align="center" justify="between" className="md:flex-row gap-4 md:gap-0">
-            <BodyMD color="muted" className="font-medium text-center md:text-left">
-              © {currentYear} Acadex. All rights reserved.
-              <br className="sm:hidden" />
-              <span className="block sm:inline sm:ml-2">Made with love in Cambodia. Powered by persistence.</span>
-            </BodyMD>
-            <Flex align="center" gap="md" className="flex-wrap justify-center">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
+            <div suppressHydrationWarning>
+              <p className="text-gray-600 font-medium text-center md:text-left">
+                © {currentYear} Acadex. All rights reserved.
+                <br className="sm:hidden" />
+                <span className="block sm:inline sm:ml-2">Made with <Heart size={16} className="inline text-red-500" /> in Cambodia. Powered by persistence.</span>
+              </p>
+            </div>
+            <div className="flex items-center gap-4 flex-wrap justify-center">
               {[
                 { name: "Sitemap", href: "/sitemap" },
                 { name: "Terms", href: "/terms" },
@@ -141,13 +154,13 @@ export function Footer() {
                 <Link 
                   key={link.name}
                   href={link.href} 
-                  className="hover:text-primary transition-colors duration-300 font-medium text-sm"
+                  className="text-gray-600 hover:text-primary transition-colors duration-300 font-medium text-sm"
                 >
-                  <BodyMD color="muted">{link.name}</BodyMD>
+                  {link.name}
                 </Link>
               ))}
-            </Flex>
-          </Flex>
+            </div>
+          </div>
         </Container>
       </div>
     </footer>

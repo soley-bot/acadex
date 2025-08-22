@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Flex } from '@/components/ui/Layout'
+import { useHydrationSafe } from '@/hooks/useHydrationSafe'
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState('')
+  const mounted = useHydrationSafe()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -12,26 +13,29 @@ export function NewsletterSignup() {
     console.log('Newsletter signup:', email)
   }
 
+  // Always render the same structure to prevent hydration mismatch
   return (
     <div className="max-w-lg mx-auto">
-      <form onSubmit={handleSubmit}>
-        <Flex direction="col" gap="sm" className="sm:flex-row sm:gap-md">
+      <form onSubmit={mounted ? handleSubmit : (e) => e.preventDefault()}>
+        <div className="flex flex-col sm:flex-row gap-4">
           <input 
             type="email" 
             placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={mounted ? email : ''}
+            onChange={(e) => mounted && setEmail(e.target.value)}
             className="flex-1 px-4 py-3 sm:px-6 sm:py-4 border border-gray-300 bg-white text-secondary rounded-xl focus:ring-2 focus:ring-primary focus:border-primary placeholder-gray-500 font-medium text-sm sm:text-base"
             autoComplete="email"
-            required
+            required={mounted}
+            suppressHydrationWarning
           />
           <button 
-            type="submit"
-            className="bg-primary hover:bg-secondary text-black hover:text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base whitespace-nowrap"
+            type={mounted ? "submit" : "button"}
+            className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base whitespace-nowrap"
+            suppressHydrationWarning
           >
             Subscribe
           </button>
-        </Flex>
+        </div>
       </form>
     </div>
   )

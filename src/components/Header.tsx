@@ -5,7 +5,19 @@ import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import Icon from '@/components/ui/Icon'
+import { 
+  ChevronDown, 
+  Home, 
+  User, 
+  ArrowRight, 
+  Menu, 
+  X, 
+  Book, 
+  Lightbulb, 
+  Info, 
+  Mail, 
+  Rocket 
+} from 'lucide-react'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -115,7 +127,7 @@ export default function Header() {
                   </div>
                   <span className="text-gray-800 font-bold">Welcome, {user.name}</span>
                   <div className={`transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`}>
-                    <Icon name="chevron-down" size={16} color="muted" />
+                    <ChevronDown size={16} className="text-gray-500" />
                   </div>
                 </button>
 
@@ -127,7 +139,7 @@ export default function Header() {
                       className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition-colors text-gray-800 font-medium"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <Icon name="home" size={16} color="current" />
+                      <Home size={16} />
                       Dashboard
                     </Link>
                     <Link
@@ -135,7 +147,7 @@ export default function Header() {
                       className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition-colors text-gray-800 font-medium"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
-                      <Icon name="user" size={16} color="current" />
+                      <User size={16} />
                       Profile
                     </Link>
                     <div className="border-t border-gray-200 my-1"></div>
@@ -143,7 +155,7 @@ export default function Header() {
                       onClick={handleSignOut}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition-colors w-full text-left text-gray-600 hover:text-primary font-medium"
                     >
-                      <Icon name="arrow-right" size={16} color="current" />
+                      <ArrowRight size={16} />
                       Sign Out
                     </button>
                   </div>
@@ -154,7 +166,7 @@ export default function Header() {
                 <Link href="/auth/login" className="text-gray-800 hover:text-primary font-bold transition-colors duration-200 px-4 py-2 text-lg">
                   Sign In
                 </Link>
-                <Link href="/auth/signup" className="bg-primary hover:bg-secondary text-black hover:text-white px-6 py-2 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                <Link href="/auth/signup" className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-2 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
                   Get Started
                 </Link>
               </>
@@ -164,11 +176,11 @@ export default function Header() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-xl hover:bg-white/60 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 backdrop-blur-sm bg-white/40 border border-white/30"
+            className="md:hidden p-2 rounded-xl hover:bg-white/60 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary backdrop-blur-sm bg-white/40 border border-white/30"
             aria-label="Toggle mobile menu"
           >
             <div className={`transition-transform duration-300 ${isMenuOpen ? 'rotate-90' : ''}`}>
-              <Icon name={isMenuOpen ? "close" : "menu"} size={24} color="primary" />
+              {isMenuOpen ? <X size={24} className="text-primary" /> : <Menu size={24} className="text-primary" />}
             </div>
           </button>
         </div>
@@ -191,7 +203,7 @@ export default function Header() {
                     className="text-gray-800 hover:text-primary hover:bg-primary/5 py-4 px-6 rounded-xl font-bold transition-all duration-300 text-lg flex items-center gap-3"
                     onClick={handleMobileNavClick}
                   >
-                    <Icon name="book" size={20} color="current" />
+                    <Book size={20} />
                     Courses
                   </Link>
                   <Link 
@@ -199,7 +211,7 @@ export default function Header() {
                     className="text-gray-800 hover:text-primary hover:bg-primary/5 py-4 px-6 rounded-xl font-bold transition-all duration-300 text-lg flex items-center gap-3"
                     onClick={handleMobileNavClick}
                   >
-                    <Icon name="lightbulb" size={20} color="current" />
+                    <Lightbulb size={20} />
                     Quizzes
                   </Link>
                   <Link 
@@ -207,7 +219,7 @@ export default function Header() {
                     className="text-gray-800 hover:text-primary hover:bg-primary/5 py-4 px-6 rounded-xl font-bold transition-all duration-300 text-lg flex items-center gap-3"
                     onClick={handleMobileNavClick}
                   >
-                    <Icon name="info" size={20} color="current" />
+                    <Info size={20} />
                     About
                   </Link>
                   <Link 
@@ -215,7 +227,7 @@ export default function Header() {
                     className="text-gray-800 hover:text-primary hover:bg-primary/5 py-4 px-6 rounded-xl font-bold transition-all duration-300 text-lg flex items-center gap-3"
                     onClick={handleMobileNavClick}
                   >
-                    <Icon name="mail" size={20} color="current" />
+                    <Mail size={20} />
                     Contact
                   </Link>
                   
@@ -236,7 +248,7 @@ export default function Header() {
                           className="text-gray-800 hover:text-primary hover:bg-primary/5 py-4 px-6 rounded-xl font-bold transition-all duration-300 w-full text-left block text-lg flex items-center gap-3" 
                           onClick={handleMobileNavClick}
                         >
-                          <Icon name="home" size={20} color="current" />
+                          <Home size={20} />
                           Dashboard
                         </Link>
                         <Link 
@@ -244,14 +256,14 @@ export default function Header() {
                           className="text-gray-800 hover:text-primary hover:bg-primary/5 py-4 px-6 rounded-xl font-bold transition-all duration-300 w-full text-left block text-lg flex items-center gap-3" 
                           onClick={handleMobileNavClick}
                         >
-                          <Icon name="user" size={20} color="current" />
+                          <User size={20} />
                           Profile
                         </Link>
                         <button
                           onClick={handleSignOut}
                           className="backdrop-blur-sm bg-white/80 text-gray-700 hover:bg-primary/5 hover:text-primary px-6 py-4 rounded-xl font-bold transition-all duration-300 w-full border border-white/40 text-lg flex items-center gap-3"
                         >
-                          <Icon name="arrow-right" size={20} color="current" />
+                          <ArrowRight size={20} />
                           Sign Out
                         </button>
                       </div>
@@ -262,15 +274,15 @@ export default function Header() {
                           className="border-2 border-primary bg-white/90 hover:bg-primary/5 text-primary px-6 py-4 rounded-xl font-bold transition-all duration-300 w-full text-center block text-lg flex items-center justify-center gap-3"
                           onClick={handleMobileNavClick}
                         >
-                          <Icon name="user" size={20} color="current" />
+                          <User size={20} />
                           Sign In
                         </Link>
                         <Link
                           href="/auth/signup"
-                          className="bg-primary hover:bg-primary/90 text-black px-6 py-4 rounded-xl font-bold transition-all duration-300 w-full text-center block shadow-lg text-lg flex items-center justify-center gap-3"
+                          className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-4 rounded-xl font-bold transition-all duration-300 w-full text-center block shadow-lg text-lg flex items-center justify-center gap-3"
                           onClick={handleMobileNavClick}
                         >
-                          <Icon name="rocket" size={20} color="current" />
+                          <Rocket size={20} />
                           Get Started
                         </Link>
                       </div>

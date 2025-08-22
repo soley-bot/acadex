@@ -102,17 +102,21 @@ export interface Quiz {
   updated_at: string
 }
 
+// Type aliases for easier importing
+export type QuestionType = 'multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay' | 'matching' | 'ordering'
+
 export interface QuizQuestion {
   id: string
   quiz_id: string
   question: string
-  question_type?: 'multiple_choice' | 'true_false' | 'fill_blank'
+  question_type: 'multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay' | 'matching' | 'ordering'
   options: any // JSONB array
   correct_answer: number
   correct_answer_text?: string | null
+  correct_answer_json?: any | null  // New: For complex question types (matching, ordering)
   explanation?: string | null
   order_index: number
-  points: number
+  points: number                    // Now required with default 1
   difficulty_level: 'easy' | 'medium' | 'hard'
   image_url?: string | null
   audio_url?: string | null

@@ -88,7 +88,7 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-red-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary mx-auto mb-4"></div>
             <p className="text-gray-600">Loading quiz...</p>
           </div>
         </div>
@@ -111,8 +111,8 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
             <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary/90 rounded-full flex items-center justify-center mx-auto mb-4">
               <X className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No Quiz Available</h3>
-            <p className="text-gray-600 mb-6">
+            <h3 className="text-xl font-bold text-foreground mb-2">No Quiz Available</h3>
+            <p className="text-muted-foreground mb-6">
               {error || 'This lesson does not have a quiz yet.'}
             </p>
             <button
@@ -219,10 +219,10 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
               <Check className="w-8 h-8 text-white" />
             </div>
             
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Quiz Complete!</h3>
-            <p className="text-gray-600 mb-6">You scored {correct} out of {quizQuestions.length} questions correctly</p>
+            <h3 className="text-xl font-bold text-foreground mb-2">Quiz Complete!</h3>
+            <p className="text-muted-foreground mb-6">You scored {correct} out of {quizQuestions.length} questions correctly</p>
             
-            <div className="text-3xl font-bold text-green-600 mb-6">{score}%</div>
+            <div className="text-3xl font-bold text-success mb-6">{score}%</div>
             
             <div className="flex gap-3">
               <button

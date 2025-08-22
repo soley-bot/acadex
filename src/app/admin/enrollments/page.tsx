@@ -8,13 +8,13 @@ import type { Enrollment, Course, User } from '@/lib/supabase'
 import { ManualEnrollmentModal } from '@/components/admin/ManualEnrollmentModal'
 
 interface EnrollmentWithDetails extends Enrollment {
-  course: {
+  courses: {
     title: string
     instructor_name: string
     price: number
     level: string
   }
-  user: {
+  users: {
     name: string
     email: string
   }
@@ -78,7 +78,7 @@ export default function AdminEnrollmentsPage() {
       const totalEnrollments = enrollmentsWithDetails.length
       const completedEnrollments = enrollmentsWithDetails.filter(e => e.completed_at).length
       const activeEnrollments = totalEnrollments - completedEnrollments
-      const totalRevenue = enrollmentsWithDetails.reduce((sum, e) => sum + (e.course?.price || 0), 0)
+      const totalRevenue = enrollmentsWithDetails.reduce((sum, e) => sum + (e.courses?.price || 0), 0)
 
       setStats({
         totalEnrollments,
@@ -118,17 +118,17 @@ export default function AdminEnrollmentsPage() {
     }
   }
 
-  const filteredEnrollments = enrollments.filter(enrollment => {
+  // Filter enrollments based on search and status
+  const filteredEnrollments = enrollments.filter((enrollment) => {
     const matchesSearch = 
-      enrollment.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      enrollment.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      enrollment.course?.title?.toLowerCase().includes(searchTerm.toLowerCase())
-
-    const matchesStatus = 
-      statusFilter === 'all' ||
-      (statusFilter === 'completed' && enrollment.completed_at) ||
-      (statusFilter === 'active' && !enrollment.completed_at)
-
+      enrollment.users?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      enrollment.users?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      enrollment.courses?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'active' && !enrollment.completed_at) ||
+      (statusFilter === 'completed' && enrollment.completed_at)
+    
     return matchesSearch && matchesStatus
   })
 
@@ -348,20 +348,20 @@ export default function AdminEnrollmentsPage() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-gray-900">
-                        {enrollment.user?.name || 'Unknown User'}
+                        {enrollment.users?.name || 'Unknown User'}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {enrollment.user?.email || 'No email'}
+                        {enrollment.users?.email || 'No email'}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-gray-900">
-                        {enrollment.course?.title || 'Unknown Course'}
+                        {enrollment.courses?.title || 'Unknown Course'}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {enrollment.course?.level || 'Unknown'} • {enrollment.course?.instructor_name || 'Unknown Instructor'}
+                        {enrollment.courses?.level || 'Unknown'} • {enrollment.courses?.instructor_name || 'Unknown Instructor'}
                       </div>
                     </div>
                   </td>
@@ -388,7 +388,7 @@ export default function AdminEnrollmentsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                    ${enrollment.course?.price?.toFixed(2) || '0.00'}
+                    ${enrollment.courses?.price?.toFixed(2) || '0.00'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
@@ -454,11 +454,11 @@ export default function AdminEnrollmentsPage() {
                 <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Name:</span>
-                    <span className="font-medium">{selectedEnrollment.user?.name || 'Unknown'}</span>
+                    <span className="font-medium">{selectedEnrollment.users?.name || 'Unknown'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Email:</span>
-                    <span className="font-medium">{selectedEnrollment.user?.email || 'Unknown'}</span>
+                    <span className="font-medium">{selectedEnrollment.users?.email || 'Unknown'}</span>
                   </div>
                 </div>
               </div>
@@ -469,19 +469,19 @@ export default function AdminEnrollmentsPage() {
                 <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Title:</span>
-                    <span className="font-medium">{selectedEnrollment.course?.title || 'Unknown'}</span>
+                    <span className="font-medium">{selectedEnrollment.courses?.title || 'Unknown'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Instructor:</span>
-                    <span className="font-medium">{selectedEnrollment.course?.instructor_name || 'Unknown'}</span>
+                    <span className="font-medium">{selectedEnrollment.courses?.instructor_name || 'Unknown'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Level:</span>
-                    <span className="font-medium capitalize">{selectedEnrollment.course?.level || 'Unknown'}</span>
+                    <span className="font-medium capitalize">{selectedEnrollment.courses?.level || 'Unknown'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Price:</span>
-                    <span className="font-medium">${selectedEnrollment.course?.price?.toFixed(2) || '0.00'}</span>
+                    <span className="font-medium">${selectedEnrollment.courses?.price?.toFixed(2) || '0.00'}</span>
                   </div>
                 </div>
               </div>

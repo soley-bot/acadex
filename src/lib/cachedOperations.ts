@@ -112,12 +112,22 @@ export const cachedCourseAPI = {
     try {
       const response = await courseAPI.createCourse(courseData)
       
-      if (response.error) {
+      logger.debug('🔍 [CACHED_API] Raw API response:', response)
+      
+      if (response?.error) {
         logger.error('❌ [CACHED_API] Create course API error:', response.error)
         throw new Error(response.error)
       }
       
-      const course = response.course as Course
+      // The courseAPI.createCourse returns the course data directly, not wrapped in a response object
+      const course = response as Course
+      
+      if (!course || !course.id) {
+        logger.error('❌ [CACHED_API] Invalid course response - missing course data or ID')
+        logger.error('❌ [CACHED_API] Response was:', response)
+        throw new Error('Invalid course response from API')
+      }
+      
       logger.debug('✅ [CACHED_API] Course created successfully:', course.id)
       
       // Invalidate course lists but cache the new course
@@ -391,6 +401,7 @@ export function useCourseMutations() {
       cache: courseCache,
       onSuccess: (data) => {
         logger.debug('✅ Course created successfully:', data.title)
+        // Note: Modules saving will be handled by the form component
       },
       onError: (error) => {
         logger.error('❌ Failed to create course:', error.message)

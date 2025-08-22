@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Loader2, ArrowRight, AlertTriangle, Sparkles } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmailField, PasswordField } from '@/components/auth/FormField'
 
 function EnhancedLoginForm() {
@@ -151,8 +152,9 @@ function EnhancedLoginForm() {
         </div>
 
         {/* Form Card */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 p-6 lg:p-8">
-          <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
+        <Card variant="glass" className="bg-white/90">
+          <CardContent className="p-6 lg:p-8">
+            <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
             {/* Global Error */}
             {error && (
               <div className="bg-primary/5 border border-red-200 rounded-xl p-3 lg:p-4">
@@ -278,7 +280,8 @@ function EnhancedLoginForm() {
               No Credit Card
             </div>
           </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Footer */}
         <p className="text-center text-sm text-gray-500">

@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Pagination } from '@/components/ui/Pagination'
 import { Search, Plus, Brain, Clock, Users, BarChart3, Edit, Trash2, Eye, ChevronDown, Settings, EyeOff, Check } from 'lucide-react'
 import { supabase, Quiz as BaseQuiz } from '@/lib/supabase'
 
@@ -17,10 +18,26 @@ interface Quiz extends BaseQuiz {
 import { QuizForm } from '@/components/admin/QuizForm'
 import { QuizViewModal } from '@/components/admin/QuizViewModal'
 import { CategoryManagement } from '@/components/admin/CategoryManagement'
-import { AIQuizGenerator, GeneratedQuiz } from '@/components/admin/AIQuizGenerator'
+import { InlineAIQuizGenerator } from '@/components/admin/InlineAIQuizGenerator'
 import { QuizAnalytics } from '@/components/admin/QuizAnalytics'
 import { DeleteModal } from '@/components/ui/DeleteModal'
 import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
+
+// Types for AI Quiz Generation
+interface GeneratedQuiz {
+  title: string
+  description: string
+  category: string
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  duration_minutes: number
+  questions: {
+    question: string
+    question_type: string
+    options?: string[]
+    correct_answer: number
+    explanation: string
+  }[]
+}
 
 export default function QuizzesPage() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([])
@@ -31,6 +48,12 @@ export default function QuizzesPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
   const [selectedDifficulty, setSelectedDifficulty] = useState('all')
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 12,
+    total: 0,
+    totalPages: 0
+  })
   
   // Modal states
   const [showQuizForm, setShowQuizForm] = useState(false)
@@ -47,15 +70,21 @@ export default function QuizzesPage() {
   // Refs for click outside
   const categoryDropdownRef = useRef<HTMLDivElement>(null)
 
-  const fetchQuizzes = useCallback(async () => {
+  // Fetch quizzes with pagination
+  const fetchQuizzes = useCallback(async (page = 1) => {
     try {
       setLoading(true)
       setError(null)
       
-      const { data, error } = await supabase
+      const limit = 12
+      const from = (page - 1) * limit
+      const to = from + limit - 1
+
+      const { data, error, count } = await supabase
         .from('quizzes')
-        .select('*')
+        .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
+        .range(from, to)
 
       if (error) throw error
 
@@ -100,6 +129,12 @@ export default function QuizzesPage() {
       })
 
       setQuizzes(processedQuizzes || [])
+      setPagination({
+        page,
+        limit,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / limit)
+      })
     } catch (err) {
       logger.error('Error fetching quizzes:', err)
       setError('Failed to load quizzes. Please try again.')
@@ -109,8 +144,14 @@ export default function QuizzesPage() {
   }, [])
 
   useEffect(() => {
-    fetchQuizzes()
-  }, [fetchQuizzes])
+    fetchQuizzes(pagination.page)
+  }, [fetchQuizzes, pagination.page])
+
+  // Handle pagination
+  const handlePageChange = (newPage: number) => {
+    setPagination(prev => ({ ...prev, page: newPage }))
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -210,7 +251,7 @@ export default function QuizzesPage() {
       if (questionsError) throw questionsError
 
       // Refresh the quiz list and close the AI generator
-      await fetchQuizzes()
+      await fetchQuizzes(pagination.page)
       setShowAIGenerator(false)
       
     } catch (err: any) {
@@ -260,13 +301,13 @@ export default function QuizzesPage() {
   }
 
   const handleFormSuccess = () => {
-    fetchQuizzes()
+    fetchQuizzes(pagination.page)
     setShowQuizForm(false)
     setEditingQuiz(null)
   }
 
   const handleDeleteSuccess = () => {
-    fetchQuizzes()
+    fetchQuizzes(pagination.page)
     setShowDeleteModal(false)
     setShowEnhancedDeleteModal(false)
     setDeletingQuiz(null)
@@ -318,7 +359,7 @@ export default function QuizzesPage() {
         <Card variant="elevated" size="md" className="text-center max-w-md mx-auto">
           <p className="text-primary mb-4 font-bold">{error}</p>
           <button 
-            onClick={fetchQuizzes}
+            onClick={() => fetchQuizzes(pagination.page)}
             className="text-primary hover:text-primary/80 underline font-bold bg-primary/5 hover:bg-destructive/20 px-4 py-2 rounded-lg transition-colors"
           >
             Try again
@@ -579,10 +620,35 @@ export default function QuizzesPage() {
         </Card>
       </div>
   
-      {/* Enhanced Quizzes Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {filteredQuizzes.map((quiz) => (
-          <Card key={quiz.id} variant="interactive" size="sm" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+      {/* Conditional Content Rendering */}
+      {showAIGenerator ? (
+        /* AI Quiz Generator Form */
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">AI Quiz Generator</h2>
+              <p className="text-gray-600 mt-1">Create quizzes automatically using AI for any subject</p>
+            </div>
+            <button
+              onClick={() => setShowAIGenerator(false)}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              ← Back to Quizzes
+            </button>
+          </div>
+          
+          <InlineAIQuizGenerator
+            onQuizGenerated={handleAIQuizGenerated}
+            onCancel={() => setShowAIGenerator(false)}
+          />
+        </div>
+      ) : (
+        /* Regular Quiz Grid */
+        <>
+          {/* Enhanced Quizzes Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredQuizzes.map((quiz) => (
+              <Card key={quiz.id} variant="interactive" size="sm" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
             
             {/* Quiz Image */}
             <div className="relative h-48 bg-muted/40">
@@ -731,6 +797,25 @@ export default function QuizzesPage() {
         </Card>
       )}
 
+      {/* Pagination */}
+      {pagination.totalPages > 1 && (
+        <div className="mt-12 flex justify-center">
+          <Card variant="glass">
+            <CardContent className="p-4">
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                totalItems={pagination.total}
+                itemsPerPage={pagination.limit}
+                onPageChange={handlePageChange}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      )}
+        </>
+      )}
+
       {/* Modals */}
       <QuizForm
         quiz={editingQuiz}
@@ -772,14 +857,8 @@ export default function QuizzesPage() {
         onClose={() => setShowCategoryManagement(false)}
         onCategoryCreated={() => {
           // Refresh categories when new ones are created
-          fetchQuizzes()
+          fetchQuizzes(pagination.page)
         }}
-      />
-
-      <AIQuizGenerator
-        isOpen={showAIGenerator}
-        onClose={() => setShowAIGenerator(false)}
-        onQuizGenerated={handleAIQuizGenerated}
       />
 
       <QuizAnalytics

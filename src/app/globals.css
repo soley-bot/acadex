@@ -651,23 +651,24 @@
     --card-foreground: 0 0% 3.9%;  /* Near-black text on cards */
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 47 100% 59%;           /* Primary Yellow #FFCE32 */
-    --primary-hover: 47 100% 54%;     /* Darker yellow for hover */
-    --primary-foreground: 220 13% 9%; /* Dark text on yellow */
-    --secondary: 223 100% 56%;        /* Prussian Blue #1D63FF */
-    --secondary-foreground: 0 0% 98%;
-    --muted: 47 30% 95%;              /* Very light yellow tint */
+    --primary: 223 100% 56%;        /* Primary Prussian Blue #1D63FF */
+    --primary-hover: 223 100% 51%;   /* Darker blue for hover */
+    --primary-foreground: 0 0% 98%;  /* White text on blue */
+    --secondary: 47 100% 59%;         /* Secondary Yellow #FFCE32 */
+    --secondary-hover: 47 100% 54%;   /* Darker yellow for hover */
+    --secondary-foreground: 220 13% 9%; /* Dark text on yellow */
+    --muted: 223 30% 95%;             /* Very light blue tint */
     --muted-foreground: 0 0% 45.1%;   /* Medium gray text */
-    --accent: 223 30% 95%;            /* Very light blue tint */
+    --accent: 47 30% 95%;             /* Very light yellow tint */
     --accent-foreground: 220 13% 9%;
     --destructive: 0 84.2% 60.2%;     /* Keep red for destructive actions */
     --destructive-foreground: 0 0% 98%;
-    --border: 47 20% 89%;             /* Light yellow-tinted border */
-    --input: 47 15% 96%;              /* Very light yellow input background */
-    --ring: 47 100% 59%;              /* Yellow focus ring */
+    --border: 223 20% 89%;            /* Light blue-tinted border */
+    --input: 223 15% 96%;             /* Very light blue input background */
+    --ring: 223 100% 56%;             /* Blue focus ring */
     --radius: 0.5rem;                /* Consistent border radius */
-    --brand: 47 100% 59%;             /* Brand yellow color */
-    --brand-foreground: 220 13% 9%;   /* Dark text on yellow */
+    --brand: 223 100% 56%;            /* Brand blue color */
+    --brand-foreground: 0 0% 98%;     /* White text on blue */
     --success: 142 76% 36%;         /* Green for success states */
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;          /* Yellow for warnings */
@@ -708,22 +709,23 @@
     --card-foreground: 0 0% 98%;    /* Off-white text on cards */
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 47 95% 70%;             /* Brighter yellow for dark mode */
-    --primary-hover: 47 100% 65%;      /* Darker yellow for hover in dark mode */
-    --primary-foreground: 220 13% 9%;  /* Dark text on yellow */
-    --secondary: 223 100% 65%;         /* Brighter Prussian Blue for dark mode */
-    --secondary-foreground: 0 0% 98%;
-    --muted: 47 15% 15%;               /* Dark yellow-tinted background */
-    --muted-foreground: 0 0% 63.9%;    /* Light gray text */
-    --accent: 223 30% 20%;             /* Dark blue-tinted accents */
+    --primary: 223 100% 65%;         /* Brighter blue for dark mode */
+    --primary-hover: 223 100% 60%;   /* Darker blue for hover in dark mode */
+    --primary-foreground: 0 0% 98%;  /* White text on blue */
+    --secondary: 47 95% 70%;          /* Brighter yellow for dark mode */
+    --secondary-hover: 47 100% 65%;   /* Darker yellow for hover in dark mode */
+    --secondary-foreground: 220 13% 9%; /* Dark text on yellow */
+    --muted: 223 15% 15%;             /* Dark blue-tinted background */
+    --muted-foreground: 0 0% 63.9%;   /* Light gray text */
+    --accent: 47 30% 20%;             /* Dark yellow-tinted accents */
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;      /* Keep red for destructive actions */
+    --destructive: 0 62.8% 30.6%;     /* Keep red for destructive actions */
     --destructive-foreground: 0 0% 98%;
-    --border: 47 15% 25%;              /* Dark yellow-tinted border */
-    --input: 47 10% 18%;               /* Dark yellow-tinted input background */
-    --ring: 47 95% 70%;                /* Bright yellow focus ring */
-    --brand: 47 95% 70%;               /* Brighter brand yellow */
-    --brand-foreground: 220 13% 9%;    /* Dark text on yellow */
+    --border: 223 15% 25%;            /* Dark blue-tinted border */
+    --input: 223 10% 18%;             /* Dark blue-tinted input background */
+    --ring: 223 100% 65%;             /* Bright blue focus ring */
+    --brand: 223 100% 65%;            /* Brighter brand blue */
+    --brand-foreground: 0 0% 98%;     /* White text on blue */
     --success: 142 76% 45%;         /* Brighter green */
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 60%;          /* Brighter yellow */
@@ -1183,4 +1185,22 @@
   .modal {
     @apply m-4 max-h-[90vh] overflow-y-auto;
   }
+}
+
+/* Background Pattern */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(0,0,0,0.1) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Visual Enhancement Classes */
+.section-modern {
+  @apply bg-gradient-to-br from-slate-50 via-white to-blue-50 relative;
+}
+
+.section-modern::before {
+  content: '';
+  @apply absolute inset-0 bg-grid-pattern opacity-[0.02];
 }

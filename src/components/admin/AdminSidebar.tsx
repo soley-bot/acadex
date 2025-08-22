@@ -110,8 +110,8 @@ export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) 
                 className={cn(
                   'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200',
                   isActive
-                    ? 'bg-destructive/20 text-red-700 border border-destructive/30 shadow-sm'
-                    : 'text-gray-700 hover:bg-muted/40 hover:text-gray-900'
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 )}
               >
                 {item.title}
@@ -124,7 +124,7 @@ export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) 
       <div className="p-4 border-t border-gray-200">
         <button 
           onClick={handleSignOut}
-          className="w-full flex items-center justify-center px-4 py-3 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 bg-white transition-colors duration-200 shadow-sm"
+          className="w-full bg-primary hover:bg-secondary text-white hover:text-black px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 shadow-sm"
         >
           Sign Out
         </button>

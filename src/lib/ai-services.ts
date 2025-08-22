@@ -60,7 +60,7 @@ export class GeminiAIService extends BaseAIService {
     }
 
     this.genAI = new GoogleGenerativeAI(apiKey)
-    logger.info('Gemini AI service initialized', { model: this.config.model || 'gemini-1.5-flash' })
+    logger.info('Gemini AI service initialized', { model: this.config.model || 'gemini-2.5-pro' })
   }
 
   async generateContent(request: AIGenerationRequest): Promise<AIGenerationResponse> {
@@ -77,7 +77,7 @@ export class GeminiAIService extends BaseAIService {
 
     try {
       const model = this.genAI.getGenerativeModel({ 
-        model: this.config.model || 'gemini-1.5-flash',
+        model: this.config.model || 'gemini-2.5-pro',
         generationConfig: {
           maxOutputTokens: request.maxTokens || 2048,
           temperature: request.temperature || 0.7,
@@ -160,7 +160,7 @@ export class AIServiceFactory {
   static getDefaultService(): BaseAIService {
     return this.createService({
       provider: 'gemini',
-      model: 'gemini-1.5-flash'
+      model: 'gemini-2.5-pro'
     })
   }
 }

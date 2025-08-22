@@ -87,7 +87,7 @@ export default function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserMo
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
             <div className="bg-primary/5 border border-destructive/30 rounded-lg p-3">
-              <p className="text-red-800 text-sm">{error}</p>
+              <p className="text-destructive text-sm">{error}</p>
             </div>
           )}
 

@@ -9,6 +9,7 @@ import { useUserProgress } from '@/hooks/useUserProgress'
 import { Course } from '@/lib/supabase'
 import Icon from '@/components/ui/Icon'
 import { UnifiedCard } from '@/components/ui/CardVariants'
+import { getCourseImage, getOptimizedImageProps } from '@/lib/imageMapping'
 
 interface EnhancedCourseCardProps {
   course: Course
@@ -85,26 +86,32 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
     return 'bg-primary text-black'
   }
 
+  // Get appropriate image for this course
+  const courseImage = getCourseImage({
+    category: course.category,
+    title: course.title,
+    image_url: course.image_url
+  })
+
   return (
     <UnifiedCard variant="interactive" size="sm" className="group overflow-hidden">
       {/* Course Image */}
-      <div className="relative h-48 overflow-hidden">
-        {course.image_url ? (
-          <Image
-            src={course.image_url}
-            alt={course.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-            <Icon name="book" size={48} color="white" />
-          </div>
-        )}
+      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-muted/20 to-muted/40">
+        <Image
+          src={courseImage.src}
+          alt={courseImage.alt}
+          width={400}
+          height={250}
+          className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+          quality={85}
+        />
+        
+        {/* Image Overlay for Better Text Readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
         
         {/* Level Badge */}
         <div className="absolute top-3 left-3">
-          <span className="px-2 py-1 bg-white/90 text-secondary text-xs font-semibold rounded-md">
+          <span className="px-2 py-1 bg-white/95 backdrop-blur-sm text-secondary text-xs font-semibold rounded-md shadow-sm">
             {course.level}
           </span>
         </div>
@@ -113,12 +120,12 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
         {showProgress && user && enrolled && (
           <div className="absolute top-3 right-3">
             {progress?.completed_at ? (
-              <span className="px-2 py-1 bg-green-500 text-white text-xs font-semibold rounded-md flex items-center gap-1">
+              <span className="px-2 py-1 bg-green-500/95 backdrop-blur-sm text-white text-xs font-semibold rounded-md flex items-center gap-1 shadow-sm">
                 <Icon name="check" size={12} color="white" />
                 Completed
               </span>
             ) : (
-              <span className="px-2 py-1 bg-blue-500 text-white text-xs font-semibold rounded-md">
+              <span className="px-2 py-1 bg-blue-500/95 backdrop-blur-sm text-white text-xs font-semibold rounded-md shadow-sm">
                 {progress?.progress ? `${Math.round(progress.progress)}%` : 'Enrolled'}
               </span>
             )}

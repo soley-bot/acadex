@@ -4,8 +4,10 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
-import { Loader2, ArrowRight, AlertTriangle, Sparkles, User, CheckCircle, Star } from 'lucide-react'
-import { EmailField, PasswordField, FormField } from '@/components/auth/FormField'
+import { Loader2, ArrowRight, AlertTriangle, Sparkles, User, BadgeCheck, Crown, Star } from 'lucide-react'
+import { EmailField, PasswordField } from '@/components/auth/FormField'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { BlobBackground } from '@/components/ui/BlobBackground'
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter'
 
 function EnhancedSignupForm() {
@@ -105,10 +107,10 @@ function EnhancedSignupForm() {
   }
 
   const benefits = [
-    { icon: <CheckCircle className="w-5 h-5" />, text: "Access to 50+ English courses" },
-    { icon: <CheckCircle className="w-5 h-5" />, text: "Interactive quizzes and exercises" },
-    { icon: <CheckCircle className="w-5 h-5" />, text: "Progress tracking and certificates" },
-    { icon: <CheckCircle className="w-5 h-5" />, text: "Join 10,000+ active learners" }
+    { icon: <BadgeCheck className="w-5 h-5" />, text: "Access to curated English courses" },
+    { icon: <BadgeCheck className="w-5 h-5" />, text: "Interactive quizzes and exercises" },
+    { icon: <Crown className="w-5 h-5" />, text: "Progress tracking and certificates" },
+    { icon: <BadgeCheck className="w-5 h-5" />, text: "Join our growing learning community" }
   ]
 
   // Password validation summary for display
@@ -156,12 +158,8 @@ function EnhancedSignupForm() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 flex flex-col py-4 px-4 sm:py-8 sm:px-6 lg:px-8">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      </div>
+      {/* Standardized Background for Auth Pages */}
+      <BlobBackground variant="default" />
       
       {/* Main Content Container */}
       <div className="flex-1 flex items-center justify-center">
@@ -171,13 +169,13 @@ function EnhancedSignupForm() {
           <div>
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-3 py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6 shadow-lg">
               <Star className="w-3 h-3 sm:w-4 sm:h-4" />
-              Join 10,000+ Students
+              New Platform Launch
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 lg:mb-6 leading-tight">
               Start Your English Learning Journey
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-4 sm:mb-6 lg:mb-8 leading-relaxed">
-              Master English with interactive courses, real-time feedback, and a supportive community.
+              Master English with interactive courses, real-time feedback, and join our growing community of dedicated learners.
             </p>
           </div>
 
@@ -208,7 +206,7 @@ function EnhancedSignupForm() {
                     <div className="space-y-2">
                       {validation.isValid ? (
                         <div className="flex items-center gap-2 text-green-600">
-                          <CheckCircle className="w-4 h-4" />
+                          <BadgeCheck className="w-4 h-4" />
                           <span className="text-sm font-medium">Password meets requirements!</span>
                         </div>
                       ) : (
@@ -253,13 +251,13 @@ function EnhancedSignupForm() {
           <div className="text-center">
             <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-3 py-2 rounded-full text-xs font-medium mb-4 shadow-lg">
               <Star className="w-3 h-3" />
-              Join 10,000+ Students
+              New Platform Launch
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-3 leading-tight">
               Start Learning English
             </h1>
             <p className="text-base text-gray-600 mb-4 leading-relaxed">
-              Join thousands of learners improving their English skills
+              Be among the first to experience our innovative English learning platform
             </p>
           </div>
         </div>
@@ -300,7 +298,8 @@ function EnhancedSignupForm() {
 
         {/* Right Side - Form */}
         <div className="w-full lg:w-1/2 lg:max-w-md">
-          <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-4 sm:p-6 lg:p-8">
+          <Card variant="glass" className="bg-white/80">
+            <CardContent className="p-4 sm:p-6 lg:p-8">
             {/* Progress Bar */}
             <div className="mb-4 sm:mb-6 lg:mb-8">
               <div className="flex items-center justify-between text-sm text-gray-600 mb-2 sm:mb-3">
@@ -337,20 +336,22 @@ function EnhancedSignupForm() {
                   </div>
 
                   {/* Name Field */}
-                  <FormField
-                    label="Full Name"
-                    name="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Enter your full name"
-                    required
-                    icon={<User className="w-5 h-5" />}
-                    validation={formData.name ? validateName(formData.name) : undefined}
-                    autoComplete="name"
-                  />
-
-                  {/* Email Field */}
+                  {/* Name Field */}
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="Enter your full name"
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-primary transition-colors"
+                    />
+                  </div>                  {/* Email Field */}
                   <EmailField
                     label="Email Address"
                     name="email"
@@ -496,7 +497,8 @@ function EnhancedSignupForm() {
                 </Link>
               </p>
             </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
       </div>

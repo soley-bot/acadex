@@ -63,15 +63,17 @@ export async function authenticatedGet(url: string): Promise<Response> {
 }
 
 /**
- * Make an authenticated POST request
+ * Make an authenticated POST request with optional abort signal
  */
 export async function authenticatedPost(
   url: string, 
-  data?: any
+  data?: any,
+  options?: { signal?: AbortSignal }
 ): Promise<Response> {
   return authenticatedFetch(url, {
     method: 'POST',
-    body: data ? JSON.stringify(data) : undefined
+    body: data ? JSON.stringify(data) : undefined,
+    signal: options?.signal
   })
 }
 
@@ -192,11 +194,60 @@ export const courseAPI = {
   },
 
   /**
-   * Create a new course
+   * Create a new course with timeout and better error handling
    */
   async createCourse(courseData: any) {
-    const response = await authenticatedPost('/api/admin/courses', courseData)
-    return response.json()
+    console.log('🚀 [COURSE_API] Creating new course:', courseData.title)
+    
+    try {
+      // Add timeout to prevent hanging
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => {
+        console.log('⏰ [COURSE_API] Course creation timeout - aborting request')
+        controller.abort()
+      }, 30000) // 30 second timeout
+      
+      const payload = {
+        action: 'create',
+        courseData: {
+          ...courseData,
+          instructor_id: courseData.instructor_id // Ensure instructor_id is included
+        }
+      }
+      
+      console.log('📝 [COURSE_API] Sending course creation payload:', payload)
+      
+      const response = await authenticatedPost('/api/admin/courses', payload, {
+        signal: controller.signal
+      })
+      
+      clearTimeout(timeoutId)
+      
+      console.log('📡 [COURSE_API] Response status:', response.status)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('❌ [COURSE_API] Course creation failed:', errorText)
+        throw new Error(`Course creation failed: ${errorText}`)
+      }
+      
+      const result = await response.json()
+      console.log('✅ [COURSE_API] Course created successfully:', result)
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Course creation failed')
+      }
+      
+      return result.data || result
+    } catch (error: any) {
+      console.error('💥 [COURSE_API] Course creation error:', error)
+      
+      if (error.name === 'AbortError') {
+        throw new Error('Course creation timed out. Please try again.')
+      }
+      
+      throw error
+    }
   },
 
   /**
