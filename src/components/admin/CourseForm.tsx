@@ -2,7 +2,7 @@
 
 import { logger } from '@/lib/logger'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo, memo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { X, Save, Loader2, Upload, AlertCircle, Plus, Trash2, BookOpen, Video, Link, PlayCircle, FileText, HelpCircle, Move, ChevronDown, ChevronRight } from 'lucide-react'
 import { Course, CourseModule, CourseLesson, Quiz } from '@/lib/supabase'
@@ -92,6 +92,23 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
 
   const isLoading = isCreating || isUpdating || isSubmitting
 
+  // Memoized calculations for performance
+  const totalLessons = useMemo(() => {
+    return formData.modules.reduce((total, module) => total + module.lessons.length, 0)
+  }, [formData.modules])
+
+  const totalDurationMinutes = useMemo(() => {
+    return formData.modules.reduce((total, module) => {
+      return total + module.lessons.reduce((moduleTotal, lesson) => {
+        return moduleTotal + (lesson.duration_minutes || 0)
+      }, 0)
+    }, 0)
+  }, [formData.modules])
+
+  const hasValidationErrors = useMemo(() => {
+    return !formData.title.trim() || !formData.description.trim() || !formData.instructor_name.trim()
+  }, [formData.title, formData.description, formData.instructor_name])
+
   // Initialize form with prefilled data from AI generator
   useEffect(() => {
     if (prefilledData && !course) {
@@ -155,7 +172,6 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
         logger.info(`CourseForm: Successfully loaded ${quizOptions.length} quizzes`)
       } catch (err) {
         logger.error('CourseForm: Error loading quizzes:', err)
-        console.error('Error loading quizzes:', err)
       }
     }
 
@@ -172,87 +188,101 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
     setFormData({ ...formData, [field]: value })
   }
 
-  // Module management functions
-  const addModule = () => {
+  // Module management functions - optimized with useCallback
+  const addModule = useCallback(() => {
     const newModule: ModuleData = {
       title: `Module ${formData.modules.length + 1}`,
       description: '',
       order_index: formData.modules.length,
       lessons: []
     }
-    setFormData({
-      ...formData,
-      modules: [...formData.modules, newModule]
+    setFormData(prev => ({
+      ...prev,
+      modules: [...prev.modules, newModule]
+    }))
+    setExpandedModules(prev => new Set([...prev, formData.modules.length]))
+  }, [formData.modules.length])
+
+  const updateModule = useCallback((moduleIndex: number, field: keyof ModuleData, value: any) => {
+    setFormData(prev => {
+      const updated = [...prev.modules]
+      updated[moduleIndex] = { ...updated[moduleIndex], [field]: value } as ModuleData
+      return { ...prev, modules: updated }
     })
-    setExpandedModules(new Set([...expandedModules, formData.modules.length]))
-  }
+  }, [])
 
-  const updateModule = (moduleIndex: number, field: keyof ModuleData, value: any) => {
-    const updated = [...formData.modules]
-    updated[moduleIndex] = { ...updated[moduleIndex], [field]: value } as ModuleData
-    setFormData({ ...formData, modules: updated })
-  }
-
-  const deleteModule = (moduleIndex: number) => {
-    const updated = formData.modules.filter((_, index) => index !== moduleIndex)
-    setFormData({ ...formData, modules: updated })
+  const deleteModule = useCallback((moduleIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      modules: prev.modules.filter((_, index) => index !== moduleIndex)
+    }))
     
     // Update expanded modules
-    const newExpanded = new Set<number>()
-    expandedModules.forEach(index => {
-      if (index < moduleIndex) {
-        newExpanded.add(index)
-      } else if (index > moduleIndex) {
-        newExpanded.add(index - 1)
-      }
+    setExpandedModules(prev => {
+      const newExpanded = new Set<number>()
+      prev.forEach(index => {
+        if (index < moduleIndex) {
+          newExpanded.add(index)
+        } else if (index > moduleIndex) {
+          newExpanded.add(index - 1)
+        }
+      })
+      return newExpanded
     })
-    setExpandedModules(newExpanded)
-  }
+  }, [])
 
-  // Lesson management functions
-  const addLesson = (moduleIndex: number) => {
-    const updated = [...formData.modules]
-    if (!updated[moduleIndex]) return
-    
-    const newLesson: LessonData = {
-      title: `Lesson ${updated[moduleIndex].lessons.length + 1}`,
-      description: '',
-      content: '',
-      order_index: updated[moduleIndex].lessons.length,
-      is_free_preview: false
-    }
-    updated[moduleIndex].lessons.push(newLesson)
-    setFormData({ ...formData, modules: updated })
-  }
+  // Lesson management functions - optimized with useCallback
+  const addLesson = useCallback((moduleIndex: number) => {
+    setFormData(prev => {
+      const updated = [...prev.modules]
+      if (!updated[moduleIndex]) return prev
+      
+      const newLesson: LessonData = {
+        title: `Lesson ${updated[moduleIndex].lessons.length + 1}`,
+        description: '',
+        content: '',
+        order_index: updated[moduleIndex].lessons.length,
+        is_free_preview: false
+      }
+      updated[moduleIndex].lessons.push(newLesson)
+      return { ...prev, modules: updated }
+    })
+  }, [])
 
-  const updateLesson = (moduleIndex: number, lessonIndex: number, field: keyof LessonData, value: any) => {
-    const updated = [...formData.modules]
-    if (!updated[moduleIndex] || !updated[moduleIndex].lessons[lessonIndex]) return
-    
-    updated[moduleIndex].lessons[lessonIndex] = { 
-      ...updated[moduleIndex].lessons[lessonIndex], 
-      [field]: value 
-    } as LessonData
-    setFormData({ ...formData, modules: updated })
-  }
+  const updateLesson = useCallback((moduleIndex: number, lessonIndex: number, field: keyof LessonData, value: any) => {
+    setFormData(prev => {
+      const updated = [...prev.modules]
+      if (!updated[moduleIndex] || !updated[moduleIndex].lessons[lessonIndex]) return prev
+      
+      updated[moduleIndex].lessons[lessonIndex] = { 
+        ...updated[moduleIndex].lessons[lessonIndex], 
+        [field]: value 
+      } as LessonData
+      return { ...prev, modules: updated }
+    })
+  }, [])
 
-  const deleteLesson = (moduleIndex: number, lessonIndex: number) => {
-    const updated = [...formData.modules]
-    if (!updated[moduleIndex]) return
-    
-    updated[moduleIndex].lessons = updated[moduleIndex].lessons.filter((_, index) => index !== lessonIndex)
-    setFormData({ ...formData, modules: updated })
-  }
+  const deleteLesson = useCallback((moduleIndex: number, lessonIndex: number) => {
+    setFormData(prev => {
+      const updated = [...prev.modules]
+      if (!updated[moduleIndex]) return prev
+      
+      updated[moduleIndex].lessons = updated[moduleIndex].lessons.filter((_, index) => index !== lessonIndex)
+      return { ...prev, modules: updated }
+    })
+  }, [])
 
-  const toggleModuleExpanded = (moduleIndex: number) => {
-    const newExpanded = new Set(expandedModules)
-    if (newExpanded.has(moduleIndex)) {
-      newExpanded.delete(moduleIndex)
-    } else {
-      newExpanded.add(moduleIndex)
-    }
-    setExpandedModules(newExpanded)
-  }
+  const toggleModuleExpanded = useCallback((moduleIndex: number) => {
+    setExpandedModules(prev => {
+      const newExpanded = new Set(prev)
+      if (newExpanded.has(moduleIndex)) {
+        newExpanded.delete(moduleIndex)
+      } else {
+        newExpanded.add(moduleIndex)
+      }
+      return newExpanded
+    })
+  }, [])
 
   // Track loading state changes
   useEffect(() => {
@@ -364,81 +394,48 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
       }
       
     } catch (err) {
-      console.error('Error loading course modules:', err)
+      logger.error('Error loading course modules:', err)
       setError('Failed to load course content')
     }
   }
 
-  // Save modules and lessons
-  const saveModulesAndLessons = async (courseId: string) => {
-    console.log('🎯 [DIRECT_LOG] SAVE MODULES AND LESSONS CALLED!!')
-    console.log('🎯 [DIRECT_LOG] Course ID:', courseId)
-    console.log('🎯 [DIRECT_LOG] Modules to save:', formData.modules)
+  // Save modules and lessons - optimized with useCallback
+  const saveModulesAndLessons = useCallback(async (courseId: string) => {
+    logger.info('Saving modules and lessons for course:', courseId)
     
     // Check if this is an AI-generated course
     const isAIGenerated = formData.instructor_name === 'AI Generated Course' || prefilledData?.title
     if (isAIGenerated) {
-      console.log('🤖 [AI_DEBUG] Saving AI-generated modules...')
-      console.log('🤖 [AI_DEBUG] Modules data:', formData.modules.map(m => ({
-        title: m.title,
-        description_length: m.description?.length || 0,
-        lessons_count: m.lessons.length,
-        lessons: m.lessons.map(l => ({
-          title: l.title,
-          content_length: l.content?.length || 0,
-          video_url: l.video_url,
-          duration_minutes: l.duration_minutes
-        }))
-      })))
+      logger.info('Processing AI-generated course modules')
     }
     
     try {
-      logger.debug('🔄 [COURSE_FORM] Saving modules and lessons via authenticated API')
-      logger.debug('📚 [COURSE_FORM] Course ID:', courseId)
-      logger.debug('📝 [COURSE_FORM] Modules count:', formData.modules.length)
+      logger.debug('Saving modules and lessons via authenticated API')
+      logger.debug('Course ID:', courseId)
+      logger.debug('Modules count:', formData.modules.length)
       
-      console.log('🎯 [DIRECT_LOG] About to call courseAPI.saveModulesAndLessons...')
       const response = await courseAPI.saveModulesAndLessons(courseId, formData.modules)
       
-      console.log('🎯 [DIRECT_LOG] courseAPI.saveModulesAndLessons response:', response)
-      
       if (response.error) {
-        logger.error('❌ [COURSE_FORM] Modules API error:', response.error)
+        logger.error('Modules API error:', response.error)
         throw new Error(response.error)
       }
       
       logger.debug('✅ [COURSE_FORM] Modules and lessons saved successfully')
     } catch (err) {
-      console.error('🎯 [DIRECT_LOG] ERROR in saveModulesAndLessons:', err)
       logger.error('💥 [COURSE_FORM] Error saving modules and lessons:', err)
-      console.error('Error saving modules and lessons:', err)
       throw new Error('Failed to save course content')
     }
-  }
+  }, [formData.modules, formData.instructor_name, prefilledData])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    console.log('🎯 [DIRECT_LOG] HANDLE SUBMIT CALLED!!')
-    console.log('🎯 [DIRECT_LOG] Form data has modules:', formData.modules.length)
-    
-    // Check if this is an AI-generated course
-    const isAIGenerated = formData.instructor_name === 'AI Generated Course' || prefilledData?.title
-    console.log('🤖 [AI_DEBUG] Is AI Generated Course:', isAIGenerated)
-    console.log('🤖 [AI_DEBUG] Instructor name:', formData.instructor_name)
-    console.log('🤖 [AI_DEBUG] Has prefilled data:', !!prefilledData)
-    
-    if (isAIGenerated) {
-      console.log('🤖 [AI_DEBUG] AI Generated course modules count:', formData.modules.length)
-      console.log('🤖 [AI_DEBUG] AI course modules structure:', formData.modules.map(m => ({
-        title: m.title,
-        lessonsCount: m.lessons.length,
-        description: m.description ? m.description.substring(0, 100) + '...' : 'No description'
-      })))
-    }
-    
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setSuccessMessage(null) // Clear previous success message
     setIsSubmitting(true) // Set local loading state
+
+    // Check if this is an AI-generated course
+    const isAIGenerated = formData.instructor_name === 'AI Generated Course' || prefilledData?.title
 
     logger.debug('🔄 [COURSE_FORM] === STARTING COURSE SUBMISSION ===')
     logger.debug('🔄 [COURSE_FORM] Form submitted at:', new Date().toISOString())
@@ -487,12 +484,8 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
       
       // Save modules and lessons after course is saved
       if (formData.modules.length > 0) {
-        console.log('🤖 [AI_DEBUG] About to save modules and lessons...')
-        
         // For AI-generated courses, add safety measures
         if (isAIGenerated) {
-          console.log('🤖 [AI_DEBUG] Processing AI-generated modules for safety...')
-          
           // Limit content length to prevent database issues
           const safeModules = formData.modules.map(module => ({
             ...module,
@@ -503,8 +496,6 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
               description: lesson.description?.substring(0, 2000) || '' // Limit to 2000 chars
             }))
           }))
-          
-          console.log('🤖 [AI_DEBUG] Safe modules prepared, saving...')
           
           // Use a timeout for AI-generated content
           const timeoutPromise = new Promise((_, reject) => 
@@ -549,7 +540,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
       setIsSubmitting(false) // Always clear loading state
       logger.debug('🔄 [COURSE_FORM] Loading state cleared')
     }
-  }
+  }, [formData, prefilledData, course, user, createCourse, updateCourse, onSuccess, onClose, saveModulesAndLessons])
 
   if (!isOpen) {
     logger.debug('🚫 [COURSE_FORM] Form not rendering - isOpen is false')
@@ -584,11 +575,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-6" onInvalid={(e) => {
-        console.log('🎯 [DIRECT_LOG] FORM VALIDATION ERROR!!')
-        console.log('🎯 [DIRECT_LOG] Invalid element:', e.target)
-        console.log('🎯 [DIRECT_LOG] Validation message:', (e.target as HTMLInputElement).validationMessage)
-      }}>
+      <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {error && (
             <div className="bg-primary/5 border border-destructive/30 rounded-lg p-4 flex items-center">
               <AlertCircle className="h-5 w-5 text-destructive mr-2" />
@@ -748,22 +735,18 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                 value={formData.image_url}
                 onChange={(url) => setFormData({ ...formData, image_url: url || '' })}
                 onFileUpload={async (file) => {
-                  console.log('🖼️ [COURSE_FORM] Starting image upload:', file.name)
                   setError(null) // Clear any previous errors
                   
                   try {
                     const result = await uploadImage(file, 'course-images', 'courses')
                     
                     if (!result.success) {
-                      console.error('🖼️ [COURSE_FORM] Upload failed:', result.error)
                       setError(`Image upload failed: ${result.error}`)
                       throw new Error(result.error || 'Failed to upload image')
                     }
                     
-                    console.log('🖼️ [COURSE_FORM] Upload successful:', result.url)
                     return result.url!
                   } catch (error: any) {
-                    console.error('🖼️ [COURSE_FORM] Upload error:', error)
                     const errorMessage = error.message || 'Failed to upload image'
                     setError(`Image upload failed: ${errorMessage}`)
                     throw error
