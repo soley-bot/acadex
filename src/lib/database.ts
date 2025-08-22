@@ -255,8 +255,16 @@ export const quizAPI = {
   },
 
   // Get user's quiz attempts
-  async getUserQuizAttempts(userId: string) {
-    const { data, error } = await supabase
+  async getUserQuizAttempts(userId: string, filters?: {
+    page?: number;
+    limit?: number;
+  }) {
+    const page = filters?.page || 1
+    const limit = filters?.limit || 10
+    const from = (page - 1) * limit
+    const to = from + limit - 1
+
+    const { data, error, count } = await supabase
       .from('quiz_attempts')
       .select(`
         *,
@@ -265,11 +273,22 @@ export const quizAPI = {
           category,
           difficulty
         )
-      `)
+      `, { count: 'exact' })
       .eq('user_id', userId)
       .order('completed_at', { ascending: false })
+      .range(from, to)
 
-    return { data, error }
+    return { 
+      data, 
+      error, 
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / limit),
+        hasMore: (count || 0) > to + 1
+      }
+    }
   },
 
   // Get quiz statistics
@@ -687,7 +706,45 @@ export const getUserCourses = async (userId: string) => {
   return { data: formattedData, error }
 }
 
-export const getUserQuizAttempts = async (userId: string, limit?: number) => {
+export const getUserQuizAttempts = async (userId: string, limit?: number, page?: number) => {
+  // Support pagination when page is provided
+  if (page) {
+    const pageLimit = limit || 10
+    const from = (page - 1) * pageLimit
+    const to = from + pageLimit - 1
+
+    const { data, error, count } = await supabase
+      .from('quiz_attempts')
+      .select(`
+        *,
+        quizzes!inner(title)
+      `, { count: 'exact' })
+      .eq('user_id', userId)
+      .order('completed_at', { ascending: false })
+      .range(from, to)
+
+    const formattedData = data?.map((attempt: any) => ({
+      id: attempt.id,
+      quiz_title: attempt.quizzes.title,
+      score: attempt.score,
+      completed_at: attempt.completed_at,
+      time_taken_minutes: Math.round((attempt.time_taken_seconds || 0) / 60)
+    }))
+
+    return { 
+      data: formattedData, 
+      error,
+      pagination: {
+        page,
+        limit: pageLimit,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / pageLimit),
+        hasMore: (count || 0) > to + 1
+      }
+    }
+  }
+
+  // Original behavior for backward compatibility
   let query = supabase
     .from('quiz_attempts')
     .select(`

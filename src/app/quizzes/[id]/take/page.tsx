@@ -7,7 +7,9 @@ import { useAuth } from '@/contexts/AuthContext'
 import { QuizQuestion, Quiz } from '@/lib/supabase'
 import { H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Container, Section } from '@/components/ui/Layout'
-import Icon from '@/components/ui/Icon'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { BlobBackground } from '@/components/ui/BlobBackground'
+import { AlertTriangle, Target, Move, Check } from 'lucide-react'
 import { logger } from '@/lib/logger'
 
 interface Question {
@@ -147,12 +149,8 @@ export default function TakeQuizPage() {
         className="min-h-screen relative overflow-hidden"
         background="gradient"
       >
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-        </div>
+        {/* Standardized Interactive Background */}
+        <BlobBackground variant="vibrant" />
         
         <Container className="relative flex items-center justify-center min-h-screen">
           <div className="text-center bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
@@ -167,16 +165,19 @@ export default function TakeQuizPage() {
   if (error || !quiz || questions.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
-        <div className="text-center p-6 rounded-xl bg-white/90 shadow-lg max-w-md">
-          <h1 className="text-xl font-bold text-primary mb-4">Unable to Load Quiz</h1>
-          <p className="text-gray-600 mb-6">{error || 'The quiz questions could not be loaded.'}</p>
+        <Card variant="glass" className="text-center p-8 max-w-md w-full">
+          <div className="w-16 h-16 bg-destructive rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <AlertTriangle className="w-8 h-8 text-white" />
+          </div>
+          <H3 className="text-gray-900 mb-3">Unable to Load Quiz</H3>
+          <BodyMD className="text-gray-600 mb-6">{error || 'The quiz questions could not be loaded.'}</BodyMD>
           <button
             onClick={() => router.push('/quizzes')}
-            className="bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-6 py-3 rounded-lg font-medium transition-all hover:shadow-lg"
+            className="bg-primary hover:bg-secondary text-black hover:text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300"
           >
             Back to Quizzes
           </button>
-        </div>
+        </Card>
       </div>
     )
   }
@@ -184,22 +185,22 @@ export default function TakeQuizPage() {
   if (!quizStarted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
-        <div className="text-center p-6 rounded-xl bg-white/90 shadow-lg max-w-md w-full">
-          <div className="inline-block p-3 bg-gradient-to-r from-primary to-warning rounded-xl mb-4">
-            <Icon name="target" size={24} color="white" />
+        <Card variant="glass" className="text-center p-8 max-w-md w-full">
+          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Target className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-xl font-bold text-gray-800 mb-2">{quiz.title}</h1>
+          <H2 className="text-gray-900 mb-3">{quiz.title}</H2>
           {quiz.description && (
-            <p className="text-gray-600 mb-4">{quiz.description}</p>
+            <BodyMD className="text-gray-600 mb-6">{quiz.description}</BodyMD>
           )}
-          <div className="bg-gray-50 rounded-lg p-4 mb-6 space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span>Questions:</span>
-              <span className="font-medium">{questions.length}</span>
+          <div className="bg-gray-50/80 rounded-xl p-4 mb-6 space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Questions:</span>
+              <span className="font-semibold text-gray-900">{questions.length}</span>
             </div>
-            <div className="flex justify-between">
-              <span>Time limit:</span>
-              <span className="font-medium">{quiz.duration_minutes} minutes</span>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Time limit:</span>
+              <span className="font-semibold text-gray-900">{quiz.duration_minutes} minutes</span>
             </div>
           </div>
           <button
@@ -207,11 +208,11 @@ export default function TakeQuizPage() {
               setQuizStarted(true)
               setStartTime(new Date())
             }}
-            className="w-full bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 px-6 py-3 rounded-lg font-medium transition-all hover:shadow-lg"
+            className="w-full bg-primary hover:bg-secondary text-black hover:text-white px-6 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
           >
             Start Quiz
           </button>
-        </div>
+        </Card>
       </div>
     )
   }
@@ -223,12 +224,8 @@ export default function TakeQuizPage() {
       className="min-h-screen relative overflow-hidden"
       background="gradient"
     >
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      </div>
+      {/* Standardized Interactive Background */}
+      <BlobBackground variant="vibrant" />
       
       <Container className="relative py-4 max-w-4xl">
         {/* Compact Header */}
@@ -426,7 +423,7 @@ export default function TakeQuizPage() {
                           </div>
                           <span className="text-sm flex-1">{option}</span>
                           <div className="text-gray-400">
-                            <Icon name="move" size={16} color="muted" />
+                            <Move className="w-4 h-4" />
                           </div>
                         </div>
                       ))}
@@ -513,7 +510,7 @@ export default function TakeQuizPage() {
                       </>
                     ) : (
                       <>
-                        <Icon name="check" size={14} color="white" />
+                        <Check className="w-4 h-4 text-white" />
                         <span className="hidden sm:inline">Submit</span>
                         <span className="sm:hidden">Submit</span>
                       </>

@@ -9,11 +9,25 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase, Quiz } from '@/lib/supabase'
+import { ImageUpload } from '@/components/ui/ImageUpload'
+import { uploadImage } from '@/lib/imageUpload'
 import { AIQuizGenerator, GeneratedQuiz } from './AIQuizGenerator'
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
 
-// Enhanced question types
-type QuestionType = 'multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay' | 'matching' | 'ordering'
+// Phase 1 Foundation Imports
+import { featureFlags } from '@/components/admin/quiz-enhancements/featureFlags'
+import { validateQuizData, validateQuestion } from '@/components/admin/quiz-enhancements/quizValidation'
+import { initializeMonitoring, trackQuizFormEvent, trackValidationResults, trackPerformance } from '@/components/admin/quiz-enhancements/quizFormMonitoring'
+
+// Phase 2 Enhanced UI Imports
+import { Phase2Enhancements } from '@/components/admin/quiz-enhancements/Phase2Enhancements'
+
+// Category system imports
+import { CategorySelector, CategorySelectorRef } from '@/components/admin/CategorySelector'
+import { CategoryManagement } from '@/components/admin/CategoryManagement'
+
+// Enhanced question types - All types except single_choice (consolidated into multiple_choice)
+type QuestionType = 'multiple_choice' | 'true_false' | 'fill_blank' | 'essay' | 'matching' | 'ordering'
 
 interface Question {
   id?: string
@@ -58,11 +72,27 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [unsavedChanges, setUnsavedChanges] = useState(false)
   const [previewMode, setPreviewMode] = useState(false)
+  const [showCategoryManagement, setShowCategoryManagement] = useState(false)
   const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set())
 
+  // Refs
+  const categorySelectorRef = useRef<CategorySelectorRef>(null)
+  
   // Auto-save timer ref
   const autoSaveTimer = useRef<NodeJS.Timeout>()
   const hasInitialized = useRef(false)
+
+  // Phase 1: Initialize monitoring and feature flags
+  useEffect(() => {
+    if (featureFlags.enableFoundation) {
+      initializeMonitoring()
+      trackQuizFormEvent('form_opened', { 
+        quizId: quiz?.id, 
+        isEdit: !!quiz,
+        userId: user?.id 
+      })
+    }
+  }, [quiz?.id, quiz, user?.id])
 
   const [formData, setFormData] = useState({
     title: '',
@@ -79,49 +109,76 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
 
   const [questions, setQuestions] = useState<Question[]>([])
 
-  // Real-time validation
+  // Real-time validation with Phase 1 enhancements
   const validateForm = useCallback((): ValidationError[] => {
-    const newErrors: ValidationError[] = []
+    let newErrors: ValidationError[] = []
 
-    // Basic form validation
-    if (!formData.title.trim()) {
-      newErrors.push({ field: 'title', message: 'Quiz title is required' })
-    }
-    if (!formData.description.trim()) {
-      newErrors.push({ field: 'description', message: 'Quiz description is required' })
-    }
-    if (!formData.category) {
-      newErrors.push({ field: 'category', message: 'Please select a category' })
-    }
-    if (formData.duration_minutes < 1) {
-      newErrors.push({ field: 'duration_minutes', message: 'Duration must be at least 1 minute' })
-    }
-
-    // Question validation
-    if (questions.length === 0) {
-      newErrors.push({ field: 'questions', message: 'Add at least one question' })
-    }
-
-    questions.forEach((q, index) => {
-      if (!q.question.trim()) {
-        newErrors.push({ 
-          field: 'question', 
-          message: 'Question text is required',
-          questionIndex: index 
+    // Use Phase 1 enhanced validation if enabled
+    if (featureFlags.enableFoundation) {
+      try {
+        // Use enhanced validation utilities
+        const quizValidation = validateQuizData(formData)
+        const questionValidations = questions.map((q, index) => 
+          validateQuestion(q, index)
+        ).flat()
+        
+        newErrors = [...quizValidation, ...questionValidations]
+        
+        // Track validation results for monitoring
+        trackValidationResults({
+          totalErrors: newErrors.length,
+          errorTypes: newErrors.map(e => e.field),
+          questionCount: questions.length,
+          quizId: quiz?.id
         })
+        
+      } catch (error) {
+        logger.error('Enhanced validation failed, falling back to basic validation:', error)
+        // Fall back to basic validation if enhanced fails
+      }
+    }
+    
+    // Fallback or additional basic validation
+    if (!featureFlags.enableFoundation || newErrors.length === 0) {
+      // Basic form validation
+      if (!formData.title.trim()) {
+        newErrors.push({ field: 'title', message: 'Quiz title is required' })
+      }
+      if (!formData.description.trim()) {
+        newErrors.push({ field: 'description', message: 'Quiz description is required' })
+      }
+      if (!formData.category) {
+        newErrors.push({ field: 'category', message: 'Please select a category' })
+      }
+      if (formData.duration_minutes < 1) {
+        newErrors.push({ field: 'duration_minutes', message: 'Duration must be at least 1 minute' })
       }
 
-      if (['multiple_choice', 'single_choice'].includes(q.question_type)) {
-        if (!q.options || q.options.length < 2) {
+      // Question validation
+      if (questions.length === 0) {
+        newErrors.push({ field: 'questions', message: 'Add at least one question' })
+      }
+
+      questions.forEach((q, index) => {
+        if (!q.question.trim()) {
           newErrors.push({ 
-            field: 'options', 
-            message: 'At least 2 options required',
+            field: 'question', 
+            message: 'Question text is required',
             questionIndex: index 
           })
         }
-        
-        // Validate options based on question type
-        if (['multiple_choice', 'single_choice', 'true_false', 'ordering'].includes(q.question_type)) {
+
+        // Validate options and correct answers based on question type
+        if (q.question_type === 'multiple_choice') {
+          if (!q.options || q.options.length < 2) {
+            newErrors.push({ 
+              field: 'options', 
+              message: 'At least 2 options required',
+              questionIndex: index 
+            })
+          }
+          
+          // Validate option text
           const stringOptions = q.options as string[]
           if (stringOptions.some(opt => !opt?.trim?.())) {
             newErrors.push({ 
@@ -130,9 +187,43 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
               questionIndex: index 
             })
           }
-        } else if (q.question_type === 'matching') {
+          
+          // Validate correct answer selection - multiple choice now uses single answer
+          if (typeof q.correct_answer !== 'number' || q.correct_answer < 0) {
+            newErrors.push({ 
+              field: 'correct_answer', 
+              message: 'Select one correct answer',
+              questionIndex: index 
+            })
+          }
+        }
+
+        if (q.question_type === 'true_false') {
+          if (!q.options || q.options.length !== 2) {
+            newErrors.push({ 
+              field: 'options', 
+              message: 'True/False must have exactly 2 options',
+              questionIndex: index 
+            })
+          }
+          if (typeof q.correct_answer !== 'number' || q.correct_answer < 0) {
+            newErrors.push({ 
+              field: 'correct_answer', 
+              message: 'Select the correct answer (True or False)',
+              questionIndex: index 
+            })
+          }
+        }
+
+        if (q.question_type === 'matching') {
           const matchingOptions = q.options as Array<{left: string; right: string}>
-          if (matchingOptions.some(pair => !pair?.left?.trim() || !pair?.right?.trim())) {
+          if (!matchingOptions || matchingOptions.length < 2) {
+            newErrors.push({ 
+              field: 'options', 
+              message: 'At least 2 matching pairs required',
+              questionIndex: index 
+            })
+          } else if (matchingOptions.some(pair => !pair?.left?.trim() || !pair?.right?.trim())) {
             newErrors.push({ 
               field: 'options', 
               message: 'All matching pairs must have text',
@@ -140,28 +231,191 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
             })
           }
         }
-        if (typeof q.correct_answer !== 'number' || q.correct_answer < 0) {
-          newErrors.push({ 
-            field: 'correct_answer', 
-            message: 'Select a correct answer',
-            questionIndex: index 
-          })
-        }
-      }
 
-      if (q.question_type === 'fill_blank') {
-        if (!q.correct_answer || (q.correct_answer as string).trim() === '') {
-          newErrors.push({ 
-            field: 'correct_answer', 
-            message: 'Fill-in-the-blank answer required',
-            questionIndex: index 
-          })
+        if (q.question_type === 'ordering') {
+          const stringOptions = q.options as string[]
+          if (!stringOptions || stringOptions.length < 2) {
+            newErrors.push({ 
+              field: 'options', 
+              message: 'At least 2 items required for ordering',
+              questionIndex: index 
+            })
+          } else if (stringOptions.some(opt => !opt?.trim?.())) {
+            newErrors.push({ 
+              field: 'options', 
+              message: 'All ordering items must have text',
+              questionIndex: index 
+            })
+          }
         }
-      }
-    })
+
+        if (q.question_type === 'fill_blank') {
+          if (!q.correct_answer || (q.correct_answer as string).trim() === '') {
+            newErrors.push({ 
+              field: 'correct_answer', 
+              message: 'Fill-in-the-blank answer required',
+              questionIndex: index 
+            })
+          }
+        }
+      })
+    }
 
     return newErrors
-  }, [formData, questions])
+  }, [formData, questions, quiz?.id])
+
+  // Validation function that can work with any data (for auto-save after AI generation)
+  const validateFormData = useCallback((formDataToValidate: typeof formData, questionsToValidate: Question[]): ValidationError[] => {
+    let newErrors: ValidationError[] = []
+
+    // Use Phase 1 enhanced validation if enabled
+    if (featureFlags.enableFoundation) {
+      try {
+        // Use enhanced validation utilities
+        const quizValidation = validateQuizData(formDataToValidate)
+        const questionValidations = questionsToValidate.map((q, index) => 
+          validateQuestion(q, index)
+        ).flat()
+        
+        newErrors = [...quizValidation, ...questionValidations]
+        
+        // Track validation results for monitoring
+        trackValidationResults({
+          totalErrors: newErrors.length,
+          errorTypes: newErrors.map((e: ValidationError) => e.field),
+          questionCount: questionsToValidate.length,
+          quizId: quiz?.id
+        })
+      } catch (error) {
+        logger.error('Phase 1 validation error:', error)
+        // Fallback to basic validation if Phase 1 fails
+      }
+    }
+
+    // Fallback to basic validation or if Phase 1 is disabled
+    if (!featureFlags.enableFoundation || newErrors.length === 0) {
+      // Basic form validation
+      if (!formDataToValidate.title.trim()) {
+        newErrors.push({ field: 'title', message: 'Quiz title is required' })
+      }
+      if (!formDataToValidate.description.trim()) {
+        newErrors.push({ field: 'description', message: 'Quiz description is required' })
+      }
+      if (!formDataToValidate.category) {
+        newErrors.push({ field: 'category', message: 'Please select a category' })
+      }
+      if (formDataToValidate.duration_minutes < 1) {
+        newErrors.push({ field: 'duration_minutes', message: 'Duration must be at least 1 minute' })
+      }
+
+      // Question validation
+      if (questionsToValidate.length === 0) {
+        newErrors.push({ field: 'questions', message: 'Add at least one question' })
+      }
+
+      questionsToValidate.forEach((q, index) => {
+        if (!q.question.trim()) {
+          newErrors.push({ 
+            field: 'question', 
+            message: 'Question text is required',
+            questionIndex: index 
+          })
+        }
+
+        if (q.question_type === 'multiple_choice') {
+          const stringOptions = q.options as string[]
+          if (!stringOptions || stringOptions.length < 2) {
+            newErrors.push({ 
+              field: 'options', 
+              message: 'At least 2 options required',
+              questionIndex: index 
+            })
+          }
+          
+          // Validate option text
+          if (stringOptions.some(opt => !opt?.trim?.())) {
+            newErrors.push({ 
+              field: 'options', 
+              message: 'All options must have text',
+              questionIndex: index 
+            })
+          }
+          
+          // Validate correct answer selection - multiple choice now uses single answer
+          if (typeof q.correct_answer !== 'number' || q.correct_answer < 0) {
+            newErrors.push({ 
+              field: 'correct_answer', 
+              message: 'Select one correct answer',
+              questionIndex: index 
+            })
+          }
+        }
+
+        if (q.question_type === 'true_false') {
+          if (!q.options || q.options.length !== 2) {
+            newErrors.push({ 
+              field: 'options', 
+              message: 'True/False must have exactly 2 options',
+              questionIndex: index 
+            })
+          }
+          if (typeof q.correct_answer !== 'number' || q.correct_answer < 0) {
+            newErrors.push({ 
+              field: 'correct_answer', 
+              message: 'Select the correct answer (True or False)',
+              questionIndex: index 
+            })
+          }
+        }
+
+        if (q.question_type === 'matching') {
+          const matchingOptions = q.options as Array<{left: string; right: string}>
+          if (!matchingOptions || matchingOptions.length < 2) {
+            newErrors.push({ 
+              field: 'options', 
+              message: 'At least 2 matching pairs required',
+              questionIndex: index 
+            })
+          } else if (matchingOptions.some(pair => !pair?.left?.trim() || !pair?.right?.trim())) {
+            newErrors.push({ 
+              field: 'options', 
+              message: 'All matching pairs must have text',
+              questionIndex: index 
+            })
+          }
+        }
+
+        if (q.question_type === 'ordering') {
+          const stringOptions = q.options as string[]
+          if (!stringOptions || stringOptions.length < 2) {
+            newErrors.push({ 
+              field: 'options', 
+              message: 'At least 2 items required for ordering',
+              questionIndex: index 
+            })
+          } else if (stringOptions.some(opt => !opt?.trim?.())) {
+            newErrors.push({ 
+              field: 'options', 
+              message: 'All ordering items must have text',
+              questionIndex: index 
+            })
+          }
+        }
+
+        if (q.question_type === 'fill_blank') {
+          if (!q.correct_answer || (q.correct_answer as string).trim() === '') {
+            newErrors.push({ 
+              field: 'correct_answer', 
+              message: 'Fill-in-the-blank answer required',
+              questionIndex: index 
+            })
+          }
+        }
+      })
+    }
+
+    return newErrors
+  }, [quiz?.id])
 
   // Auto-save functionality
   const autoSave = useCallback(async () => {
@@ -241,12 +495,30 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
           media_url = q.video_url
         }
 
+        // Handle correct_answer loading based on question type
+        let correct_answer: number | string | number[]
+        if (['fill_blank', 'essay'].includes(q.question_type)) {
+          // Text-based answers stored in correct_answer_text
+          correct_answer = q.correct_answer_text || ''
+        } else if (['matching', 'ordering'].includes(q.question_type)) {
+          // Array-based answers stored as JSON in correct_answer_text
+          try {
+            correct_answer = q.correct_answer_text ? JSON.parse(q.correct_answer_text) : []
+          } catch (err) {
+            console.warn('Failed to parse correct_answer_text as JSON:', q.correct_answer_text)
+            correct_answer = []
+          }
+        } else {
+          // Single numeric answers (multiple_choice, true_false) stored in correct_answer
+          correct_answer = q.correct_answer || 0
+        }
+
         return {
           id: q.id,
           question: q.question,
           question_type: q.question_type || 'multiple_choice',
           options: q.question_type === 'fill_blank' ? [] : (q.options || []),
-          correct_answer: q.question_type === 'fill_blank' ? (q.correct_answer_text || '') : (q.correct_answer || 0),
+          correct_answer,
           explanation: q.explanation,
           order_index: q.order_index,
           points: q.points || 1,
@@ -375,6 +647,9 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
       updated[index] = { ...updated[index], [field]: value }
       return updated
     })
+    
+    // Clear validation errors when questions are updated
+    setErrors([])
     markUnsaved()
   }, [markUnsaved])
 
@@ -460,17 +735,48 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
   // Form field update helper
   const updateFormData = useCallback((field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+    
+    // Clear validation errors when form data is updated
+    setErrors([])
     markUnsaved()
   }, [markUnsaved])
 
-  // Submit handler
+  // Submit handler with Phase 1 monitoring
   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    await handleSubmitWithData(e, formData, questions)
+  }
+
+  // Reusable save function that can be called with specific data
+  const handleSubmitWithData = async (e: React.FormEvent, formDataToSave: typeof formData, questionsToSave: Question[]) => {
     e.preventDefault()
     if (!user) return
 
-    const validationErrors = validateForm()
+    const startTime = Date.now()
+    
+    // Track form submission attempt
+    if (featureFlags.enableFoundation) {
+      trackQuizFormEvent('form_submit_attempted', {
+        quizId: quiz?.id,
+        isEdit: !!quiz,
+        questionCount: questionsToSave.length,
+        userId: user?.id
+      })
+    }
+
+    // Validate using the provided data
+    const validationErrors = validateFormData(formDataToSave, questionsToSave)
     if (validationErrors.length > 0) {
       setErrors(validationErrors)
+      
+      // Track validation failure
+      if (featureFlags.enableFoundation) {
+        trackQuizFormEvent('form_submit_validation_failed', {
+          errorCount: validationErrors.length,
+          errorTypes: validationErrors.map(e => e.field),
+          quizId: quiz?.id
+        })
+      }
       return
     }
 
@@ -484,7 +790,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
     }, 30000) // 30 second timeout
 
     try {
-      logger.info('Starting quiz save operation', { quizId: quiz?.id, questionsCount: questions.length })
+      logger.info('Starting quiz save operation', { quizId: quiz?.id, questionsCount: questionsToSave.length })
 
       let quizId: string
 
@@ -492,16 +798,16 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
         logger.info('Updating existing quiz', { quizId: quiz.id })
         // Update existing quiz - only include fields that exist in database
         const quizUpdateData = {
-          title: formData.title,
-          description: formData.description,
-          category: formData.category,
-          difficulty: formData.difficulty,
-          duration_minutes: formData.duration_minutes,
-          passing_score: formData.passing_score,
-          max_attempts: formData.max_attempts,
-          image_url: formData.image_url,
-          is_published: formData.is_published,
-          total_questions: questions.length,
+          title: formDataToSave.title,
+          description: formDataToSave.description,
+          category: formDataToSave.category,
+          difficulty: formDataToSave.difficulty,
+          duration_minutes: formDataToSave.duration_minutes,
+          passing_score: formDataToSave.passing_score,
+          max_attempts: formDataToSave.max_attempts,
+          image_url: formDataToSave.image_url,
+          is_published: formDataToSave.is_published,
+          total_questions: questionsToSave.length,
           updated_at: new Date().toISOString()
         }
 
@@ -519,16 +825,16 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
         logger.info('Creating new quiz')
         // Create new quiz - only include fields that exist in database
         const quizInsertData = {
-          title: formData.title,
-          description: formData.description,
-          category: formData.category,
-          difficulty: formData.difficulty,
-          duration_minutes: formData.duration_minutes,
-          passing_score: formData.passing_score,
-          max_attempts: formData.max_attempts,
-          image_url: formData.image_url,
-          is_published: formData.is_published,
-          total_questions: questions.length
+          title: formDataToSave.title,
+          description: formDataToSave.description,
+          category: formDataToSave.category,
+          difficulty: formDataToSave.difficulty,
+          duration_minutes: formDataToSave.duration_minutes,
+          passing_score: formDataToSave.passing_score,
+          max_attempts: formDataToSave.max_attempts,
+          image_url: formDataToSave.image_url,
+          is_published: formDataToSave.is_published,
+          total_questions: questionsToSave.length
         }
 
         const { data, error } = await supabase
@@ -561,8 +867,8 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
       }
 
       // Insert questions
-      logger.info('Inserting questions', { questionsCount: questions.length })
-      const questionsToInsert = questions.map(q => {
+      logger.info('Inserting questions', { questionsCount: questionsToSave.length })
+      const questionsToInsert = questionsToSave.map(q => {
         const questionType = q.question_type
         
         // Handle different correct_answer formats based on question type
@@ -578,7 +884,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
           correctAnswer = 0
           correctAnswerText = JSON.stringify(q.correct_answer)
         } else {
-          // Single numeric answers (multiple_choice, single_choice, true_false)
+          // Single numeric answers (multiple_choice, true_false)
           correctAnswer = typeof q.correct_answer === 'number' ? q.correct_answer : 0
           correctAnswerText = null
         }
@@ -611,6 +917,22 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
 
       logger.info('Quiz save completed successfully')
       
+      // Track successful save with Phase 1 monitoring
+      if (featureFlags.enableFoundation) {
+        trackQuizFormEvent('form_submit_success', {
+          quizId: quizId,
+          isEdit: !!quiz,
+          questionCount: questions.length,
+          duration: Date.now() - startTime,
+          userId: user?.id
+        })
+        trackPerformance('quiz_save_operation', startTime, {
+          quizId: quizId,
+          questionCount: questions.length,
+          isEdit: !!quiz
+        })
+      }
+      
       // Clear draft from localStorage
       localStorage.removeItem(`quiz-draft-${quiz?.id || 'new'}`)
       
@@ -619,6 +941,18 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
     } catch (err: any) {
       console.error('Quiz save error:', err)
       logger.error('Error saving quiz:', err)
+      
+      // Track save failure with Phase 1 monitoring
+      if (featureFlags.enableFoundation) {
+        trackQuizFormEvent('form_submit_error', {
+          error: err?.message || 'Unknown error',
+          quizId: quiz?.id,
+          questionCount: questions.length,
+          duration: Date.now() - startTime,
+          userId: user?.id
+        })
+      }
+      
       if (err?.message) {
         setErrors([{ field: 'general', message: err.message }])
       } else {
@@ -631,36 +965,77 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
     }
   }
 
-  const handleAIQuizGenerated = (generatedQuiz: GeneratedQuiz) => {
-    setFormData(prev => ({
-      ...prev,
+  const handleAIQuizGenerated = async (generatedQuiz: GeneratedQuiz) => {
+    // Normalize difficulty to ensure database compliance
+    const normalizedDifficulty = (['beginner', 'intermediate', 'advanced'].includes(generatedQuiz.difficulty)) 
+      ? generatedQuiz.difficulty 
+      : 'beginner' // Default fallback
+
+    // Normalize category to ensure it's not empty
+    const normalizedCategory = generatedQuiz.category?.trim() || 'General'
+
+    const normalizedFormData = {
+      ...formData,
       title: generatedQuiz.title,
       description: generatedQuiz.description,
-      category: generatedQuiz.category,
-      difficulty: generatedQuiz.difficulty,
+      category: normalizedCategory,
+      difficulty: normalizedDifficulty,
       duration_minutes: generatedQuiz.duration_minutes
-    }))
+    }
 
-    const convertedQuestions: Question[] = generatedQuiz.questions.map((q, index) => ({
-      question: q.question,
-      question_type: q.question_type as QuestionType,
-      options: q.options || [],
-      correct_answer: q.correct_answer,
-      explanation: q.explanation || '',
-      order_index: index,
-      points: 1
-    }))
+    setFormData(normalizedFormData)
+
+    const convertedQuestions: Question[] = generatedQuiz.questions.map((q, index) => {
+      logger.info('Processing AI generated question', {
+        questionIndex: index,
+        questionType: q.question_type,
+        correctAnswer: q.correct_answer,
+        correctAnswerType: typeof q.correct_answer,
+        options: q.options
+      })
+      
+      return {
+        question: q.question,
+        question_type: q.question_type as QuestionType,
+        options: q.options || [],
+        correct_answer: q.correct_answer,
+        explanation: q.explanation || '',
+        order_index: index,
+        points: 1
+      }
+    })
 
     setQuestions(convertedQuestions)
     setShowAIGenerator(false)
     markUnsaved()
+    
+    // Auto-save the generated quiz to database
+    if (user) {
+      try {
+        setLoading(true)
+        logger.info('Auto-saving AI generated quiz to database', {
+          originalDifficulty: generatedQuiz.difficulty,
+          normalizedDifficulty: normalizedDifficulty,
+          category: normalizedCategory
+        })
+        
+        // Trigger save by creating a synthetic form submission
+        const fakeEvent = { preventDefault: () => {} } as React.FormEvent
+        await handleSubmitWithData(fakeEvent, normalizedFormData, convertedQuestions)
+        
+      } catch (error) {
+        logger.error('Failed to auto-save generated quiz:', error)
+        // Don't throw error - let user manually save if auto-save fails
+      } finally {
+        setLoading(false)
+      }
+    }
   }
 
   if (!isOpen) return null
 
   const questionTypeLabels = {
-    multiple_choice: 'Multiple Choice',
-    single_choice: 'Single Choice',
+    multiple_choice: 'Multiple Choice (select one correct answer)',
     true_false: 'True/False',
     fill_blank: 'Fill in the Blank',
     essay: 'Essay',
@@ -772,22 +1147,20 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Category *
                   </label>
-                  <select
+                  <CategorySelector
+                    ref={categorySelectorRef}
                     value={formData.category}
-                    onChange={(e) => updateFormData('category', e.target.value)}
-                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                      errors.some(e => e.field === 'category') ? 'border-red-300 bg-primary/5' : 'border-gray-300'
-                    }`}
-                    required
-                  >
-                    <option value="">Select Category</option>
-                    <option value="grammar">Grammar</option>
-                    <option value="vocabulary">Vocabulary</option>
-                    <option value="reading">Reading</option>
-                    <option value="listening">Listening</option>
-                    <option value="speaking">Speaking</option>
-                    <option value="writing">Writing</option>
-                  </select>
+                    onChange={(category) => updateFormData('category', category)}
+                    type="quiz"
+                    onManageCategories={() => setShowCategoryManagement(true)}
+                    placeholder="Select a category"
+                    className={errors.some(e => e.field === 'category') ? 'border-red-300' : ''}
+                  />
+                  {errors.find(e => e.field === 'category') && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.find(e => e.field === 'category')?.message}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -806,6 +1179,25 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                 }`}
                 placeholder="Describe what this quiz covers..."
                 required
+              />
+            </div>
+
+            {/* Quiz Image */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quiz Image
+              </label>
+              <ImageUpload
+                value={formData.image_url}
+                onChange={(url) => updateFormData('image_url', url || '')}
+                onFileUpload={async (file) => {
+                  const result = await uploadImage(file, 'quiz-images', 'quizzes')
+                  if (!result.success) {
+                    throw new Error(result.error || 'Failed to upload image')
+                  }
+                  return result.url!
+                }}
+                placeholder="Upload quiz image or enter URL"
               />
             </div>
 
@@ -944,11 +1336,405 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
               </div>
             )}
 
-            {/* Questions List */}
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable droppableId="questions">
-                {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+            {/* Questions List with Phase 2 Enhancements */}
+            {featureFlags.enableEnhancedCards ? (
+              <Phase2Enhancements
+                formData={formData}
+                questions={questions}
+                errors={errors}
+                expandedQuestions={expandedQuestions}
+                previewMode={previewMode}
+                onToggleExpanded={(index) => {
+                  const newExpanded = new Set(expandedQuestions)
+                  if (newExpanded.has(index)) {
+                    newExpanded.delete(index)
+                  } else {
+                    newExpanded.add(index)
+                  }
+                  setExpandedQuestions(newExpanded)
+                }}
+                onUpdateQuestion={updateQuestion}
+                onDuplicateQuestion={duplicateQuestion}
+                onDeleteQuestion={deleteQuestion}
+              >
+                {(questionIndex, question) => (
+                  <div className="space-y-6">
+                    {/* Question Text */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Question Text *
+                      </label>
+                      <textarea
+                        value={question.question}
+                        onChange={(e) => updateQuestion(questionIndex, 'question', e.target.value)}
+                        rows={3}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                          errors.some(e => e.questionIndex === questionIndex && e.field === 'question') 
+                            ? 'border-red-300 bg-primary/5' : 'border-gray-300'
+                        }`}
+                        placeholder="Enter your question here..."
+                      />
+                    </div>
+
+                    {/* Question Type */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Question Type *
+                        </label>
+                        <select
+                          value={question.question_type}
+                          onChange={(e) => updateQuestion(questionIndex, 'question_type', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                          {Object.entries(questionTypeLabels).map(([value, label]) => (
+                            <option key={value} value={value}>
+                              {label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Difficulty Level
+                        </label>
+                        <select
+                          value={question.difficulty_level || 'medium'}
+                          onChange={(e) => updateQuestion(questionIndex, 'difficulty_level', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                          <option value="easy">Easy</option>
+                          <option value="medium">Medium</option>
+                          <option value="hard">Hard</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Options for Multiple Choice/True False */}
+                    {['multiple_choice', 'true_false'].includes(question.question_type) && (
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="block text-sm font-medium text-gray-700">
+                            Answer Options *
+                          </label>
+                          <div className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded">
+                            {question.question_type === 'multiple_choice' && (
+                              <span className="flex items-center gap-1">
+                                <span className="w-3 h-3 border border-gray-400 rounded-full flex-shrink-0"></span>
+                                Select one correct answer
+                              </span>
+                            )}
+                            {question.question_type === 'true_false' && (
+                              <span className="flex items-center gap-1">
+                                <span className="w-3 h-3 border border-gray-400 rounded-full flex-shrink-0"></span>
+                                Select the correct answer
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          {(question.options as string[]).map((option, optionIndex) => {
+                            // Multiple choice now uses single answer (like radio button)
+                            const isCorrect = question.correct_answer === optionIndex
+                            
+                            return (
+                            <div key={optionIndex} className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+                              isCorrect ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200 hover:border-gray-300'
+                            }`}>
+                              <div className="relative">
+                                <input
+                                  type="radio"
+                                  name={`correct_${questionIndex}`}
+                                  checked={isCorrect}
+                                  onChange={() => {
+                                    // Multiple choice now uses single answer (like radio button)
+                                    updateQuestion(questionIndex, 'correct_answer', optionIndex)
+                                  }}
+                                  className="h-5 w-5 text-secondary focus:ring-secondary border-gray-300"
+                                  title="Select as the correct answer (only one allowed)"
+                                />
+                                {isCorrect && (
+                                  <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                                    ✓
+                                  </span>
+                                )}
+                              </div>
+                              <input
+                                type="text"
+                                value={option}
+                                onChange={(e) => {
+                                  const newOptions = [...(question.options as string[])]
+                                  newOptions[optionIndex] = e.target.value
+                                  updateQuestion(questionIndex, 'options', newOptions)
+                                }}
+                                className={`flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                                  errors.some(e => e.questionIndex === questionIndex && e.field === 'options') 
+                                    ? 'border-red-300 bg-primary/5' : 'border-gray-300'
+                                }`}
+                                placeholder={`Option ${optionIndex + 1}`}
+                              />
+                              {question.question_type === 'multiple_choice' && question.options.length > 2 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newOptions = (question.options as string[]).filter((_, i) => i !== optionIndex)
+                                    updateQuestion(questionIndex, 'options', newOptions)
+                                    
+                                    // Update correct answers if they reference deleted option
+                                    if (Array.isArray(question.correct_answer)) {
+                                      const updatedAnswers = question.correct_answer
+                                        .filter(answerIndex => answerIndex !== optionIndex)
+                                        .map(answerIndex => answerIndex > optionIndex ? answerIndex - 1 : answerIndex)
+                                      updateQuestion(questionIndex, 'correct_answer', updatedAnswers)
+                                    }
+                                  }}
+                                  className="p-2 text-gray-400 hover:text-destructive transition-colors"
+                                >
+                                  <X className="h-4 w-4" />
+                                </button>
+                              )}
+                              {['true_false'].includes(question.question_type) && question.options.length > 2 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newOptions = (question.options as string[]).filter((_, i) => i !== optionIndex)
+                                    updateQuestion(questionIndex, 'options', newOptions)
+                                    
+                                    // Reset correct answer if it was the deleted option
+                                    if (question.correct_answer === optionIndex) {
+                                      updateQuestion(questionIndex, 'correct_answer', '')
+                                    } else if (typeof question.correct_answer === 'number' && question.correct_answer > optionIndex) {
+                                      updateQuestion(questionIndex, 'correct_answer', question.correct_answer - 1)
+                                    }
+                                  }}
+                                  className="p-2 text-gray-400 hover:text-destructive transition-colors"
+                                >
+                                  <X className="h-4 w-4" />
+                                </button>
+                              )}
+                            </div>
+                            )
+                          })}
+                          
+                          {/* Add Option Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newOptions = [...(question.options as string[]), '']
+                              updateQuestion(questionIndex, 'options', newOptions)
+                            }}
+                            className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-300 hover:text-blue-500 transition-colors"
+                          >
+                            + Add Option
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Fill in the blank */}
+                    {question.question_type === 'fill_blank' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Correct Answer *
+                        </label>
+                        <input
+                          type="text"
+                          value={question.correct_answer as string}
+                          onChange={(e) => updateQuestion(questionIndex, 'correct_answer', e.target.value)}
+                          className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                            errors.some(e => e.questionIndex === questionIndex && e.field === 'correct_answer') 
+                              ? 'border-red-300 bg-primary/5' : 'border-gray-300'
+                          }`}
+                          placeholder="Enter the correct answer..."
+                        />
+                      </div>
+                    )}
+
+                    {/* Essay question */}
+                    {question.question_type === 'essay' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Sample Answer / Grading Rubric
+                        </label>
+                        <textarea
+                          value={question.correct_answer as string}
+                          onChange={(e) => updateQuestion(questionIndex, 'correct_answer', e.target.value)}
+                          rows={4}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Provide a sample answer or grading criteria..."
+                        />
+                      </div>
+                    )}
+
+                    {/* Matching Question Type */}
+                    {question.question_type === 'matching' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Matching Pairs *
+                        </label>
+                        <p className="text-sm text-gray-600 mb-3">
+                          <strong>How it works:</strong> Students will see items mixed up and need to match each left item to its correct right item.
+                        </p>
+                        
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-2 gap-4 mb-2">
+                            <div className="text-sm font-medium text-gray-600">Left Side</div>
+                            <div className="text-sm font-medium text-gray-600">Right Side</div>
+                          </div>
+                          {(Array.isArray(question.options) && question.options.length && typeof question.options[0] === 'object' 
+                            ? question.options as Array<{left: string; right: string}>
+                            : [{ left: '', right: '' }]
+                          ).map((pair, pairIndex) => (
+                            <div key={pairIndex} className="grid grid-cols-2 gap-4">
+                              <input
+                                type="text"
+                                value={pair?.left || ''}
+                                onChange={(e) => {
+                                  const newOptions = Array.isArray(question.options) && typeof question.options[0] === 'object' 
+                                    ? [...(question.options as Array<{left: string; right: string}>)]
+                                    : [{ left: '', right: '' }]
+                                  if (!newOptions[pairIndex]) {
+                                    newOptions[pairIndex] = { left: '', right: '' }
+                                  }
+                                  newOptions[pairIndex] = { ...newOptions[pairIndex], left: e.target.value }
+                                  updateQuestion(questionIndex, 'options', newOptions)
+                                }}
+                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder={`Left item ${pairIndex + 1}`}
+                              />
+                              <div className="flex gap-2">
+                                <input
+                                  type="text"
+                                  value={pair?.right || ''}
+                                  onChange={(e) => {
+                                    const newOptions = Array.isArray(question.options) && typeof question.options[0] === 'object' 
+                                      ? [...(question.options as Array<{left: string; right: string}>)]
+                                      : [{ left: '', right: '' }]
+                                    if (!newOptions[pairIndex]) {
+                                      newOptions[pairIndex] = { left: '', right: '' }
+                                    }
+                                    newOptions[pairIndex] = { ...newOptions[pairIndex], right: e.target.value }
+                                    updateQuestion(questionIndex, 'options', newOptions)
+                                  }}
+                                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  placeholder={`Right item ${pairIndex + 1}`}
+                                />
+                                {(Array.isArray(question.options) && typeof question.options[0] === 'object' 
+                                  ? question.options as Array<{left: string; right: string}>
+                                  : [{ left: '', right: '' }]
+                                ).length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const currentOptions = Array.isArray(question.options) && typeof question.options[0] === 'object' 
+                                        ? question.options as Array<{left: string; right: string}>
+                                        : [{ left: '', right: '' }]
+                                      const newOptions = currentOptions.filter((_, i) => i !== pairIndex)
+                                      updateQuestion(questionIndex, 'options', newOptions)
+                                    }}
+                                    className="p-2 text-gray-400 hover:text-destructive transition-colors"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const currentOptions = Array.isArray(question.options) && typeof question.options[0] === 'object' 
+                                ? question.options as Array<{left: string; right: string}>
+                                : []
+                              const newOptions = [...currentOptions, { left: '', right: '' }]
+                              updateQuestion(questionIndex, 'options', newOptions)
+                            }}
+                            className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-300 hover:text-blue-500 transition-colors"
+                          >
+                            + Add Matching Pair
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Ordering Question Type */}
+                    {question.question_type === 'ordering' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Items to Order * <span className="text-sm text-gray-500">(drag to reorder)</span>
+                        </label>
+                        <p className="text-sm text-gray-600 mb-3">
+                          <strong>How it works:</strong> Students will drag and drop items to put them in the correct order.
+                        </p>
+                        
+                        <div className="space-y-3">
+                          {(question.options as string[]).map((item, itemIndex) => (
+                            <div key={itemIndex} className="flex items-center gap-3">
+                              <GripVertical className="h-4 w-4 text-gray-400 cursor-move" />
+                              <span className="flex items-center justify-center w-6 h-6 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
+                                {itemIndex + 1}
+                              </span>
+                              <input
+                                type="text"
+                                value={item}
+                                onChange={(e) => {
+                                  const newOptions = [...(question.options as string[])]
+                                  newOptions[itemIndex] = e.target.value
+                                  updateQuestion(questionIndex, 'options', newOptions)
+                                }}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder={`Item ${itemIndex + 1}`}
+                              />
+                              {question.options.length > 2 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newOptions = (question.options as string[]).filter((_, i) => i !== itemIndex)
+                                    updateQuestion(questionIndex, 'options', newOptions)
+                                  }}
+                                  className="p-2 text-gray-400 hover:text-destructive transition-colors"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newOptions = [...(question.options as string[]), '']
+                              updateQuestion(questionIndex, 'options', newOptions)
+                            }}
+                            className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-300 hover:text-blue-500 transition-colors"
+                          >
+                            + Add Item
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Explanation */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Explanation (Optional)
+                      </label>
+                      <textarea
+                        value={question.explanation || ''}
+                        onChange={(e) => updateQuestion(questionIndex, 'explanation', e.target.value)}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Explain why this answer is correct..."
+                      />
+                    </div>
+                  </div>
+                )}
+              </Phase2Enhancements>
+            ) : (
+              /* Original Questions List */
+              <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="questions">
+                  {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
                     {questions.map((question, questionIndex) => (
                       <Draggable 
                         key={questionIndex} 
@@ -1066,7 +1852,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                         if (newType === 'true_false') {
                                           updateQuestion(questionIndex, 'options', ['True', 'False'])
                                           updateQuestion(questionIndex, 'correct_answer', 0)
-                                        } else if (newType === 'multiple_choice' || newType === 'single_choice') {
+                                        } else if (newType === 'multiple_choice') {
                                           updateQuestion(questionIndex, 'options', ['Option 1', 'Option 2', 'Option 3', 'Option 4'])
                                           updateQuestion(questionIndex, 'correct_answer', 0)
                                         } else if (['fill_blank', 'essay'].includes(newType)) {
@@ -1121,8 +1907,8 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                   </div>
                                 </div>
 
-                                {/* Options for Multiple Choice/Single Choice/True False */}
-                                {['multiple_choice', 'single_choice', 'true_false'].includes(question.question_type) && (
+                                {/* Options for Multiple Choice/True False */}
+                                {['multiple_choice', 'true_false'].includes(question.question_type) && (
                                   <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                       Answer Options *
@@ -1448,6 +2234,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                 )}
               </Droppable>
             </DragDropContext>
+            )}
           </div>
         )}
 
@@ -1551,6 +2338,17 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
         isOpen={showAIGenerator}
         onClose={() => setShowAIGenerator(false)}
         onQuizGenerated={handleAIQuizGenerated}
+      />
+
+      {/* Category Management Modal */}
+      <CategoryManagement
+        isOpen={showCategoryManagement}
+        onClose={() => setShowCategoryManagement(false)}
+        onCategoryCreated={() => {
+          // Refresh categories in CategorySelector
+          categorySelectorRef.current?.refreshCategories()
+          setShowCategoryManagement(false)
+        }}
       />
     </div>
   )

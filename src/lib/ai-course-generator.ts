@@ -87,16 +87,16 @@ export class AICourseGenerator {
   private model: any
   
   constructor() {
-    if (!process.env.GOOGLE_API_KEY) {
-      console.error('❌ GOOGLE_API_KEY environment variable is not set')
-      throw new Error('Google API key is required. Please set GOOGLE_API_KEY in your .env.local file.')
+    if (!process.env.GOOGLE_AI_API_KEY) {
+      console.error('❌ GOOGLE_AI_API_KEY environment variable is not set')
+      throw new Error('Google AI API key is required. Please set GOOGLE_AI_API_KEY in your .env.local file.')
     }
     
-    const apiKey = process.env.GOOGLE_API_KEY
+    const apiKey = process.env.GOOGLE_AI_API_KEY
     console.log('🔑 Initializing Gemini AI with API key...')
     this.genAI = new GoogleGenerativeAI(apiKey)
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
-    console.log('✅ Gemini AI initialized successfully with 2.0 Flash Experimental (newest model with best reasoning)')
+    this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-pro' })
+    console.log('✅ Gemini AI initialized successfully with 2.5 Pro (latest stable model with enhanced reasoning)')
   }
 
   generateDefaultPrompt(request: CourseGenerationRequest): string {
@@ -154,7 +154,7 @@ ${includeExercises ? '✓ Include practice exercises and activities' : ''}
 ✓ Clear learning outcomes for each lesson
 ✓ Progressive difficulty within each module
 ✓ Engaging and practical content for ${request.level} learners
-${richTextFormat ? '✓ Use rich text formatting with headers, bullet points, and structured content' : '✓ Use clean, readable text format'}
+✓ Use rich HTML formatting with proper headers (<h3>, <h4>), bullet points (<ul>, <li>), paragraphs (<p>), emphasis (<strong>, <em>), and code blocks (<pre>, <code>) for better readability
 ${request.include_lesson_quizzes ? `✓ Include ${request.quiz_questions_per_lesson || 3} quiz questions per lesson to test understanding` : ''}
 
 QUIZ REQUIREMENTS (if enabled):
@@ -175,7 +175,17 @@ CONTENT DEVELOPMENT GUIDELINES:
 5. Use examples that are relevant to the ${subjectArea.toLowerCase()} field
 6. Structure content logically with clear progression
 7. Include practical applications and real-world connections
-${richTextFormat ? '8. Format content with proper headers, lists, and emphasis for better readability' : ''}
+8. Format ALL lesson content with proper HTML markup:
+   - Use <h3> for main section headers
+   - Use <h4> for subsection headers
+   - Use <p> for paragraphs
+   - Use <ul> and <li> for bullet points
+   - Use <ol> and <li> for numbered lists
+   - Use <strong> for important terms
+   - Use <em> for emphasis
+   - Use <code> for inline code or technical terms
+   - Use <pre><code> for code blocks
+   - Use <blockquote> for quotes or important notes
 
 RESPONSE FORMAT:
 Respond with a valid JSON object in this exact structure:

@@ -1,16 +1,16 @@
 'use client'
 
 import { logger } from '@/lib/logger'
-
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Brain } from 'lucide-react'
+import { Brain, Loader2, Filter } from 'lucide-react'
 import { quizAPI } from '@/lib/database'
 import { Pagination } from '@/components/ui/Pagination'
-import { Typography, DisplayXL, H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
-import { Container, Section, Grid } from '@/components/ui/Layout'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { EnhancedQuizCard } from '@/components/cards/EnhancedQuizCard'
+import { getHeroImage } from '@/lib/imageMapping'
 
 // Quiz list item type - subset of full Quiz with required display fields
 interface QuizListItem {
@@ -109,246 +109,296 @@ export default function QuizzesPage() {
     return (difficulty: string) => {
       switch (difficulty.toLowerCase()) {
         case 'beginner':
-          return 'text-green-700 bg-green-100/80 border-green-200'
+          return 'text-success bg-success/10 border-success/20'
         case 'intermediate':
-          return 'text-yellow-700 bg-yellow-100/80 border-yellow-200'
+          return 'text-warning bg-warning/10 border-warning/20'
         case 'advanced':
-          return 'text-red-700 bg-destructive/20/80 border-red-200'
+          return 'text-destructive bg-destructive/10 border-destructive/20'
         default:
-          return 'text-gray-600 bg-muted/40 border-gray-200'
+          return 'text-muted-foreground bg-muted/10 border-border'
       }
     }
   }, [])
 
   if (isLoading && currentPage === 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 right-20 w-64 h-64 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob"></div>
-          <div className="absolute bottom-20 left-20 w-72 h-72 bg-warning/30 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob animation-delay-2000"></div>
-        </div>
-        
-        <Section spacing="lg" className="pt-24 px-6 lg:px-8 overflow-hidden">
-          <Container size="md" className="text-center">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
-              <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-4xl mx-auto px-4 py-24">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg">
+              <Brain className="w-4 h-4 animate-pulse" />
               Quiz Practice
             </div>
-            <H1 className="mb-8 text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-8">
               Practice What You Know,
-              <span className="block text-primary mt-4">Without the Stress</span>
-            </H1>
-            <BodyLG color="muted" className="mb-12 text-center">Loading quizzes...</BodyLG>
-            <div className="mt-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-200 border-t-red-600 mx-auto"></div>
+              <span className="block text-secondary font-extrabold mt-4">Without the Stress</span>
+            </h1>
+            <p className="text-lg text-muted-foreground mb-12">Loading quizzes...</p>
+            <div className="flex justify-center">
+              <div className="relative">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <div className="absolute inset-0 h-12 w-12 animate-ping rounded-full bg-secondary/20"></div>
+              </div>
             </div>
-          </Container>
-        </Section>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-6000"></div>
-      </div>
+    <div className="min-h-screen bg-background">
+      {/* Hero Section - Professional Quiz Environment */}
+      <div className="bg-gradient-to-br from-blue-50 via-white to-slate-50 relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]"></div>
+        
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20 lg:py-24 relative">
+          <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
+            {/* Content */}
+            <div className="text-center lg:text-left space-y-6 md:space-y-8">
+              <div className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full text-sm font-semibold shadow-lg">
+                <Brain className="w-4 h-4" />
+                Quiz Practice
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900">
+                Practice What You Know,
+                <span className="block text-secondary font-extrabold mt-2">Without the Stress</span>
+              </h1>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                Try simple quizzes to test your understanding, build confidence, and see what you&apos;re ready to learn next. 
+                <span className="font-medium text-gray-800">No grades. Just learning.</span>
+              </p>
+            </div>
 
-      {/* Hero Section */}
-      <Section spacing="lg" className="text-center px-6">
-        <Container size="md">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
-            <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-            Quiz Practice
-          </div>
-          <H1 className="mb-8 text-center">
-            Practice What You Know,
-            <span className="block text-primary mt-4">Without the Stress</span>
-          </H1>
-          <BodyLG className="max-w-3xl mx-auto text-center" color="muted">
-            Try simple quizzes to test your understanding, build confidence, and see what you&apos;re ready to learn next. No grades. Just learning.
-          </BodyLG>
-        </Container>
-      </Section>
-
-      {/* Main Content */}
-      <Section spacing="lg" className="px-6 lg:px-8">
-        <Container size="xl">
-          {/* Filters */}
-          <div className="mb-12 space-y-6">
-            <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
-              <div className="w-full lg:w-auto">
-                <H2 className="mb-3">Try a Quiz</H2>
-                <BodyLG color="muted">
-                  More quizzes coming soon — we&apos;re starting with the basics and improving each week.
-                </BodyLG>
-                <BodyLG color="muted" className="mt-2">
-                  Showing {((currentPage - 1) * pagination.limit + 1)} - {Math.min(currentPage * pagination.limit, pagination.total)} of {pagination.total} quizzes
-                </BodyLG>
+            {/* Hero Image */}
+            <div className="relative order-first lg:order-last">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white p-2">
+                <Image
+                  src="/images/hero/online-learning.jpg"
+                  alt="Online learning and quiz practice setup"
+                  width={600}
+                  height={400}
+                  className="object-cover w-full h-[400px] rounded-xl"
+                  priority
+                  quality={90}
+                />
+                {/* Image Overlay with Quiz Stats */}
+                <div className="absolute bottom-4 left-4 right-4">
+                  <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <span className="font-medium text-gray-800">Quiz practice</span>
+                      </div>
+                      <span className="font-bold text-secondary">Test your skills</span>
+                    </div>
+                  </div>
+                </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-                <div className="min-w-[180px] w-full sm:w-auto">
-                  <label htmlFor="category" className="block mb-2 text-sm text-gray-500 font-medium">
-                    Category
-                  </label>
-                  <select
-                    id="category"
-                    value={selectedCategory}
-                    onChange={(e) => handleCategoryChange(e.target.value)}
-                    className="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/80 backdrop-blur-lg text-gray-600 font-medium focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-primary shadow-lg"
-                  >
-                    <option value="all">All Categories</option>
-                    <option value="Grammar">Grammar</option>
-                    <option value="Vocabulary">Vocabulary</option>
-                    <option value="Pronunciation">Pronunciation</option>
-                    <option value="Speaking">Speaking</option>
-                    <option value="Business English">Business English</option>
-                    <option value="Writing">Writing</option>
-                    <option value="Literature">Literature</option>
-                    <option value="Test Preparation">Test Preparation</option>
-                    <option value="Reading">Reading</option>
-                    <option value="Listening">Listening</option>
-                  </select>
-                </div>
-                
-                <div className="min-w-[180px] w-full sm:w-auto">
-                  <label htmlFor="difficulty" className="block mb-2 text-sm text-gray-500 font-medium">
-                    Difficulty
-                  </label>
-                  <select
-                    id="difficulty"
-                    value={selectedDifficulty}
-                    onChange={(e) => handleDifficultyChange(e.target.value)}
-                    className="w-full px-4 py-3 border border-white/20 rounded-xl bg-white/80 backdrop-blur-lg text-gray-600 font-medium focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-primary shadow-lg"
-                  >
-                    <option value="all">All Levels</option>
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="advanced">Advanced</option>
-                  </select>
-                </div>
+              {/* Floating elements for visual interest */}
+              <div className="absolute -top-4 -left-4 w-24 h-24 bg-primary/10 rounded-full blur-xl"></div>
+              <div className="absolute -bottom-6 -right-6 w-16 h-16 bg-secondary/10 rounded-full blur-xl"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content - White Background */}
+      <div className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
+          {/* Filters */}
+          <div className="space-y-8">
+            <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
+            <div className="flex items-start gap-4 w-full lg:w-auto">
+              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
+                <Brain className="h-6 w-6 text-white" />
+              </div>
+              <div className="space-y-3">
+                <h2 className="text-2xl font-semibold text-foreground">Try a Quiz</h2>
+                <p className="text-muted-foreground">
+                  More quizzes coming soon — we&apos;re starting with the basics and improving each week.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Showing <span className="font-semibold text-primary">{((currentPage - 1) * pagination.limit + 1)}</span> - <span className="font-semibold text-secondary">{Math.min(currentPage * pagination.limit, pagination.total)}</span> of <span className="font-semibold text-foreground">{pagination.total}</span> quizzes
+                </p>
               </div>
             </div>
             
-            {/* Filter microcopy */}
-            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-4 shadow-xl border border-white/20">
-              <BodyMD color="muted" className="text-center">
-                Use these filters to find quizzes that match your current level or topic.
-              </BodyMD>
+            <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+              <div className="min-w-[180px] w-full sm:w-auto">
+                <label htmlFor="category" className="block mb-2 text-sm font-medium text-foreground flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-primary" />
+                  Category
+                </label>
+                <select
+                  id="category"
+                  value={selectedCategory}
+                  onChange={(e) => handleCategoryChange(e.target.value)}
+                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                >
+                  <option value="all">All Categories</option>
+                  <option value="Grammar">Grammar</option>
+                  <option value="Vocabulary">Vocabulary</option>
+                  <option value="Pronunciation">Pronunciation</option>
+                  <option value="Speaking">Speaking</option>
+                  <option value="Business English">Business English</option>
+                  <option value="Writing">Writing</option>
+                  <option value="Literature">Literature</option>
+                  <option value="Test Preparation">Test Preparation</option>
+                  <option value="Reading">Reading</option>
+                  <option value="Listening">Listening</option>
+                </select>
+              </div>
+              
+              <div className="min-w-[180px] w-full sm:w-auto">
+                <label htmlFor="difficulty" className="block mb-2 text-sm font-medium text-foreground flex items-center gap-2">
+                  <Brain className="h-4 w-4 text-secondary" />
+                  Difficulty
+                </label>
+                <select
+                  id="difficulty"
+                  value={selectedDifficulty}
+                  onChange={(e) => handleDifficultyChange(e.target.value)}
+                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-all duration-200"
+                >
+                  <option value="all">All Levels</option>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
             </div>
           </div>
+          
+          {/* Filter microcopy */}
+          <Card variant="elevated" className="p-4 border border-gray-200 shadow-sm bg-white">
+            <p className="text-sm text-muted-foreground text-center flex items-center justify-center gap-2">
+              <Filter className="h-4 w-4 text-primary" />
+              Use these filters to find quizzes that match your current level or topic.
+            </p>
+          </Card>
+        </div>
 
-          {/* Error State */}
-          {error && (
-            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-xl border border-white/20">
-              <BodyMD className="font-bold text-red-800">Error loading quizzes</BodyMD>
-              <BodyMD className="text-sm mt-1 text-primary">{error}</BodyMD>
-              <button 
+        {/* Error State */}
+        {error && (
+          <Card variant="elevated" className="mb-8">
+            <CardContent className="p-6">
+              <p className="font-medium text-destructive mb-1">Error loading quizzes</p>
+              <p className="text-sm text-muted-foreground mb-4">{error}</p>
+              <Button 
+                variant="outline"
                 onClick={fetchQuizzes}
-                className="mt-3 text-sm underline hover:no-underline font-medium text-red-700 transition-all duration-200"
+                className="text-sm"
               >
                 Try again
-              </button>
-            </div>
-          )}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
-          {/* Small library message */}
-          {!isLoading && quizzes.length > 0 && quizzes.length <= 3 && (
-            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-xl border border-white/20 text-center mb-8">
-              <BodyMD className="font-medium text-gray-700 mb-2">
+        {/* Small library message */}
+        {!isLoading && quizzes.length > 0 && quizzes.length <= 3 && (
+          <Card variant="glass" className="text-center mb-8">
+            <CardContent className="p-6">
+              <p className="font-medium text-foreground mb-2">
                 Not many quizzes yet? That&apos;s okay — we&apos;re building more each week.
-              </BodyMD>
-              <BodyMD color="muted">
+              </p>
+              <p className="text-muted-foreground">
                 Want to request a topic? <Link href="/contact" className="text-primary hover:text-primary/80 underline font-medium">Send us a message</Link>.
-              </BodyMD>
-            </div>
-          )}
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
-          {/* Quizzes Grid */}
-          <Grid cols={1} className="md:grid-cols-2 lg:grid-cols-3 mb-12">
-            {isLoading && currentPage !== 1 ? (
-              // Loading skeleton cards for pagination
-              Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden hover:shadow-2xl transition-all duration-300">
-                  <div className="h-48 bg-gradient-to-br from-muted/60 to-muted/80 animate-pulse backdrop-blur-sm"></div>
-                  <div className="p-6 space-y-4 bg-white/50 backdrop-blur-sm">
-                    <div className="flex gap-2">
-                      <div className="h-6 w-16 bg-gradient-to-r from-muted/60 to-muted/80 animate-pulse rounded-full backdrop-blur-sm"></div>
-                      <div className="h-6 w-20 bg-gradient-to-r from-muted/60 to-muted/80 animate-pulse rounded-full backdrop-blur-sm"></div>
-                    </div>
-                    <div className="h-8 bg-gradient-to-r from-muted/60 to-muted/80 animate-pulse rounded-lg backdrop-blur-sm"></div>
-                    <div className="h-5 bg-gradient-to-r from-muted/60 to-muted/80 animate-pulse rounded w-3/4 backdrop-blur-sm"></div>
-                    <div className="h-5 bg-gradient-to-r from-muted/60 to-muted/80 animate-pulse rounded w-1/2 backdrop-blur-sm"></div>
-                    <div className="flex justify-between items-center pt-4">
-                      <div className="h-8 w-16 bg-gradient-to-r from-muted/60 to-muted/80 animate-pulse rounded backdrop-blur-sm"></div>
-                      <div className="h-10 w-24 bg-gradient-to-r from-muted/60 to-muted/80 animate-pulse rounded-xl backdrop-blur-sm"></div>
-                    </div>
-                  </div>
+        {/* Quizzes Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          {isLoading && currentPage !== 1 ? (
+            // Enhanced loading skeleton cards for pagination
+            Array.from({ length: 6 }).map((_, index) => (
+              <Card key={index} variant="elevated" className="overflow-hidden group">
+                <div className="h-48 bg-muted animate-pulse relative">
                 </div>
-              ))
-            ) : quizzes.length > 0 ? (
-              quizzes.map((quiz) => (
-                <EnhancedQuizCard 
-                  key={quiz.id}
-                  quiz={{
-                    id: quiz.id,
-                    title: quiz.title,
-                    description: quiz.description,
-                    category: quiz.category,
-                    difficulty: quiz.difficulty,
-                    total_questions: quiz.total_questions,
-                    duration_minutes: quiz.duration_minutes,
-                    image_url: quiz.image_url,
-                    is_published: true,
-                    created_at: quiz.created_at || new Date().toISOString()
-                  }}
-                />
-              ))
-            ) : (
-              // Empty State
-              <div className="col-span-full text-center py-12">
-                <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20 max-w-md mx-auto">
-                  <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Brain className="text-primary h-8 w-8" />
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex gap-2">
+                    <div className="h-6 w-16 bg-muted animate-pulse rounded-full"></div>
+                    <div className="h-6 w-20 bg-muted animate-pulse rounded-full"></div>
                   </div>
-                  <H3 className="mb-4">No quizzes found</H3>
-                  <BodyMD color="muted" className="mb-6">
+                  <div className="h-8 bg-muted animate-pulse rounded-lg"></div>
+                  <div className="h-5 bg-muted animate-pulse rounded w-3/4"></div>
+                  <div className="h-5 bg-muted animate-pulse rounded w-1/2"></div>
+                  <div className="flex justify-between items-center pt-4">
+                    <div className="h-8 w-16 bg-muted animate-pulse rounded"></div>
+                    <div className="h-10 w-24 bg-muted animate-pulse rounded-lg"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : quizzes.length > 0 ? (
+            quizzes.map((quiz) => (
+              <EnhancedQuizCard 
+                key={quiz.id}
+                quiz={{
+                  id: quiz.id,
+                  title: quiz.title,
+                  description: quiz.description,
+                  category: quiz.category,
+                  difficulty: quiz.difficulty,
+                  total_questions: quiz.total_questions,
+                  duration_minutes: quiz.duration_minutes,
+                  image_url: quiz.image_url,
+                  is_published: true,
+                  created_at: quiz.created_at || new Date().toISOString()
+                }}
+              />
+            ))
+          ) : (
+            // Enhanced Empty State
+            <div className="col-span-full text-center py-12">
+              <Card variant="elevated" className="max-w-md mx-auto border border-gray-200 shadow-sm bg-white">
+                <CardContent className="p-8">
+                  <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Brain className="text-white h-8 w-8" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-4">No quizzes found</h3>
+                  <p className="text-muted-foreground mb-6">
                     We don&apos;t have any quizzes matching your current filters yet.
-                  </BodyMD>
-                  <button
+                  </p>
+                  <Button
                     onClick={() => {
                       setSelectedCategory('all')
                       setSelectedDifficulty('all')
                     }}
-                    className="bg-gradient-to-r from-primary to-primary/90 text-gray-900 font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300"
+                    className="bg-secondary hover:bg-primary text-black hover:text-white"
                   >
+                    <Filter className="h-4 w-4 mr-2" />
                     Clear Filters
-                  </button>
-                </div>
-              </div>
-            )}
-          </Grid>
-
-          {/* Pagination */}
-          {pagination.totalPages > 1 && (
-            <div className="flex justify-center">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={pagination.totalPages}
-                totalItems={pagination.total}
-                itemsPerPage={pagination.limit}
-                onPageChange={handlePageChange}
-              />
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           )}
-        </Container>
-      </Section>
+        </div>
+
+        {/* Pagination */}
+        {pagination.totalPages > 1 && (
+          <div className="flex justify-center">
+            <Card variant="elevated">
+              <CardContent className="p-4">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={pagination.totalPages}
+                  totalItems={pagination.total}
+                  itemsPerPage={pagination.limit}
+                  onPageChange={handlePageChange}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        )}
+        </div>
+      </div>
     </div>
   )
 }

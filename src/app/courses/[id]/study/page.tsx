@@ -301,35 +301,35 @@ export default function CourseStudyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
-      {/* Animated Background Elements */}
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Animated Background Elements - Using Semantic Colors */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-6000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-primary/15 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-secondary/15 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-6000"></div>
       </div>
 
       {/* Mobile Navigation Bar */}
-      <nav className="lg:hidden fixed top-14 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-b border-white/20 shadow-lg">
+      <nav className="lg:hidden fixed top-14 left-0 right-0 z-40 bg-card/95 backdrop-blur-lg border-b border-border shadow-lg">
         {/* Top Row: Course Title and Menu Button */}
-        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
             <button
               onClick={() => router.push('/courses')}
-              className="flex items-center text-gray-600 hover:text-gray-900 transition-colors flex-shrink-0 bg-white rounded-lg p-1.5 shadow-sm border border-gray-200"
+              className="flex items-center text-muted-foreground hover:text-foreground transition-colors flex-shrink-0 bg-card rounded-lg p-2 shadow-sm border border-border"
             >
               <Home className="w-4 h-4" />
             </button>
             <div className="flex-1 min-w-0">
-              <BodyMD className="font-bold truncate text-gray-900">
+              <BodyMD className="font-bold truncate text-foreground">
                 {course?.title || 'Course'}
               </BodyMD>
             </div>
           </div>
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="flex items-center space-x-1.5 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-3 py-1.5 rounded-lg hover:from-primary/90 hover:to-primary/80 transition-all duration-200 flex-shrink-0 shadow-lg"
+            className="flex items-center space-x-2 bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2 rounded-lg transition-all duration-200 flex-shrink-0 shadow-lg"
           >
             <BookOpen className="w-4 h-4" />
             <span className="text-sm font-medium">Lessons</span>
@@ -339,10 +339,10 @@ export default function CourseStudyPage() {
         
         {/* Bottom Row: Current Lesson */}
         {currentLesson && (
-          <div className="px-4 py-2 bg-gray-50/80">
+          <div className="px-4 py-3 bg-muted/50">
             <div className="flex items-center space-x-2">
               <PlayCircle className="w-4 h-4 text-primary flex-shrink-0" />
-              <BodyMD color="muted" className="truncate font-medium">
+              <BodyMD className="truncate font-medium text-foreground">
                 {currentLesson.title}
               </BodyMD>
             </div>
@@ -351,24 +351,24 @@ export default function CourseStudyPage() {
       </nav>
 
       {/* Desktop Header */}
-      <div className="hidden lg:block bg-white/80 backdrop-blur-lg border-b border-white/20 fixed top-16 left-0 right-0 z-10 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div className="hidden lg:block bg-card/80 backdrop-blur-lg border-b border-border fixed top-16 left-0 right-0 z-10 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={() => router.push('/courses')}
-              className="bg-primary hover:bg-secondary text-black hover:text-white flex items-center text-sm font-semibold rounded-lg px-4 py-2 shadow-lg transition-all duration-200 hover:-translate-y-1"
+              className="bg-primary hover:bg-secondary text-white hover:text-black flex items-center text-sm font-semibold rounded-lg px-4 py-2 shadow-lg transition-all duration-200 hover:-translate-y-1"
             >
               ← Back to Courses
             </button>
             <div className="flex items-center justify-between flex-1">
-              <h1 className="text-lg font-bold text-gray-900 truncate ml-48">{course?.title}</h1>
-              <p className="text-sm text-gray-600 font-medium bg-white/80 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg border border-white/20">{course?.instructor_name}</p>
+              <h1 className="text-lg font-bold text-foreground truncate ml-48">{course?.title}</h1>
+              <p className="text-sm text-muted-foreground font-medium bg-card/80 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg border border-border">{course?.instructor_name}</p>
             </div>
             {!isEnrolled && (
               <div className="flex-shrink-0 ml-8">
                 <button
                   onClick={() => router.push(`/courses/${params.id}`)}
-                  className="bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-4 py-2 font-semibold rounded-lg transition-all duration-200 text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                  className="bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2 font-semibold rounded-lg transition-all duration-200 text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                 >
                   Enroll Now
                 </button>
@@ -385,21 +385,21 @@ export default function CourseStudyPage() {
 
       {/* Course Content Sidebar */}
       <div className={`
-        lg:hidden fixed top-20 left-0 bottom-0 w-full max-w-sm bg-white/90 backdrop-blur-lg z-50 transform transition-transform duration-300 ease-in-out shadow-xl border-r border-white/20
+        lg:hidden fixed top-20 left-0 bottom-0 w-full max-w-sm bg-white z-50 transform transition-transform duration-300 ease-in-out shadow-xl border-r border-gray-200
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="h-full overflow-y-auto">
-          <div className="p-4 border-b border-white/20 bg-gradient-to-r from-gray-900 to-gray-800">
+          <div className="p-6 border-b border-gray-200 bg-primary">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-white">Course Content</h2>
-                <p className="text-sm text-gray-300 mt-1">
+                <h2 className="text-lg font-semibold text-white">Course Content</h2>
+                <p className="text-sm text-white/90 mt-1">
                   {modules.reduce((total, module) => total + module.course_lessons.length, 0)} lessons
                 </p>
               </div>
               <button
                 onClick={() => setIsSidebarOpen(false)}
-                className="text-gray-300 hover:text-white p-1 rounded bg-white/10 backdrop-blur-sm"
+                className="text-white/80 hover:text-white p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors duration-200"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -408,13 +408,13 @@ export default function CourseStudyPage() {
           
           <div className="pb-4">
             {modules.map((module) => (
-              <div key={module.id} className="border-b last:border-b-0 border-white/20">
+              <div key={module.id} className="border-b last:border-b-0 border-gray-200">
                 <button
                   onClick={() => toggleModule(module.id)}
-                  className="w-full p-4 text-left hover:bg-white/50 flex items-center justify-between transition-all duration-200 min-h-[60px] backdrop-blur-sm"
+                  className="w-full p-4 text-left hover:bg-gray-50 flex items-center justify-between transition-all duration-200 min-h-[60px]"
                 >
                   <div>
-                    <h3 className="text-sm font-bold text-gray-900">{module.title}</h3>
+                    <h3 className="text-sm font-semibold text-gray-900">{module.title}</h3>
                     <p className="text-xs text-gray-500">{module.course_lessons.length} lessons</p>
                   </div>
                   {expandedModules.has(module.id) ? (
@@ -425,7 +425,7 @@ export default function CourseStudyPage() {
                 </button>
                 
                 {expandedModules.has(module.id) && (
-                  <div className="bg-white/30 backdrop-blur-sm border-t border-white/20">
+                  <div className="bg-gray-50 border-t border-gray-200">
                     {module.course_lessons.map((lesson) => {
                       const isLocked = !isEnrolled && !lesson.is_free_preview
                       const isCompleted = lesson.progress?.is_completed
@@ -436,11 +436,9 @@ export default function CourseStudyPage() {
                           key={lesson.id}
                           onClick={() => selectLesson(lesson)}
                           disabled={isLocked}
-                          className={`w-full p-4 text-left hover:bg-white/60 flex items-center gap-3 transition-all duration-200 border-b border-white/20 last:border-b-0 min-h-[70px] backdrop-blur-sm ${
-                            isCurrent ? 'bg-primary/5/80 border-r-4 border-primary shadow-lg' : ''
-                          } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''} ${
-                            !isLocked && !isCurrent ? 'hover:shadow-lg' : ''
-                          }`}
+                          className={`w-full p-4 text-left hover:bg-white flex items-center gap-3 transition-all duration-200 border-b border-gray-200 last:border-b-0 min-h-[70px] ${
+                            isCurrent ? 'bg-primary/5 border-r-4 border-primary' : ''
+                          } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                           <div className="flex-shrink-0">
                             {isLocked ? (
@@ -455,11 +453,11 @@ export default function CourseStudyPage() {
                             <p className="text-sm font-semibold text-gray-900 truncate">
                               {lesson.title}
                             </p>
-                            <div className="flex items-center gap-2 text-xs text-gray-600 mt-1">
+                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
                               <Clock className="w-3 h-3 flex-shrink-0" />
                               {formatDuration(lesson.duration_minutes)}
                               {lesson.is_free_preview && (
-                                <span className="bg-green-100/80 text-green-800 px-1.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap backdrop-blur-sm">Free</span>
+                                <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap">Free</span>
                               )}
                             </div>
                           </div>
@@ -480,23 +478,23 @@ export default function CourseStudyPage() {
           <div className="lg:grid lg:grid-cols-4 lg:gap-8">
             {/* Desktop Sidebar */}
             <div className="hidden lg:block lg:col-span-1">
-              <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden sticky top-32">
-                <div className="p-4 border-b border-white/20 bg-gradient-to-r from-gray-900 to-gray-800">
-                  <h2 className="text-lg font-bold text-white">Course Content</h2>
-                  <p className="text-sm text-gray-300 mt-1">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden sticky top-32">
+                <div className="p-6 border-b border-gray-200 bg-primary">
+                  <h2 className="text-lg font-semibold text-white">Course Content</h2>
+                  <p className="text-sm text-white/90 mt-1">
                     {modules.reduce((total, module) => total + module.course_lessons.length, 0)} lessons
                   </p>
                 </div>
                 
                 <div className="max-h-96 overflow-y-auto">
                   {modules.map((module) => (
-                    <div key={module.id} className="border-b last:border-b-0 border-white/20">
+                    <div key={module.id} className="border-b last:border-b-0 border-gray-200">
                       <button
                         onClick={() => toggleModule(module.id)}
-                        className="w-full p-4 text-left hover:bg-white/50 flex items-center justify-between transition-all duration-200 min-h-[60px] backdrop-blur-sm"
+                        className="w-full p-4 text-left hover:bg-gray-50 flex items-center justify-between transition-all duration-200 min-h-[60px]"
                       >
                         <div>
-                          <h3 className="text-sm font-bold text-gray-900">{module.title}</h3>
+                          <h3 className="text-sm font-semibold text-gray-900">{module.title}</h3>
                           <p className="text-xs text-gray-500">{module.course_lessons.length} lessons</p>
                         </div>
                         {expandedModules.has(module.id) ? (
@@ -507,7 +505,7 @@ export default function CourseStudyPage() {
                       </button>
                       
                       {expandedModules.has(module.id) && (
-                        <div className="bg-white/30 backdrop-blur-sm border-t border-white/20">
+                        <div className="bg-gray-50 border-t border-gray-200">
                           {module.course_lessons.map((lesson) => {
                             const isLocked = !isEnrolled && !lesson.is_free_preview
                             const isCompleted = lesson.progress?.is_completed
@@ -518,11 +516,9 @@ export default function CourseStudyPage() {
                                 key={lesson.id}
                                 onClick={() => selectLesson(lesson)}
                                 disabled={isLocked}
-                                className={`w-full p-3 text-left hover:bg-white/60 flex items-center gap-3 transition-all duration-200 border-b border-white/20 last:border-b-0 min-h-[70px] backdrop-blur-sm ${
-                                  isCurrent ? 'bg-primary/5/80 border-r-4 border-primary shadow-lg' : ''
-                                } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''} ${
-                                  !isLocked && !isCurrent ? 'hover:shadow-lg' : ''
-                                }`}
+                                className={`w-full p-4 text-left hover:bg-white flex items-center gap-3 transition-all duration-200 border-b border-gray-200 last:border-b-0 min-h-[70px] ${
+                                  isCurrent ? 'bg-primary/5 border-r-4 border-primary' : ''
+                                } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
                               >
                                 <div className="flex-shrink-0">
                                   {isLocked ? (
@@ -537,11 +533,11 @@ export default function CourseStudyPage() {
                                   <p className="text-sm font-semibold text-gray-900 truncate">
                                     {lesson.title}
                                   </p>
-                                  <div className="flex items-center gap-2 text-xs text-gray-600 mt-1">
+                                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
                                     <Clock className="w-3 h-3 flex-shrink-0" />
                                     {formatDuration(lesson.duration_minutes)}
                                     {lesson.is_free_preview && (
-                                      <span className="bg-green-100/80 text-green-800 px-1.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap backdrop-blur-sm">Free</span>
+                                      <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap">Free</span>
                                     )}
                                   </div>
                                 </div>
@@ -559,33 +555,32 @@ export default function CourseStudyPage() {
             {/* Main Content Area */}
             <div className="lg:col-span-3">
               {currentLesson ? (
-                <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-                  <div className="p-4 lg:p-8 border-b border-white/20 bg-gradient-to-r from-gray-900 to-gray-800">
+                <div className="bg-card/80 backdrop-blur-lg rounded-2xl shadow-xl border border-border overflow-hidden">
+                  <div className="p-6 lg:p-8 border-b border-border bg-primary">
                     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                       <div className="flex-1">
-                        <h1 className="text-xl lg:text-3xl font-bold text-white mb-2 lg:mb-3">
+                        <h1 className="text-xl lg:text-3xl font-bold text-white mb-3">
                           {currentLesson.title}
                         </h1>
-                        <p className="text-sm lg:text-base text-gray-300">{currentLesson.description}</p>
+                        <p className="text-sm lg:text-base text-white/80">{currentLesson.description}</p>
                       </div>
                       {isEnrolled && (
                         <button
                           onClick={() => toggleLessonCompletion(currentLesson.id)}
-                          className={`flex items-center gap-2 px-4 lg:px-6 py-2 lg:py-3 rounded-xl text-sm lg:text-base font-bold transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start ${
+                          className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm lg:text-base font-bold transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start ${
                             currentLesson.progress?.is_completed
-                              ? 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800'
-                              : 'bg-gradient-to-r from-primary to-primary/90 text-gray-900 hover:from-primary/90 hover:to-primary/80'
+                              ? 'bg-green-600 hover:bg-green-700 text-white'
+                              : 'bg-secondary hover:bg-secondary/90 text-black'
                           }`}
                         >
                           {currentLesson.progress?.is_completed ? (
                             <>
-                              <CheckCircle className="w-4 lg:w-5 h-4 lg:h-5" />
+                              <CheckCircle className="w-5 h-5" />
                               <span>Completed</span>
-                              <Icon name="check" size={16} color="current" />
                             </>
                           ) : (
                             <>
-                              <Circle className="w-4 lg:w-5 h-4 lg:h-5" />
+                              <Circle className="w-5 h-5" />
                               <span>Mark Complete</span>
                             </>
                           )}
@@ -650,7 +645,7 @@ export default function CourseStudyPage() {
                           </div>
                           <button 
                             onClick={() => setShowQuizModal(true)}
-                            className="bg-primary hover:bg-secondary text-black hover:text-white flex items-center gap-2 text-sm lg:text-base font-bold px-4 py-2 rounded-xl transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start sm:self-center"
+                            className="bg-primary hover:bg-secondary text-white hover:text-black flex items-center gap-2 text-sm lg:text-base font-bold px-6 py-3 rounded-xl transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start sm:self-center"
                           >
                             <PlayCircle className="w-4 h-4" />
                             Take Quiz
@@ -661,24 +656,24 @@ export default function CourseStudyPage() {
 
                     {/* Resources */}
                     {currentLesson.resources && currentLesson.resources.length > 0 && (
-                      <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 lg:p-8 shadow-lg border border-white/20">
-                        <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6 flex items-center gap-3">
-                          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
+                      <div className="bg-muted/50 backdrop-blur-sm rounded-2xl p-6 lg:p-8 shadow-lg border border-border">
+                        <h3 className="text-lg lg:text-xl font-bold text-foreground mb-6 flex items-center gap-3">
+                          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                             <FileText className="w-4 h-4 text-white" />
                           </div>
                           Resources
                         </h3>
-                        <div className="space-y-3 lg:space-y-4">
+                        <div className="space-y-4">
                           {currentLesson.resources.map((resource) => (
-                            <div key={resource.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 lg:p-6 bg-white/80 backdrop-blur-lg rounded-xl border border-white/20 hover:border-red-300 hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
-                              <div className="flex items-start gap-3 lg:gap-4 flex-1">
-                                <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary/90 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                            <div key={resource.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-card/80 backdrop-blur-lg rounded-xl border border-border hover:border-primary hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
+                              <div className="flex items-start gap-4 flex-1">
+                                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
                                   <FileText className="w-5 h-5 text-white" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="text-sm lg:text-base font-bold text-gray-900">{resource.title}</h4>
+                                  <h4 className="text-sm lg:text-base font-bold text-foreground">{resource.title}</h4>
                                   {resource.description && (
-                                    <p className="text-xs lg:text-sm text-gray-600 mt-1">{resource.description}</p>
+                                    <p className="text-xs lg:text-sm text-muted-foreground mt-1">{resource.description}</p>
                                   )}
                                 </div>
                               </div>
@@ -687,9 +682,9 @@ export default function CourseStudyPage() {
                                   href={resource.file_url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="bg-gradient-to-r from-primary to-primary/90 text-gray-900 flex items-center gap-2 text-sm lg:text-base font-bold px-4 py-2 rounded-xl transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start sm:self-center"
+                                  className="bg-primary hover:bg-secondary text-white hover:text-black flex items-center gap-2 text-sm lg:text-base font-bold px-6 py-3 rounded-xl transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start sm:self-center"
                                 >
-                                  <Download className="w-4 lg:w-5 h-4 lg:h-5" />
+                                  <Download className="w-5 h-5" />
                                   Download
                                 </a>
                               )}
@@ -701,15 +696,15 @@ export default function CourseStudyPage() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-8 lg:p-16 text-center">
-                  <div className="p-4 lg:p-6 bg-gradient-to-r from-primary to-primary/90 rounded-full w-fit mx-auto mb-6 lg:mb-8 shadow-xl">
-                    <PlayCircle className="w-12 lg:w-16 h-12 lg:h-16 text-white" />
+                <div className="bg-card/80 backdrop-blur-lg rounded-2xl shadow-xl border border-border p-12 lg:p-16 text-center">
+                  <div className="p-6 bg-primary rounded-full w-fit mx-auto mb-8 shadow-xl">
+                    <PlayCircle className="w-16 h-16 text-white" />
                   </div>
-                  <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-3 lg:mb-4">Select a Lesson</h2>
-                  <p className="text-sm lg:text-base text-gray-600 max-w-md mx-auto mb-4 lg:hidden">
+                  <h2 className="text-2xl font-bold text-foreground mb-4">Select a Lesson</h2>
+                  <p className="text-base text-muted-foreground max-w-md mx-auto mb-4 lg:hidden">
                     Tap the &ldquo;Lessons&rdquo; button above to choose a lesson and start your learning journey
                   </p>
-                  <p className="hidden lg:block text-sm lg:text-base text-gray-600 max-w-md mx-auto">
+                  <p className="hidden lg:block text-base text-muted-foreground max-w-md mx-auto">
                     Choose a lesson from the sidebar to start your learning journey
                   </p>
                 </div>

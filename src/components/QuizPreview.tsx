@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Typography, DisplayLG, H2, H3, H4, H5, BodyLG, BodyMD } from '@/components/ui/Typography'
+import { Card, CardContent } from '@/components/ui/card'
 import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
-import Icon from '@/components/ui/Icon'
+import { BlobBackground } from '@/components/ui/BlobBackground'
+import { Brain, Lightbulb, Medal, Clock, CheckCircle, Play } from 'lucide-react'
 
 interface QuizStat {
   title: string
@@ -58,53 +59,48 @@ export default function QuizPreview() {
 
   return (
     <Section 
-      className="relative overflow-hidden"
+      className="relative overflow-hidden py-16 md:py-20 lg:py-24"
       background="gradient"
     >
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 right-10 w-72 h-72 bg-warning/30 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob"></div>
-        <div className="absolute bottom-20 left-10 w-64 h-64 bg-primary/20 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-secondary/30 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob animation-delay-4000"></div>
-      </div>
+      {/* Standardized Animated Background */}
+      <BlobBackground variant="default" />
 
       <Container size="xl" className="relative">
-        {/* Section Header */}
+        {/* Section Header - Professional Typography */}
         <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full hero-badge mb-8 shadow-lg">
+          <div className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full shadow-lg mb-8">
             <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-            Quiz Platform
+            <span className="font-medium">Quiz Platform</span>
           </div>
-          <DisplayLG className="mb-8 tracking-tight">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-8 tracking-tight">
             Test Your Skills with Our 
             <span className="block text-primary mt-4">Quiz System</span>
-          </DisplayLG>
-          <BodyLG 
-            color="muted" 
-            className="max-w-4xl mx-auto leading-relaxed"
-          >
+          </h2>
+          <p className="text-lg text-gray-600 max-w-4xl mx-auto leading-relaxed">
             Practice across multiple subjects with our adaptive quiz platform designed for comprehensive skill assessment.
-          </BodyLG>
+          </p>
         </div>
 
-        {/* Stats Grid */}
-        <Grid cols={2} className="lg:grid-cols-4 mb-20">
+        {/* Stats Grid - Professional Card System */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-20">
           {stats.map((stat, index) => (
-            <div key={index} className="text-center p-8 bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <Typography variant="display-md" color="primary" className="mb-3">{stat.value}</Typography>
-              <Typography variant="stat-value" className="mb-2">{stat.title}</Typography>
-              <Typography variant="stat-label">{stat.description}</Typography>
-            </div>
+            <Card key={index} variant="glass" className="text-center p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <CardContent className="p-0">
+                <div className="text-3xl font-bold text-primary mb-3">{stat.value}</div>
+                <div className="text-lg font-semibold text-gray-900 mb-2">{stat.title}</div>
+                <p className="text-gray-600">{stat.description}</p>
+              </CardContent>
+            </Card>
           ))}
-        </Grid>
+        </div>
 
-        {/* Interactive Features Showcase */}
-        <Grid cols={1} className="lg:grid-cols-2 gap-16 items-center mb-20">
+        {/* Interactive Features Showcase - Professional Card System */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-center mb-20">
           {/* Feature Navigation */}
           <div>
-            <H2 className="mb-8 tracking-tight">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 tracking-tight">
               Why Students Love Our Quiz System
-            </H2>
+            </h2>
             <div className="space-y-4">
               {features.map((feature, index) => (
                 <button
@@ -113,104 +109,108 @@ export default function QuizPreview() {
                   className={`w-full text-left p-6 rounded-xl border-2 transition-all duration-300 ${
                     activeFeature === index
                       ? 'border-primary bg-primary/10 shadow-lg'
-                      : 'border-white/20 bg-white/80 backdrop-blur-lg hover:border-primary/30 hover:shadow-md'
+                      : 'border-gray-200 bg-white hover:border-primary/30 hover:shadow-md'
                   }`}
                 >
-                  <Flex align="start" gap="md">
+                  <div className="flex items-start gap-4">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
                       activeFeature === index 
-                        ? 'bg-gradient-to-r from-primary to-primary/90 text-gray-900' 
-                        : 'bg-muted/60 text-gray-600'
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-100 text-gray-600'
                     }`}>
                       {index + 1}
                     </div>
                     <div className="flex-1">
-                      <H4 className="mb-2">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-2">
                         {feature.title}
-                      </H4>
-                      <BodyLG color="muted" className="leading-relaxed">
+                      </h4>
+                      <p className="text-gray-600 leading-relaxed">
                         {feature.description}
-                      </BodyLG>
+                      </p>
                     </div>
-                  </Flex>
+                  </div>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Feature Preview */}
-          <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
-            <div className="text-center mb-8">
-              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-secondary to-secondary/90 rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-3xl font-black text-white">{activeFeature + 1}</span>
+          {/* Feature Preview - Professional Card */}
+          <Card variant="glass" className="p-8">
+            <CardContent className="p-0">
+              <div className="text-center mb-8">
+                <div className="w-20 h-20 mx-auto mb-6 bg-secondary text-white rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-3xl font-black">{activeFeature + 1}</span>
+                </div>
+                <h4 className="text-xl font-semibold text-gray-900 mb-4">
+                  {features[activeFeature]?.title || 'Feature'}
+                </h4>
+                <p className="text-gray-600 leading-relaxed">
+                  {features[activeFeature]?.preview || 'Feature preview'}
+                </p>
               </div>
-              <H4 className="mb-4">
-                {features[activeFeature]?.title || 'Feature'}
-              </H4>
-              <BodyLG color="muted" className="leading-relaxed">
-                {features[activeFeature]?.preview || 'Feature preview'}
-              </BodyLG>
-            </div>
 
-            {/* Mock Interface Preview */}
-            <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-              <Flex align="center" justify="between" className="mb-4">
-                <Typography variant="stat-label">Question 3 of 10</Typography>
-                <Typography variant="stat-value">85% Complete</Typography>
-              </Flex>
-              <div className="w-full bg-muted/60 rounded-full h-3 mb-6">
-                <div className="bg-gradient-to-r from-primary to-primary/90 h-3 rounded-full transition-all duration-500" style={{ width: '85%' }}></div>
-              </div>
-              
-              <H5 className="mb-4">
-                Which sentence uses the present perfect tense correctly?
-              </H5>
-              
-              <div className="space-y-3">
-                <div className="p-4 rounded-lg border-2 border-primary bg-primary/10 text-primary emphasis-important">
-                  I have lived in London for five years.
+              {/* Mock Interface Preview */}
+              <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm text-gray-500">Question 3 of 10</span>
+                  <span className="text-sm font-medium text-gray-900">85% Complete</span>
                 </div>
-                <div className="p-4 rounded-lg border border-gray-300 text-gray-700 hover:border-gray-400 transition-colors">
-                  I am living in London for five years.
+                <div className="w-full bg-gray-200 rounded-full h-3 mb-6">
+                  <div className="bg-primary h-3 rounded-full transition-all duration-500" style={{ width: '85%' }}></div>
                 </div>
-                <div className="p-4 rounded-lg border border-gray-300 text-gray-700 hover:border-gray-400 transition-colors">
-                  I live in London for five years.
+                
+                <h5 className="text-lg font-medium text-gray-900 mb-4">
+                  Which sentence uses the present perfect tense correctly?
+                </h5>
+                
+                <div className="space-y-3">
+                  <div className="p-4 rounded-lg border-2 border-primary bg-primary/10 text-primary font-medium">
+                    I have lived in London for five years.
+                  </div>
+                  <div className="p-4 rounded-lg border border-gray-300 text-gray-700 hover:border-gray-400 transition-colors">
+                    I am living in London for five years.
+                  </div>
+                  <div className="p-4 rounded-lg border border-gray-300 text-gray-700 hover:border-gray-400 transition-colors">
+                    I live in London for five years.
+                  </div>
+                </div>
+                
+                <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm text-green-800">
+                    <strong>Correct!</strong> Present perfect uses &quot;have/has + past participle&quot; for actions starting in the past and continuing to the present.
+                  </p>
                 </div>
               </div>
-              
-              <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <Typography variant="caption" className="text-green-800">
-                  <strong>Correct!</strong> Present perfect uses &quot;have/has + past participle&quot; for actions starting in the past and continuing to the present.
-                </Typography>
-              </div>
-            </div>
-          </div>
-        </Grid>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Call to Action */}
+        {/* Call to Action - Professional Card System */}
         <div className="text-center">
-          <div className="bg-gradient-to-r from-primary/5 via-white to-secondary/5 rounded-2xl p-12 text-secondary shadow-2xl">
-            <H2 className="text-secondary mb-4">
-              Ready to Test Your Skills?
-            </H2>
-            <BodyLG className="text-gray-700 mb-8 max-w-3xl mx-auto">
-              Join thousands of students who are improving their skills with our interactive quiz platform.
-            </BodyLG>
-            <Flex direction="col" gap="md" className="sm:flex-row justify-center">
-              <Link href="/quizzes">
-                <button className="bg-primary hover:bg-secondary text-black hover:text-white px-8 py-4 rounded-2xl btn-text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 min-w-[180px] flex items-center justify-center gap-3">
-                  <Icon name="check" size={20} color="current" />
-                  Start Free Quiz
-                </button>
-              </Link>
-              <Link href="/courses">
-                <button className="border-2 border-primary text-primary hover:bg-primary hover:text-black px-8 py-4 rounded-2xl btn-text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 min-w-[180px] flex items-center justify-center gap-3">
-                  <Icon name="book" size={20} color="current" />
-                  Explore Courses
-                </button>
-              </Link>
-            </Flex>
-          </div>
+          <Card variant="glass" className="p-12">
+            <CardContent className="p-0">
+              <h2 className="text-3xl font-bold text-secondary mb-4">
+                Ready to Test Your Skills?
+              </h2>
+              <p className="text-lg text-gray-700 mb-8 max-w-3xl mx-auto">
+                Join thousands of students who are improving their skills with our interactive quiz platform.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/quizzes">
+                  <button className="bg-primary hover:bg-secondary text-white hover:text-black px-8 py-4 rounded-xl font-semibold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 min-w-[180px] flex items-center justify-center gap-3">
+                    <CheckCircle size={20} />
+                    Start Free Quiz
+                  </button>
+                </Link>
+                <Link href="/courses">
+                  <button className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 min-w-[180px] flex items-center justify-center gap-3">
+                    <Play size={20} />
+                    Explore Courses
+                  </button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </Container>
     </Section>

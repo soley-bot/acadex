@@ -126,7 +126,7 @@ export default function CacheMonitor() {
         <Button
           onClick={() => setIsVisible(true)}
           size="sm"
-          className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg"
+          className="bg-primary hover:bg-secondary text-white hover:text-black shadow-lg"
         >
           <Database className="w-4 h-4 mr-2" />
           Cache Stats
@@ -137,9 +137,9 @@ export default function CacheMonitor() {
 
   return (
     <div className="fixed bottom-4 right-4 w-96 max-h-[80vh] overflow-auto bg-white rounded-lg shadow-2xl border z-50">
-      <div className="p-4 border-b bg-purple-50">
+      <div className="p-4 border-b bg-primary/5">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-purple-900">Cache Monitor</h3>
+          <h3 className="font-semibold text-primary">Cache Monitor</h3>
           <div className="flex gap-2">
             <Button
               variant="ghost"
@@ -177,7 +177,7 @@ export default function CacheMonitor() {
         <CacheStatsDisplay
           title="Users"
           cache={userCache}
-          color="bg-purple-500"
+          color="bg-primary"
         />
       </div>
 

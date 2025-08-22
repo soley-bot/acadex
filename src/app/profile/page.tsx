@@ -1,11 +1,15 @@
 'use client'
 
-import { logger } from '@/lib/logger'
-
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { BlobBackground } from '@/components/ui/BlobBackground'
 import { updateUserProfile } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
+import { H1, H2, H3, H4, BodyLG, BodyMD } from '@/components/ui/Typography'
+import { Container, Section } from '@/components/ui/Layout'
+import Icon from '@/components/ui/Icon'
+import { logger } from '@/lib/logger'
 
 interface UserProfile {
   name: string
@@ -110,32 +114,33 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      </div>
+      {/* Standardized Subtle Background for Functional Pages */}
+      <BlobBackground variant="subtle" />
       
       <div className="relative max-w-4xl mx-auto px-6 py-8 pt-28">
         {/* Header */}
-        <div className="mb-12 text-center p-12 rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl">
-          <div className="inline-block p-4 bg-gradient-to-r from-primary to-warning rounded-2xl mb-6">
-            <span className="text-white text-4xl">👤</span>
-          </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent mb-4">Profile Settings</h1>
-          <p className="text-gray-700 text-xl font-medium">Manage your account information and preferences</p>
-        </div>
+        <Card variant="glass" className="mb-12 text-center">
+          <CardContent className="p-12">
+            <div className="inline-block p-4 bg-primary rounded-2xl mb-6">
+              <Icon name="user" size={32} color="current" />
+            </div>
+            <H1 className="text-gray-900 mb-4">Profile Settings</H1>
+            <BodyLG className="text-gray-700">Manage your account information and preferences</BodyLG>
+          </CardContent>
+        </Card>
 
-        <div className="rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl overflow-hidden">
-
-          <form onSubmit={handleSubmit} className="p-8 space-y-8">
+        <Card variant="glass">
+          <form onSubmit={handleSubmit}>
+            <CardContent className="p-8 space-y-8">
             {/* Basic Information */}
-            <div className="p-8 rounded-2xl backdrop-blur-sm bg-gradient-to-r from-white/60 to-gray-50/60 border border-white/30 shadow-lg">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent mb-6 flex items-center gap-3">
-                <span className="text-3xl">📝</span>
-                Basic Information
-              </h2>
+            <Card variant="base" className="bg-gradient-to-r from-white/60 to-gray-50/60 border-white/30">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent flex items-center gap-3">
+                  <span className="text-3xl">📝</span>
+                  Basic Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -184,14 +189,18 @@ export default function ProfilePage() {
                   className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary backdrop-blur-sm bg-white/80 text-gray-800 font-medium transition-all duration-300 hover:shadow-lg resize-none"
                 />
               </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* Learning Preferences */}
-            <div className="p-8 rounded-2xl backdrop-blur-sm bg-gradient-to-r from-white/60 to-gray-50/60 border border-white/30 shadow-lg">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent mb-6 flex items-center gap-3">
-                <span className="text-3xl">🎯</span>
-                Learning Preferences
-              </h2>
+            <Card variant="base" className="bg-gradient-to-r from-white/60 to-gray-50/60 border-white/30">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent flex items-center gap-3">
+                  <span className="text-3xl">🎯</span>
+                  Learning Preferences
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
               
               <div className="mb-6">
                 <label htmlFor="learning_goals" className="block text-sm font-bold text-gray-800 mb-3">
@@ -229,14 +238,18 @@ export default function ProfilePage() {
                   ))}
                 </div>
               </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* Profile Picture */}
-            <div className="p-8 rounded-2xl backdrop-blur-sm bg-gradient-to-r from-white/60 to-gray-50/60 border border-white/30 shadow-lg">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent mb-6 flex items-center gap-3">
-                <span className="text-3xl">🖼️</span>
-                Profile Picture
-              </h2>
+            <Card variant="base" className="bg-gradient-to-r from-white/60 to-gray-50/60 border-white/30">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent flex items-center gap-3">
+                  <span className="text-3xl">🖼️</span>
+                  Profile Picture
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
               <div className="flex items-center space-x-8">
                 <div className="w-24 h-24 bg-gradient-to-r from-primary to-warning rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl border-4 border-white/50">
                   {profile.name ? profile.name.charAt(0).toUpperCase() : 'U'}
@@ -260,25 +273,30 @@ export default function ProfilePage() {
                   </p>
                 </div>
               </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* Messages */}
             {message && (
-              <div className="p-6 rounded-2xl backdrop-blur-sm bg-gradient-to-r from-green-50/80 to-emerald-50/80 border-2 border-green-300 shadow-lg">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">✅</span>
-                  <p className="text-green-800 font-bold text-lg">{message}</p>
-                </div>
-              </div>
+              <Card variant="base" className="bg-gradient-to-r from-green-50/80 to-emerald-50/80 border-green-300 border-2">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">✅</span>
+                    <p className="text-green-800 font-bold text-lg">{message}</p>
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
             {error && (
-              <div className="p-6 rounded-2xl backdrop-blur-sm bg-gradient-to-r from-red-50/80 to-pink-50/80 border-2 border-red-300 shadow-lg">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">❌</span>
-                  <p className="text-red-800 font-bold text-lg">{error}</p>
-                </div>
-              </div>
+              <Card variant="base" className="bg-gradient-to-r from-red-50/80 to-pink-50/80 border-red-300 border-2">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">❌</span>
+                    <p className="text-red-800 font-bold text-lg">{error}</p>
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
             {/* Submit Button */}
@@ -305,8 +323,9 @@ export default function ProfilePage() {
                 )}
               </button>
             </div>
+            </CardContent>
           </form>
-        </div>
+        </Card>
       </div>
     </div>
   )

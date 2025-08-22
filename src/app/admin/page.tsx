@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
+import { H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
+import { Container, Section, Grid } from '@/components/ui/Layout'
 import { logger } from '@/lib/logger'
 import Icon from '@/components/ui/Icon'
 
@@ -93,18 +95,15 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="relative">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
-              <div className="absolute inset-0 rounded-full h-16 w-16 border-4 border-blue-100 opacity-25 mx-auto"></div>
-            </div>
-            <p className="text-gray-600 font-medium">Loading dashboard...</p>
-            <p className="text-sm text-gray-500 mt-2">Gathering latest statistics</p>
-          </div>
-        </div>
-      </div>
+      <Section className="min-h-screen relative overflow-hidden" background="gradient">
+        <Container className="flex items-center justify-center min-h-screen">
+          <Card variant="glass" className="text-center p-12">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary mx-auto mb-6"></div>
+            <BodyLG className="text-gray-700 font-medium">Loading dashboard...</BodyLG>
+            <BodyMD className="text-gray-500 mt-2">Gathering latest statistics</BodyMD>
+          </Card>
+        </Container>
+      </Section>
     )
   }
 
@@ -181,80 +180,69 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-            Admin Dashboard
-          </h1>
-          <p className="text-gray-600 text-lg">
-            Welcome back! Here&apos;s what&apos;s happening on your platform.
-          </p>
-        </div>
-      </div>
+    <Section className="min-h-screen relative overflow-hidden" background="gradient">
+      <Container className="py-8">
+        {/* Header */}
+        <Card variant="glass" className="mb-8 text-center">
+          <CardContent className="p-8">
+            <div className="inline-block p-4 bg-primary rounded-2xl mb-6">
+              <Icon name="chart" size={32} color="current" />
+            </div>
+            <H1 className="text-gray-900 mb-3">Welcome back, admin</H1>
+            <BodyLG className="text-gray-700">Here&apos;s what&apos;s happening on your platform</BodyLG>
+          </CardContent>
+        </Card>
 
-      {/* Statistics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {dashboardCards.map((stat) => (
-          <Card key={stat.title} variant="interactive" size="md" className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-600 mb-2">{stat.title}</p>
-                  <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
-                  <p className="text-sm text-gray-500">{stat.description}</p>
+        {/* Statistics Grid */}
+        <Grid cols={4} gap="lg" className="mb-8">
+          {dashboardCards.map((stat) => (
+            <Card key={stat.title} variant="base" className="text-center p-6 hover:shadow-lg transition-all duration-300">
+              <div className={`inline-block p-3 ${stat.bgColor} rounded-xl mb-4`}>
+                <Icon name={stat.icon as any} size={24} className={stat.color} />
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
+              <BodyLG className="text-gray-700 mb-1">{stat.title}</BodyLG>
+              <BodyMD className="text-gray-500">{stat.description}</BodyMD>
+            </Card>
+          ))}
+        </Grid>
+
+        {/* Additional Dashboard Content */}
+        <Grid cols={2} gap="lg">
+          <Card variant="base" className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="font-bold flex items-center">
+                <Icon name="activity" size={20} color="primary" className="mr-2" />
+                Recent Activity
+              </CardTitle>
+              <CardDescription>Latest platform activities</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center p-3 rounded-lg bg-secondary/10">
+                  <div className="w-3 h-3 bg-secondary rounded-full mr-4"></div>
+                  <div className="flex-1">
+                    <BodyMD className="text-gray-900 font-semibold">New user registered</BodyMD>
+                    <BodyMD className="text-gray-500 text-xs">2 minutes ago</BodyMD>
+                  </div>
                 </div>
-                <div className={`${stat.bgColor} p-4 rounded-xl ml-4 flex-shrink-0`}>
-                  <Icon 
-                    name={stat.icon as any} 
-                    size={28} 
-                    color="current"
-                    className={`${stat.color}`}
-                  />
+                <div className="flex items-center p-3 rounded-lg bg-success/10">
+                  <div className="w-3 h-3 bg-success rounded-full mr-4"></div>
+                  <div className="flex-1">
+                    <BodyMD className="text-gray-900 font-semibold">Course published</BodyMD>
+                    <BodyMD className="text-gray-500 text-xs">1 hour ago</BodyMD>
+                  </div>
+                </div>
+                <div className="flex items-center p-3 rounded-lg bg-primary/10">
+                  <div className="w-3 h-3 bg-primary rounded-full mr-4"></div>
+                  <div className="flex-1">
+                    <BodyMD className="text-gray-900 font-semibold">Quiz completed</BodyMD>
+                    <BodyMD className="text-gray-500 text-xs">3 hours ago</BodyMD>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
-
-      {/* Additional Dashboard Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card variant="elevated" size="lg" className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-bold flex items-center">
-              <Icon name="activity" size={20} color="primary" className="mr-2" />
-              Recent Activity
-            </CardTitle>
-            <CardDescription>Latest platform activities</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center p-3 rounded-lg bg-blue-50 border border-blue-100">
-                <div className="w-3 h-3 bg-secondary rounded-full mr-4"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">New user registered</p>
-                  <p className="text-xs text-gray-500">2 minutes ago</p>
-                </div>
-              </div>
-              <div className="flex items-center p-3 rounded-lg bg-green-50 border border-green-100">
-                <div className="w-3 h-3 bg-green-600 rounded-full mr-4"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">Course published</p>
-                  <p className="text-xs text-gray-500">1 hour ago</p>
-                </div>
-              </div>
-              <div className="flex items-center p-3 rounded-lg bg-purple-50 border border-purple-100">
-                <div className="w-3 h-3 bg-purple-600 rounded-full mr-4"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">Quiz completed</p>
-                  <p className="text-xs text-gray-500">3 hours ago</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         <Card variant="elevated" size="lg" className="shadow-lg">
           <CardHeader>
@@ -304,7 +292,8 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
-      </div>
-    </div>
+        </Grid>
+      </Container>
+    </Section>
   )
 }

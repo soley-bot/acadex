@@ -1,54 +1,51 @@
-import { Typography, DisplayLG, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
+import { Card, CardContent } from '@/components/ui/card'
 import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
-import Icon, { IconName } from '@/components/ui/Icon'
+import { BlobBackground } from '@/components/ui/BlobBackground'
+import { Clock, Video, Users, Puzzle, ArrowRight } from 'lucide-react'
 
 export default function Features() {
   const features = [
     {
-      icon: "clock" as IconName,
+      icon: Clock,
       title: "Short, simple lessons",
       description: "Easy to follow. No long lectures. Just what you need to know."
     },
     {
-      icon: "video" as IconName,
+      icon: Video,
       title: "Helpful illustration videos",
       description: "We use visuals to explain concepts clearly — even if English isn't your strength."
     },
     {
-      icon: "heart" as IconName,
-      title: "Made for Cambodian learners",
-      description: "Our courses are designed with your real-life needs in mind."
+      icon: Users,
+      title: "Community learning support",
+      description: "Connect with fellow learners and get help when you need it most."
     },
     {
-      icon: "user" as IconName,
-      title: "Learn at your own pace",
-      description: "No deadlines. No stress. Start anytime and learn from anywhere."
+      icon: Puzzle,
+      title: "Interactive practice exercises",
+      description: "Learn by doing with hands-on activities that make concepts stick."
     }
   ]
 
   return (
     <Section 
-      className="relative overflow-hidden"
+      className="relative overflow-hidden py-16 md:py-20 lg:py-24"
       background="gradient"
     >
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-40 left-20 w-64 h-64 bg-primary/30 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob"></div>
-        <div className="absolute bottom-40 right-20 w-64 h-64 bg-warning/30 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-20 right-40 w-48 h-48 bg-secondary/30 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob animation-delay-4000"></div>
-      </div>
+      {/* Standardized Animated Background */}
+      <BlobBackground variant="default" />
 
       <Container size="xl" className="relative">
-        {/* Section Header */}
+        {/* Section Header - Professional Typography */}
         <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full hero-badge mb-8 shadow-lg">
+          <div className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full shadow-lg mb-8">
             <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-            Why Learn with Acadex
+            <span className="font-medium">Why Learn with Acadex</span>
           </div>
           
-          <DisplayLG className="mb-8 tracking-tight">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-8 tracking-tight">
             What You&apos;ll Learn
-          </DisplayLG>
+          </h2>
           
           <div className="max-w-4xl mx-auto leading-relaxed text-gray-600">
             <div className="space-y-2 text-lg">
@@ -63,34 +60,39 @@ export default function Features() {
           </div>
         </div>
 
-        {/* Features Grid */}
-        <Grid cols={1} className="md:grid-cols-2 max-w-4xl mx-auto">
-          {features.map((feature, index) => (
-            <div key={index} className="group">
-              <div className="bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl p-8 h-full transition-all duration-300 hover:shadow-2xl hover:border-secondary hover:-translate-y-2 shadow-lg">
-                {/* Icon Container */}
-                <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center mb-8 group-hover:bg-secondary transition-all duration-300 shadow-lg text-black group-hover:text-white">
-                  <Icon name={feature.icon} size={36} color="current" />
-                </div>
-                
-                <H3 className="mb-4 group-hover:text-primary transition-colors">
-                  {feature.title}
-                </H3>
-                
-                <BodyLG color="muted" className="leading-relaxed">
-                  {feature.description}
-                </BodyLG>
-                
-                {/* Hover Arrow */}
-                <div className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 mt-8">
-                  <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center shadow-lg">
-                    <Icon name="arrow-right" size={20} color="white" />
-                  </div>
-                </div>
+        {/* Features Grid - Professional Card System */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-4xl mx-auto">
+          {features.map((feature, index) => {
+            const IconComponent = feature.icon;
+            return (
+              <div key={index} className="group">
+                <Card variant="glass" className="p-8 h-full hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                  <CardContent className="p-0">
+                    {/* Icon Container */}
+                    <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center mb-8 group-hover:bg-secondary transition-all duration-300 shadow-lg text-white">
+                      <IconComponent size={36} />
+                    </div>
+                    
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4 group-hover:text-primary transition-colors">
+                      {feature.title}
+                    </h3>
+                    
+                    <p className="text-gray-600 leading-relaxed">
+                      {feature.description}
+                    </p>
+                    
+                    {/* Hover Arrow */}
+                    <div className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 mt-8">
+                      <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center shadow-lg">
+                        <ArrowRight size={20} className="text-white" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-            </div>
-          ))}
-        </Grid>
+            );
+          })}
+        </div>
       </Container>
     </Section>
   )

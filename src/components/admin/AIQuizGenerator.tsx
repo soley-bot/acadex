@@ -1,14 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { BaseModal } from '@/components/ui/BaseModal'
-import { Brain, Loader2 } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Brain, Loader2, Sparkles, Target, BookOpen, Clock, Lightbulb } from 'lucide-react'
 
-// Simplified interfaces to match the updated generator
+// Enhanced interfaces with more AI options
 export interface QuizGenerationRequest {
   topic: string
   question_count: number
   difficulty: 'beginner' | 'intermediate' | 'advanced'
+  focus_area?: string
+  question_types?: string[]
+  language_level?: 'basic' | 'intermediate' | 'advanced' | 'native'
 }
 
 export interface GeneratedQuizQuestion {
@@ -37,10 +40,14 @@ interface AIQuizGeneratorProps {
 export function AIQuizGenerator({ isOpen, onClose, onQuizGenerated }: AIQuizGeneratorProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  
   const [formData, setFormData] = useState<QuizGenerationRequest>({
     topic: '',
     question_count: 10,
-    difficulty: 'beginner'
+    difficulty: 'beginner',
+    focus_area: '',
+    question_types: ['multiple_choice', 'true_false'],
+    language_level: 'intermediate'
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,113 +91,215 @@ export function AIQuizGenerator({ isOpen, onClose, onQuizGenerated }: AIQuizGene
   if (!isOpen) return null
 
   return (
-    <BaseModal 
-      isOpen={isOpen} 
-      onClose={onClose}
-      title="AI Quiz Generator"
-      size="md"
-    >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {error && (
-          <div className="p-4 bg-primary/5 border border-destructive/30 rounded-lg">
-            <p className="text-red-700">{error}</p>
-          </div>
-        )}
-
-        {/* Topic Input */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Quiz Topic *
-          </label>
-          <input
-            type="text"
-            value={formData.topic}
-            onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
-            placeholder="e.g., Present Perfect Tense, Vocabulary, Grammar Basics"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            disabled={loading}
-            required
-          />
-        </div>
-
-        {/* Question Count */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Number of Questions
-          </label>
-          <select
-            value={formData.question_count}
-            onChange={(e) => setFormData({ ...formData, question_count: parseInt(e.target.value) })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            disabled={loading}
-          >
-            <option value={5}>5 Questions</option>
-            <option value={10}>10 Questions</option>
-            <option value={15}>15 Questions</option>
-            <option value={20}>20 Questions</option>
-          </select>
-        </div>
-
-        {/* Difficulty Level */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Difficulty Level
-          </label>
-          <select
-            value={formData.difficulty}
-            onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            disabled={loading}
-          >
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
-        </div>
-
-        {/* Info Box */}
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex items-start gap-3">
-            <Brain className="h-5 w-5 text-secondary mt-0.5" />
-            <div>
-              <h4 className="font-medium text-blue-900">AI Quiz Generation</h4>
-              <p className="text-sm text-blue-700 mt-1">
-                The AI will create a mix of multiple choice and true/false questions 
-                about your chosen topic with explanations for each answer.
-              </p>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <Card variant="elevated" className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <CardHeader className="bg-gradient-to-r from-primary/5 via-primary/10 to-secondary/5 border-b border-border">
+          <CardTitle className="flex items-center gap-3 text-foreground">
+            <div className="flex items-center gap-2">
+              <Brain className="h-6 w-6 text-primary" />
+              <Sparkles className="h-4 w-4 text-secondary" />
             </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-3 pt-4 border-t">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-secondary-foreground bg-secondary hover:bg-secondary/80 rounded-lg transition-colors"
-            disabled={loading}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading || !formData.topic.trim()}
-            className="px-6 py-2 bg-brand text-brand-foreground rounded-lg hover:bg-brand/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Brain className="h-4 w-4" />
-                Generate Quiz
-              </>
+            AI Quiz Generator
+          </CardTitle>
+          <CardDescription>
+            Create engaging quizzes with AI assistance. Customize the content to match your learning objectives.
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent className="p-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <Card variant="base" className="border-destructive/20 bg-destructive/5">
+                <CardContent className="p-4">
+                  <p className="text-destructive text-sm">{error}</p>
+                </CardContent>
+              </Card>
             )}
-          </button>
-        </div>
-      </form>
-    </BaseModal>
+
+            {/* Step 1: Basic Information */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-border">
+                <Target className="h-4 w-4 text-primary" />
+                <h3 className="font-medium text-foreground">Quiz Topic & Focus</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Main Topic *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.topic}
+                    onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
+                    placeholder="e.g., English Grammar, Business Vocabulary, IELTS Speaking..."
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Specific Focus Area
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.focus_area || ''}
+                    onChange={(e) => setFormData({ ...formData, focus_area: e.target.value })}
+                    placeholder="e.g., Past Tense, Present Perfect..."
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Language Level
+                  </label>
+                  <select
+                    value={formData.language_level}
+                    onChange={(e) => setFormData({ ...formData, language_level: e.target.value as any })}
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                  >
+                    <option value="basic">Basic (A1-A2)</option>
+                    <option value="intermediate">Intermediate (B1-B2)</option>
+                    <option value="advanced">Advanced (C1-C2)</option>
+                    <option value="native">Native Level</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 2: Quiz Configuration */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-border">
+                <BookOpen className="h-4 w-4 text-primary" />
+                <h3 className="font-medium text-foreground">Quiz Configuration</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    <Clock className="h-4 w-4 inline mr-1" />
+                    Number of Questions
+                  </label>
+                  <select
+                    value={formData.question_count}
+                    onChange={(e) => setFormData({ ...formData, question_count: parseInt(e.target.value) })}
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                  >
+                    {[5, 10, 15, 20].map(num => (
+                      <option key={num} value={num}>{num} questions</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    <Target className="h-4 w-4 inline mr-1" />
+                    Difficulty Level
+                  </label>
+                  <select
+                    value={formData.difficulty}
+                    onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                  >
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    <Lightbulb className="h-4 w-4 inline mr-1" />
+                    Question Types
+                  </label>
+                  <div className="space-y-2">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.question_types?.includes('multiple_choice')}
+                        onChange={(e) => {
+                          const types = formData.question_types || []
+                          if (e.target.checked) {
+                            setFormData({ ...formData, question_types: [...types, 'multiple_choice'] })
+                          } else {
+                            setFormData({ ...formData, question_types: types.filter(t => t !== 'multiple_choice') })
+                          }
+                        }}
+                        className="mr-2"
+                      />
+                      <span className="text-sm text-foreground">Multiple Choice</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.question_types?.includes('true_false')}
+                        onChange={(e) => {
+                          const types = formData.question_types || []
+                          if (e.target.checked) {
+                            setFormData({ ...formData, question_types: [...types, 'true_false'] })
+                          } else {
+                            setFormData({ ...formData, question_types: types.filter(t => t !== 'true_false') })
+                          }
+                        }}
+                        className="mr-2"
+                      />
+                      <span className="text-sm text-foreground">True/False</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Feature Info */}
+            <Card variant="glass" className="bg-gradient-to-r from-primary/5 to-secondary/5">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <Brain className="h-5 w-5 text-primary mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-foreground mb-1">Enhanced AI Generation</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Our AI will create contextually relevant questions with detailed explanations, 
+                      tailored to your specified language level and learning objectives.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-between pt-6 border-t border-border">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              
+              <button
+                type="submit"
+                disabled={loading || !formData.topic.trim()}
+                className="flex items-center gap-2 px-6 py-2 bg-primary hover:bg-secondary text-white hover:text-black font-medium rounded-lg transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Generating Quiz...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    Generate Quiz
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

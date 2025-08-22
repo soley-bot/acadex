@@ -10,8 +10,9 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useCourseMutations } from '@/lib/cachedOperations'
 import { categories, levels } from '@/lib/courseConstants'
 import { ImageUpload } from '@/components/ui/ImageUpload'
-import { uploadCourseImage } from '@/lib/storage'
+import { uploadImage } from '@/lib/imageUpload'
 import { quizAPI, courseAPI } from '@/lib/auth-api'
+import { GeneratedCourse } from '@/components/admin/AICourseGenerator'
 
 interface CourseFormProps {
   course?: Course
@@ -19,6 +20,7 @@ interface CourseFormProps {
   onClose: () => void
   onSuccess: (updatedCourse?: Course) => void
   embedded?: boolean // New prop to control rendering mode
+  prefilledData?: GeneratedCourse | null // New prop for AI-generated course data
 }
 
 // Enhanced interfaces for course structure
@@ -63,12 +65,13 @@ interface EnhancedCourseData {
   modules: ModuleData[]
 }
 
-export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = false }: CourseFormProps) {
+export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = false, prefilledData }: CourseFormProps) {
   const { user } = useAuth()
   const { createCourse, updateCourse, isCreating, isUpdating, error: mutationError } = useCourseMutations()
   
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false) // Local loading state for form submission
   const [availableQuizzes, setAvailableQuizzes] = useState<QuizOption[]>([])
   const [expandedModules, setExpandedModules] = useState<Set<number>>(new Set())
   const [activeTab, setActiveTab] = useState<'basic' | 'modules'>('basic')
@@ -87,7 +90,48 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
     modules: [] as ModuleData[]
   })
 
-  const isLoading = isCreating || isUpdating
+  const isLoading = isCreating || isUpdating || isSubmitting
+
+  // Initialize form with prefilled data from AI generator
+  useEffect(() => {
+    if (prefilledData && !course) {
+      logger.info('CourseForm: Initializing with AI-generated course data:', prefilledData.title)
+      
+      // Transform GeneratedCourse to EnhancedCourseData
+      const transformedModules: ModuleData[] = prefilledData.modules?.map((module, moduleIndex) => ({
+        ...module,
+        order_index: moduleIndex,
+        lessons: module.lessons?.map((lesson, lessonIndex) => ({
+          ...lesson,
+          order_index: lessonIndex,
+          is_free_preview: lessonIndex === 0 // First lesson of each module is free preview
+        })) || []
+      })) || []
+
+      setFormData({
+        title: prefilledData.title,
+        description: prefilledData.description,
+        instructor_name: prefilledData.instructor_name,
+        price: prefilledData.price,
+        category: prefilledData.category,
+        level: prefilledData.level,
+        duration: prefilledData.duration,
+        image_url: '',
+        is_published: false,
+        learning_objectives: prefilledData.learning_objectives || [],
+        modules: transformedModules
+      })
+
+      // Expand all modules by default for AI-generated content
+      const expandedIndexes = new Set(transformedModules.map((_, index) => index))
+      setExpandedModules(expandedIndexes)
+      
+      // Switch to modules tab if there are modules
+      if (transformedModules.length > 0) {
+        setActiveTab('modules')
+      }
+    }
+  }, [prefilledData, course])
 
   // Load available quizzes
   useEffect(() => {
@@ -331,6 +375,23 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
     console.log('🎯 [DIRECT_LOG] Course ID:', courseId)
     console.log('🎯 [DIRECT_LOG] Modules to save:', formData.modules)
     
+    // Check if this is an AI-generated course
+    const isAIGenerated = formData.instructor_name === 'AI Generated Course' || prefilledData?.title
+    if (isAIGenerated) {
+      console.log('🤖 [AI_DEBUG] Saving AI-generated modules...')
+      console.log('🤖 [AI_DEBUG] Modules data:', formData.modules.map(m => ({
+        title: m.title,
+        description_length: m.description?.length || 0,
+        lessons_count: m.lessons.length,
+        lessons: m.lessons.map(l => ({
+          title: l.title,
+          content_length: l.content?.length || 0,
+          video_url: l.video_url,
+          duration_minutes: l.duration_minutes
+        }))
+      })))
+    }
+    
     try {
       logger.debug('🔄 [COURSE_FORM] Saving modules and lessons via authenticated API')
       logger.debug('📚 [COURSE_FORM] Course ID:', courseId)
@@ -358,26 +419,32 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
   const handleSubmit = async (e: React.FormEvent) => {
     console.log('🎯 [DIRECT_LOG] HANDLE SUBMIT CALLED!!')
     console.log('🎯 [DIRECT_LOG] Form data has modules:', formData.modules.length)
-    console.log('🎯 [DIRECT_LOG] Checking for video URLs in lessons...')
     
-    // Check if any lesson has video_url
-    const hasVideoUrls = formData.modules.some(module => 
-      module.lessons.some(lesson => lesson.video_url && lesson.video_url.trim() !== '')
-    )
-    console.log('🎯 [DIRECT_LOG] Has video URLs:', hasVideoUrls)
+    // Check if this is an AI-generated course
+    const isAIGenerated = formData.instructor_name === 'AI Generated Course' || prefilledData?.title
+    console.log('🤖 [AI_DEBUG] Is AI Generated Course:', isAIGenerated)
+    console.log('🤖 [AI_DEBUG] Instructor name:', formData.instructor_name)
+    console.log('🤖 [AI_DEBUG] Has prefilled data:', !!prefilledData)
+    
+    if (isAIGenerated) {
+      console.log('🤖 [AI_DEBUG] AI Generated course modules count:', formData.modules.length)
+      console.log('🤖 [AI_DEBUG] AI course modules structure:', formData.modules.map(m => ({
+        title: m.title,
+        lessonsCount: m.lessons.length,
+        description: m.description ? m.description.substring(0, 100) + '...' : 'No description'
+      })))
+    }
     
     e.preventDefault()
     setError(null)
     setSuccessMessage(null) // Clear previous success message
+    setIsSubmitting(true) // Set local loading state
 
     logger.debug('🔄 [COURSE_FORM] === STARTING COURSE SUBMISSION ===')
     logger.debug('🔄 [COURSE_FORM] Form submitted at:', new Date().toISOString())
     logger.debug('📝 [COURSE_FORM] Form Data:', JSON.stringify(formData, null, 2))
     logger.debug('👤 [COURSE_FORM] User:', { userId: user?.id, userEmail: user?.email })
     logger.debug('📚 [COURSE_FORM] Course being edited:', { courseId: course?.id, courseTitle: course?.title })
-    logger.debug('🔧 [COURSE_FORM] isCreating:', isCreating)
-    logger.debug('🔧 [COURSE_FORM] isUpdating:', isUpdating)
-    logger.debug('🔧 [COURSE_FORM] isLoading:', isLoading)
 
     const courseData = {
       title: formData.title,
@@ -401,53 +468,69 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
       let result: Course
       
       if (course?.id) {
-        console.log('🎯 [DIRECT_LOG] ABOUT TO CALL updateCourse!!')
-        console.log('🎯 [DIRECT_LOG] Course ID:', course.id)
-        console.log('🎯 [DIRECT_LOG] Updates:', courseData)
-        
         logger.debug('✏️ [COURSE_FORM] UPDATING existing course:', course.id)
-        logger.debug('✏️ [COURSE_FORM] Calling updateCourse with:', { id: course.id, updates: courseData })
         
+        // Call the mutation function and wait for result
         result = await updateCourse({ id: course.id, updates: courseData })
         
-        console.log('🎯 [DIRECT_LOG] updateCourse COMPLETED!!')
-        console.log('🎯 [DIRECT_LOG] Result:', result)
-        
-        logger.debug('✅ [COURSE_FORM] updateCourse returned:', result)
-        logger.debug('✅ [COURSE_FORM] Course updated successfully')
+        logger.debug('✅ [COURSE_FORM] updateCourse completed:', result)
       } else {
         logger.debug('🆕 [COURSE_FORM] CREATING new course')
-        logger.debug('🆕 [COURSE_FORM] Calling createCourse with:', courseData)
         
+        // Call the mutation function and wait for result  
         result = await createCourse(courseData)
         
-        logger.debug('✅ [COURSE_FORM] createCourse returned:', result)
-        logger.debug('✅ [COURSE_FORM] Course created successfully')
+        logger.debug('✅ [COURSE_FORM] createCourse completed:', result)
       }
 
-      logger.debug('🎉 [COURSE_FORM] Operation completed successfully, calling callbacks...')
+      logger.debug('� [COURSE_FORM] Course operation completed, now saving modules...')
       
       // Save modules and lessons after course is saved
-      await saveModulesAndLessons(result.id)
+      if (formData.modules.length > 0) {
+        console.log('🤖 [AI_DEBUG] About to save modules and lessons...')
+        
+        // For AI-generated courses, add safety measures
+        if (isAIGenerated) {
+          console.log('🤖 [AI_DEBUG] Processing AI-generated modules for safety...')
+          
+          // Limit content length to prevent database issues
+          const safeModules = formData.modules.map(module => ({
+            ...module,
+            description: module.description?.substring(0, 5000) || '', // Limit to 5000 chars
+            lessons: module.lessons.map(lesson => ({
+              ...lesson,
+              content: lesson.content?.substring(0, 10000) || '', // Limit to 10000 chars
+              description: lesson.description?.substring(0, 2000) || '' // Limit to 2000 chars
+            }))
+          }))
+          
+          console.log('🤖 [AI_DEBUG] Safe modules prepared, saving...')
+          
+          // Use a timeout for AI-generated content
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Module saving timeout - content too large')), 30000)
+          )
+          
+          const savePromise = courseAPI.saveModulesAndLessons(result.id, safeModules)
+          
+          await Promise.race([savePromise, timeoutPromise])
+          
+        } else {
+          await saveModulesAndLessons(result.id)
+        }
+        
+        logger.debug('✅ [COURSE_FORM] Modules and lessons saved successfully')
+      }
       
       if (course?.id) {
         // For updates, show success message and keep form open
-        logger.debug('🎉 [COURSE_FORM] This is an UPDATE - keeping form open')
-        logger.debug('🎉 [COURSE_FORM] Updated course data:', JSON.stringify(result, null, 2))
-        
-        // Set success message first
+        logger.debug('� [COURSE_FORM] This is an UPDATE - keeping form open')
         setSuccessMessage('Course updated successfully!')
-        
-        // Then call success callback with updated data - DO NOT CLOSE FORM
-        logger.debug('🎉 [COURSE_FORM] Calling onSuccess with result')
         onSuccess(result)
-        logger.debug('🎉 [COURSE_FORM] Form should stay OPEN for updates')
-        
       } else {
         // For new courses, close the form
         logger.debug('🎉 [COURSE_FORM] This is a NEW COURSE - closing form')
         onSuccess()
-        logger.debug('🎉 [COURSE_FORM] Calling onClose()...')
         onClose()
       }
       
@@ -462,6 +545,9 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
       
       setError(err instanceof Error ? err.message : 'An error occurred while saving the course')
       logger.debug('💥 [COURSE_FORM] Error state set, form should show error now')
+    } finally {
+      setIsSubmitting(false) // Always clear loading state
+      logger.debug('🔄 [COURSE_FORM] Loading state cleared')
     }
   }
 
@@ -616,7 +702,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                 required
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 {categories.map(category => (
                   <option key={category} value={category}>{category}</option>
@@ -632,7 +718,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                 required
                 value={formData.level}
                 onChange={(e) => setFormData({ ...formData, level: e.target.value as any })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 {levels.map(level => (
                   <option key={level.value} value={level.value}>{level.label}</option>
@@ -662,16 +748,37 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                 value={formData.image_url}
                 onChange={(url) => setFormData({ ...formData, image_url: url || '' })}
                 onFileUpload={async (file) => {
-                  // We'll use a temporary ID for new courses
-                  const tempId = course?.id || 'temp-' + Date.now()
-                  const result = await uploadCourseImage(file, tempId)
-                  if (result.error) {
-                    throw new Error(result.error)
+                  console.log('🖼️ [COURSE_FORM] Starting image upload:', file.name)
+                  setError(null) // Clear any previous errors
+                  
+                  try {
+                    const result = await uploadImage(file, 'course-images', 'courses')
+                    
+                    if (!result.success) {
+                      console.error('🖼️ [COURSE_FORM] Upload failed:', result.error)
+                      setError(`Image upload failed: ${result.error}`)
+                      throw new Error(result.error || 'Failed to upload image')
+                    }
+                    
+                    console.log('🖼️ [COURSE_FORM] Upload successful:', result.url)
+                    return result.url!
+                  } catch (error: any) {
+                    console.error('🖼️ [COURSE_FORM] Upload error:', error)
+                    const errorMessage = error.message || 'Failed to upload image'
+                    setError(`Image upload failed: ${errorMessage}`)
+                    throw error
                   }
-                  return result.url!
                 }}
                 placeholder="Upload course image or enter URL"
               />
+              {error && error.includes('Image upload') && (
+                <div className="mt-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                  <div className="flex items-center">
+                    <AlertCircle className="h-4 w-4 text-destructive mr-2" />
+                    <p className="text-sm text-destructive">{error}</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Learning Objectives */}
@@ -963,7 +1070,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                                     <select
                                       value={lesson.quiz_id || ''}
                                       onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'quiz_id', e.target.value || undefined)}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
                                     >
                                       <option value="">No quiz</option>
                                       {availableQuizzes.map((quiz) => (

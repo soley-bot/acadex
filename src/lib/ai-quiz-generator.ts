@@ -44,7 +44,7 @@ export class AIQuizGenerator {
     }
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-pro' })
       await model.generateContent('Test connection')
       return { success: true }
     } catch (error: any) {
@@ -65,7 +65,7 @@ export class AIQuizGenerator {
     }
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-pro' })
       
       // Simple, focused prompt
       const prompt = `Generate a ${request.difficulty} level English quiz about "${request.topic}" with ${request.question_count} questions.

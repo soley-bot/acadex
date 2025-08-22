@@ -45,22 +45,22 @@ export function FormField({
   const showError = hasBeenTouched && error && value.length > 0
 
   const borderColor = showError 
-    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20' 
+    ? 'border-destructive focus:border-destructive focus:ring-destructive/20' 
     : showValidation && validation.isValid
-    ? 'border-green-300 focus:border-green-500 focus:ring-green-500/20'
+    ? 'border-success focus:border-success focus:ring-success/20'
     : isFocused 
-    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-    : 'border-gray-300 focus:border-red-500 focus:ring-red-500/20'
+    ? 'border-destructive focus:border-destructive focus:ring-destructive/20'
+    : 'border-border focus:border-destructive focus:ring-destructive/20'
 
   const iconColor = showError 
-    ? 'text-red-400' 
+    ? 'text-destructive' 
     : showValidation && validation.isValid
-    ? 'text-green-400'
-    : 'text-gray-400'
+    ? 'text-success'
+    : 'text-muted-foreground'
 
   return (
     <div className="space-y-3">
-      <label htmlFor={name} className="block text-sm font-bold text-gray-800">
+      <label htmlFor={name} className="block text-sm font-bold text-foreground">
         {label}
         {required && <span className="text-destructive ml-1">*</span>}
       </label>
@@ -93,7 +93,7 @@ export function FormField({
             ${icon ? 'pl-10' : ''} 
             ${type === 'password' && onTogglePassword ? 'pr-12' : 'pr-4'}
             border-2 rounded-xl transition-all duration-300
-            backdrop-blur-sm bg-white/80 hover:bg-white/90 text-gray-900 placeholder-gray-500 font-medium
+            backdrop-blur-sm bg-background/80 hover:bg-background/90 text-foreground placeholder-muted-foreground font-medium
             focus:outline-none focus:ring-4 shadow-lg hover:shadow-xl
             ${borderColor}
           `}
@@ -105,7 +105,7 @@ export function FormField({
           <button
             type="button"
             onClick={onTogglePassword}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -116,7 +116,7 @@ export function FormField({
         {showValidation && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
             {validation.isValid ? (
-              <CheckCircle className="w-5 h-5 text-green-500" />
+              <CheckCircle className="w-5 h-5 text-success" />
             ) : (
               <AlertCircle className="w-5 h-5 text-destructive" />
             )}
@@ -126,7 +126,7 @@ export function FormField({
       
       {/* Error Message */}
       {showError && (
-        <div className="flex items-start gap-2 text-primary">
+        <div className="flex items-start gap-2 text-destructive">
           <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <span className="text-sm">{error}</span>
         </div>
@@ -134,7 +134,7 @@ export function FormField({
       
       {/* Validation Message */}
       {showValidation && validation.message && (
-        <div className={`flex items-start gap-2 ${validation.isValid ? 'text-green-600' : 'text-primary'}`}>
+        <div className={`flex items-start gap-2 ${validation.isValid ? 'text-success' : 'text-destructive'}`}>
           {validation.isValid ? (
             <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           ) : (

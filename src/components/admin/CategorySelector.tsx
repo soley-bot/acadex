@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
 import { ChevronDown, Plus, Settings } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
@@ -17,20 +17,26 @@ interface Category {
 interface CategorySelectorProps {
   value: string
   onChange: (value: string) => void
-  type?: 'quiz' | 'course' | 'general'
+  type?: 'general' | 'quiz' | 'course'
   onManageCategories?: () => void
   placeholder?: string
   className?: string
+  onRefresh?: () => void // Add refresh callback
 }
 
-export function CategorySelector({ 
+// Add ref interface for imperative methods
+export interface CategorySelectorRef {
+  refreshCategories: () => void
+}
+
+export const CategorySelector = forwardRef<CategorySelectorRef, CategorySelectorProps>(({ 
   value, 
   onChange, 
   type = 'general', 
   onManageCategories,
   placeholder = "Select a category",
   className = ""
-}: CategorySelectorProps) {
+}, ref) => {
   const [categories, setCategories] = useState<Category[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -59,6 +65,11 @@ export function CategorySelector({
     fetchCategories()
   }, [fetchCategories])
 
+  // Expose refresh method via ref
+  useImperativeHandle(ref, () => ({
+    refreshCategories: fetchCategories
+  }), [fetchCategories])
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -78,7 +89,7 @@ export function CategorySelector({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 text-left border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white hover:bg-gray-50 transition-colors flex items-center justify-between"
+        className="w-full px-4 py-3 text-left border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white hover:bg-gray-50 transition-colors flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
           {selectedCategory && (
@@ -95,7 +106,7 @@ export function CategorySelector({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-xl shadow-xl z-50 py-2 max-h-64 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-xl z-50 py-2 max-h-64 overflow-y-auto">
           {/* Header with manage button */}
           {onManageCategories && (
             <div className="px-4 py-2 border-b border-gray-200 flex justify-between items-center">
@@ -106,7 +117,7 @@ export function CategorySelector({
                   setIsOpen(false)
                   onManageCategories()
                 }}
-                className="text-sm text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1"
+                className="text-sm text-primary hover:text-primary/80 font-medium flex items-center gap-1"
               >
                 <Settings size={14} />
                 Manage
@@ -127,7 +138,7 @@ export function CategorySelector({
                     setIsOpen(false)
                     onManageCategories()
                   }}
-                  className="text-sm text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1"
+                  className="text-sm text-primary hover:text-primary/80 font-medium flex items-center gap-1"
                 >
                   <Plus size={14} />
                   Create first category
@@ -144,7 +155,7 @@ export function CategorySelector({
                   setIsOpen(false)
                 }}
                 className={`w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors ${
-                  selectedCategory?.id === category.id ? 'bg-purple-50 text-purple-900' : 'text-gray-900'
+                  selectedCategory?.id === category.id ? 'bg-primary/5 text-primary' : 'text-gray-900'
                 }`}
               >
                 <div
@@ -169,4 +180,7 @@ export function CategorySelector({
       )}
     </div>
   )
-}
+})
+
+// Add display name for debugging
+CategorySelector.displayName = 'CategorySelector'
