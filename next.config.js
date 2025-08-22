@@ -2,6 +2,26 @@
 const path = require('path')
 
 const nextConfig = {
+  // Force new build ID to invalidate all caches
+  generateBuildId: async () => {
+    return `build-${Date.now()}-${Math.random().toString(36).substring(7)}`
+  },
+  
+  // Headers to prevent aggressive caching
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate'
+          }
+        ]
+      }
+    ]
+  },
+
   // App Router is now stable in Next.js 15, no experimental flag needed
   eslint: {
     // Enable ESLint during builds
