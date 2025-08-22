@@ -139,7 +139,7 @@ function EnhancedLoginForm() {
       <div className="relative w-full max-w-md space-y-6 lg:space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-3 py-1.5 lg:px-4 lg:py-2 rounded-full text-xs lg:text-sm font-medium mb-4 lg:mb-6 shadow-lg">
+          <div className="inline-flex items-center gap-2 bg-primary text-white px-3 py-1.5 lg:px-4 lg:py-2 rounded-full text-xs lg:text-sm font-medium mb-4 lg:mb-6 shadow-lg">
             <Sparkles className="w-3 h-3 lg:w-4 lg:h-4" />
             Welcome Back to Acadex
           </div>
@@ -206,7 +206,7 @@ function EnhancedLoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-primary to-primary/90 text-gray-900 py-3 px-4 rounded-xl font-medium text-lg shadow-lg hover:from-primary/90 hover:to-primary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
+              className="w-full bg-primary hover:bg-secondary text-white hover:text-black py-3 px-4 rounded-xl font-medium text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">

@@ -125,7 +125,7 @@ export default function QuizzesPage() {
       <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto px-4 py-24">
           <div className="text-center">
-            <div className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg">
               <Brain className="w-4 h-4 animate-pulse" />
               Quiz Practice
             </div>
@@ -254,14 +254,14 @@ export default function QuizzesPage() {
               
               <div className="min-w-[180px] w-full sm:w-auto">
                 <label htmlFor="difficulty" className="block mb-2 text-sm font-medium text-foreground flex items-center gap-2">
-                  <Brain className="h-4 w-4 text-secondary" />
+                  <Brain className="h-4 w-4 text-primary" />
                   Difficulty
                 </label>
                 <select
                   id="difficulty"
                   value={selectedDifficulty}
                   onChange={(e) => handleDifficultyChange(e.target.value)}
-                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-all duration-200"
+                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 >
                   <option value="all">All Levels</option>
                   <option value="beginner">Beginner</option>
@@ -370,7 +370,7 @@ export default function QuizzesPage() {
                       setSelectedCategory('all')
                       setSelectedDifficulty('all')
                     }}
-                    className="bg-secondary hover:bg-primary text-black hover:text-white"
+                    className="bg-primary hover:bg-secondary text-white hover:text-black"
                   >
                     <Filter className="h-4 w-4 mr-2" />
                     Clear Filters

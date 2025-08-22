@@ -88,21 +88,17 @@ export default function Hero() {
                   {/* Overlay with gradient */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
                   
-                  {/* Floating Achievement Badge */}
-                  <div className="absolute bottom-6 left-6 right-6">
-                    <Card variant="glass" className="bg-white/90 backdrop-blur-md">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white flex-shrink-0">
-                            <Trophy className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900">Real Progress</h3>
-                            <p className="text-sm text-gray-600">Join learners improving their skills daily</p>
-                          </div>
+                  {/* Image Overlay Badge - Copied from quiz page */}
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-primary rounded-full"></div>
+                          <span className="font-medium text-foreground">Real Progress</span>
                         </div>
-                      </CardContent>
-                    </Card>
+                        <span className="font-bold text-secondary">Daily improvement</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -110,10 +106,10 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Learning Dashboard Preview - More Compact for Split Layout */}
-        <div className="mt-16 lg:mt-24">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+        {/* Learning Dashboard Preview - Compact but Full Featured */}
+        <div className="mt-12 lg:mt-16">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
               Track Your Progress
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -121,56 +117,56 @@ export default function Hero() {
             </p>
           </div>
           
-          <Card variant="glass" className="p-6 md:p-8 transform hover:scale-[1.02] transition-all duration-500 max-w-4xl mx-auto">
+          <Card variant="glass" className="p-4 md:p-6 transform hover:scale-[1.02] transition-all duration-500 max-w-4xl mx-auto">
             <CardContent className="p-0">
-              {/* Dashboard Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 pb-6 border-b border-gray-200 gap-4 sm:gap-0">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-secondary to-secondary/90 rounded-xl flex items-center justify-center shadow-lg">
-                    <BarChart3 className="w-6 h-6 text-white" />
+              {/* Dashboard Header - More Compact */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 pb-4 border-b border-gray-200 gap-3 sm:gap-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-secondary to-secondary/90 rounded-xl flex items-center justify-center shadow-lg">
+                    <BarChart3 className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-1">Learning Dashboard</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Learning Dashboard</h3>
                     <p className="text-sm text-gray-600">Your personalized learning journey</p>
                   </div>
                 </div>
                 <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm self-start sm:self-auto">Today</span>
               </div>
               
-              {/* Course Progress Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <Card variant="base" className="p-6 hover:shadow-xl transition-all duration-300">
+              {/* Course Progress Grid - Reduced Padding */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <Card variant="base" className="p-4 hover:shadow-xl transition-all duration-300">
                   <CardContent className="p-0">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Everyday English</h3>
-                      <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">70%</div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-base font-semibold text-gray-900">Everyday English</h3>
+                      <div className="bg-primary/10 text-primary px-2 py-1 rounded-full text-sm font-medium">70%</div>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div className="bg-gradient-to-r from-primary to-primary/90 h-3 rounded-full transition-all duration-500 shadow-sm" style={{ width: '70%' }}></div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div className="bg-gradient-to-r from-primary to-primary/90 h-2.5 rounded-full transition-all duration-500 shadow-sm" style={{ width: '70%' }}></div>
                     </div>
                   </CardContent>
                 </Card>
                 
-                <Card variant="base" className="p-6 hover:shadow-xl transition-all duration-300">
+                <Card variant="base" className="p-4 hover:shadow-xl transition-all duration-300">
                   <CardContent className="p-0">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Study Skills</h3>
-                      <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">45%</div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-base font-semibold text-gray-900">Study Skills</h3>
+                      <div className="bg-primary/10 text-primary px-2 py-1 rounded-full text-sm font-medium">45%</div>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div className="bg-gradient-to-r from-primary to-primary/90 h-3 rounded-full transition-all duration-500 shadow-sm" style={{ width: '45%' }}></div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div className="bg-gradient-to-r from-primary to-primary/90 h-2.5 rounded-full transition-all duration-500 shadow-sm" style={{ width: '45%' }}></div>
                     </div>
                   </CardContent>
                 </Card>
               </div>
               
-              {/* Achievement Section */}
-              <div className="flex items-center gap-4 p-6 bg-gradient-to-r from-primary/5 via-white to-secondary/5 rounded-xl shadow-xl">
-                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg text-white flex-shrink-0">
-                  <Trophy className="w-6 h-6" />
+              {/* Achievement Section - More Compact */}
+              <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-primary/5 via-white to-secondary/5 rounded-xl shadow-lg">
+                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-lg text-white flex-shrink-0">
+                  <Trophy className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-secondary mb-1">Great progress!</h3>
+                  <h3 className="text-base font-semibold text-secondary mb-1">Great progress!</h3>
                   <p className="text-sm text-gray-600">You completed 3 lessons this week</p>
                 </div>
               </div>

@@ -167,7 +167,7 @@ function EnhancedSignupForm() {
         {/* Left Side - Benefits - Hidden on small mobile, visible on tablet+ */}
         <div className="hidden sm:block w-full lg:w-1/2 space-y-4 sm:space-y-6 lg:space-y-8 mb-4 sm:mb-6 lg:mb-0">
           <div>
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-3 py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6 shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-primary text-white px-3 py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6 shadow-lg">
               <Star className="w-3 h-3 sm:w-4 sm:h-4" />
               New Platform Launch
             </div>
@@ -419,7 +419,7 @@ function EnhancedSignupForm() {
                 <button
                   type="submit"
                   disabled={loading || (step === 1 && !canProceedToStep2()) || (step === 2 && !canSubmit())}
-                  className="w-full bg-gradient-to-r from-primary to-primary/90 text-gray-900 py-3 px-4 rounded-xl font-medium shadow-lg hover:from-primary/90 hover:to-primary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
+                  className="w-full bg-primary hover:bg-secondary text-white hover:text-black py-3 px-4 rounded-xl font-medium shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
                 >
                   {loading ? (
                     <div className="flex items-center justify-center gap-2">
