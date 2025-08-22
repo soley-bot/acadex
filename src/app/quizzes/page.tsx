@@ -161,13 +161,13 @@ export default function QuizzesPage() {
                 <Brain className="w-4 h-4" />
                 Quiz Practice
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
                 Practice What You Know,
                 <span className="block text-secondary font-extrabold mt-2">Without the Stress</span>
               </h1>
-              <p className="text-lg text-gray-600 leading-relaxed">
+              <p className="text-lg text-muted-foreground leading-relaxed">
                 Try simple quizzes to test your understanding, build confidence, and see what you&apos;re ready to learn next. 
-                <span className="font-medium text-gray-800">No grades. Just learning.</span>
+                <span className="font-medium text-foreground">No grades. Just learning.</span>
               </p>
             </div>
 
@@ -189,7 +189,7 @@ export default function QuizzesPage() {
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                        <span className="font-medium text-gray-800">Quiz practice</span>
+                        <span className="font-medium text-foreground">Quiz practice</span>
                       </div>
                       <span className="font-bold text-secondary">Test your skills</span>
                     </div>
@@ -273,7 +273,7 @@ export default function QuizzesPage() {
           </div>
           
           {/* Filter microcopy */}
-          <Card variant="elevated" className="p-4 border border-gray-200 shadow-sm bg-white">
+          <Card variant="elevated" className="p-4 border-border shadow-sm bg-background">
             <p className="text-sm text-muted-foreground text-center flex items-center justify-center gap-2">
               <Filter className="h-4 w-4 text-primary" />
               Use these filters to find quizzes that match your current level or topic.
@@ -356,7 +356,7 @@ export default function QuizzesPage() {
           ) : (
             // Enhanced Empty State
             <div className="col-span-full text-center py-12">
-              <Card variant="elevated" className="max-w-md mx-auto border border-gray-200 shadow-sm bg-white">
+              <Card variant="elevated" className="max-w-md mx-auto border-border shadow-sm bg-background">
                 <CardContent className="p-8">
                   <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <Brain className="text-white h-8 w-8" />

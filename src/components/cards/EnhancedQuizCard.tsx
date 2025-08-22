@@ -86,7 +86,7 @@ export function EnhancedQuizCard({ quiz, showProgress = true }: EnhancedQuizCard
 
   const getActionButtonStyle = () => {
     // All buttons should follow the same primary->secondary pattern
-    return 'bg-primary hover:bg-secondary text-black hover:text-white'
+    return 'bg-primary hover:bg-secondary text-white hover:text-black'
   }
 
   const getScoreDisplay = () => {
@@ -106,7 +106,7 @@ export function EnhancedQuizCard({ quiz, showProgress = true }: EnhancedQuizCard
   return (
     <UnifiedCard variant="interactive" size="md" className="overflow-hidden">
       {/* Quiz Header */}
-      <div className="relative bg-gradient-to-br from-primary to-primary/90 text-black p-6">
+      <div className="relative bg-gradient-to-br from-primary to-primary/90 text-white p-6">
         {/* Quiz Icon */}
         <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
           <Icon name="target" size={32} color="white" />
@@ -136,12 +136,12 @@ export function EnhancedQuizCard({ quiz, showProgress = true }: EnhancedQuizCard
         )}
 
         {/* Quiz Title */}
-        <h3 className="text-xl font-bold mb-2 text-black">
+        <h3 className="text-xl font-bold mb-2 text-white">
           {quiz.title}
         </h3>
 
         {/* Quiz Category */}
-        <div className="flex items-center gap-2 text-black/80 text-sm">
+        <div className="flex items-center gap-2 text-white/80 text-sm">
           <Icon name="folder" size={14} color="current" />
           <span>{quiz.category}</span>
         </div>
