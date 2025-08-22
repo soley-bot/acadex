@@ -152,14 +152,14 @@ export default function CoursesPage() {
                 <BookOpen className="w-4 h-4" />
                 Our Courses
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
                 Start Small.
                 <span className="block text-secondary font-extrabold mt-2">Learn What Matters.</span>
               </h1>
-              <p className="text-lg text-gray-600 leading-relaxed">
+              <p className="text-lg text-muted-foreground leading-relaxed">
                 Acadex is still growing — but we&apos;ve created a few courses to help you build real skills in English, communication, and study habits.
                 <br />
-                <span className="font-medium text-gray-800">No pressure. Learn at your own pace.</span>
+                <span className="font-medium text-foreground">No pressure. Learn at your own pace.</span>
               </p>
             </div>
 
@@ -180,8 +180,8 @@ export default function CoursesPage() {
                   <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        <span className="font-medium text-gray-800">Active learners</span>
+                        <div className="w-3 h-3 bg-success rounded-full"></div>
+                        <span className="font-medium text-foreground">Active learners</span>
                       </div>
                       <span className="font-bold text-secondary">Learning now</span>
                     </div>
@@ -202,7 +202,7 @@ export default function CoursesPage() {
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
           {/* Filters Section */}
           <div className="space-y-8">
-            <Card variant="elevated" className="p-6 border border-gray-200 shadow-sm bg-white">
+            <Card variant="elevated" className="p-6 shadow-sm bg-white">
               <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">

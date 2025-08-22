@@ -72,11 +72,10 @@ export default function QuizPreview() {
             <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
             <span className="font-medium">Quiz Platform</span>
           </div>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-8 tracking-tight">
-            Test Your Skills with Our 
-            <span className="block text-primary mt-4">Quiz System</span>
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-8 tracking-tight">
+            Master Your Skills with Interactive Quizzes
           </h2>
-          <p className="text-lg text-gray-600 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
             Practice across multiple subjects with our adaptive quiz platform designed for comprehensive skill assessment.
           </p>
         </div>
@@ -87,8 +86,8 @@ export default function QuizPreview() {
             <Card key={index} variant="glass" className="text-center p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
               <CardContent className="p-0">
                 <div className="text-3xl font-bold text-primary mb-3">{stat.value}</div>
-                <div className="text-lg font-semibold text-gray-900 mb-2">{stat.title}</div>
-                <p className="text-gray-600">{stat.description}</p>
+                <div className="text-lg font-semibold text-foreground mb-2">{stat.title}</div>
+                <p className="text-muted-foreground">{stat.description}</p>
               </CardContent>
             </Card>
           ))}
@@ -98,7 +97,7 @@ export default function QuizPreview() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-center mb-20">
           {/* Feature Navigation */}
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 tracking-tight">
+            <h2 className="text-3xl font-bold text-foreground mb-8 tracking-tight">
               Why Students Love Our Quiz System
             </h2>
             <div className="space-y-4">
@@ -116,15 +115,15 @@ export default function QuizPreview() {
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
                       activeFeature === index 
                         ? 'bg-primary text-white' 
-                        : 'bg-gray-100 text-gray-600'
+                        : 'bg-muted text-muted-foreground'
                     }`}>
                       {index + 1}
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                      <h4 className="text-lg font-semibold text-foreground mb-2">
                         {feature.title}
                       </h4>
-                      <p className="text-gray-600 leading-relaxed">
+                      <p className="text-muted-foreground leading-relaxed">
                         {feature.description}
                       </p>
                     </div>
@@ -141,10 +140,10 @@ export default function QuizPreview() {
                 <div className="w-20 h-20 mx-auto mb-6 bg-secondary text-white rounded-full flex items-center justify-center shadow-lg">
                   <span className="text-3xl font-black">{activeFeature + 1}</span>
                 </div>
-                <h4 className="text-xl font-semibold text-gray-900 mb-4">
+                <h4 className="text-xl font-semibold text-foreground mb-4">
                   {features[activeFeature]?.title || 'Feature'}
                 </h4>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed">
                   {features[activeFeature]?.preview || 'Feature preview'}
                 </p>
               </div>
@@ -152,14 +151,14 @@ export default function QuizPreview() {
               {/* Mock Interface Preview */}
               <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-gray-500">Question 3 of 10</span>
-                  <span className="text-sm font-medium text-gray-900">85% Complete</span>
+                  <span className="text-sm text-muted-foreground">Question 3 of 10</span>
+                  <span className="text-sm font-medium text-foreground">85% Complete</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3 mb-6">
                   <div className="bg-primary h-3 rounded-full transition-all duration-500" style={{ width: '85%' }}></div>
                 </div>
                 
-                <h5 className="text-lg font-medium text-gray-900 mb-4">
+                <h5 className="text-lg font-medium text-foreground mb-4">
                   Which sentence uses the present perfect tense correctly?
                 </h5>
                 
@@ -167,10 +166,10 @@ export default function QuizPreview() {
                   <div className="p-4 rounded-lg border-2 border-primary bg-primary/10 text-primary font-medium">
                     I have lived in London for five years.
                   </div>
-                  <div className="p-4 rounded-lg border border-gray-300 text-gray-700 hover:border-gray-400 transition-colors">
+                  <div className="p-4 rounded-lg border border-border text-foreground hover:border-muted-foreground transition-colors">
                     I am living in London for five years.
                   </div>
-                  <div className="p-4 rounded-lg border border-gray-300 text-gray-700 hover:border-gray-400 transition-colors">
+                  <div className="p-4 rounded-lg border border-border text-foreground hover:border-muted-foreground transition-colors">
                     I live in London for five years.
                   </div>
                 </div>
@@ -192,7 +191,7 @@ export default function QuizPreview() {
               <h2 className="text-3xl font-bold text-secondary mb-4">
                 Ready to Test Your Skills?
               </h2>
-              <p className="text-lg text-gray-700 mb-8 max-w-3xl mx-auto">
+              <p className="text-lg text-muted-foreground mb-8 max-w-3xl mx-auto">
                 Join thousands of students who are improving their skills with our interactive quiz platform.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

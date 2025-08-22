@@ -40,15 +40,15 @@ export function Footer() {
                 <span className="text-secondary">X</span>
               </span>
             </Link>
-            <p className="text-gray-600 mb-6 leading-relaxed">
+            <p className="text-muted-foreground mb-6 leading-relaxed">
               Built from scratch for Cambodian learners.
               Simple lessons. Real skills. No pressure.
             </p>
             <div className="mb-8">
-              <p className="text-gray-600 mb-2">
+              <p className="text-muted-foreground mb-2">
                 Email: acadex@gmail.com
               </p>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Based in Phnom Penh, Cambodia
               </p>
             </div>
@@ -67,7 +67,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="text-gray-600 hover:text-secondary transition-colors duration-200"
+                    className="text-muted-foreground hover:text-secondary transition-colors duration-200"
                   >
                     {link.name}
                   </Link>
@@ -89,7 +89,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="text-gray-600 hover:text-primary transition-colors duration-300 font-medium"
+                    className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium"
                   >
                     {link.name}
                   </Link>
@@ -110,7 +110,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="text-gray-600 hover:text-primary transition-colors duration-300 font-medium"
+                    className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium"
                   >
                     {link.name}
                   </Link>
@@ -126,7 +126,7 @@ export function Footer() {
         <Container size="xl" className="py-12">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-secondary mb-4">Join Our Learning Community</h2>
-            <p className="text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
               Get tips, mini-lessons, and new course updates — sent right to your inbox.
             </p>
             <NewsletterSignup />
@@ -139,7 +139,7 @@ export function Footer() {
         <Container size="xl" className="py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
             <div suppressHydrationWarning>
-              <p className="text-gray-600 font-medium text-center md:text-left">
+              <p className="text-muted-foreground font-medium text-center md:text-left">
                 © {currentYear} Acadex. All rights reserved.
                 <br className="sm:hidden" />
                 <span className="block sm:inline sm:ml-2">Made with <Heart size={16} className="inline text-red-500" /> in Cambodia. Powered by persistence.</span>
@@ -154,7 +154,7 @@ export function Footer() {
                 <Link 
                   key={link.name}
                   href={link.href} 
-                  className="text-gray-600 hover:text-primary transition-colors duration-300 font-medium text-sm"
+                  className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium text-sm"
                 >
                   {link.name}
                 </Link>

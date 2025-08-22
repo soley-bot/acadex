@@ -148,16 +148,16 @@ export default function Dashboard() {
               value: progress?.courses_completed || '0', 
               description: 'Courses finished',
               icon: GraduationCap,
-              color: 'text-green-600',
-              bgColor: 'bg-green-50'
+              color: 'text-success',
+              bgColor: 'bg-success/10'
             },
             {
               title: 'Quiz Attempts',
               value: progress?.quizzes_taken || '0',
               description: 'Total attempts',
               icon: Brain,
-              color: 'text-purple-600',
-              bgColor: 'bg-purple-50'
+              color: 'text-primary',
+              bgColor: 'bg-primary/10'
             },
             {
               title: 'Average Score',
@@ -345,8 +345,8 @@ export default function Dashboard() {
               </Link>
               
               <Link href="/profile" className="block sm:col-span-2 lg:col-span-1">
-                <Card variant="interactive" className="p-6 sm:p-8 text-center hover:border-purple-500 transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 min-h-[120px] sm:min-h-[140px] flex flex-col justify-center">
-                  <User className="h-10 w-10 sm:h-12 sm:w-12 text-purple-600 mx-auto mb-3 sm:mb-4" />
+                <Card variant="interactive" className="p-6 sm:p-8 text-center hover:border-primary transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 min-h-[120px] sm:min-h-[140px] flex flex-col justify-center">
+                  <User className="h-10 w-10 sm:h-12 sm:w-12 text-primary mx-auto mb-3 sm:mb-4" />
                   <h3 className="font-semibold text-foreground mb-2 text-base sm:text-lg">Update Profile</h3>
                   <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">Manage your account settings</p>
                 </Card>

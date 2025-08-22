@@ -249,7 +249,7 @@ export default function TakeQuizPage() {
           </div>
           <div className="w-full bg-muted/60 rounded-full h-3 shadow-inner">
             <div 
-              className="bg-gradient-to-r from-primary to-warning h-3 rounded-full transition-all duration-500 shadow-lg"
+              className="bg-primary h-3 rounded-full transition-all duration-500 shadow-lg"
               style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
             ></div>
           </div>
@@ -501,7 +501,7 @@ export default function TakeQuizPage() {
                   <button
                     onClick={handleSubmitQuiz}
                     disabled={submitting}
-                    className="px-2 sm:px-4 py-2 bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 rounded-lg font-medium text-sm transition-all disabled:opacity-50 flex items-center gap-1 sm:gap-2"
+                    className="px-2 sm:px-4 py-2 bg-primary hover:bg-secondary text-white hover:text-black rounded-lg font-medium text-sm transition-all disabled:opacity-50 flex items-center gap-1 sm:gap-2"
                   >
                     {submitting ? (
                       <>
@@ -519,7 +519,7 @@ export default function TakeQuizPage() {
                 ) : (
                   <button
                     onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
-                    className="px-2 sm:px-4 py-2 bg-gray-800 text-white rounded-lg font-medium text-sm transition-all hover:bg-gray-900"
+                    className="px-2 sm:px-4 py-2 bg-primary hover:bg-secondary text-white hover:text-black rounded-lg font-medium text-sm transition-all"
                   >
                     <span className="hidden sm:inline">Next →</span>
                     <span className="sm:hidden">→</span>

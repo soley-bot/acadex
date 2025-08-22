@@ -171,10 +171,10 @@ function EnhancedSignupForm() {
               <Star className="w-3 h-3 sm:w-4 sm:h-4" />
               New Platform Launch
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 lg:mb-6 leading-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4 lg:mb-6 leading-tight">
               Start Your English Learning Journey
             </h1>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-4 sm:mb-6 lg:mb-8 leading-relaxed">
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground mb-4 sm:mb-6 lg:mb-8 leading-relaxed">
               Master English with interactive courses, real-time feedback, and join our growing community of dedicated learners.
             </p>
           </div>
@@ -249,14 +249,14 @@ function EnhancedSignupForm() {
         {/* Mobile-only header - visible only on small screens */}
         <div className="sm:hidden w-full mb-6">
           <div className="text-center">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-3 py-2 rounded-full text-xs font-medium mb-4 shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-white px-3 py-2 rounded-full text-xs font-medium mb-4 shadow-lg">
               <Star className="w-3 h-3" />
               New Platform Launch
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-3 leading-tight">
+            <h1 className="text-2xl font-bold text-foreground mb-3 leading-tight">
               Start Learning English
             </h1>
-            <p className="text-base text-gray-600 mb-4 leading-relaxed">
+            <p className="text-base text-muted-foreground mb-4 leading-relaxed">
               Be among the first to experience our innovative English learning platform
             </p>
           </div>
@@ -264,18 +264,18 @@ function EnhancedSignupForm() {
 
         {/* Mobile benefits bar */}
         <div className="sm:hidden w-full mb-6">
-          <div className="flex flex-col space-y-2 text-sm text-gray-500">
+          <div className="flex flex-col space-y-2 text-sm text-muted-foreground">
             <div className="flex items-center justify-center gap-4">
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-success rounded-full"></div>
                 100% Free
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
                 No Credit Card
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-secondary rounded-full"></div>
                 Cancel Anytime
               </div>
             </div>
@@ -331,14 +331,14 @@ function EnhancedSignupForm() {
               {step === 1 && (
                 <>
                   <div className="text-center mb-4 sm:mb-6">
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Let&apos;s get started!</h2>
-                    <p className="text-gray-600 text-sm sm:text-base">Tell us a bit about yourself</p>
+                    <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Let&apos;s get started!</h2>
+                    <p className="text-muted-foreground text-sm sm:text-base">Tell us a bit about yourself</p>
                   </div>
 
                   {/* Name Field */}
                   {/* Name Field */}
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
                       Full Name
                     </label>
                     <input
@@ -349,7 +349,7 @@ function EnhancedSignupForm() {
                       onChange={handleChange}
                       placeholder="Enter your full name"
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-primary transition-colors"
+                      className="w-full px-4 py-3 border border-input rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
                     />
                   </div>                  {/* Email Field */}
                   <EmailField
@@ -367,8 +367,8 @@ function EnhancedSignupForm() {
               {step === 2 && (
                 <>
                   <div className="text-center mb-4 sm:mb-6">
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Secure your account</h2>
-                    <p className="text-gray-600 text-sm sm:text-base">Create a strong password to protect your progress</p>
+                    <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Secure your account</h2>
+                    <p className="text-muted-foreground text-sm sm:text-base">Create a strong password to protect your progress</p>
                   </div>
 
                   {/* Password Field */}
@@ -410,7 +410,7 @@ function EnhancedSignupForm() {
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="w-full bg-muted/40 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-muted/60 transition-colors"
+                    className="w-full bg-muted/40 text-muted-foreground py-3 px-4 rounded-xl font-medium hover:bg-muted/60 transition-colors"
                   >
                     Back
                   </button>
@@ -445,10 +445,10 @@ function EnhancedSignupForm() {
             <div className="mt-4 sm:mt-6">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
+                  <div className="w-full border-t border-border" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-3 bg-white text-gray-500">Or continue with</span>
+                  <span className="px-3 bg-white text-muted-foreground">Or continue with</span>
                 </div>
               </div>
 
@@ -456,7 +456,7 @@ function EnhancedSignupForm() {
                 type="button"
                 onClick={handleGoogleSignup}
                 disabled={loading}
-                className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+                className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 border border-input rounded-xl bg-white text-foreground hover:bg-muted hover:border-input disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

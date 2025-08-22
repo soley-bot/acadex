@@ -67,7 +67,7 @@
     }
     
     .badge-neutral {
-      @apply bg-gray-100 text-gray-600 border border-gray-200 px-3 py-1 rounded-full text-sm font-medium;
+      @apply bg-muted text-muted-foreground border border-border px-3 py-1 rounded-full text-sm font-medium;
     }
 
     /* Input Styles */
@@ -190,7 +190,7 @@
   
   /* Form Typography */
   .form-label {
-    @apply text-sm font-medium text-gray-700;
+    @apply text-sm font-medium text-foreground;
   }
   
   /* Badge Typography */
@@ -208,15 +208,15 @@
   
   /* Semantic Text Utilities for Cards */
   .card-title {
-    @apply text-lg md:text-xl font-semibold leading-tight text-gray-900;
+    @apply text-lg md:text-xl font-semibold leading-tight text-foreground;
   }
   
   .card-description {
-    @apply text-sm text-gray-600 leading-relaxed;
+    @apply text-sm text-muted-foreground leading-relaxed;
   }
   
   .card-meta {
-    @apply text-xs text-gray-500 font-medium;
+    @apply text-xs text-muted-foreground font-medium;
   }
   
   /* Text Length Handling */
@@ -245,7 +245,7 @@
   
   /* Caption Typography */
   .caption-text {
-    @apply text-xs md:text-sm font-medium text-gray-600 uppercase tracking-wider;
+    @apply text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider;
   }
   
   /* Link Typography */
@@ -971,7 +971,7 @@
   }
   
   .btn-secondary {
-    @apply btn bg-gray-200 text-gray-800 hover:bg-gray-300 h-10 md:h-11 px-4 md:px-6 py-2;
+    @apply btn bg-muted text-foreground hover:bg-muted/80 h-10 md:h-11 px-4 md:px-6 py-2;
   }
   
   .btn-outline {

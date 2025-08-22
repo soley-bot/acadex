@@ -159,7 +159,7 @@ export default function ContactPage() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white/90 backdrop-blur-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm"
+                    className="w-full px-4 py-3 border border-input rounded-xl bg-white/90 backdrop-blur-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm"
                     placeholder="Your full name"
                   />
                 </div>
@@ -174,7 +174,7 @@ export default function ContactPage() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white/90 backdrop-blur-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm"
+                    className="w-full px-4 py-3 border border-input rounded-xl bg-white/90 backdrop-blur-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm"
                     placeholder="your.email@example.com"
                   />
                 </div>
@@ -187,7 +187,7 @@ export default function ContactPage() {
                     id="subject"
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white/90 backdrop-blur-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm"
+                    className="w-full px-4 py-3 border border-input rounded-xl bg-white/90 backdrop-blur-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm"
                   >
                     <option value="">Select a topic</option>
                     <option value="Course Question">Course Question</option>
@@ -208,7 +208,7 @@ export default function ContactPage() {
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     required
                     rows={5}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white/90 backdrop-blur-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm resize-none"
+                    className="w-full px-4 py-3 border border-input rounded-xl bg-white/90 backdrop-blur-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm resize-none"
                     placeholder="Tell us how we can help you..."
                   />
                 </div>
@@ -241,7 +241,7 @@ export default function ContactPage() {
                   </div>
                   <H3>Email Us</H3>
                 </Flex>
-                <BodyMD className="text-gray-600 mb-2" color="muted">Send us an email anytime</BodyMD>
+                <BodyMD className="mb-2" color="muted">Send us an email anytime</BodyMD>
                 <BodyLG className="text-primary font-medium">acadex@gmail.com</BodyLG>
               </div>
 
@@ -253,7 +253,7 @@ export default function ContactPage() {
                   </div>
                   <H3>Support Hours</H3>
                 </Flex>
-                <BodyMD className="text-gray-600 mb-3" color="muted">
+                <BodyMD className="mb-3" color="muted">
                   We&apos;re available to help during the following times (Cambodia Time):
                 </BodyMD>
                 <div className="space-y-1">
@@ -270,7 +270,7 @@ export default function ContactPage() {
                   </div>
                   <H3>Response Time</H3>
                 </Flex>
-                <BodyMD className="text-gray-600" color="muted">
+                <BodyMD color="muted">
                   We usually respond within 1–2 business days.
                   <br />
                   Thanks for your patience — it&apos;s just one person reading and replying to every message!
@@ -287,7 +287,7 @@ export default function ContactPage() {
         <Container size="lg" className="relative">
           <div className="text-center mb-16">
             <H2 className="mb-6">Frequently Asked Questions</H2>
-            <BodyLG className="text-gray-600 max-w-3xl mx-auto" color="muted">
+            <BodyLG className="max-w-3xl mx-auto" color="muted">
               Quick answers to common questions about Acadex
             </BodyLG>
           </div>
@@ -295,8 +295,8 @@ export default function ContactPage() {
           <div className="max-w-4xl mx-auto space-y-6">
             {faqItems.map((item, index) => (
               <div key={index} className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 lg:p-8 shadow-lg border border-white/20">
-                <H3 className="mb-4 text-gray-900">{item.question}</H3>
-                <BodyMD className="text-gray-600 leading-relaxed" color="muted">{item.answer}</BodyMD>
+                <H3 className="mb-4">{item.question}</H3>
+                <BodyMD className="leading-relaxed" color="muted">{item.answer}</BodyMD>
               </div>
             ))}
           </div>

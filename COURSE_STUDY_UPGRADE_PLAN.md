@@ -23,7 +23,7 @@
 │ Header: Course Title + Progress + Mobile Menu           │
 ├─────────────────┬───────────────────────────────────────┤
 │ Left Sidebar    │ Main Content Area                     │
-│ • Course TOC    │ • YouTube Embed Player               │
+│ • Course TOC    │ • YouTube Embed Player                │
 │ • Progress      │ • Lesson Title & Description          │
 │ • Navigation    │ • Resources & Downloads               │
 │ • Resources     │ • Notes/Discussion Area               │

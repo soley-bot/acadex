@@ -263,7 +263,7 @@ export default function Header() {
                         </Link>
                         <button
                           onClick={handleSignOut}
-                          className="backdrop-blur-sm bg-white/80 text-gray-700 hover:bg-primary/5 hover:text-primary px-6 py-4 rounded-xl font-bold transition-all duration-300 w-full border border-white/40 text-lg flex items-center gap-3"
+                          className="backdrop-blur-sm bg-white/80 text-foreground hover:bg-primary/5 hover:text-primary px-6 py-4 rounded-xl font-bold transition-all duration-300 w-full border border-white/40 text-lg flex items-center gap-3"
                         >
                           <ArrowRight size={20} />
                           Sign Out

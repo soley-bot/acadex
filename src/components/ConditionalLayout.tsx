@@ -7,8 +7,9 @@ import { Footer } from '@/components/Footer'
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isAdminRoute = pathname.startsWith('/admin')
+  const isCourseStudyRoute = pathname.includes('/courses/') && pathname.endsWith('/study')
 
-  if (isAdminRoute) {
+  if (isAdminRoute || isCourseStudyRoute) {
     return <>{children}</>
   }
 

@@ -42,7 +42,7 @@ function EnhancedLoginForm() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Redirecting...</p>
+          <p className="text-muted-foreground">Redirecting...</p>
         </div>
       </div>
     )
@@ -143,10 +143,10 @@ function EnhancedLoginForm() {
             <Sparkles className="w-3 h-3 lg:w-4 lg:h-4" />
             Welcome Back to Acadex
           </div>
-          <h1 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-3 lg:mb-4">
+          <h1 className="text-2xl lg:text-3xl xl:text-4xl font-bold text-foreground mb-3 lg:mb-4">
             Sign in to your account
           </h1>
-          <p className="text-gray-600 text-sm lg:text-lg">
+          <p className="text-muted-foreground text-sm lg:text-lg">
             Continue your learning journey with thousands of students worldwide
           </p>
         </div>
@@ -157,12 +157,12 @@ function EnhancedLoginForm() {
             <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
             {/* Global Error */}
             {error && (
-              <div className="bg-primary/5 border border-red-200 rounded-xl p-3 lg:p-4">
+              <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-3 lg:p-4">
                 <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-red-800 font-medium">Unable to sign in</h4>
-                    <p className="text-red-700 text-sm mt-1">{error}</p>
+                    <h4 className="text-destructive-foreground font-medium">Unable to sign in</h4>
+                    <p className="text-destructive text-sm mt-1">{error}</p>
                   </div>
                 </div>
               </div>
@@ -196,7 +196,7 @@ function EnhancedLoginForm() {
             <div className="text-right">
               <Link 
                 href="/auth/forgot-password" 
-                className="text-sm text-primary hover:text-red-800 font-medium transition-colors"
+                className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
               >
                 Forgot your password?
               </Link>
@@ -226,10 +226,10 @@ function EnhancedLoginForm() {
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                <span className="px-2 bg-white text-muted-foreground">Or continue with</span>
               </div>
             </div>
 
@@ -237,7 +237,7 @@ function EnhancedLoginForm() {
               type="button"
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+              className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 border border-input rounded-xl bg-white text-foreground hover:bg-muted hover:border-input disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -257,12 +257,12 @@ function EnhancedLoginForm() {
           </div>
 
           {/* Sign Up Link */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <p className="text-center text-gray-600">
+          <div className="mt-8 pt-6 border-t border-border">
+            <p className="text-center text-muted-foreground">
               New to Acadex?{' '}
               <Link 
                 href="/auth/signup" 
-                className="text-primary hover:text-red-800 font-medium transition-colors"
+                className="text-primary hover:text-primary/80 font-medium transition-colors"
               >
                 Create your free account
               </Link>
@@ -270,13 +270,13 @@ function EnhancedLoginForm() {
           </div>
 
           {/* Additional Features */}
-          <div className="mt-6 grid grid-cols-2 gap-4 text-center text-sm text-gray-500">
+          <div className="mt-6 grid grid-cols-2 gap-4 text-center text-sm text-muted-foreground">
             <div className="flex items-center justify-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              <div className="w-2 h-2 bg-success rounded-full"></div>
               Free Forever
             </div>
             <div className="flex items-center justify-center gap-2">
-              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+              <div className="w-2 h-2 bg-primary rounded-full"></div>
               No Credit Card
             </div>
           </div>
@@ -284,11 +284,11 @@ function EnhancedLoginForm() {
         </Card>
 
         {/* Footer */}
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-sm text-muted-foreground">
           By signing in, you agree to our{' '}
-          <Link href="/terms" className="text-primary hover:text-red-800">Terms of Service</Link>
+          <Link href="/terms" className="text-primary hover:text-primary/80">Terms of Service</Link>
           {' '}and{' '}
-          <Link href="/privacy" className="text-primary hover:text-red-800">Privacy Policy</Link>
+          <Link href="/privacy" className="text-primary hover:text-primary/80">Privacy Policy</Link>
         </p>
       </div>
     </div>
@@ -302,7 +302,7 @@ export default function EnhancedLoginPage() {
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
-            <p className="text-gray-600">Loading...</p>
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         </div>
       }>

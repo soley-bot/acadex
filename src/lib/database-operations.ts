@@ -264,6 +264,28 @@ export async function updateEnrollmentProgress(
   progress: number,
   currentLessonId?: string
 ) {
+  console.log('🔄 updateEnrollmentProgress called with:', { userId, courseId, progress, currentLessonId })
+  
+  // First check if enrollment exists
+  const { data: existingEnrollment, error: checkError } = await supabase
+    .from('enrollments')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('course_id', courseId)
+    .maybeSingle()
+
+  if (checkError) {
+    console.error('❌ Error checking enrollment:', checkError)
+    throw checkError
+  }
+
+  if (!existingEnrollment) {
+    console.warn('⚠️ No enrollment found for user and course, skipping progress update')
+    return null
+  }
+
+  console.log('✅ Found existing enrollment, updating progress...')
+
   const { data, error } = await supabase
     .from('enrollments')
     .update({
@@ -275,10 +297,14 @@ export async function updateEnrollmentProgress(
     .eq('user_id', userId)
     .eq('course_id', courseId)
     .select()
-    .single()
 
-  if (error) throw error
-  return data
+  if (error) {
+    console.error('❌ Error updating enrollment progress:', error)
+    throw error
+  }
+  
+  console.log('✅ Enrollment progress updated successfully:', data)
+  return data?.[0] || null // Return first item or null if array is empty
 }
 
 // User management operations
