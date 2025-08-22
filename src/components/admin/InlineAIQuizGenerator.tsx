@@ -162,13 +162,13 @@ export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQui
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Subject Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Subject *
                   </label>
                   <select
                     value={formData.subject}
                     onChange={(e) => handleSubjectChange(e.target.value)}
-                    className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-base"
+                    className="w-full px-3 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-base bg-background text-foreground"
                     disabled={loading}
                     required
                   >
@@ -183,7 +183,7 @@ export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQui
 
                 {/* Topic Input */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Topic *
                   </label>
                   <input
@@ -191,7 +191,7 @@ export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQui
                     value={formData.topic}
                     onChange={(e) => updateFormData({ topic: e.target.value })}
                     placeholder="e.g., Quadratic Equations, Cell Biology, World War II"
-                    className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-base"
+                    className="w-full px-3 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-base bg-background text-foreground"
                     disabled={loading}
                     required
                   />
@@ -488,7 +488,7 @@ export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQui
               <button
                 type="submit"
                 disabled={loading || !formData.topic.trim() || !formData.subject.trim()}
-                className="px-6 py-3 bg-primary hover:bg-secondary text-black hover:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium"
+                className="px-6 py-3 bg-primary hover:bg-secondary text-white hover:text-black rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium"
               >
                 {loading ? (
                   <>

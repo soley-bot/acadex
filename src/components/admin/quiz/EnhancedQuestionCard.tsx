@@ -90,7 +90,7 @@ export function EnhancedQuestionCard({
             {/* Question Number & Type Indicator */}
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-shrink-0">
-                <span className="flex items-center justify-center w-7 h-7 bg-primary text-black text-sm font-semibold rounded-full">
+                <span className="flex items-center justify-center w-7 h-7 bg-primary text-white text-sm font-semibold rounded-full">
                   {questionIndex + 1}
                 </span>
                 

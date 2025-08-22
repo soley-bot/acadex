@@ -153,7 +153,7 @@ export function EnhancedDeleteModal({ item, isOpen, onClose, onSuccess }: Enhanc
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         {/* Header */}
-        <div className="bg-primary text-black flex items-center justify-between rounded-t-2xl">
+        <div className="bg-primary text-white flex items-center justify-between rounded-t-2xl">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
               <Trash2 size={20} />

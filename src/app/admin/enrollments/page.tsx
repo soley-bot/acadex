@@ -195,7 +195,7 @@ export default function AdminEnrollmentsPage() {
             <p className="text-primary text-sm mb-4">{error}</p>
             <button
               onClick={() => router.push('/auth/login?redirect=/admin/enrollments')}
-              className="px-4 py-2 bg-primary hover:bg-secondary text-black hover:text-white rounded-lg transition-colors"
+              className="px-4 py-2 bg-primary hover:bg-secondary text-white hover:text-black rounded-lg transition-colors"
             >
               Login Again
             </button>
@@ -217,7 +217,7 @@ export default function AdminEnrollmentsPage() {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setShowManualEnrollmentModal(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-primary text-black hover:bg-secondary hover:text-white rounded-lg transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-primary text-white hover:bg-secondary hover:text-black rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4" />
               <span>Manual Enrollment</span>
@@ -538,7 +538,7 @@ export default function AdminEnrollmentsPage() {
                   handleUnenrollStudent(selectedEnrollment.id)
                   setShowEnrollmentModal(false)
                 }}
-                className="px-4 py-2 bg-primary text-secondary rounded-lg hover:bg-primary/90"
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
               >
                 Unenroll Student
               </button>

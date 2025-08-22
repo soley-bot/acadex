@@ -452,7 +452,7 @@ export default function CoursesPage() {
                     </button>
                     <button 
                       onClick={() => handleDeleteCourse(course)}
-                      className="flex-1 bg-red-700 hover:bg-red-800 text-white px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
+                      className="flex-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-md"
                     >
                       <Icon name="delete" size={16} color="white" />
                       <span>Delete</span>

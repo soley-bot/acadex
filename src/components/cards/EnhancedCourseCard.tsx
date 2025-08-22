@@ -78,12 +78,12 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
   }
 
   const getActionButtonStyle = () => {
-    if (!user) return 'bg-primary text-black'
+    if (!user) return 'bg-primary text-white'
     if (enrolled) {
       if (progress?.completed_at) return 'bg-success hover:bg-success/90 text-white'
-      return 'bg-primary text-black'
+      return 'bg-primary text-white'
     }
-    return 'bg-primary text-black'
+    return 'bg-primary text-white'
   }
 
   // Get appropriate image for this course
@@ -120,12 +120,12 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
         {showProgress && user && enrolled && (
           <div className="absolute top-3 right-3">
             {progress?.completed_at ? (
-              <span className="px-2 py-1 bg-green-500/95 backdrop-blur-sm text-white text-xs font-semibold rounded-md flex items-center gap-1 shadow-sm">
+              <span className="px-2 py-1 bg-success/95 backdrop-blur-sm text-success-foreground text-xs font-semibold rounded-md flex items-center gap-1 shadow-sm">
                 <Icon name="check" size={12} color="white" />
                 Completed
               </span>
             ) : (
-              <span className="px-2 py-1 bg-blue-500/95 backdrop-blur-sm text-white text-xs font-semibold rounded-md shadow-sm">
+              <span className="px-2 py-1 bg-primary/95 backdrop-blur-sm text-primary-foreground text-xs font-semibold rounded-md shadow-sm">
                 {progress?.progress ? `${Math.round(progress.progress)}%` : 'Enrolled'}
               </span>
             )}

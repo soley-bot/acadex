@@ -429,7 +429,7 @@ export function EnhancedAIQuizGenerator({ isOpen, onClose, onQuizGenerated }: En
             <button
               type="submit"
               disabled={loading || !formData.topic.trim() || !formData.subject.trim()}
-              className="px-6 py-2 bg-primary hover:bg-secondary text-black hover:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2 bg-primary hover:bg-secondary text-white hover:text-black rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {loading ? (
                 <>
@@ -473,7 +473,7 @@ export function EnhancedAIQuizGenerator({ isOpen, onClose, onQuizGenerated }: En
             <div className="flex justify-end pt-4 border-t">
               <button
                 onClick={() => setShowPromptPreview(false)}
-                className="px-4 py-2 bg-primary hover:bg-secondary text-black hover:text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-primary hover:bg-secondary text-white hover:text-black rounded-lg transition-colors"
               >
                 Close
               </button>

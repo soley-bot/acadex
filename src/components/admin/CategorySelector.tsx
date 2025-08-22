@@ -89,7 +89,7 @@ export const CategorySelector = forwardRef<CategorySelectorRef, CategorySelector
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 text-left border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white hover:bg-gray-50 transition-colors flex items-center justify-between"
+        className="w-full px-4 py-3 text-left border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background hover:bg-muted transition-colors flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
           {selectedCategory && (
@@ -98,19 +98,19 @@ export const CategorySelector = forwardRef<CategorySelectorRef, CategorySelector
               style={{ backgroundColor: selectedCategory.color }}
             />
           )}
-          <span className={selectedCategory ? 'text-gray-900' : 'text-gray-500'}>
+          <span className={selectedCategory ? 'text-foreground' : 'text-muted-foreground'}>
             {selectedCategory ? selectedCategory.name : placeholder}
           </span>
         </div>
-        <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-xl z-50 py-2 max-h-64 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-input rounded-lg shadow-xl z-50 py-2 max-h-64 overflow-y-auto">
           {/* Header with manage button */}
           {onManageCategories && (
-            <div className="px-4 py-2 border-b border-gray-200 flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-600">Select Category</span>
+            <div className="px-4 py-2 border-b border-border flex justify-between items-center">
+              <span className="text-sm font-medium text-muted-foreground">Select Category</span>
               <button
                 type="button"
                 onClick={() => {
@@ -127,10 +127,10 @@ export const CategorySelector = forwardRef<CategorySelectorRef, CategorySelector
 
           {/* Category options */}
           {loading ? (
-            <div className="px-4 py-3 text-sm text-gray-500">Loading categories...</div>
+            <div className="px-4 py-3 text-sm text-muted-foreground">Loading categories...</div>
           ) : categories.length === 0 ? (
             <div className="px-4 py-3">
-              <div className="text-sm text-gray-500 mb-2">No categories found</div>
+              <div className="text-sm text-muted-foreground mb-2">No categories found</div>
               {onManageCategories && (
                 <button
                   type="button"
@@ -154,8 +154,8 @@ export const CategorySelector = forwardRef<CategorySelectorRef, CategorySelector
                   onChange(category.name)
                   setIsOpen(false)
                 }}
-                className={`w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors ${
-                  selectedCategory?.id === category.id ? 'bg-primary/5 text-primary' : 'text-gray-900'
+                className={`w-full px-4 py-3 text-left hover:bg-muted flex items-center gap-3 transition-colors ${
+                  selectedCategory?.id === category.id ? 'bg-primary/5 text-primary' : 'text-foreground'
                 }`}
               >
                 <div
@@ -165,11 +165,11 @@ export const CategorySelector = forwardRef<CategorySelectorRef, CategorySelector
                 <div className="flex-1 min-w-0">
                   <div className="font-medium">{category.name}</div>
                   {category.description && (
-                    <div className="text-sm text-gray-500 truncate">{category.description}</div>
+                    <div className="text-sm text-muted-foreground truncate">{category.description}</div>
                   )}
                 </div>
                 {category.type !== 'general' && (
-                  <span className="text-xs px-2 py-1 bg-muted/40 text-gray-600 rounded-full">
+                  <span className="text-xs px-2 py-1 bg-muted/40 text-muted-foreground rounded-full">
                     {category.type}
                   </span>
                 )}

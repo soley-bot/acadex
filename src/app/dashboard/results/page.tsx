@@ -157,7 +157,7 @@ export default function AllResultsPage() {
                 <p className="text-muted-foreground mb-6">{error}</p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="bg-primary hover:bg-secondary text-black hover:text-white px-4 py-2 rounded-lg transition-colors"
+                  className="bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2 rounded-lg transition-colors"
                 >
                   Try Again
                 </button>
@@ -256,7 +256,7 @@ export default function AllResultsPage() {
                       <p className="text-xs text-muted-foreground mb-4">You haven&apos;t taken any quizzes yet. Start your learning journey!</p>
                       <Link
                         href="/quizzes"
-                        className="bg-primary hover:bg-secondary text-black hover:text-white px-4 py-2 rounded-lg text-sm transition-colors inline-block"
+                        className="bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2 rounded-lg text-sm transition-colors inline-block"
                       >
                         Browse Quizzes
                       </Link>

@@ -110,7 +110,7 @@ export default function Dashboard() {
             <p className="text-muted-foreground mb-6">{error}</p>
             <Button 
               onClick={() => window.location.reload()}
-              className="bg-primary hover:bg-secondary text-black hover:text-white"
+              className="bg-primary hover:bg-secondary text-white hover:text-black"
             >
               Try Again
             </Button>
@@ -210,7 +210,7 @@ export default function Dashboard() {
                         <Link href={`/courses/${course.id}/study`}>
                           <Button 
                             size="sm"
-                            className="bg-primary hover:bg-secondary text-black hover:text-white"
+                            className="bg-primary hover:bg-secondary text-white hover:text-black"
                           >
                             Continue
                             <ArrowRight className="h-4 w-4 ml-1" />
@@ -222,7 +222,7 @@ export default function Dashboard() {
                   {courses.length > 5 && (
                     <div className="text-center pt-4">
                       <Link href="/courses">
-                        <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-black">
+                        <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
                           View All Courses
                         </Button>
                       </Link>
@@ -235,7 +235,7 @@ export default function Dashboard() {
                   <h3 className="text-lg font-semibold text-foreground mb-2">No courses yet</h3>
                   <p className="text-muted-foreground mb-4">Start your learning journey by enrolling in a course</p>
                   <Link href="/courses">
-                    <Button className="bg-primary hover:bg-secondary text-black hover:text-white">
+                    <Button className="bg-primary hover:bg-secondary text-white hover:text-black">
                       Browse Courses
                     </Button>
                   </Link>
@@ -295,7 +295,7 @@ export default function Dashboard() {
                   <h3 className="text-lg font-semibold text-foreground mb-2">No quizzes taken yet</h3>
                   <p className="text-muted-foreground mb-4">Test your knowledge with our interactive quizzes</p>
                   <Link href="/quizzes">
-                    <Button className="bg-primary hover:bg-secondary text-black hover:text-white">
+                    <Button className="bg-primary hover:bg-secondary text-white hover:text-black">
                       Take a Quiz
                     </Button>
                   </Link>

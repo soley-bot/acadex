@@ -743,7 +743,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                     <button
                       type="button"
                       onClick={addLearningOutcome}
-                      className="bg-primary text-black px-3 py-1 rounded-lg text-sm flex items-center gap-2"
+                      className="bg-primary text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2"
                     >
                       <Icon name="add" size={16} className="text-current" />
                       Add Outcome
@@ -784,7 +784,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                     <button
                       type="button"
                       onClick={addPrerequisite}
-                      className="bg-primary text-black px-3 py-1 rounded-lg text-sm flex items-center gap-2"
+                      className="bg-primary text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2"
                     >
                       <Icon name="add" size={16} className="text-current" />
                       Add Prerequisite
@@ -832,7 +832,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                   <button
                     type="button"
                     onClick={addModule}
-                    className="bg-primary text-black px-4 py-2 rounded-lg flex items-center gap-2"
+                    className="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2"
                   >
                     <Icon name="add" size={16} className="text-current" />
                     Add Module
@@ -890,7 +890,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                           <button
                             type="button"
                             onClick={() => addLesson(moduleIndex)}
-                            className="bg-primary text-black px-3 py-1 rounded text-sm flex items-center gap-2"
+                            className="bg-primary text-white px-3 py-1 rounded text-sm flex items-center gap-2"
                           >
                             <Icon name="add" size={14} className="text-current" />
                             Add Lesson
@@ -1028,7 +1028,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                     <button
                       type="button"
                       onClick={addTag}
-                      className="bg-primary text-black px-3 py-1 rounded-lg text-sm flex items-center gap-2"
+                      className="bg-primary text-white px-3 py-1 rounded-lg text-sm flex items-center gap-2"
                     >
                       <Icon name="add" size={16} className="text-current" />
                       Add Tag

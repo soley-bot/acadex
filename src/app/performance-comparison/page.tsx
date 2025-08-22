@@ -128,7 +128,7 @@ export default function PerformanceComparisonPage() {
               className={`px-6 py-3 rounded-lg font-medium transition-colors ${
                 isRunning
                   ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                  : 'bg-[#ff5757] hover:bg-[#ff4444] text-white'
+                  : 'bg-destructive hover:bg-destructive/90 text-white'
               }`}
             >
               {isRunning ? '🔄 Running Tests...' : '🚀 Run Performance Tests'}
@@ -137,7 +137,7 @@ export default function PerformanceComparisonPage() {
             <button
               onClick={clearAllCaches}
               disabled={isRunning}
-              className="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium"
+              className="px-6 py-3 bg-muted hover:bg-muted/90 text-muted-foreground hover:text-foreground rounded-lg font-medium"
             >
               🧹 Clear Cache
             </button>
