@@ -142,7 +142,7 @@ export default function DatabaseSetup() {
         <button 
           onClick={checkTables}
           disabled={loading}
-          className="bg-secondary hover:bg-blue-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+          className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-4 py-2 rounded-lg disabled:opacity-50"
         >
           Check Tables
         </button>
@@ -150,7 +150,7 @@ export default function DatabaseSetup() {
         <button 
           onClick={createTables}
           disabled={loading}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+          className="bg-success hover:bg-success/90 text-success-foreground px-4 py-2 rounded-lg disabled:opacity-50"
         >
           Create Tables
         </button>
@@ -158,7 +158,7 @@ export default function DatabaseSetup() {
         <button 
           onClick={seedData}
           disabled={loading}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+          className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-4 py-2 rounded-lg disabled:opacity-50"
         >
           Add Sample Data
         </button>

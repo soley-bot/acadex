@@ -268,7 +268,7 @@ export default function AdminAnalytics() {
           <div className="flex gap-2">
             <button 
               onClick={handleRefresh}
-              className="touch-target bg-primary text-black px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors font-medium shadow-sm text-sm min-w-[120px]"
+              className="touch-target bg-primary text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors font-medium shadow-sm text-sm min-w-[120px]"
               disabled={loading || refreshing}
             >
               <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
@@ -276,7 +276,7 @@ export default function AdminAnalytics() {
             </button>
             
             <button 
-              className="touch-target bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors font-medium shadow-sm text-sm"
+              className="touch-target bg-success hover:bg-success/90 text-success-foreground px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors font-medium shadow-sm text-sm"
               onClick={() => logger.info('Export analytics clicked')}
             >
               <Download className="h-4 w-4" />

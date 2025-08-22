@@ -32,7 +32,7 @@ export default function About() {
       <Section className="relative" background="transparent" spacing="lg">
         <Container size="lg" className="relative">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-black px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
               <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
               Our Story
             </div>
@@ -278,13 +278,13 @@ export default function About() {
             <div className="text-center">
               <Flex direction="col" gap="md" className="sm:flex-row justify-center">
                 <Link href="/courses">
-                  <button className="bg-primary hover:bg-secondary text-black hover:text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 min-w-[200px]">
+                  <button className="bg-primary hover:bg-secondary text-white hover:text-black px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 min-w-[200px]">
                     Start Learning
                     <span className="ml-3">→</span>
                   </button>
                 </Link>
                 <Link href="/">
-                  <button className="border-2 border-primary text-primary hover:bg-primary hover:text-black px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 min-w-[200px]">
+                  <button className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 min-w-[200px]">
                     Back to Home
                   </button>
                 </Link>

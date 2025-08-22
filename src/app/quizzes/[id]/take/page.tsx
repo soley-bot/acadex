@@ -173,7 +173,7 @@ export default function TakeQuizPage() {
           <BodyMD className="text-gray-600 mb-6">{error || 'The quiz questions could not be loaded.'}</BodyMD>
           <button
             onClick={() => router.push('/quizzes')}
-            className="bg-primary hover:bg-secondary text-black hover:text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300"
+            className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 rounded-xl font-semibold transition-all duration-300"
           >
             Back to Quizzes
           </button>
@@ -208,7 +208,7 @@ export default function TakeQuizPage() {
               setQuizStarted(true)
               setStartTime(new Date())
             }}
-            className="w-full bg-primary hover:bg-secondary text-black hover:text-white px-6 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+            className="w-full bg-primary hover:bg-secondary text-white hover:text-black px-6 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
           >
             Start Quiz
           </button>
@@ -460,7 +460,7 @@ export default function TakeQuizPage() {
                           onClick={() => setCurrentQuestionIndex(actualIndex)}
                           className={`w-6 h-6 rounded-full text-xs font-medium transition-all flex-shrink-0 ${
                             actualIndex === currentQuestionIndex
-                              ? 'bg-primary text-black'
+                              ? 'bg-primary text-white'
                               : answers[questions[actualIndex]?.id ?? ''] !== undefined
                               ? 'bg-green-100 text-green-700 border border-green-300'
                               : 'bg-muted/40 text-gray-600'
@@ -484,7 +484,7 @@ export default function TakeQuizPage() {
                         onClick={() => setCurrentQuestionIndex(index)}
                         className={`w-6 h-6 rounded-full text-xs font-medium transition-all flex-shrink-0 ${
                           index === currentQuestionIndex
-                            ? 'bg-primary text-black'
+                            ? 'bg-primary text-white'
                             : answers[questions[index]?.id ?? ''] !== undefined
                             ? 'bg-green-100 text-green-700 border border-green-300'
                             : 'bg-muted/40 text-gray-600 hover:bg-muted/60'

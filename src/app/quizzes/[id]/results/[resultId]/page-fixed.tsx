@@ -105,7 +105,7 @@ export default function QuizResultsPage() {
             <BodyLG className="text-gray-700 mb-8">{error || 'The quiz results could not be found.'}</BodyLG>
             <Link
               href="/quizzes"
-              className="bg-primary hover:bg-secondary text-black hover:text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 inline-block"
+              className="bg-primary hover:bg-secondary text-white hover:text-black px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 inline-block"
             >
               Back to Quizzes
             </Link>

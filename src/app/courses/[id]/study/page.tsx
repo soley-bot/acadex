@@ -290,7 +290,7 @@ export default function CourseStudyPage() {
             <H3 className="mb-4">{error || 'Course not found'}</H3>
             <button
               onClick={() => router.push('/courses')}
-              className="bg-primary hover:bg-secondary text-black hover:text-white px-6 py-3 rounded-xl font-bold transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+              className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 rounded-xl font-bold transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
             >
               ← Back to Courses
             </button>
@@ -569,7 +569,7 @@ export default function CourseStudyPage() {
                           onClick={() => toggleLessonCompletion(currentLesson.id)}
                           className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm lg:text-base font-bold transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl self-start ${
                             currentLesson.progress?.is_completed
-                              ? 'bg-green-600 hover:bg-green-700 text-white'
+                              ? 'bg-success hover:bg-success/90 text-success-foreground'
                               : 'bg-secondary hover:bg-secondary/90 text-black'
                           }`}
                         >

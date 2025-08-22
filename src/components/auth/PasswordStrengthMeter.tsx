@@ -113,7 +113,7 @@ export function PasswordStrengthMeter({ password, onValidationChange }: Password
                 req.met 
                   ? 'bg-green-500 text-white' 
                   : password.length > 0
-                    ? 'bg-primary text-black'
+                    ? 'bg-primary text-white'
                     : 'bg-muted text-gray-500'
               }`}>
                 {req.met ? (

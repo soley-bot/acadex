@@ -396,7 +396,7 @@ export function LessonQuizManager({ lessonId, lessonTitle, onQuizUpdated }: Less
               <h4 className="text-md font-bold text-gray-900">Questions</h4>
               <button
                 onClick={addQuestion}
-                className="bg-primary text-black px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+                className="bg-primary text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Add Question

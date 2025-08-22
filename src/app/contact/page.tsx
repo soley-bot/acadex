@@ -94,7 +94,7 @@ export default function ContactPage() {
       <Section className="relative" background="transparent" spacing="lg">
         <Container size="lg" className="relative">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-gray-900 px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
               <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
               Contact Us
             </div>
@@ -107,7 +107,7 @@ export default function ContactPage() {
               We&apos;re Here to Listen — Not Just Sell
             </H2>
             
-            <BodyLG className="text-gray-600 leading-relaxed max-w-3xl mx-auto" color="muted">
+            <BodyLG className="text-muted-foreground leading-relaxed max-w-3xl mx-auto" color="muted">
               Got a question, suggestion, or concern? Whether you&apos;re curious about a course, need help navigating the platform, 
               or just want to share feedback — I&apos;m here. Acadex is still small, but every message helps us grow better.
             </BodyLG>
@@ -216,7 +216,7 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-primary hover:bg-secondary text-black hover:text-white btn-text-lg py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-primary hover:bg-secondary text-white hover:text-black btn-text-lg py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <Flex align="center" justify="center" gap="sm">

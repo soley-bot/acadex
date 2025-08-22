@@ -192,7 +192,7 @@ export function BulkOperations({
             {selectedCount > 0 && (
               <button
                 onClick={() => setShowOperations(!showOperations)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-primary text-black text-sm font-medium rounded-lg hover:bg-secondary hover:text-white transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 bg-primary text-white text-sm font-medium rounded-lg hover:bg-secondary hover:text-black transition-colors"
               >
                 <MoreHorizontal className="h-4 w-4" />
                 Bulk Actions
@@ -263,12 +263,12 @@ function OperationCard({
   const getButtonColor = () => {
     switch (operation.action) {
       case 'delete':
-        return 'bg-red-600 hover:bg-red-700 text-white'
+        return 'bg-destructive hover:bg-destructive/90 text-destructive-foreground'
       case 'duplicate':
       case 'export':
-        return 'bg-green-600 hover:bg-green-700 text-white'
+        return 'bg-success hover:bg-success/90 text-success-foreground'
       default:
-        return 'bg-blue-600 hover:bg-blue-700 text-white'
+        return 'bg-primary hover:bg-primary/90 text-primary-foreground'
     }
   }
 

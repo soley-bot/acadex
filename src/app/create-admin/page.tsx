@@ -89,7 +89,7 @@ export default function CreateAdminPage() {
         <button
           onClick={createAdminUser}
           disabled={loading}
-          className="w-full bg-secondary hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          className="w-full bg-secondary hover:bg-secondary/90 disabled:opacity-50 text-secondary-foreground font-medium py-2 px-4 rounded-lg transition-colors"
         >
           {loading ? 'Creating Admin User...' : 'Create Admin User'}
         </button>

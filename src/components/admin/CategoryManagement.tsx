@@ -195,7 +195,7 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
                 })
                 setShowForm(true)
               }}
-              className="bg-primary text-black px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              className="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
             >
               <Plus size={16} />
               Add Category
@@ -299,7 +299,7 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
                   <div className="flex gap-3 pt-4">
                     <button
                       type="submit"
-                      className="bg-primary text-black px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                      className="bg-primary text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
                     >
                       <Save size={16} />
                       {editingCategory ? 'Update' : 'Create'} Category

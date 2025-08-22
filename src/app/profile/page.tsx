@@ -121,11 +121,11 @@ export default function ProfilePage() {
         {/* Header */}
         <Card variant="glass" className="mb-12 text-center">
           <CardContent className="p-12">
-            <div className="inline-block p-4 bg-primary rounded-2xl mb-6">
+            <div className="inline-block p-4 bg-primary rounded-2xl mb-6 text-white">
               <Icon name="user" size={32} color="current" />
             </div>
-            <H1 className="text-gray-900 mb-4">Profile Settings</H1>
-            <BodyLG className="text-gray-700">Manage your account information and preferences</BodyLG>
+            <H1 className="text-foreground mb-4">Profile Settings</H1>
+            <BodyLG className="text-muted-foreground">Manage your account information and preferences</BodyLG>
           </CardContent>
         </Card>
 
@@ -133,10 +133,10 @@ export default function ProfilePage() {
           <form onSubmit={handleSubmit}>
             <CardContent className="p-8 space-y-8">
             {/* Basic Information */}
-            <Card variant="base" className="bg-gradient-to-r from-white/60 to-gray-50/60 border-white/30">
+            <Card variant="base" className="bg-background/60 border-border">
               <CardHeader>
-                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent flex items-center gap-3">
-                  <span className="text-3xl">📝</span>
+                <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+                  <Icon name="edit" size={24} color="primary" />
                   Basic Information
                 </CardTitle>
               </CardHeader>
@@ -144,7 +144,7 @@ export default function ProfilePage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-bold text-gray-800 mb-3">
+                  <label htmlFor="name" className="block text-sm font-bold text-foreground mb-3">
                     Full Name
                   </label>
                   <input
@@ -153,13 +153,13 @@ export default function ProfilePage() {
                     name="name"
                     value={profile.name}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary backdrop-blur-sm bg-white/80 text-gray-800 font-medium transition-all duration-300 hover:shadow-lg"
+                    className="w-full px-4 py-3 border-2 border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary backdrop-blur-sm bg-background/80 text-foreground font-medium transition-all duration-300 hover:shadow-lg"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-bold text-gray-800 mb-3">
+                  <label htmlFor="email" className="block text-sm font-bold text-foreground mb-3">
                     Email Address
                   </label>
                   <input
@@ -168,15 +168,18 @@ export default function ProfilePage() {
                     name="email"
                     value={profile.email}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl backdrop-blur-sm bg-muted/40/80 text-gray-600 font-medium cursor-not-allowed"
+                    className="w-full px-4 py-3 border-2 border-input rounded-xl backdrop-blur-sm bg-muted/40 text-muted-foreground font-medium cursor-not-allowed"
                     disabled
                   />
-                  <p className="text-xs text-gray-600 mt-2 font-medium">📧 Email cannot be changed</p>
+                  <p className="text-xs text-muted-foreground mt-2 font-medium flex items-center gap-1">
+                    <Icon name="mail" size={12} color="current" />
+                    Email cannot be changed
+                  </p>
                 </div>
               </div>
 
               <div className="mt-6">
-                <label htmlFor="bio" className="block text-sm font-bold text-gray-800 mb-3">
+                <label htmlFor="bio" className="block text-sm font-bold text-foreground mb-3">
                   Bio
                 </label>
                 <textarea
@@ -186,24 +189,24 @@ export default function ProfilePage() {
                   value={profile.bio}
                   onChange={handleInputChange}
                   placeholder="Tell us a bit about yourself..."
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary backdrop-blur-sm bg-white/80 text-gray-800 font-medium transition-all duration-300 hover:shadow-lg resize-none"
+                  className="w-full px-4 py-3 border-2 border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary backdrop-blur-sm bg-background/80 text-foreground font-medium transition-all duration-300 hover:shadow-lg resize-none"
                 />
               </div>
               </CardContent>
             </Card>
 
             {/* Learning Preferences */}
-            <Card variant="base" className="bg-gradient-to-r from-white/60 to-gray-50/60 border-white/30">
+            <Card variant="base" className="bg-background/60 border-border">
               <CardHeader>
-                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent flex items-center gap-3">
-                  <span className="text-3xl">🎯</span>
+                <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+                  <Icon name="target" size={24} color="primary" />
                   Learning Preferences
                 </CardTitle>
               </CardHeader>
               <CardContent>
               
               <div className="mb-6">
-                <label htmlFor="learning_goals" className="block text-sm font-bold text-gray-800 mb-3">
+                <label htmlFor="learning_goals" className="block text-sm font-bold text-foreground mb-3">
                   Learning Goals
                 </label>
                 <textarea
@@ -213,27 +216,27 @@ export default function ProfilePage() {
                   value={profile.learning_goals}
                   onChange={handleInputChange}
                   placeholder="What do you want to achieve with your learning?"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary backdrop-blur-sm bg-white/80 text-gray-800 font-medium transition-all duration-300 hover:shadow-lg resize-none"
+                  className="w-full px-4 py-3 border-2 border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary backdrop-blur-sm bg-background/80 text-foreground font-medium transition-all duration-300 hover:shadow-lg resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-800 mb-4">
+                <label className="block text-sm font-bold text-foreground mb-4">
                   Preferred Subjects
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {availableSubjects.map((subject) => (
                     <label
                       key={subject}
-                      className="flex items-center space-x-3 cursor-pointer p-3 rounded-xl backdrop-blur-sm bg-white/60 border border-white/30 hover:bg-white/80 hover:border-red-300 transition-all duration-300 hover:shadow-lg"
+                      className="flex items-center space-x-3 cursor-pointer p-3 rounded-xl backdrop-blur-sm bg-background/60 border border-border hover:bg-muted/80 hover:border-primary transition-all duration-300 hover:shadow-lg"
                     >
                       <input
                         type="checkbox"
                         checked={profile.preferred_subjects?.includes(subject) || false}
                         onChange={() => handleSubjectToggle(subject)}
-                        className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-red-500 focus:ring-2"
+                        className="w-5 h-5 rounded border-input text-primary focus:ring-primary focus:ring-2"
                       />
-                      <span className="text-sm font-medium text-gray-800">{subject}</span>
+                      <span className="text-sm font-medium text-foreground">{subject}</span>
                     </label>
                   ))}
                 </div>
@@ -242,20 +245,20 @@ export default function ProfilePage() {
             </Card>
 
             {/* Profile Picture */}
-            <Card variant="base" className="bg-gradient-to-r from-white/60 to-gray-50/60 border-white/30">
+            <Card variant="base" className="bg-background/60 border-border">
               <CardHeader>
-                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary/5 via-white to-secondary/5 bg-clip-text text-transparent flex items-center gap-3">
-                  <span className="text-3xl">🖼️</span>
+                <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+                  <Icon name="camera" size={24} color="primary" />
                   Profile Picture
                 </CardTitle>
               </CardHeader>
               <CardContent>
               <div className="flex items-center space-x-8">
-                <div className="w-24 h-24 bg-gradient-to-r from-primary to-warning rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl border-4 border-white/50">
+                <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl border-4 border-white/50">
                   {profile.name ? profile.name.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <div className="flex-1">
-                  <label htmlFor="avatar_url" className="block text-sm font-bold text-gray-800 mb-3">
+                  <label htmlFor="avatar_url" className="block text-sm font-bold text-foreground mb-3">
                     Avatar URL
                   </label>
                   <input
@@ -265,10 +268,10 @@ export default function ProfilePage() {
                     value={profile.avatar_url}
                     onChange={handleInputChange}
                     placeholder="https://example.com/avatar.jpg"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-primary backdrop-blur-sm bg-white/80 text-gray-800 font-medium transition-all duration-300 hover:shadow-lg"
+                    className="w-full px-4 py-3 border-2 border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary backdrop-blur-sm bg-background/80 text-foreground font-medium transition-all duration-300 hover:shadow-lg"
                   />
-                  <p className="text-xs text-gray-600 mt-2 font-medium flex items-center gap-1">
-                    <span>🔗</span>
+                  <p className="text-xs text-muted-foreground mt-2 font-medium flex items-center gap-1">
+                    <Icon name="share" size={12} color="current" />
                     Enter a URL for your profile picture
                   </p>
                 </div>
@@ -278,40 +281,40 @@ export default function ProfilePage() {
 
             {/* Messages */}
             {message && (
-              <Card variant="base" className="bg-gradient-to-r from-green-50/80 to-emerald-50/80 border-green-300 border-2">
+              <Card variant="base" className="bg-success/10 border-success border-2">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">✅</span>
-                    <p className="text-green-800 font-bold text-lg">{message}</p>
+                    <Icon name="check-circle" size={24} color="success" />
+                    <p className="text-success-foreground font-bold text-lg">{message}</p>
                   </div>
                 </CardContent>
               </Card>
             )}
 
             {error && (
-              <Card variant="base" className="bg-gradient-to-r from-red-50/80 to-pink-50/80 border-red-300 border-2">
+              <Card variant="base" className="bg-destructive/10 border-destructive border-2">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">❌</span>
-                    <p className="text-red-800 font-bold text-lg">{error}</p>
+                    <Icon name="x-circle" size={24} color="error" />
+                    <p className="text-destructive-foreground font-bold text-lg">{error}</p>
                   </div>
                 </CardContent>
               </Card>
             )}
 
             {/* Submit Button */}
-            <div className="flex items-center justify-end space-x-6 pt-8 border-t border-white/30">
+            <div className="flex items-center justify-end space-x-6 pt-8 border-t border-border">
               <button
                 type="button"
                 onClick={() => router.push('/dashboard')}
-                className="px-8 py-4 border-2 border-gray-400 rounded-2xl text-gray-800 hover:bg-white hover:border-gray-500 transition-all duration-300 font-bold text-lg backdrop-blur-sm bg-white/60 shadow-lg hover:shadow-xl"
+                className="px-8 py-4 border-2 border-input rounded-2xl text-foreground hover:bg-muted hover:border-border transition-all duration-300 font-bold text-lg backdrop-blur-sm bg-background/60 shadow-lg hover:shadow-xl"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-8 py-4 bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-gray-900 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105"
+                className="px-8 py-4 bg-primary hover:bg-secondary text-white hover:text-black rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105"
               >
                 {loading ? (
                   <div className="flex items-center gap-2">
@@ -319,7 +322,10 @@ export default function ProfilePage() {
                     Saving...
                   </div>
                 ) : (
-                  '💾 Save Changes'
+                  <div className="flex items-center gap-2">
+                    <Icon name="save" size={20} color="current" />
+                    Save Changes
+                  </div>
                 )}
               </button>
             </div>
