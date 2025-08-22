@@ -71,11 +71,11 @@ export default function ForgotPasswordPage() {
               We&apos;ve sent a password reset link to <strong>{email}</strong>
             </p>
             
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <p className="text-secondary text-sm">
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-6">
+              <p className="text-primary text-sm">
                 <strong>Next steps:</strong>
               </p>
-              <ol className="text-blue-700 text-sm mt-2 list-decimal list-inside space-y-1">
+              <ol className="text-primary text-sm mt-2 list-decimal list-inside space-y-1">
                 <li>Check your email inbox (and spam folder)</li>
                 <li>Click the password reset link</li>
                 <li>Create your new password</li>
@@ -96,7 +96,7 @@ export default function ForgotPasswordPage() {
               
               <Link
                 href="/auth/login"
-                className="block w-full bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-secondary py-3 px-4 rounded-xl font-medium text-center hover:from-primary/90 hover:to-secondary/90 transition-all duration-200"
+                className="block w-full bg-muted hover:bg-muted/80 text-muted-foreground py-3 px-4 rounded-xl font-medium text-center transition-colors"
               >
                 Back to Sign In
               </Link>
@@ -112,7 +112,7 @@ export default function ForgotPasswordPage() {
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
       </div>
       
       <div className="relative w-full max-w-md space-y-8">
@@ -134,12 +134,12 @@ export default function ForgotPasswordPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (
-              <div className="bg-primary/5 border border-red-200 rounded-xl p-4">
+              <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4">
                 <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-red-800 font-medium">Unable to send reset email</h4>
-                    <p className="text-red-700 text-sm mt-1">{error}</p>
+                    <h4 className="text-destructive-foreground font-medium">Unable to send reset email</h4>
+                    <p className="text-destructive text-sm mt-1">{error}</p>
                   </div>
                 </div>
               </div>
@@ -157,11 +157,11 @@ export default function ForgotPasswordPage() {
             />
 
             {/* Info Box */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-secondary text-sm">
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+              <p className="text-primary text-sm">
                 <strong>What happens next?</strong>
               </p>
-              <p className="text-blue-700 text-sm mt-1">
+              <p className="text-primary text-sm mt-1">
                 We&apos;ll send you a secure link to reset your password. 
                 The link will expire in 1 hour for your security.
               </p>
@@ -171,7 +171,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading || !validateEmail(email).isValid}
-              className="w-full bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-secondary py-3 px-4 rounded-xl font-medium text-lg shadow-lg hover:from-primary/90 hover:to-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
+              className="w-full bg-primary hover:bg-secondary text-white hover:text-black py-3 px-4 rounded-xl font-medium text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">
@@ -185,10 +185,10 @@ export default function ForgotPasswordPage() {
           </form>
 
           {/* Back to Login */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
+          <div className="mt-8 pt-6 border-t border-border">
             <Link
               href="/auth/login"
-              className="flex items-center justify-center gap-2 text-gray-600 hover:text-gray-800 font-medium transition-colors"
+              className="flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground font-medium transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Sign In

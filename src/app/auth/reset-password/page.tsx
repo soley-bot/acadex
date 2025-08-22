@@ -147,14 +147,14 @@ function ResetPasswordForm() {
             <div className="space-y-3">
               <Link
                 href="/auth/forgot-password"
-                className="block w-full bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-secondary py-3 px-4 rounded-xl font-medium text-center hover:from-primary/90 hover:to-secondary/90 transition-all duration-200"
+                className="block w-full bg-primary hover:bg-secondary text-white hover:text-black py-3 px-4 rounded-xl font-medium text-center transition-all duration-200"
               >
                 Request New Reset Link
               </Link>
               
               <Link
                 href="/auth/login"
-                className="block w-full bg-muted/40 text-gray-700 py-3 px-4 rounded-xl font-medium text-center hover:bg-muted/60 transition-colors"
+                className="block w-full bg-muted hover:bg-muted/80 text-muted-foreground py-3 px-4 rounded-xl font-medium text-center transition-colors"
               >
                 Back to Sign In
               </Link>
@@ -180,15 +180,15 @@ function ResetPasswordForm() {
               Your password has been successfully updated. You can now sign in with your new password.
             </p>
             
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <p className="text-blue-700 text-sm">
+            <div className="bg-success/5 border border-success/20 rounded-lg p-4 mb-6">
+              <p className="text-success text-sm">
                 Redirecting you to sign in page in 3 seconds...
               </p>
             </div>
 
             <Link
               href="/auth/login"
-              className="block w-full bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-secondary py-3 px-4 rounded-xl font-medium text-center hover:from-primary/90 hover:to-secondary/90 transition-all duration-200"
+              className="block w-full bg-primary hover:bg-secondary text-white hover:text-black py-3 px-4 rounded-xl font-medium text-center transition-all duration-200"
             >
               Continue to Sign In
             </Link>
@@ -203,7 +203,7 @@ function ResetPasswordForm() {
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
       </div>
       
       <div className="relative w-full max-w-md space-y-8">
@@ -225,12 +225,12 @@ function ResetPasswordForm() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (
-              <div className="bg-primary/5 border border-red-200 rounded-xl p-4">
+              <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4">
                 <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-red-800 font-medium">Unable to update password</h4>
-                    <p className="text-red-700 text-sm mt-1">{error}</p>
+                    <h4 className="text-destructive-foreground font-medium">Unable to update password</h4>
+                    <p className="text-destructive text-sm mt-1">{error}</p>
                   </div>
                 </div>
               </div>
@@ -268,9 +268,9 @@ function ResetPasswordForm() {
             />
 
             {/* Security Info */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-secondary text-sm font-medium mb-2">Password Requirements:</p>
-              <ul className="text-blue-700 text-sm space-y-1">
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+              <p className="text-primary text-sm font-medium mb-2">Password Requirements:</p>
+              <ul className="text-primary text-sm space-y-1">
                 <li>• At least 8 characters long</li>
                 <li>• Contains uppercase and lowercase letters</li>
                 <li>• Includes at least one number</li>
@@ -282,7 +282,7 @@ function ResetPasswordForm() {
             <button
               type="submit"
               disabled={loading || !canSubmit()}
-              className="w-full bg-gradient-to-r from-primary/5 via-white to-secondary/5 text-secondary py-3 px-4 rounded-xl font-medium text-lg shadow-lg hover:from-primary/90 hover:to-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
+              className="w-full bg-primary hover:bg-secondary text-white hover:text-black py-3 px-4 rounded-xl font-medium text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">

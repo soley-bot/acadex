@@ -171,14 +171,14 @@ export function LessonContent({
             </CardContent>
           </Card>
         ) : (
-          <Card variant="base" className="border-green-200 bg-green-50">
+          <Card variant="base" className="border-success/20 bg-success/10">
             <CardContent className="p-6">
               <div className="text-center">
-                <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-green-800 mb-2">
+                <CheckCircle className="w-12 h-12 text-success mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-success-foreground mb-2">
                   Lesson Completed!
                 </h3>
-                <p className="text-green-600">
+                <p className="text-success-foreground/80">
                   Great job! You&apos;ve completed this lesson.
                 </p>
               </div>

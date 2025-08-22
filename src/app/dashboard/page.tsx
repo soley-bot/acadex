@@ -1,7 +1,7 @@
 'use client'
 
 import { logger } from '@/lib/logger'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getUserProgress, getUserCourses, getUserQuizAttempts } from '@/lib/database'
@@ -20,7 +20,9 @@ import {
   ArrowRight,
   AlertCircle,
   Loader2,
-  Target
+  Target,
+  TrendingUp,
+  Sparkles
 } from 'lucide-react'
 
 interface UserProgress {
@@ -54,48 +56,129 @@ export default function Dashboard() {
   const [courses, setCourses] = useState<UserCourse[]>([])
   const [quizAttempts, setQuizAttempts] = useState<QuizAttempt[]>([])
 
-  useEffect(() => {
-    async function loadDashboardData() {
-      if (!user) {
-        router.push('/auth/login')
-        return
-      }
-
-      try {
-        setLoading(true)
-        setError(null)
-        
-        logger.debug('Loading dashboard data for user:', user.id)
-        
-        const [progressData, coursesData, attemptsData] = await Promise.all([
-          getUserProgress(user.id),
-          getUserCourses(user.id),
-          getUserQuizAttempts(user.id, 10)
-        ])
-
-        logger.debug('Dashboard data loaded:', { progressData, coursesData, attemptsData })
-
-        setProgress(progressData.data)
-        setCourses(coursesData.data || [])
-        setQuizAttempts(attemptsData.data || [])
-      } catch (err) {
-        logger.error('Error loading dashboard data:', err)
-        setError('Failed to load dashboard data. Please try again.')
-      } finally {
-        setLoading(false)
-      }
+  // Memoized dashboard loading function for performance
+  const loadDashboardData = useCallback(async () => {
+    if (!user) {
+      router.push('/auth/login')
+      return
     }
 
-    loadDashboardData()
+    try {
+      setLoading(true)
+      setError(null)
+      
+      logger.debug('Loading dashboard data for user:', user.id)
+      
+      const [progressData, coursesData, attemptsData] = await Promise.all([
+        getUserProgress(user.id),
+        getUserCourses(user.id),
+        getUserQuizAttempts(user.id, 10)
+      ])
+
+      logger.debug('Dashboard data loaded:', { progressData, coursesData, attemptsData })
+
+      setProgress(progressData.data)
+      setCourses(coursesData.data || [])
+      setQuizAttempts(attemptsData.data || [])
+    } catch (err) {
+      logger.error('Error loading dashboard data:', err)
+      setError('Failed to load dashboard data. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }, [user, router])
+
+  // Memoized statistics calculations for performance
+  const statsCards = useMemo(() => [
+    {
+      title: 'Total Courses',
+      value: progress?.courses_enrolled || '0',
+      description: 'Enrolled courses',
+      icon: BookOpen,
+      color: 'text-primary',
+      bgColor: 'bg-primary/10'
+    },
+    {
+      title: 'Completed',
+      value: progress?.courses_completed || '0', 
+      description: 'Courses finished',
+      icon: GraduationCap,
+      color: 'text-success',
+      bgColor: 'bg-success/10'
+    },
+    {
+      title: 'Quiz Attempts',
+      value: progress?.quizzes_taken || '0',
+      description: 'Total attempts',
+      icon: Brain,
+      color: 'text-primary',
+      bgColor: 'bg-primary/10'
+    },
+    {
+      title: 'Average Score',
+      value: progress?.average_score ? `${Math.round(progress.average_score)}%` : '0%',
+      description: 'Quiz performance',
+      icon: Medal,
+      color: 'text-secondary',
+      bgColor: 'bg-secondary/10'
+    }
+  ], [progress])
+
+  // Memoized quiz score calculation for performance
+  const getQuizScoreColor = useCallback((score: number) => ({
+    scoreColor: score >= 80 ? 'text-success' : 
+                score >= 60 ? 'text-warning' : 'text-destructive',
+    scoreBg: score >= 80 ? 'bg-success/10' : 
+             score >= 60 ? 'bg-warning/10' : 'bg-destructive/10'
+  }), [])
+
+  useEffect(() => {
+    loadDashboardData()
+  }, [loadDashboardData])
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
-          <h2 className="text-xl font-semibold text-foreground mb-2">Loading Dashboard</h2>
-          <p className="text-muted-foreground">Please wait while we load your data...</p>
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20 lg:py-24">
+          {/* Header Skeleton */}
+          <div className="mb-12 md:mb-16">
+            <div className="h-10 bg-muted animate-pulse rounded-lg mb-2 w-48"></div>
+            <div className="h-6 bg-muted animate-pulse rounded-lg w-64"></div>
+          </div>
+          
+          {/* Stats Cards Skeleton */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-12">
+            {[1,2,3,4].map(i => (
+              <Card key={i} variant="elevated" className="min-h-[140px]">
+                <CardContent className="p-6">
+                  <div className="space-y-3">
+                    <div className="h-8 bg-muted animate-pulse rounded w-8"></div>
+                    <div className="h-8 bg-muted animate-pulse rounded w-16"></div>
+                    <div className="h-4 bg-muted animate-pulse rounded w-24"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          {/* Content Skeleton */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8">
+            {[1,2].map(i => (
+              <Card key={i} variant="base">
+                <CardHeader>
+                  <div className="h-6 bg-muted animate-pulse rounded w-32 mb-2"></div>
+                  <div className="h-4 bg-muted animate-pulse rounded w-48"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {[1,2,3].map(j => (
+                      <div key={j} className="h-20 bg-muted animate-pulse rounded"></div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     )
@@ -134,40 +217,7 @@ export default function Dashboard() {
 
         {/* Stats Overview - Mobile-First Responsive Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-12 md:mb-16">
-          {[
-            {
-              title: 'Total Courses',
-              value: progress?.courses_enrolled || '0',
-              description: 'Enrolled courses',
-              icon: BookOpen,
-              color: 'text-primary',
-              bgColor: 'bg-primary/10'
-            },
-            {
-              title: 'Completed',
-              value: progress?.courses_completed || '0', 
-              description: 'Courses finished',
-              icon: GraduationCap,
-              color: 'text-success',
-              bgColor: 'bg-success/10'
-            },
-            {
-              title: 'Quiz Attempts',
-              value: progress?.quizzes_taken || '0',
-              description: 'Total attempts',
-              icon: Brain,
-              color: 'text-primary',
-              bgColor: 'bg-primary/10'
-            },
-            {
-              title: 'Average Score',
-              value: progress?.average_score ? `${Math.round(progress.average_score)}%` : '0%',
-              description: 'Quiz performance',
-              icon: Medal,
-              color: 'text-secondary',
-              bgColor: 'bg-secondary/10'
-            }
-          ].map((stat, index) => (
+          {statsCards.map((stat, index) => (
             <Card key={index} variant="elevated" className="transform hover:scale-105 transition-all duration-300 overflow-hidden min-h-[120px] sm:min-h-[140px]">
               <CardContent className="p-4 sm:p-6 relative h-full">
                 <div className={`absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 ${stat.bgColor} rounded-full -mr-8 sm:-mr-10 -mt-8 sm:-mt-10 opacity-60`}></div>
@@ -241,14 +291,27 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="text-center py-8 sm:py-12">
-                  <BookOpen className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">No courses yet</h3>
-                  <p className="text-muted-foreground mb-6 text-sm sm:text-base">Start your learning journey by enrolling in a course</p>
-                  <Link href="/courses">
-                    <Button className="w-full sm:w-auto h-11 sm:h-12 bg-primary hover:bg-secondary text-white hover:text-black">
-                      Browse Courses
-                    </Button>
-                  </Link>
+                  <div className="relative">
+                    <BookOpen className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-4" />
+                    <Sparkles className="h-6 w-6 text-secondary absolute -top-1 -right-1 animate-pulse" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">Ready to Start Learning?</h3>
+                  <p className="text-muted-foreground mb-6 text-sm sm:text-base">
+                    Join thousands of learners and start your English mastery journey today
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                    <Link href="/courses">
+                      <Button className="w-full sm:w-auto h-11 sm:h-12 bg-primary hover:bg-secondary text-white hover:text-black">
+                        Browse Courses
+                        <TrendingUp className="h-4 w-4 ml-2" />
+                      </Button>
+                    </Link>
+                    <Link href="/quizzes">
+                      <Button variant="outline" className="w-full sm:w-auto h-11 sm:h-12 border-primary text-primary hover:bg-primary hover:text-white">
+                        Try a Quiz First
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -267,10 +330,7 @@ export default function Dashboard() {
               {quizAttempts.length > 0 ? (
                 <div className="space-y-4 sm:space-y-6">
                   {quizAttempts.slice(0, 5).map((attempt) => {
-                    const scoreColor = attempt.score >= 80 ? 'text-success' : 
-                                     attempt.score >= 60 ? 'text-warning' : 'text-destructive'
-                    const scoreBg = attempt.score >= 80 ? 'bg-success/10' : 
-                                  attempt.score >= 60 ? 'bg-warning/10' : 'bg-destructive/10'
+                    const { scoreColor, scoreBg } = getQuizScoreColor(attempt.score)
                     
                     return (
                       <Card key={attempt.id} variant="interactive" className="p-4 sm:p-6 hover:shadow-lg transition-all duration-300 border-l-4 border-l-transparent hover:border-l-primary min-h-[80px] sm:min-h-[100px]">
@@ -303,14 +363,27 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="text-center py-8 sm:py-12">
-                  <Target className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">No quizzes taken yet</h3>
-                  <p className="text-muted-foreground mb-6 text-sm sm:text-base">Test your knowledge with our interactive quizzes</p>
-                  <Link href="/quizzes">
-                    <Button className="w-full sm:w-auto h-11 sm:h-12 bg-primary hover:bg-secondary text-white hover:text-black">
-                      Take a Quiz
-                    </Button>
-                  </Link>
+                  <div className="relative">
+                    <Target className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-4" />
+                    <Sparkles className="h-6 w-6 text-secondary absolute -top-1 -right-1 animate-pulse" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">Test Your Skills!</h3>
+                  <p className="text-muted-foreground mb-6 text-sm sm:text-base">
+                    Challenge yourself with interactive quizzes and track your progress
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                    <Link href="/quizzes">
+                      <Button className="w-full sm:w-auto h-11 sm:h-12 bg-primary hover:bg-secondary text-white hover:text-black">
+                        Take Your First Quiz
+                        <Brain className="h-4 w-4 ml-2" />
+                      </Button>
+                    </Link>
+                    <Link href="/courses">
+                      <Button variant="outline" className="w-full sm:w-auto h-11 sm:h-12 border-secondary text-secondary hover:bg-secondary hover:text-black">
+                        Learn First
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               )}
             </CardContent>

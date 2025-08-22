@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
 import { H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
@@ -18,6 +19,7 @@ interface DashboardStats {
 }
 
 export default function AdminDashboard() {
+  const router = useRouter()
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     totalCourses: 0,
@@ -254,19 +256,40 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-primary/10 transition-all duration-200 group">
+              <button 
+                onClick={() => router.push('/admin/users')}
+                className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-primary/10 transition-all duration-200 group"
+              >
                 <div className="flex items-center">
                   <div className="bg-secondary/10 p-2 rounded-lg mr-3 group-hover:bg-primary/20 transition-colors">
                     <Icon name="user" size={20} color="current" className="text-secondary" />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">Add New User</div>
-                    <div className="text-sm text-gray-500">Create a new user account</div>
+                    <div className="font-semibold text-gray-900">Manage Users</div>
+                    <div className="text-sm text-gray-500">View and manage user accounts</div>
                   </div>
                 </div>
               </button>
               
-              <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200 group">
+              <button 
+                onClick={() => router.push('/admin/content-review')}
+                className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all duration-200 group"
+              >
+                <div className="flex items-center">
+                  <div className="bg-orange-100 p-2 rounded-lg mr-3 group-hover:bg-orange-200 transition-colors">
+                    <Icon name="eye" size={20} color="current" className="text-orange-600" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900">Review AI Content</div>
+                    <div className="text-sm text-gray-500">Review and approve AI-generated quizzes & lessons</div>
+                  </div>
+                </div>
+              </button>
+              
+              <button 
+                onClick={() => router.push('/admin/courses/create')}
+                className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200 group"
+              >
                 <div className="flex items-center">
                   <div className="bg-green-100 p-2 rounded-lg mr-3 group-hover:bg-green-200 transition-colors">
                     <Icon name="add" size={20} color="current" className="text-green-600" />
@@ -278,14 +301,17 @@ export default function AdminDashboard() {
                 </div>
               </button>
               
-              <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200 group">
+              <button 
+                onClick={() => router.push('/admin/quizzes')}
+                className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200 group"
+              >
                 <div className="flex items-center">
                   <div className="bg-purple-100 p-2 rounded-lg mr-3 group-hover:bg-purple-200 transition-colors">
                     <Icon name="help" size={20} color="current" className="text-purple-600" />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">Create Quiz</div>
-                    <div className="text-sm text-gray-500">Design a new quiz</div>
+                    <div className="font-semibold text-gray-900">Manage Quizzes</div>
+                    <div className="text-sm text-gray-500">Create and manage quiz assessments</div>
                   </div>
                 </div>
               </button>

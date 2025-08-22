@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { EnhancedQuizCard } from '@/components/cards/EnhancedQuizCard'
 import { getHeroImage } from '@/lib/imageMapping'
+import { quizCategories, quizDifficulties, getCategoryInfo } from '@/lib/quizConstants'
 
 // Quiz list item type - subset of full Quiz with required display fields
 interface QuizListItem {
@@ -53,10 +54,29 @@ export default function QuizzesPage() {
   })
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all')
+  const [availableCategories, setAvailableCategories] = useState<string[]>([])
 
   const formatDifficulty = (difficulty: string) => {
     return difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
   }
+
+  const fetchAvailableCategories = useCallback(async () => {
+    try {
+      const { data: quizzesData, error } = await quizAPI.getQuizzes({ limit: 1000 }) // Get all to extract categories
+      if (error) throw error
+      
+      // Extract unique categories from database quizzes
+      const dbCategories = [...new Set(quizzesData?.map((q: QuizListItem) => q.category).filter(Boolean) || [])] as string[]
+      
+      // Combine with predefined categories, prioritizing database categories
+      const combinedCategories = [...new Set([...dbCategories, ...quizCategories])] as string[]
+      setAvailableCategories(combinedCategories.sort())
+    } catch (err) {
+      logger.error('Failed to fetch categories:', err)
+      // Fallback to predefined categories
+      setAvailableCategories([...quizCategories])
+    }
+  }, [])
 
   const fetchQuizzes = useCallback(async () => {
     try {
@@ -85,6 +105,10 @@ export default function QuizzesPage() {
       setIsLoading(false)
     }
   }, [currentPage, selectedCategory, selectedDifficulty])
+
+  useEffect(() => {
+    fetchAvailableCategories()
+  }, [fetchAvailableCategories])
 
   useEffect(() => {
     fetchQuizzes()
@@ -239,16 +263,14 @@ export default function QuizzesPage() {
                   className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 >
                   <option value="all">All Categories</option>
-                  <option value="Grammar">Grammar</option>
-                  <option value="Vocabulary">Vocabulary</option>
-                  <option value="Pronunciation">Pronunciation</option>
-                  <option value="Speaking">Speaking</option>
-                  <option value="Business English">Business English</option>
-                  <option value="Writing">Writing</option>
-                  <option value="Literature">Literature</option>
-                  <option value="Test Preparation">Test Preparation</option>
-                  <option value="Reading">Reading</option>
-                  <option value="Listening">Listening</option>
+                  {availableCategories.map((category) => {
+                    const categoryInfo = getCategoryInfo(category)
+                    return (
+                      <option key={category} value={category}>
+                        {categoryInfo.icon} {categoryInfo.label}
+                      </option>
+                    )
+                  })}
                 </select>
               </div>
               
@@ -264,9 +286,11 @@ export default function QuizzesPage() {
                   className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 >
                   <option value="all">All Levels</option>
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
+                  {quizDifficulties.map((difficulty) => (
+                    <option key={difficulty} value={difficulty}>
+                      {formatDifficulty(difficulty)}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

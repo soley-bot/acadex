@@ -22,6 +22,7 @@ import { InlineAIQuizGenerator } from '@/components/admin/InlineAIQuizGenerator'
 import { QuizAnalytics } from '@/components/admin/QuizAnalytics'
 import { DeleteModal } from '@/components/ui/DeleteModal'
 import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
+import { ContentReviewPanel } from '@/components/admin/ContentReviewPanel'
 
 // Types for AI Quiz Generation
 interface GeneratedQuiz {
@@ -34,7 +35,8 @@ interface GeneratedQuiz {
     question: string
     question_type: string
     options?: string[]
-    correct_answer: number
+    correct_answer?: number
+    correct_answer_text?: string
     explanation: string
   }[]
 }
@@ -66,6 +68,7 @@ export default function QuizzesPage() {
   const [showCategoryManagement, setShowCategoryManagement] = useState(false)
   const [showAIGenerator, setShowAIGenerator] = useState(false)
   const [showAnalytics, setShowAnalytics] = useState(false)
+  const [contentReviewRefresh, setContentReviewRefresh] = useState(0)
 
   // Refs for click outside
   const categoryDropdownRef = useRef<HTMLDivElement>(null)
@@ -231,18 +234,34 @@ export default function QuizzesPage() {
 
       if (quizError) throw quizError
 
-      // Insert questions
-      const questionsToInsert = generatedQuiz.questions.map((q, index) => ({
-        quiz_id: quiz.id,
-        question: q.question,
-        question_type: q.question_type,
-        options: q.options || [],
-        correct_answer: q.correct_answer as number,
-        correct_answer_text: null,
-        explanation: q.explanation || null,
-        order_index: index,
-        points: 1
-      }))
+      // Insert questions with proper handling of different answer types
+      const questionsToInsert = generatedQuiz.questions.map((q, index) => {
+        let correct_answer: number
+        let correct_answer_text: string | null
+        
+        // Handle different question types properly
+        if (['fill_blank', 'essay'].includes(q.question_type)) {
+          // Text-based answers
+          correct_answer = 0  // Default value for database constraint
+          correct_answer_text = q.correct_answer_text || ''
+        } else {
+          // Choice-based answers (multiple_choice, single_choice, true_false)  
+          correct_answer = q.correct_answer as number
+          correct_answer_text = null
+        }
+        
+        return {
+          quiz_id: quiz.id,
+          question: q.question,
+          question_type: q.question_type,
+          options: q.options || [],
+          correct_answer,
+          correct_answer_text,
+          explanation: q.explanation || null,
+          order_index: index,
+          points: 1
+        }
+      })
 
       const { error: questionsError } = await supabase
         .from('quiz_questions')
@@ -253,6 +272,8 @@ export default function QuizzesPage() {
       // Refresh the quiz list and close the AI generator
       await fetchQuizzes(pagination.page)
       setShowAIGenerator(false)
+      // Refresh content review panel to show newly generated AI content
+      setContentReviewRefresh(prev => prev + 1)
       
     } catch (err: any) {
       logger.error('Error saving AI-generated quiz:', err)
@@ -304,6 +325,8 @@ export default function QuizzesPage() {
     fetchQuizzes(pagination.page)
     setShowQuizForm(false)
     setEditingQuiz(null)
+    // Refresh content review panel to show newly created content
+    setContentReviewRefresh(prev => prev + 1)
   }
 
   const handleDeleteSuccess = () => {
@@ -372,7 +395,7 @@ export default function QuizzesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50">
       {/* Enhanced Header Section */}
-      <div className="mb-8">
+      <div className="mb-8 relative z-40">
         <Card variant="glass" className="p-6 sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0 flex-1">
@@ -380,15 +403,15 @@ export default function QuizzesPage() {
               <p className="text-muted-foreground text-lg">Create, edit, and manage interactive assessments for your students</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              <div className="relative group">
+              <div className="relative group z-50">
                 <Link
                   href="/admin/quizzes/create"
-                  className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 sm:px-8 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full sm:w-auto"
+                  className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 sm:px-8 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl w-full sm:w-auto"
                 >
                   <Plus size={20} />
                   <span>Create New Quiz</span>
                 </Link>
-                <div className="absolute top-full left-0 mt-2 bg-background border border-muted rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-52">
+                <div className="absolute top-full left-0 mt-2 bg-background border border-muted rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[999] min-w-52">
                   <Link
                     href="/admin/quizzes/create"
                     className="w-full text-left px-4 py-3 hover:bg-muted rounded-t-lg flex items-center gap-2"
@@ -426,7 +449,7 @@ export default function QuizzesPage() {
 
       {/* Enhanced Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
-        <Card variant="interactive" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+        <Card variant="interactive" className="hover:shadow-lg transition-shadow duration-300 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
@@ -441,7 +464,7 @@ export default function QuizzesPage() {
           </CardContent>
         </Card>
         
-        <Card variant="interactive" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+        <Card variant="interactive" className="hover:shadow-lg transition-shadow duration-300 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
@@ -456,7 +479,7 @@ export default function QuizzesPage() {
           </CardContent>
         </Card>
         
-        <Card variant="interactive" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+        <Card variant="interactive" className="hover:shadow-lg transition-shadow duration-300 group">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
@@ -471,7 +494,7 @@ export default function QuizzesPage() {
           </CardContent>
         </Card>
         
-        <Card variant="interactive" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group sm:col-span-2 lg:col-span-1">
+        <Card variant="interactive" className="hover:shadow-lg transition-shadow duration-300 group sm:col-span-2 lg:col-span-1">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
@@ -486,7 +509,7 @@ export default function QuizzesPage() {
           </CardContent>
         </Card>
 
-        <Card variant="interactive" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group sm:col-span-2 xl:col-span-1">
+        <Card variant="interactive" className="hover:shadow-lg transition-shadow duration-300 group sm:col-span-2 xl:col-span-1">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
@@ -500,6 +523,11 @@ export default function QuizzesPage() {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Content Review Panel */}
+      <div className="mb-8">
+        <ContentReviewPanel compact={true} maxItems={3} refreshTrigger={contentReviewRefresh} />
       </div>
 
       {/* Enhanced Search and Filters */}
@@ -536,7 +564,7 @@ export default function QuizzesPage() {
                 </button>
                 
                 {showCategoryDropdown && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-muted rounded-xl shadow-xl z-50 py-2 max-h-64 overflow-y-auto">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-muted rounded-xl shadow-xl z-[999] py-2 max-h-64 overflow-y-auto">
                     <div className="px-4 py-2 border-b border-muted flex justify-between items-center">
                       <button
                         onClick={() => setSelectedCategories([])}
@@ -647,7 +675,7 @@ export default function QuizzesPage() {
           {/* Enhanced Quizzes Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredQuizzes.map((quiz) => (
-              <Card key={quiz.id} variant="interactive" size="sm" className="hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+              <Card key={quiz.id} variant="interactive" size="sm" className="hover:shadow-lg transition-shadow duration-300 group">
             
             {/* Quiz Image */}
             <div className="relative h-48 bg-muted/40">

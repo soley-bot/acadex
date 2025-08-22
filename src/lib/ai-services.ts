@@ -172,14 +172,15 @@ export interface QuizGenerationRequest {
   topic: string
   questionCount: number
   difficulty: 'beginner' | 'intermediate' | 'advanced'
-  questionTypes?: ('multiple_choice' | 'true_false' | 'fill_blank')[]
+  questionTypes?: ('multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay')[]
 }
 
 export interface GeneratedQuizQuestion {
   question: string
-  question_type: 'multiple_choice' | 'true_false' | 'fill_blank'
+  question_type: 'multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay'
   options?: string[]
-  correct_answer: string | number
+  correct_answer?: number  // For choice-based questions (0-3 index)
+  correct_answer_text?: string  // For text-based questions (fill_blank, essay)
   explanation: string
 }
 
@@ -205,7 +206,12 @@ export class QuizGenerationService {
     const systemPrompt = `You are an expert English language instructor creating educational quizzes. 
 Generate high-quality, educational questions that test comprehension and application of knowledge.
 Ensure questions are clear, accurate, and appropriate for the specified difficulty level.
-Always provide helpful explanations for correct answers.`
+Always provide helpful explanations for correct answers.
+
+CRITICAL: Follow exact JSON format requirements for each question type:
+- multiple_choice/single_choice: use "correct_answer" as number (0-3 index)
+- true_false: use "correct_answer" as number (0 for True, 1 for False)  
+- fill_blank/essay: use "correct_answer_text" as string with the answer text`
 
     const prompt = `Generate a ${request.difficulty} level English quiz about "${request.topic}" with ${request.questionCount} questions.
 
@@ -214,8 +220,37 @@ Requirements:
 - Questions should be clear and educational
 - Include brief explanations for correct answers
 - Return valid JSON only
+- Use correct answer format for each question type
 
-JSON format:
+JSON format examples:
+
+For multiple_choice/single_choice questions:
+{
+  "question": "Which is correct?",
+  "question_type": "multiple_choice",
+  "options": ["Option A", "Option B", "Option C", "Option D"],
+  "correct_answer": 0,
+  "explanation": "Brief explanation"
+}
+
+For true_false questions:
+{
+  "question": "This statement is true.",
+  "question_type": "true_false", 
+  "options": ["True", "False"],
+  "correct_answer": 0,
+  "explanation": "Brief explanation"
+}
+
+For fill_blank questions:
+{
+  "question": "Complete: I _____ to school every day.",
+  "question_type": "fill_blank",
+  "correct_answer_text": "go",
+  "explanation": "Brief explanation"
+}
+
+Generate quiz with this structure:
 {
   "title": "Quiz: ${request.topic}",
   "description": "Test your knowledge of ${request.topic}",
@@ -223,13 +258,7 @@ JSON format:
   "difficulty": "${request.difficulty}",
   "duration_minutes": ${Math.max(10, request.questionCount * 2)},
   "questions": [
-    {
-      "question": "Question text here",
-      "question_type": "multiple_choice",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
-      "correct_answer": 0,
-      "explanation": "Brief explanation of why this is correct"
-    }
+    // Use appropriate format for each question type
   ]
 }`
 
@@ -254,6 +283,57 @@ JSON format:
         // Validate the generated quiz
         if (!quiz.questions || quiz.questions.length === 0) {
           throw new Error('Generated quiz has no questions')
+        }
+
+        // Validate each question based on its type
+        for (let i = 0; i < quiz.questions.length; i++) {
+          const question = quiz.questions[i]
+          if (!question) continue
+          
+          const questionNum = i + 1
+          
+          // Validate question type
+          const validTypes = ['multiple_choice', 'single_choice', 'true_false', 'fill_blank', 'essay']
+          if (!validTypes.includes(question.question_type)) {
+            throw new Error(`Question ${questionNum}: Invalid question_type "${question.question_type}"`)
+          }
+          
+          // Validate based on question type
+          if (['multiple_choice', 'single_choice'].includes(question.question_type)) {
+            // Choice questions need options and numeric correct_answer
+            if (!Array.isArray(question.options) || question.options.length < 2) {
+              throw new Error(`Question ${questionNum}: Multiple choice questions need at least 2 options`)
+            }
+            if (typeof question.correct_answer !== 'number' || 
+                question.correct_answer < 0 || 
+                question.correct_answer >= question.options.length) {
+              throw new Error(`Question ${questionNum}: correct_answer must be valid option index (0-${question.options.length - 1})`)
+            }
+          } else if (question.question_type === 'true_false') {
+            // True/false questions need exactly 2 options and correct_answer 0 or 1
+            if (!Array.isArray(question.options) || 
+                question.options.length !== 2 ||
+                !question.options.includes('True') || 
+                !question.options.includes('False')) {
+              throw new Error(`Question ${questionNum}: True/false questions must have exactly ["True", "False"] options`)
+            }
+            if (typeof question.correct_answer !== 'number' || 
+                (question.correct_answer !== 0 && question.correct_answer !== 1)) {
+              throw new Error(`Question ${questionNum}: True/false correct_answer must be 0 (True) or 1 (False)`)
+            }
+          } else if (['fill_blank', 'essay'].includes(question.question_type)) {
+            // Text questions need correct_answer_text
+            if (!question.correct_answer_text || typeof question.correct_answer_text !== 'string') {
+              throw new Error(`Question ${questionNum}: Fill-blank/essay questions must have correct_answer_text`)
+            }
+            // Set correct_answer to 0 for database compatibility
+            question.correct_answer = 0
+          }
+          
+          // Ensure explanation exists
+          if (!question.explanation || typeof question.explanation !== 'string') {
+            throw new Error(`Question ${questionNum}: Missing explanation`)
+          }
         }
 
         logger.info('Quiz generated successfully', { 

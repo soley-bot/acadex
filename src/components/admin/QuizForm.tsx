@@ -13,6 +13,7 @@ import { ImageUpload } from '@/components/ui/ImageUpload'
 import { uploadImage } from '@/lib/imageUpload'
 import { AIQuizGenerator, GeneratedQuiz } from './AIQuizGenerator'
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
+import { quizCategories, quizDifficulties, getCategoryInfo } from '@/lib/quizConstants'
 
 // Phase 1 Foundation Imports
 import { featureFlags } from '@/components/admin/quiz-enhancements/featureFlags'
@@ -98,7 +99,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
     title: '',
     description: '',
     category: '',
-    difficulty: 'beginner' as 'beginner' | 'intermediate' | 'advanced',
+    difficulty: quizDifficulties[0] as 'beginner' | 'intermediate' | 'advanced',
     duration_minutes: 30,
     image_url: '',
     is_published: false,
@@ -593,7 +594,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
         title: '',
         description: '',
         category: '',
-        difficulty: 'beginner',
+        difficulty: quizDifficulties[0],
         duration_minutes: 30,
         image_url: '',
         is_published: false,
@@ -967,9 +968,9 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
 
   const handleAIQuizGenerated = async (generatedQuiz: GeneratedQuiz) => {
     // Normalize difficulty to ensure database compliance
-    const normalizedDifficulty = (['beginner', 'intermediate', 'advanced'].includes(generatedQuiz.difficulty)) 
+    const normalizedDifficulty = (quizDifficulties.includes(generatedQuiz.difficulty as any)) 
       ? generatedQuiz.difficulty 
-      : 'beginner' // Default fallback
+      : quizDifficulties[0] // Default fallback
 
     // Normalize category to ensure it's not empty
     const normalizedCategory = generatedQuiz.category?.trim() || 'General'
@@ -1212,9 +1213,11 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                   onChange={(e) => updateFormData('difficulty', e.target.value as any)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
+                  {quizDifficulties.map((difficulty) => (
+                    <option key={difficulty} value={difficulty}>
+                      {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                    </option>
+                  ))}
                 </select>
               </div>
               

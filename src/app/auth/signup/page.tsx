@@ -182,19 +182,19 @@ function EnhancedSignupForm() {
           <div className="space-y-4 lg:space-y-4">
             {/* Dynamic content based on form state */}
             {error && (
-              <div className="bg-primary/5 border border-red-200 rounded-lg p-4 space-y-2">
-                <div className="flex items-center gap-2 text-red-700 font-medium">
+              <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4 space-y-2">
+                <div className="flex items-center gap-2 text-destructive font-medium">
                   <AlertTriangle className="w-5 h-5" />
                   Sign Up Error
                 </div>
-                <p className="text-primary text-sm">{error}</p>
+                <p className="text-destructive text-sm">{error}</p>
               </div>
             )}
 
             {/* Password validation feedback */}
             {step === 2 && formData.password && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
-                <div className="flex items-center gap-2 text-blue-700 font-medium">
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-3">
+                <div className="flex items-center gap-2 text-primary font-medium">
                   <User className="w-5 h-5" />
                   Password Requirements
                 </div>
@@ -282,15 +282,15 @@ function EnhancedSignupForm() {
           </div>
         </div>          <div className="hidden sm:flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-sm text-gray-500">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              <div className="w-2 h-2 bg-success rounded-full"></div>
               100% Free to Start
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+              <div className="w-2 h-2 bg-primary rounded-full"></div>
               No Credit Card Required
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+              <div className="w-2 h-2 bg-secondary rounded-full"></div>
               Cancel Anytime
             </div>
           </div>
@@ -317,12 +317,12 @@ function EnhancedSignupForm() {
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {/* Global Error */}
               {error && (
-                <div className="bg-primary/5 border border-red-200 rounded-xl p-4">
+                <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4">
                   <div className="flex items-start gap-3">
-                    <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                    <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="text-red-800 font-medium">Unable to create account</h4>
-                      <p className="text-red-700 text-sm mt-1">{error}</p>
+                      <h4 className="text-destructive-foreground font-medium">Unable to create account</h4>
+                      <p className="text-destructive text-sm mt-1">{error}</p>
                     </div>
                   </div>
                 </div>
