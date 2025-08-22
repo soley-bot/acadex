@@ -408,24 +408,24 @@ export default function CourseStudyPage() {
           
           <div className="pb-4">
             {modules.map((module) => (
-              <div key={module.id} className="border-b last:border-b-0 border-gray-200">
+              <div key={module.id} className="border-b last:border-b-0 border-border">
                 <button
                   onClick={() => toggleModule(module.id)}
-                  className="w-full p-4 text-left hover:bg-gray-50 flex items-center justify-between transition-all duration-200 min-h-[60px]"
+                  className="w-full p-4 text-left hover:bg-muted flex items-center justify-between transition-all duration-200 min-h-[60px]"
                 >
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900">{module.title}</h3>
-                    <p className="text-xs text-gray-500">{module.course_lessons.length} lessons</p>
+                    <h3 className="text-sm font-semibold text-foreground">{module.title}</h3>
+                    <p className="text-xs text-muted-foreground">{module.course_lessons.length} lessons</p>
                   </div>
                   {expandedModules.has(module.id) ? (
                     <ChevronDown className="w-4 h-4 text-primary transition-transform duration-200 flex-shrink-0" />
                   ) : (
-                    <ChevronRight className="w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground transition-transform duration-200 flex-shrink-0" />
                   )}
                 </button>
                 
                 {expandedModules.has(module.id) && (
-                  <div className="bg-gray-50 border-t border-gray-200">
+                  <div className="bg-muted border-t border-border">
                     {module.course_lessons.map((lesson) => {
                       const isLocked = !isEnrolled && !lesson.is_free_preview
                       const isCompleted = lesson.progress?.is_completed
@@ -442,22 +442,22 @@ export default function CourseStudyPage() {
                         >
                           <div className="flex-shrink-0">
                             {isLocked ? (
-                              <Lock className="w-4 h-4 text-gray-400" />
+                              <Lock className="w-4 h-4 text-muted-foreground" />
                             ) : isCompleted ? (
-                              <CheckCircle className="w-4 h-4 text-green-600" />
+                              <CheckCircle className="w-4 h-4 text-success" />
                             ) : (
                               <PlayCircle className="w-4 h-4 text-primary" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate">
+                            <p className="text-sm font-semibold text-foreground truncate">
                               {lesson.title}
                             </p>
-                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                               <Clock className="w-3 h-3 flex-shrink-0" />
                               {formatDuration(lesson.duration_minutes)}
                               {lesson.is_free_preview && (
-                                <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap">Free</span>
+                                <span className="bg-success/10 text-success px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap">Free</span>
                               )}
                             </div>
                           </div>
@@ -488,24 +488,24 @@ export default function CourseStudyPage() {
                 
                 <div className="max-h-96 overflow-y-auto">
                   {modules.map((module) => (
-                    <div key={module.id} className="border-b last:border-b-0 border-gray-200">
+                    <div key={module.id} className="border-b last:border-b-0 border-border">
                       <button
                         onClick={() => toggleModule(module.id)}
-                        className="w-full p-4 text-left hover:bg-gray-50 flex items-center justify-between transition-all duration-200 min-h-[60px]"
+                        className="w-full p-4 text-left hover:bg-muted flex items-center justify-between transition-all duration-200 min-h-[60px]"
                       >
                         <div>
-                          <h3 className="text-sm font-semibold text-gray-900">{module.title}</h3>
-                          <p className="text-xs text-gray-500">{module.course_lessons.length} lessons</p>
+                          <h3 className="text-sm font-semibold text-foreground">{module.title}</h3>
+                          <p className="text-xs text-muted-foreground">{module.course_lessons.length} lessons</p>
                         </div>
                         {expandedModules.has(module.id) ? (
                           <ChevronDown className="w-4 h-4 text-primary transition-transform duration-200 flex-shrink-0" />
                         ) : (
-                          <ChevronRight className="w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0" />
+                          <ChevronRight className="w-4 h-4 text-muted-foreground transition-transform duration-200 flex-shrink-0" />
                         )}
                       </button>
                       
                       {expandedModules.has(module.id) && (
-                        <div className="bg-gray-50 border-t border-gray-200">
+                        <div className="bg-muted border-t border-border">
                           {module.course_lessons.map((lesson) => {
                             const isLocked = !isEnrolled && !lesson.is_free_preview
                             const isCompleted = lesson.progress?.is_completed
@@ -522,22 +522,22 @@ export default function CourseStudyPage() {
                               >
                                 <div className="flex-shrink-0">
                                   {isLocked ? (
-                                    <Lock className="w-4 h-4 text-gray-400" />
+                                    <Lock className="w-4 h-4 text-muted-foreground" />
                                   ) : isCompleted ? (
-                                    <CheckCircle className="w-4 h-4 text-green-600" />
+                                    <CheckCircle className="w-4 h-4 text-success" />
                                   ) : (
                                     <PlayCircle className="w-4 h-4 text-primary" />
                                   )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-semibold text-gray-900 truncate">
+                                  <p className="text-sm font-semibold text-foreground truncate">
                                     {lesson.title}
                                   </p>
-                                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                                     <Clock className="w-3 h-3 flex-shrink-0" />
                                     {formatDuration(lesson.duration_minutes)}
                                     {lesson.is_free_preview && (
-                                      <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap">Free</span>
+                                      <span className="bg-success/10 text-success px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap">Free</span>
                                     )}
                                   </div>
                                 </div>
@@ -607,14 +607,14 @@ export default function CourseStudyPage() {
                       <div className="mb-6 lg:mb-8 bg-white/50 backdrop-blur-sm rounded-2xl p-6 lg:p-8 shadow-lg border border-white/20">
                         <RichTextRenderer 
                           content={currentLesson.content}
-                          className="text-gray-900 leading-relaxed text-base lg:text-lg"
+                          className="text-foreground leading-relaxed text-base lg:text-lg"
                         />
                       </div>
                     )}
 
                     {/* Lesson Quiz Section */}
                     <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 lg:p-8 shadow-lg border border-white/20">
-                      <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6 flex items-center gap-3">
+                      <h3 className="text-lg lg:text-xl font-bold text-foreground mb-4 lg:mb-6 flex items-center gap-3">
                         <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/90 rounded-full flex items-center justify-center">
                           <BookOpen className="w-4 h-4 text-white" />
                         </div>

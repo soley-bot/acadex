@@ -267,10 +267,10 @@ export default function Dashboard() {
               {quizAttempts.length > 0 ? (
                 <div className="space-y-4 sm:space-y-6">
                   {quizAttempts.slice(0, 5).map((attempt) => {
-                    const scoreColor = attempt.score >= 80 ? 'text-green-600' : 
-                                     attempt.score >= 60 ? 'text-yellow-600' : 'text-red-600'
-                    const scoreBg = attempt.score >= 80 ? 'bg-green-50' : 
-                                  attempt.score >= 60 ? 'bg-yellow-50' : 'bg-red-50'
+                    const scoreColor = attempt.score >= 80 ? 'text-success' : 
+                                     attempt.score >= 60 ? 'text-warning' : 'text-destructive'
+                    const scoreBg = attempt.score >= 80 ? 'bg-success/10' : 
+                                  attempt.score >= 60 ? 'bg-warning/10' : 'bg-destructive/10'
                     
                     return (
                       <Card key={attempt.id} variant="interactive" className="p-4 sm:p-6 hover:shadow-lg transition-all duration-300 border-l-4 border-l-transparent hover:border-l-primary min-h-[80px] sm:min-h-[100px]">
