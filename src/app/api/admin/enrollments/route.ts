@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { withAdminAuth, withServiceRole } from '@/lib/api-auth'
-import { withDebugAdminAuth, createDebugServiceClient } from '@/lib/debug-auth'
+import { withAdminAuth, createServiceClient } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
 
-// TEMPORARY: Using debug auth to bypass 401 issues
 // GET - Fetch all enrollments with details
-export const GET = withDebugAdminAuth(async (request: NextRequest) => {
+export const GET = withAdminAuth(async (request: NextRequest) => {
   try {
-    logger.info('Admin enrollments fetch requested (DEBUG MODE)')
+    logger.info('Admin enrollments fetch requested')
 
-    const serviceClient = createDebugServiceClient()
+    const serviceClient = createServiceClient()
     const { data, error } = await serviceClient
       .from('enrollments')
       .select(`
@@ -32,13 +30,13 @@ export const GET = withDebugAdminAuth(async (request: NextRequest) => {
       throw new Error(`Database error: ${error.message}`)
     }
 
-    logger.info('Admin enrollments fetch completed (DEBUG MODE)', { 
+    logger.info('Admin enrollments fetch completed', { 
       count: data?.length || 0 
     })
 
     return NextResponse.json({ enrollments: data })
   } catch (error: any) {
-    logger.error('Enrollments fetch failed (DEBUG MODE)', { 
+    logger.error('Enrollments fetch failed', { 
       error: error.message 
     })
     
@@ -64,38 +62,36 @@ export const POST = withAdminAuth(async (request: NextRequest, user) => {
       courseId: course_id 
     })
 
-    const enrollment = await withServiceRole(user, async (serviceClient) => {
-      // Check if enrollment already exists
-      const { data: existingEnrollment } = await serviceClient
-        .from('enrollments')
-        .select('id')
-        .eq('user_id', user_id)
-        .eq('course_id', course_id)
-        .single()
+    const serviceClient = createServiceClient()
 
-      if (existingEnrollment) {
-        throw new Error('User is already enrolled in this course')
-      }
+    // Check if enrollment already exists
+    const { data: existingEnrollment } = await serviceClient
+      .from('enrollments')
+      .select('id')
+      .eq('user_id', user_id)
+      .eq('course_id', course_id)
+      .single()
 
-      // Create new enrollment
-      const { data, error } = await serviceClient
-        .from('enrollments')
-        .insert({
-          user_id,
-          course_id,
-          progress: 0,
-          enrolled_at: new Date().toISOString(),
-          total_watch_time_minutes: 0
-        })
-        .select()
-        .single()
+    if (existingEnrollment) {
+      throw new Error('User is already enrolled in this course')
+    }
 
-      if (error) {
-        throw new Error(`Database error: ${error.message}`)
-      }
+    // Create new enrollment
+    const { data: enrollment, error } = await serviceClient
+      .from('enrollments')
+      .insert({
+        user_id,
+        course_id,
+        progress: 0,
+        enrolled_at: new Date().toISOString(),
+        total_watch_time_minutes: 0
+      })
+      .select()
+      .single()
 
-      return data
-    })
+    if (error) {
+      throw new Error(`Database error: ${error.message}`)
+    }
 
     logger.info('Admin enrollment creation completed', { 
       adminUserId: user.id, 
@@ -131,16 +127,16 @@ export const DELETE = withAdminAuth(async (request: NextRequest, user) => {
       enrollmentId 
     })
 
-    await withServiceRole(user, async (serviceClient) => {
-      const { error } = await serviceClient
-        .from('enrollments')
-        .delete()
-        .eq('id', enrollmentId)
+    const serviceClient = createServiceClient()
 
-      if (error) {
-        throw new Error(`Database error: ${error.message}`)
-      }
-    })
+    const { error } = await serviceClient
+      .from('enrollments')
+      .delete()
+      .eq('id', enrollmentId)
+
+    if (error) {
+      throw new Error(`Database error: ${error.message}`)
+    }
 
     logger.info('Admin enrollment deletion completed', { 
       adminUserId: user.id, 

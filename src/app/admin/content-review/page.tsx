@@ -6,6 +6,7 @@ import { Clock, AlertTriangle, CheckCircle, FileText, MessageSquare, Star, HelpC
 import Link from 'next/link'
 import { useAutoRefresh } from '@/hooks/useAutoRefresh'
 import { AutoRefreshNotification } from '@/components/ui/AutoRefreshNotification'
+import { supabase } from '@/lib/supabase'
 
 interface ReviewItem {
   id: string
@@ -58,8 +59,25 @@ export default function ContentReviewDashboard() {
     try {
       setLoading(true)
       
+      // Get the current session to include Authorization header
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      // Prepare headers
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json'
+      }
+      
+      // Add Authorization header if we have a session
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`
+      }
+      
       // Use the actual API we fixed
-      const response = await fetch('/api/admin/content-review')
+      const response = await fetch('/api/admin/content-review', {
+        method: 'GET',
+        credentials: 'include', // Still include cookies as fallback
+        headers
+      })
       const data = await response.json()
       
       if (data.success && data.reviewQueue) {

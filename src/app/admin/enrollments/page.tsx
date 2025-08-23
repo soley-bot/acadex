@@ -53,10 +53,24 @@ export default function AdminEnrollmentsPage() {
       setLoading(true)
       setError('') // Clear any previous errors
       
+      // Get the current session to include Authorization header
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      // Prepare headers
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json'
+      }
+      
+      // Add Authorization header if we have a session
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`
+      }
+      
       // Use API route instead of direct Supabase call
       const response = await fetch('/api/admin/enrollments', {
         method: 'GET',
-        credentials: 'include'
+        credentials: 'include', // Still include cookies as fallback
+        headers
       })
 
       if (!response.ok) {

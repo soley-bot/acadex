@@ -46,11 +46,6 @@ export async function middleware(request: NextRequest) {
 
   // Admin route protection
   if (pathname.startsWith('/admin')) {
-    // TEMPORARY: Bypass middleware for debugging
-    console.log('Middleware: Bypassing admin protection for debugging')
-    return NextResponse.next()
-    
-    /* Original admin protection code - commented out for debugging
     try {
       const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -74,7 +69,6 @@ export async function middleware(request: NextRequest) {
 
       const { data: { user } } = await supabase.auth.getUser()
 
-      // Debug logging for redirect loop investigation
       console.log('Middleware admin check:', {
         pathname,
         hasUser: !!user,
@@ -113,7 +107,6 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set('redirectTo', pathname)
       return NextResponse.redirect(loginUrl)
     }
-    */
   }
 
   // Protected routes that require authentication

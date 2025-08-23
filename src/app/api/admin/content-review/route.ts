@@ -1,77 +1,73 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { withAdminAuth, withServiceRole } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
 
-// TEMPORARY: Simplified content-review API for debugging 401 issues
-// Service role client for admin operations
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
-
-export async function GET(request: NextRequest) {
+// GET - Fetch content review queue and statistics
+export const GET = withAdminAuth(async (request: NextRequest) => {
   try {
-    console.log('🔍 DEBUG: Bypassing content-review auth for testing...')
+    logger.info('Content review fetch requested')
 
-    // TEMPORARY: Provide mock data while bypassing auth
-    const mockData = {
+    // For now, return mock data until content_queue table is set up
+    const result = {
       success: true,
-      reviewQueue: [
-        {
-          id: '1',
-          content_type: 'quiz',
-          title: 'Sample Quiz Review',
-          status: 'needs_review',
-          priority_score: 1,
-          created_at: new Date().toISOString(),
-          time_estimate: '5 minutes'
-        }
-      ],
+      reviewQueue: [],
       stats: {
-        totalPending: 1,
+        totalPending: 0,
         completedToday: 0,
         averageReviewTime: '5 minutes',
         qualityScore: 95
       }
     }
 
-    return NextResponse.json(mockData)
+    logger.info('Content review fetch completed', { 
+      queueCount: 0 
+    })
+
+    return NextResponse.json(result)
 
   } catch (error: any) {
-    console.error('❌ Content review API error:', error)
+    logger.error('Content review fetch failed', { 
+      error: error.message 
+    })
     
     return NextResponse.json({
       success: false,
       error: error.message
     }, { status: 500 })
   }
-}
+})
 
-export async function POST(request: NextRequest) {
+// POST - Update content review status
+export const POST = withAdminAuth(async (request: NextRequest) => {
   try {
-    console.log('🔍 DEBUG: Bypassing content-review POST auth for testing...')
-    
     const body = await request.json()
-    console.log('Content review action:', body)
+    const { contentId, action, reviewNotes } = body
 
-    // Mock successful response
+    if (!contentId || !action) {
+      return NextResponse.json(
+        { error: 'Content ID and action are required' },
+        { status: 400 }
+      )
+    }
+
+    logger.info('Content review action requested', { contentId, action })
+
+    // For now, return success until content_queue table is set up
+    logger.info('Content review action completed', { contentId, action })
+
     return NextResponse.json({
       success: true,
-      message: 'Review action completed (DEBUG MODE)'
+      data: { id: contentId, status: action }
     })
 
   } catch (error: any) {
-    console.error('❌ Content review POST error:', error)
+    logger.error('Content review action failed', { 
+      error: error.message 
+    })
     
     return NextResponse.json({
       success: false,
       error: error.message
     }, { status: 500 })
   }
-}
+})

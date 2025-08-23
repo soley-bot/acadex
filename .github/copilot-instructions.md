@@ -348,6 +348,68 @@ Phase 7B: Authentication Pages (login, signup)
 ✅ **Design Consistency**: Follows established design system standards
 ✅ **Performance**: No significant bundle size regressions
 ✅ **Documentation**: Changes documented for future reference
+
+## Authentication & API Standards
+**CRITICAL**: All admin API calls must follow proper authentication patterns to avoid 401 errors.
+
+### Admin API Authentication Pattern
+**MANDATORY**: When making API calls from admin pages, always include Authorization headers:
+
+```tsx
+// ✅ CORRECT: Enhanced API authentication for admin routes
+const fetchAdminData = async () => {
+  try {
+    // Get the current session to include Authorization header
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    // Prepare headers
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json'
+    }
+    
+    // Add Authorization header if we have a session
+    if (session?.access_token) {
+      headers['Authorization'] = `Bearer ${session.access_token}`
+    }
+    
+    const response = await fetch('/api/admin/endpoint', {
+      method: 'GET',
+      credentials: 'include', // Include cookies as fallback
+      headers
+    })
+    
+    // Handle response...
+  } catch (error) {
+    // Error handling...
+  }
+}
+
+// ❌ INCORRECT: Missing Authorization header (causes 401 errors)
+const response = await fetch('/api/admin/endpoint', {
+  method: 'GET',
+  credentials: 'include'
+})
+```
+
+### API Route Authentication Standards
+- **Admin Routes**: Use `withAdminAuth` wrapper for admin-only endpoints
+- **Service Role**: Use `createServiceClient()` after admin authentication
+- **Authorization Headers**: API routes properly handle `Bearer {token}` authentication
+- **Cookie Fallback**: Browser requests fall back to cookie-based authentication
+- **Error Handling**: Proper 401 responses for authentication failures
+
+### Authentication Context Requirements
+- **AdminRoute Component**: Protects admin pages with role verification
+- **AuthContext**: Provides user session and role information
+- **Session Management**: Automatic session refresh and validation
+- **Role-Based Access**: Proper admin/instructor/student role enforcement
+
+### Database Authentication
+- **RLS Policies**: Row Level Security enabled on all sensitive tables
+- **Service Role Policies**: Allow service_role full access for admin operations
+- **Admin Policies**: Authenticated admin users can access admin-restricted data
+- **is_admin() Function**: Database function for role verification with proper permissions
+
 ## Current Project State
 ✅ **Build Status**: Successfully compiling without TypeScript errors
 ✅ **Database**: Complete schema with enhanced course structure
