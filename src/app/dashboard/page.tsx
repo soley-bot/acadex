@@ -93,34 +93,35 @@ export default function Dashboard() {
     {
       title: 'Total Courses',
       value: progress?.courses_enrolled || '0',
-      description: 'Enrolled courses',
+      subtitle: 'Enrolled',
       icon: BookOpen,
-      color: 'text-primary',
-      bgColor: 'bg-primary/10'
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50'
     },
     {
       title: 'Completed',
-      value: progress?.courses_completed || '0', 
-      description: 'Courses finished',
+      value: progress?.courses_completed || '0',
+      subtitle: 'Finished',
       icon: GraduationCap,
-      color: 'text-success',
-      bgColor: 'bg-success/10'
+      color: 'text-green-600',
+      bgColor: 'bg-green-50'
     },
     {
-      title: 'Quiz Attempts',
-      value: progress?.quizzes_taken || '0',
-      description: 'Total attempts',
-      icon: Brain,
+      title: 'Quiz Score',
+      value: progress?.average_score ? `${Math.round(progress.average_score)}%` : '0%',
+      subtitle: `${progress?.quizzes_taken || 0} attempts`,
+      icon: Target,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50'
+    },
+    {
+      title: 'Progress',
+      value: (progress?.courses_enrolled && progress?.courses_completed) ? 
+        `${Math.round((progress.courses_completed / progress.courses_enrolled) * 100)}%` : '0%',
+      subtitle: 'Overall',
+      icon: TrendingUp,
       color: 'text-primary',
       bgColor: 'bg-primary/10'
-    },
-    {
-      title: 'Average Score',
-      value: progress?.average_score ? `${Math.round(progress.average_score)}%` : '0%',
-      description: 'Quiz performance',
-      icon: Medal,
-      color: 'text-secondary',
-      bgColor: 'bg-secondary/10'
     }
   ], [progress])
 
@@ -139,22 +140,25 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20 lg:py-24">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-20 lg:py-24">
           {/* Header Skeleton */}
-          <div className="mb-12 md:mb-16">
-            <div className="h-10 bg-muted animate-pulse rounded-lg mb-2 w-48"></div>
-            <div className="h-6 bg-muted animate-pulse rounded-lg w-64"></div>
+          <div className="mb-6 md:mb-16">
+            <div className="h-8 sm:h-10 bg-muted animate-pulse rounded-lg mb-1 sm:mb-2 w-32 sm:w-48"></div>
+            <div className="h-4 sm:h-6 bg-muted animate-pulse rounded-lg w-48 sm:w-64"></div>
           </div>
           
-          {/* Stats Cards Skeleton */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-12">
+          {/* Clean Stats Skeleton */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 md:mb-16">
             {[1,2,3,4].map(i => (
-              <Card key={i} variant="elevated" className="min-h-[140px]">
-                <CardContent className="p-6">
-                  <div className="space-y-3">
-                    <div className="h-8 bg-muted animate-pulse rounded w-8"></div>
-                    <div className="h-8 bg-muted animate-pulse rounded w-16"></div>
-                    <div className="h-4 bg-muted animate-pulse rounded w-24"></div>
+              <Card key={i} variant="base">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-muted animate-pulse rounded-lg"></div>
+                    <div className="h-6 sm:h-8 bg-muted animate-pulse rounded w-12 sm:w-16"></div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="h-4 bg-muted animate-pulse rounded w-20 sm:w-24"></div>
+                    <div className="h-3 bg-muted animate-pulse rounded w-16 sm:w-20"></div>
                   </div>
                 </CardContent>
               </Card>
@@ -162,17 +166,17 @@ export default function Dashboard() {
           </div>
           
           {/* Content Skeleton */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-8">
             {[1,2].map(i => (
               <Card key={i} variant="base">
                 <CardHeader>
-                  <div className="h-6 bg-muted animate-pulse rounded w-32 mb-2"></div>
-                  <div className="h-4 bg-muted animate-pulse rounded w-48"></div>
+                  <div className="h-4 sm:h-6 bg-muted animate-pulse rounded w-24 sm:w-32 mb-1 sm:mb-2"></div>
+                  <div className="h-3 sm:h-4 bg-muted animate-pulse rounded w-32 sm:w-48 hidden sm:block"></div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {[1,2,3].map(j => (
-                      <div key={j} className="h-20 bg-muted animate-pulse rounded"></div>
+                      <div key={j} className="h-16 sm:h-20 bg-muted animate-pulse rounded"></div>
                     ))}
                   </div>
                 </CardContent>
@@ -206,83 +210,103 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20 lg:py-24">
-        {/* Header - Professional Typography */}
-        <div className="mb-12 md:mb-16">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Dashboard</h1>
-          <p className="text-lg text-muted-foreground">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-20 lg:py-24">
+        {/* Header - Compact Mobile Design */}
+        <div className="mb-6 md:mb-16">
+          <h1 className="text-2xl sm:text-4xl font-bold text-foreground mb-1 sm:mb-2">Dashboard</h1>
+          <p className="text-sm sm:text-lg text-muted-foreground">
             Welcome back, {user?.name || user?.email}
           </p>
         </div>
 
-        {/* Stats Overview - Mobile-First Responsive Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-12 md:mb-16">
+        {/* Clean Stats Grid - Professional Mobile Layout */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 md:mb-16">
           {statsCards.map((stat, index) => (
-            <Card key={index} variant="elevated" className="transform hover:scale-105 transition-all duration-300 overflow-hidden min-h-[120px] sm:min-h-[140px]">
-              <CardContent className="p-4 sm:p-6 relative h-full">
-                <div className={`absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 ${stat.bgColor} rounded-full -mr-8 sm:-mr-10 -mt-8 sm:-mt-10 opacity-60`}></div>
-                <div className="relative h-full flex flex-col justify-between">
-                  <div className="flex items-start justify-between mb-3 sm:mb-4">
-                    <stat.icon className={`h-6 w-6 sm:h-8 sm:w-8 ${stat.color} flex-shrink-0`} />
-                    <div className="text-2xl sm:text-3xl font-bold text-foreground text-right">
+            <Card key={index} variant="base" className="overflow-hidden">
+              <CardContent className="p-4 sm:p-6">
+                {/* Icon and Value Row */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${stat.bgColor} flex items-center justify-center`}>
+                    <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${stat.color}`} />
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xl sm:text-2xl font-bold text-foreground">
                       {stat.value}
                     </div>
                   </div>
-                  <div className="mt-auto">
-                    <h3 className="text-base sm:text-lg font-semibold text-foreground leading-tight">{stat.title}</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">{stat.description}</p>
-                  </div>
+                </div>
+                
+                {/* Title and Subtitle */}
+                <div className="space-y-1">
+                  <h3 className="text-sm sm:text-base font-medium text-foreground">
+                    {stat.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    {stat.subtitle}
+                  </p>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Main Content Grid - Mobile-Optimized Layout */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8 mb-12 md:mb-16">
+        {/* Main Content Grid - Compact Mobile Layout */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-8 mb-8 md:mb-16">
           {/* Current Courses */}
           <Card variant="base" className="h-fit">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <BookOpen className="h-5 w-5 text-primary" />
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
+                <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 Current Courses
               </CardTitle>
-              <CardDescription className="text-sm sm:text-base">Your enrolled courses and progress</CardDescription>
+              <CardDescription className="text-xs sm:text-base hidden sm:block">Your enrolled courses and progress</CardDescription>
             </CardHeader>
             <CardContent>
               {courses.length > 0 ? (
                 <div className="space-y-4 sm:space-y-6">
                   {courses.slice(0, 5).map((course) => (
-                    <Card key={course.id} variant="interactive" className="p-4 sm:p-6 hover:shadow-lg transition-all duration-300 min-h-[100px] sm:min-h-[120px]">
-                      <div className="flex flex-col gap-4">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-foreground mb-3 text-sm sm:text-base leading-tight line-clamp-2">{course.title}</h4>
-                          <div className="flex items-center gap-3 mb-3">
-                            <Progress value={course.progress_percentage} className="flex-1 h-2 sm:h-3" />
-                            <span className="text-sm sm:text-base font-medium text-muted-foreground min-w-[3rem] text-right">
-                              {course.progress_percentage}%
+                    <Card key={course.id} variant="interactive" className="p-4 sm:p-6 hover:shadow-md transition-all duration-200 border border-border hover:border-primary/30">
+                      <div className="space-y-3">
+                        {/* Course Title and Progress */}
+                        <div className="flex items-start justify-between">
+                          <h4 className="font-medium text-foreground text-sm sm:text-base leading-tight flex-1 mr-3">
+                            {course.title}
+                          </h4>
+                          <span className="text-sm font-semibold text-primary bg-primary/10 px-2 py-1 rounded-md flex-shrink-0">
+                            {course.progress_percentage}%
+                          </span>
+                        </div>
+                        
+                        {/* Progress Bar */}
+                        <div className="space-y-2">
+                          <Progress value={course.progress_percentage} className="h-2" />
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-muted-foreground">
+                              {course.progress_percentage > 0 ? 'In Progress' : 'Not Started'}
+                            </span>
+                            <span className="text-xs text-muted-foreground hidden sm:inline">
+                              Last: {new Date(course.last_accessed).toLocaleDateString()}
                             </span>
                           </div>
-                          <p className="text-xs sm:text-sm text-muted-foreground">
-                            Last accessed: {new Date(course.last_accessed).toLocaleDateString()}
-                          </p>
                         </div>
-                        <Link href={`/courses/${course.id}/study`} className="w-full">
+                        
+                        {/* Continue Button */}
+                        <Link href={`/courses/${course.id}/study`} className="block">
                           <Button 
                             size="sm"
-                            className="w-full h-11 sm:h-12 bg-primary hover:bg-secondary text-white hover:text-black text-sm sm:text-base"
+                            className="w-full h-9 sm:h-10 bg-primary hover:bg-primary/90 text-white text-sm font-medium"
                           >
-                            Continue Learning
-                            <ArrowRight className="h-4 w-4 ml-2" />
+                            {course.progress_percentage > 0 ? 'Continue Learning' : 'Start Course'}
+                            <ArrowRight className="w-4 h-4 ml-2" />
                           </Button>
                         </Link>
                       </div>
                     </Card>
                   ))}
                   {courses.length > 5 && (
-                    <div className="text-center pt-4 sm:pt-6">
+                    <div className="text-center pt-4">
                       <Link href="/courses">
-                        <Button variant="outline" className="w-full sm:w-auto h-11 sm:h-12 border-primary text-primary hover:bg-primary hover:text-white">
+                        <Button variant="outline" className="w-full sm:w-auto border-primary text-primary hover:bg-primary hover:text-white">
                           View All Courses
                         </Button>
                       </Link>
@@ -290,24 +314,24 @@ export default function Dashboard() {
                   )}
                 </div>
               ) : (
-                <div className="text-center py-8 sm:py-12">
+                <div className="text-center py-6 sm:py-12">
                   <div className="relative">
-                    <BookOpen className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-4" />
-                    <Sparkles className="h-6 w-6 text-secondary absolute -top-1 -right-1 animate-pulse" />
+                    <BookOpen className="h-10 w-10 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+                    <Sparkles className="h-4 w-4 sm:h-6 sm:w-6 text-secondary absolute -top-1 -right-1 animate-pulse" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">Ready to Start Learning?</h3>
-                  <p className="text-muted-foreground mb-6 text-sm sm:text-base">
+                  <h3 className="text-base sm:text-xl font-semibold text-foreground mb-2">Ready to Start Learning?</h3>
+                  <p className="text-muted-foreground mb-4 sm:mb-6 text-xs sm:text-base px-2">
                     Join thousands of learners and start your English mastery journey today
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                    <Link href="/courses">
-                      <Button className="w-full sm:w-auto h-11 sm:h-12 bg-primary hover:bg-secondary text-white hover:text-black">
+                  <div className="flex flex-col gap-2 sm:gap-3 justify-center items-center">
+                    <Link href="/courses" className="w-full">
+                      <Button className="w-full h-9 sm:h-12 bg-primary hover:bg-secondary text-white hover:text-black text-xs sm:text-base">
                         Browse Courses
-                        <TrendingUp className="h-4 w-4 ml-2" />
+                        <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 ml-1 sm:ml-2" />
                       </Button>
                     </Link>
-                    <Link href="/quizzes">
-                      <Button variant="outline" className="w-full sm:w-auto h-11 sm:h-12 border-primary text-primary hover:bg-primary hover:text-white">
+                    <Link href="/quizzes" className="w-full">
+                      <Button variant="outline" className="w-full h-9 sm:h-12 border-primary text-primary hover:bg-primary hover:text-white text-xs sm:text-base">
                         Try a Quiz First
                       </Button>
                     </Link>
@@ -319,42 +343,67 @@ export default function Dashboard() {
 
           {/* Recent Quiz Results */}
           <Card variant="base" className="h-fit">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <Target className="h-5 w-5 text-secondary" />
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
+                <Target className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
                 Recent Quiz Results
               </CardTitle>
-              <CardDescription className="text-sm sm:text-base">Your latest quiz performances</CardDescription>
+              <CardDescription className="text-xs sm:text-base hidden sm:block">Your latest quiz performances</CardDescription>
             </CardHeader>
             <CardContent>
               {quizAttempts.length > 0 ? (
                 <div className="space-y-4 sm:space-y-6">
                   {quizAttempts.slice(0, 5).map((attempt) => {
-                    const { scoreColor, scoreBg } = getQuizScoreColor(attempt.score)
+                    const { scoreColor } = getQuizScoreColor(attempt.score)
                     
                     return (
-                      <Card key={attempt.id} variant="interactive" className="p-4 sm:p-6 hover:shadow-lg transition-all duration-300 border-l-4 border-l-transparent hover:border-l-primary min-h-[80px] sm:min-h-[100px]">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-foreground text-sm sm:text-base leading-tight line-clamp-2 mb-2">{attempt.quiz_title}</h4>
-                            <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-                              <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                              <span className="truncate">{new Date(attempt.completed_at).toLocaleDateString()}</span>
-                              <span>•</span>
-                              <span className="whitespace-nowrap">{attempt.time_taken_minutes} min</span>
+                      <Card key={attempt.id} variant="interactive" className="p-4 sm:p-6 hover:shadow-md transition-all duration-200 border border-border hover:border-secondary/30">
+                        <div className="space-y-3">
+                          {/* Quiz Title and Score */}
+                          <div className="flex items-start justify-between">
+                            <h4 className="font-medium text-foreground text-sm sm:text-base leading-tight flex-1 mr-3">
+                              {attempt.quiz_title}
+                            </h4>
+                            <span className={`text-sm font-semibold px-2 py-1 rounded-md flex-shrink-0 ${
+                              attempt.score >= 80 ? 'text-green-700 bg-green-100' : 
+                              attempt.score >= 60 ? 'text-yellow-700 bg-yellow-100' : 
+                              'text-red-700 bg-red-100'
+                            }`}>
+                              {attempt.score}%
+                            </span>
+                          </div>
+                          
+                          {/* Quiz Details */}
+                          <div className="flex items-center gap-4 text-xs sm:text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              <span>{new Date(attempt.completed_at).toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span>{attempt.time_taken_minutes} min</span>
                             </div>
                           </div>
-                          <div className={`text-xl sm:text-2xl font-bold ${scoreColor} ${scoreBg} px-3 py-2 rounded-lg text-center min-w-[80px] sm:min-w-[90px]`}>
-                            {attempt.score}%
+                          
+                          {/* Performance Indicator */}
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Performance</span>
+                            <span className={`font-medium ${
+                              attempt.score >= 80 ? 'text-green-600' : 
+                              attempt.score >= 60 ? 'text-yellow-600' : 
+                              'text-red-600'
+                            }`}>
+                              {attempt.score >= 80 ? 'Excellent' : 
+                               attempt.score >= 60 ? 'Good' : 'Needs Improvement'}
+                            </span>
                           </div>
                         </div>
                       </Card>
                     )
                   })}
                   {quizAttempts.length > 5 && (
-                    <div className="text-center pt-4 sm:pt-6">
+                    <div className="text-center pt-4">
                       <Link href="/dashboard/results">
-                        <Button variant="outline" className="w-full sm:w-auto h-11 sm:h-12 border-secondary text-secondary hover:bg-secondary hover:text-black">
+                        <Button variant="outline" className="w-full sm:w-auto border-secondary text-secondary hover:bg-secondary hover:text-black">
                           View All Results
                         </Button>
                       </Link>
@@ -362,24 +411,24 @@ export default function Dashboard() {
                   )}
                 </div>
               ) : (
-                <div className="text-center py-8 sm:py-12">
+                <div className="text-center py-6 sm:py-12">
                   <div className="relative">
-                    <Target className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-4" />
-                    <Sparkles className="h-6 w-6 text-secondary absolute -top-1 -right-1 animate-pulse" />
+                    <Target className="h-10 w-10 sm:h-16 sm:w-16 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+                    <Sparkles className="h-4 w-4 sm:h-6 sm:w-6 text-secondary absolute -top-1 -right-1 animate-pulse" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">Test Your Skills!</h3>
-                  <p className="text-muted-foreground mb-6 text-sm sm:text-base">
+                  <h3 className="text-base sm:text-xl font-semibold text-foreground mb-2">Test Your Skills!</h3>
+                  <p className="text-muted-foreground mb-4 sm:mb-6 text-xs sm:text-base px-2">
                     Challenge yourself with interactive quizzes and track your progress
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                    <Link href="/quizzes">
-                      <Button className="w-full sm:w-auto h-11 sm:h-12 bg-primary hover:bg-secondary text-white hover:text-black">
+                  <div className="flex flex-col gap-2 sm:gap-3 justify-center items-center">
+                    <Link href="/quizzes" className="w-full">
+                      <Button className="w-full h-9 sm:h-12 bg-primary hover:bg-secondary text-white hover:text-black text-xs sm:text-base">
                         Take Your First Quiz
-                        <Brain className="h-4 w-4 ml-2" />
+                        <Brain className="h-3 w-3 sm:h-4 sm:w-4 ml-1 sm:ml-2" />
                       </Button>
                     </Link>
-                    <Link href="/courses">
-                      <Button variant="outline" className="w-full sm:w-auto h-11 sm:h-12 border-secondary text-secondary hover:bg-secondary hover:text-black">
+                    <Link href="/courses" className="w-full">
+                      <Button variant="outline" className="w-full h-9 sm:h-12 border-secondary text-secondary hover:bg-secondary hover:text-black text-xs sm:text-base">
                         Learn First
                       </Button>
                     </Link>
@@ -390,38 +439,38 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Quick Actions - Mobile-Optimized Touch Targets */}
+        {/* Quick Actions - Compact Mobile Touch Targets */}
         <Card variant="base">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-              <Zap className="h-5 w-5 text-primary" />
+          <CardHeader className="pb-3 sm:pb-4">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
+              <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               Quick Actions
             </CardTitle>
-            <CardDescription className="text-sm sm:text-base">Common learning activities</CardDescription>
+            <CardDescription className="text-xs sm:text-base hidden sm:block">Common learning activities</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               <Link href="/courses" className="block">
-                <Card variant="interactive" className="p-6 sm:p-8 text-center hover:border-primary transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 min-h-[120px] sm:min-h-[140px] flex flex-col justify-center">
-                  <BookOpen className="h-10 w-10 sm:h-12 sm:w-12 text-primary mx-auto mb-3 sm:mb-4" />
-                  <h3 className="font-semibold text-foreground mb-2 text-base sm:text-lg">Browse Courses</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">Discover new learning opportunities</p>
+                <Card variant="interactive" className="p-4 sm:p-8 text-center hover:border-primary transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 aspect-square sm:min-h-[140px] flex flex-col justify-center">
+                  <BookOpen className="h-6 w-6 sm:h-12 sm:w-12 text-primary mx-auto mb-2 sm:mb-4" />
+                  <h3 className="font-semibold text-foreground mb-1 sm:mb-2 text-xs sm:text-lg">Browse Courses</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed hidden sm:block">Discover new learning opportunities</p>
                 </Card>
               </Link>
               
               <Link href="/quizzes" className="block">
-                <Card variant="interactive" className="p-6 sm:p-8 text-center hover:border-secondary transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-secondary/5 to-secondary/10 hover:from-secondary/10 hover:to-secondary/20 min-h-[120px] sm:min-h-[140px] flex flex-col justify-center">
-                  <Target className="h-10 w-10 sm:h-12 sm:w-12 text-secondary mx-auto mb-3 sm:mb-4" />
-                  <h3 className="font-semibold text-foreground mb-2 text-base sm:text-lg">Take a Quiz</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">Test your knowledge and skills</p>
+                <Card variant="interactive" className="p-4 sm:p-8 text-center hover:border-secondary transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-secondary/5 to-secondary/10 hover:from-secondary/10 hover:to-secondary/20 aspect-square sm:min-h-[140px] flex flex-col justify-center">
+                  <Target className="h-6 w-6 sm:h-12 sm:w-12 text-secondary mx-auto mb-2 sm:mb-4" />
+                  <h3 className="font-semibold text-foreground mb-1 sm:mb-2 text-xs sm:text-lg">Take a Quiz</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed hidden sm:block">Test your knowledge and skills</p>
                 </Card>
               </Link>
               
-              <Link href="/profile" className="block sm:col-span-2 lg:col-span-1">
-                <Card variant="interactive" className="p-6 sm:p-8 text-center hover:border-primary transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 min-h-[120px] sm:min-h-[140px] flex flex-col justify-center">
-                  <User className="h-10 w-10 sm:h-12 sm:w-12 text-primary mx-auto mb-3 sm:mb-4" />
-                  <h3 className="font-semibold text-foreground mb-2 text-base sm:text-lg">Update Profile</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">Manage your account settings</p>
+              <Link href="/profile" className="block col-span-2 sm:col-span-2 lg:col-span-1">
+                <Card variant="interactive" className="p-4 sm:p-8 text-center hover:border-primary transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/20 aspect-square sm:min-h-[140px] flex flex-col justify-center">
+                  <User className="h-6 w-6 sm:h-12 sm:w-12 text-primary mx-auto mb-2 sm:mb-4" />
+                  <h3 className="font-semibold text-foreground mb-1 sm:mb-2 text-xs sm:text-lg">Update Profile</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed hidden sm:block">Manage your account settings</p>
                 </Card>
               </Link>
             </div>

@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Pagination } from '@/components/ui/Pagination'
 import { Search, Plus, Brain, Clock, Users, BarChart3, Edit, Trash2, Eye, ChevronDown, Settings, EyeOff, Check } from 'lucide-react'
 import { supabase, Quiz as BaseQuiz } from '@/lib/supabase'
+import { useAutoRefresh } from '@/hooks/useAutoRefresh'
+import { AutoRefreshNotification } from '@/components/ui/AutoRefreshNotification'
 
 // Extended Quiz interface with calculated statistics
 interface Quiz extends BaseQuiz {
@@ -69,6 +71,13 @@ export default function QuizzesPage() {
   const [showAIGenerator, setShowAIGenerator] = useState(false)
   const [showAnalytics, setShowAnalytics] = useState(false)
   const [contentReviewRefresh, setContentReviewRefresh] = useState(0)
+
+  // Auto-refresh system for slow loading
+  const { isSlowLoading, countdown, manualRefresh, cancelAutoRefresh } = useAutoRefresh({
+    timeoutSeconds: 10,
+    showWarning: true,
+    enableAutoRefresh: true
+  })
 
   // Refs for click outside
   const categoryDropdownRef = useRef<HTMLDivElement>(null)
@@ -891,6 +900,14 @@ export default function QuizzesPage() {
       <QuizAnalytics
         isOpen={showAnalytics}
         onClose={() => setShowAnalytics(false)}
+      />
+
+      {/* Auto-Refresh Notification */}
+      <AutoRefreshNotification
+        isVisible={isSlowLoading}
+        countdown={countdown}
+        onRefresh={manualRefresh}
+        onCancel={cancelAutoRefresh}
       />
     </div>
   )

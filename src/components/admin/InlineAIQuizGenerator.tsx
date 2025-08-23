@@ -10,8 +10,9 @@ interface InlineAIQuizGeneratorProps {
 }
 
 interface QuizOptions {
-  availableSubjects: string[]
-  subjectTemplates: Record<string, any>
+  // Backward compatibility - support both old and new format
+  availableSubjects?: string[] // Legacy format for form compatibility
+  suggestedSubjects?: string[] // New flexible format
   supportedOptions: {
     teachingStyles: string[]
     complexityLevels: string[]
@@ -19,6 +20,7 @@ interface QuizOptions {
     questionTypes: string[]
     bloomsLevels: string[]
   }
+  note?: string
 }
 
 export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQuizGeneratorProps) {
@@ -65,10 +67,6 @@ export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQui
         const result = await response.json()
         if (result.success) {
           setOptions(result)
-          // Set default subject if available
-          if (result.availableSubjects.length > 0 && !formData.subject) {
-            setFormData(prev => ({ ...prev, subject: result.availableSubjects[0] }))
-          }
         }
       } catch (error) {
         console.error('Failed to load quiz options:', error)
@@ -76,24 +74,10 @@ export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQui
     }
 
     fetchOptions()
-  }, [formData.subject])
+  }, [])
 
   const updateFormData = (updates: Partial<typeof formData>) => {
     setFormData(prev => ({ ...prev, ...updates }))
-  }
-
-  const handleSubjectChange = (subject: string) => {
-    updateFormData({ subject })
-    
-    // Auto-populate recommended question types for the subject
-    if (options?.subjectTemplates[subject]) {
-      const template = options.subjectTemplates[subject]
-      updateFormData({
-        subject,
-        questionTypes: template.recommendedQuestionTypes,
-        category: template.defaultCategory
-      })
-    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -160,25 +144,38 @@ export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQui
               <h3 className="text-lg font-semibold text-gray-900">Basic Settings</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Subject Selection */}
+                {/* Subject Input */}
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Subject *
                   </label>
-                  <select
+                  <input
+                    type="text"
                     value={formData.subject}
-                    onChange={(e) => handleSubjectChange(e.target.value)}
+                    onChange={(e) => updateFormData({ subject: e.target.value })}
+                    placeholder="e.g., Mathematics, History, Medicine, Computer Science, Art, Psychology..."
                     className="w-full px-3 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-base bg-background text-foreground"
                     disabled={loading}
                     required
-                  >
-                    <option value="">Select a subject...</option>
-                    {options?.availableSubjects.map(subject => (
-                      <option key={subject} value={subject}>
-                        {subject.charAt(0).toUpperCase() + subject.slice(1)}
-                      </option>
-                    ))}
-                  </select>
+                  />
+                  {(options?.suggestedSubjects || options?.availableSubjects) && (
+                    <div className="mt-2">
+                      <p className="text-xs text-muted-foreground mb-1">Popular subjects:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {(options.suggestedSubjects || options.availableSubjects || []).slice(0, 6).map(subject => (
+                          <button
+                            key={subject}
+                            type="button"
+                            onClick={() => updateFormData({ subject })}
+                            className="text-xs px-2 py-1 bg-muted hover:bg-primary hover:text-primary-foreground rounded-md transition-colors"
+                            disabled={loading}
+                          >
+                            {subject}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Topic Input */}

@@ -7,8 +7,10 @@ import { getQuizResults } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
 import { H1, H2, H3, H4, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertTriangle, CheckCircle, BarChart3, Lightbulb, Check, Edit, RefreshCw, BookOpen } from 'lucide-react'
+import { AlertTriangle, CheckCircle, BarChart3, Lightbulb, Check, Edit, RefreshCw, BookOpen, Clock, Target, Award } from 'lucide-react'
 import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
+import { CollapsibleSection } from '@/components/quiz/CollapsibleSection'
+import { ResultsExplanation } from '@/components/quiz/ResultsExplanation'
 import { logger } from '@/lib/logger'
 
 interface QuizResult {
@@ -134,90 +136,93 @@ export default function QuizResultsPage() {
           </div>
           <BodyLG className="text-gray-700 mb-8">{scoreMessage.message}</BodyLG>
           
-          {/* Stats Grid */}
-          <Grid cols={3} gap="md" className="max-w-3xl mx-auto">
-            <Card variant="base" className="text-center p-6">
-              <div className="text-3xl font-bold text-success mb-2">
-                {results.correct_answers}
+          {/* Mobile-Optimized Stats Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
+            <Card variant="base" className="text-center p-3 sm:p-4">
+              <div className="flex items-center justify-center mb-2">
+                <Target className="w-5 h-5 sm:w-6 sm:h-6 text-success mr-2" />
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-success">
+                  {results.correct_answers}
+                </div>
               </div>
-              <BodyMD className="text-gray-600 font-medium uppercase tracking-wide">Correct Answers</BodyMD>
-            </Card>
-            <Card variant="base" className="text-center p-6">
-              <div className="text-3xl font-bold text-gray-900 mb-2">
-                {results.total_questions}
+              <div className="text-xs sm:text-sm text-gray-600 font-medium uppercase tracking-wide">
+                Correct
               </div>
-              <BodyMD className="text-gray-600 font-medium uppercase tracking-wide">Total Questions</BodyMD>
             </Card>
-            <Card variant="base" className="text-center p-6">
-              <div className="text-3xl font-bold text-secondary mb-2">
-                {results.time_taken_minutes}
+            
+            <Card variant="base" className="text-center p-3 sm:p-4">
+              <div className="flex items-center justify-center mb-2">
+                <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 mr-2" />
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                  {results.total_questions}
+                </div>
               </div>
-              <BodyMD className="text-gray-600 font-medium uppercase tracking-wide">Minutes</BodyMD>
+              <div className="text-xs sm:text-sm text-gray-600 font-medium uppercase tracking-wide">
+                Total
+              </div>
             </Card>
-          </Grid>
+            
+            <Card variant="base" className="text-center p-3 sm:p-4">
+              <div className="flex items-center justify-center mb-2">
+                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-primary mr-2" />
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary">
+                  {results.time_taken_minutes}
+                </div>
+              </div>
+              <div className="text-xs sm:text-sm text-gray-600 font-medium uppercase tracking-wide">
+                Minutes
+              </div>
+            </Card>
+            
+            <Card variant="base" className="text-center p-3 sm:p-4">
+              <div className="flex items-center justify-center mb-2">
+                <Award className="w-5 h-5 sm:w-6 sm:h-6 text-secondary mr-2" />
+                <div className={`text-xl sm:text-2xl lg:text-3xl font-bold ${getScoreColor(results.score)}`}>
+                  {results.score}%
+                </div>
+              </div>
+              <div className="text-xs sm:text-sm text-gray-600 font-medium uppercase tracking-wide">
+                Score
+              </div>
+            </Card>
+          </div>
         </Card>
 
-        {/* Detailed Results */}
+        {/* Mobile-Optimized Detailed Results */}
         <Card variant="glass" className="mb-8">
-          <CardHeader className="bg-secondary/10">
-            <CardTitle className="flex items-center gap-3">
-              <BarChart3 className="w-6 h-6" />
-              <span>Detailed Results</span>
+          <CardHeader className="bg-secondary/10 p-4 sm:p-6">
+            <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
+              <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" />
+              <span>Question by Question Review</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-8">
-            <div className="space-y-6">
+          <CardContent className="p-4 sm:p-6">
+            <div className="space-y-3 sm:space-y-4">
               {results.answers.map((answer, index) => (
-                <Card
+                <CollapsibleSection
                   key={index}
-                  variant="base"
-                  className={`p-6 border-2 ${
+                  title={`Question ${index + 1} ${answer.is_correct ? '✓' : '✗'}`}
+                  defaultOpen={false}
+                  className={`${
                     answer.is_correct 
-                      ? 'border-green-300 bg-green-50/50' 
-                      : 'border-red-300 bg-red-50/50'
+                      ? 'border-green-300 bg-green-50/30' 
+                      : 'border-red-300 bg-red-50/30'
                   }`}
+                  icon={answer.is_correct ? (
+                    <CheckCircle className="w-4 h-4 text-success" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 text-destructive" />
+                  )}
                 >
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      answer.is_correct 
-                        ? 'bg-success text-white' 
-                        : 'bg-destructive text-white'
-                    }`}>
-                      {answer.is_correct ? (
-                        <CheckCircle className="w-5 h-5" />
-                      ) : (
-                        <AlertTriangle className="w-5 h-5" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <H4 className="text-gray-900 mb-2">Question {index + 1}</H4>
-                      <BodyMD className="text-gray-700 mb-3">{answer.question}</BodyMD>
-                      
-                      <div className="space-y-2">
-                        <div>
-                          <span className="text-sm font-medium text-gray-600">Your answer: </span>
-                          <span className={`font-medium ${answer.is_correct ? 'text-success' : 'text-destructive'}`}>
-                            {answer.user_answer}
-                          </span>
-                        </div>
-                        
-                        {!answer.is_correct && (
-                          <div>
-                            <span className="text-sm font-medium text-gray-600">Correct answer: </span>
-                            <span className="font-medium text-success">{answer.correct_answer}</span>
-                          </div>
-                        )}
-                        
-                        {answer.explanation && (
-                          <div className="mt-3 p-3 bg-secondary/10 rounded-lg">
-                            <span className="text-sm font-medium text-gray-600">Explanation: </span>
-                            <span className="text-gray-700">{answer.explanation}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
+                  <ResultsExplanation
+                    question={answer.question}
+                    userAnswer={answer.user_answer}
+                    correctAnswer={answer.correct_answer}
+                    isCorrect={answer.is_correct}
+                    explanation={answer.explanation}
+                    questionNumber={index + 1}
+                  />
+                </CollapsibleSection>
               ))}
             </div>
           </CardContent>
@@ -269,16 +274,17 @@ export default function QuizResultsPage() {
             </div>
           </Grid>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+          {/* Mobile-Optimized Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-6 sm:mt-8">
             <Link
               href="/courses"
-              className="bg-primary hover:bg-secondary text-white hover:text-black px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
+              className="bg-primary hover:bg-secondary text-white hover:text-black px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 transform hover:scale-105 text-center touch-manipulation min-h-[44px] flex items-center justify-center"
             >
               Browse Courses
             </Link>
             <Link
               href="/quizzes"
-              className="bg-secondary hover:bg-primary text-white hover:text-black px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
+              className="bg-secondary hover:bg-primary text-black hover:text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 transform hover:scale-105 text-center touch-manipulation min-h-[44px] flex items-center justify-center"
             >
               More Quizzes
             </Link>

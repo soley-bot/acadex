@@ -11,8 +11,9 @@ interface EnhancedQuizGeneratorProps {
 }
 
 interface QuizOptions {
-  availableSubjects: string[]
-  subjectTemplates: Record<string, any>
+  // Backward compatibility - support both old and new format
+  availableSubjects?: string[] // Legacy format for form compatibility
+  suggestedSubjects?: string[] // New flexible format
   supportedOptions: {
     teachingStyles: string[]
     complexityLevels: string[]
@@ -20,6 +21,7 @@ interface QuizOptions {
     questionTypes: string[]
     bloomsLevels: string[]
   }
+  note?: string
 }
 
 export function EnhancedAIQuizGenerator({ isOpen, onClose, onQuizGenerated }: EnhancedQuizGeneratorProps) {
@@ -61,10 +63,6 @@ export function EnhancedAIQuizGenerator({ isOpen, onClose, onQuizGenerated }: En
         const result = await response.json()
         if (result.success) {
           setOptions(result)
-          // Set default subject if available
-          if (result.availableSubjects.length > 0 && !formData.subject) {
-            setFormData(prev => ({ ...prev, subject: result.availableSubjects[0] }))
-          }
         }
       } catch (error) {
         console.error('Failed to load quiz options:', error)
@@ -74,24 +72,10 @@ export function EnhancedAIQuizGenerator({ isOpen, onClose, onQuizGenerated }: En
     if (isOpen && !options) {
       fetchOptions()
     }
-  }, [isOpen, options, formData.subject])
+  }, [isOpen, options])
 
   const updateFormData = (updates: Partial<typeof formData>) => {
     setFormData(prev => ({ ...prev, ...updates }))
-  }
-
-  const handleSubjectChange = (subject: string) => {
-    updateFormData({ subject })
-    
-    // Auto-populate recommended question types for the subject
-    if (options?.subjectTemplates[subject]) {
-      const template = options.subjectTemplates[subject]
-      updateFormData({
-        subject,
-        questionTypes: template.recommendedQuestionTypes,
-        category: template.defaultCategory
-      })
-    }
   }
 
   const previewPrompts = async () => {
@@ -179,25 +163,38 @@ export function EnhancedAIQuizGenerator({ isOpen, onClose, onQuizGenerated }: En
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Basic Settings</h3>
             
-            {/* Subject Selection */}
+            {/* Subject Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Subject *
               </label>
-              <select
+              <input
+                type="text"
                 value={formData.subject}
-                onChange={(e) => handleSubjectChange(e.target.value)}
+                onChange={(e) => updateFormData({ subject: e.target.value })}
+                placeholder="e.g., Mathematics, History, Medicine, Computer Science, Art, Psychology..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 disabled={loading}
                 required
-              >
-                <option value="">Select a subject...</option>
-                {options?.availableSubjects.map(subject => (
-                  <option key={subject} value={subject}>
-                    {subject.charAt(0).toUpperCase() + subject.slice(1)}
-                  </option>
-                ))}
-              </select>
+              />
+              {(options?.suggestedSubjects || options?.availableSubjects) && (
+                <div className="mt-2">
+                  <p className="text-xs text-gray-500 mb-1">Popular subjects:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {(options.suggestedSubjects || options.availableSubjects || []).slice(0, 6).map(subject => (
+                      <button
+                        key={subject}
+                        type="button"
+                        onClick={() => updateFormData({ subject })}
+                        className="text-xs px-2 py-1 bg-gray-100 hover:bg-primary hover:text-white rounded-md transition-colors"
+                        disabled={loading}
+                      >
+                        {subject}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Topic Input */}

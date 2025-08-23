@@ -1,64 +1,45 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-
+import { withAdminAuth, withServiceRole } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
 
-// Helper function to create admin client
-function createAdminClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!supabaseUrl) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
-  }
-
-  if (!supabaseServiceKey) {
-    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable')
-  }
-
-  return createClient(
-    supabaseUrl,
-    supabaseServiceKey,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    }
-  )
-}
-
-// GET - Fetch all users for admin
-export async function GET(request: NextRequest) {
+// GET - Fetch all users for admin (SECURE)
+export const GET = withAdminAuth(async (request: NextRequest, user) => {
   try {
-    const supabase = createAdminClient()
-    // Fetch users
-    const { data: users, error } = await supabase
-      .from('users')
-      .select('id, name, email, role, created_at')
-      .order('name')
+    logger.info('Admin users fetch requested', { adminUserId: user.id })
 
-    if (error) {
-      console.error('Database error:', error)
-      return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
-    }
+    const users = await withServiceRole(user, async (serviceClient) => {
+      const { data, error } = await serviceClient
+        .from('users')
+        .select('id, name, email, role, created_at')
+        .order('name')
+      
+      if (error) throw error
+      return data
+    })
 
     return NextResponse.json({ users })
-  } catch (error) {
-    console.error('API error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  } catch (error: any) {
+    logger.error('Users fetch failed', { 
+      adminUserId: user.id, 
+      error: error.message 
+    })
+    
+    return NextResponse.json(
+      { error: 'Failed to fetch users' },
+      { status: 500 }
+    )
   }
-}
+})
 
-export async function POST(request: NextRequest) {
+// POST - Create new user (SECURE)
+export const POST = withAdminAuth(async (request: NextRequest, user) => {
   try {
-    const supabase = createAdminClient()
     const { name, email, password, role } = await request.json()
 
     // Validate required fields
     if (!name || !email || !password || !role) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required fields: name, email, password, role' },
         { status: 400 }
       )
     }
@@ -72,94 +53,75 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user already exists in auth.users
-    const { data: existingUsers, error: checkError } = await supabase.auth.admin.listUsers()
-    if (checkError) {
-      logger.error('Error checking existing users:', checkError)
-      return NextResponse.json(
-        { error: 'Failed to check existing users' },
-        { status: 500 }
-      )
-    }
-
-    const userExists = existingUsers.users.some(user => user.email === email)
-    if (userExists) {
-      return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 400 }
-      )
-    }
-
-    // Create user in Supabase Auth using admin client
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true, // Admin-created users are auto-confirmed
-      user_metadata: {
-        name,
-        role
-      }
+    logger.info('Admin user creation requested', { 
+      adminUserId: user.id, 
+      newUserEmail: email,
+      newUserRole: role
     })
 
-    if (authError) {
-      logger.error('Auth error:', authError)
-      return NextResponse.json(
-        { error: authError.message || 'Failed to create user account' },
-        { status: 400 }
-      )
-    }
-
-    if (!authData.user) {
-      return NextResponse.json(
-        { error: 'Failed to create user account' },
-        { status: 400 }
-      )
-    }
-
-    // Insert user profile in users table
-    const { error: profileError } = await supabase
-      .from('users')
-      .insert({
-        id: authData.user.id,
-        name,
-        email,
-        role
-      })
-
-    if (profileError) {
-      logger.error('Profile error:', profileError)
-      
-      // If profile creation fails, clean up the auth user
-      try {
-        await supabase.auth.admin.deleteUser(authData.user.id)
-      } catch (cleanupError) {
-        logger.error('Failed to cleanup auth user:', cleanupError)
+    const newUser = await withServiceRole(user, async (serviceClient) => {
+      // Check if user already exists in auth.users
+      const { data: existingUsers, error: checkError } = await serviceClient.auth.admin.listUsers()
+      if (checkError) {
+        throw new Error('Failed to check existing users')
       }
-      
-      return NextResponse.json(
-        { error: 'Failed to create user profile' },
-        { status: 400 }
-      )
-    }
 
-    return NextResponse.json(
-      { 
-        message: 'User created successfully',
-        user: {
-          id: authData.user.id,
-          email: authData.user.email,
+      const userExists = existingUsers.users.some((existingUser: any) => existingUser.email === email)
+      if (userExists) {
+        throw new Error('User with this email already exists')
+      }
+
+      // Create user in Supabase Auth using admin client
+      const { data: authData, error: authError } = await serviceClient.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true, // Admin-created users are auto-confirmed
+        user_metadata: {
           name,
           role
         }
-      },
-      { status: 201 }
-    )
+      })
 
-  } catch (error) {
-    logger.error('Unexpected error:', error)
+      if (authError) throw authError
+
+      // Create user record in our users table
+      const { data: userData, error: userError } = await serviceClient
+        .from('users')
+        .insert({
+          id: authData.user.id,
+          email,
+          name,
+          role,
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single()
+
+      if (userError) {
+        // If user table creation fails, clean up auth user
+        await serviceClient.auth.admin.deleteUser(authData.user.id)
+        throw userError
+      }
+
+      return userData
+    })
+
+    logger.info('User created successfully', { 
+      adminUserId: user.id, 
+      newUserId: newUser.id,
+      newUserEmail: newUser.email
+    })
+
+    return NextResponse.json({ user: newUser })
+  } catch (error: any) {
+    logger.error('User creation failed', { 
+      adminUserId: user.id, 
+      error: error.message 
+    })
+    
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: error.message },
+      { status: error.message.includes('already exists') ? 409 : 500 }
     )
   }
-}
+})

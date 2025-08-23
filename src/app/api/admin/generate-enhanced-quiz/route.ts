@@ -157,34 +157,25 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET endpoint to return available subjects and templates
+// GET endpoint to return available options (backward compatible structure)
 export async function GET(request: NextRequest) {
   try {
-    const subjects = enhancedQuizService.getAvailableSubjects()
-    
-    const subjectTemplates = subjects.reduce((acc, subject) => {
-      const template = enhancedQuizService.getSubjectTemplate(subject)
-      if (template) {
-        acc[subject] = {
-          defaultCategory: template.defaultCategory,
-          commonFocusAreas: template.commonFocusAreas,
-          recommendedQuestionTypes: template.recommendedQuestionTypes
-        }
-      }
-      return acc
-    }, {} as Record<string, any>)
+    const suggestedSubjects = enhancedQuizService.getAvailableSubjects()
 
     return NextResponse.json({
       success: true,
-      availableSubjects: subjects,
-      subjectTemplates,
+      // Backward compatibility: provide both old and new format
+      availableSubjects: suggestedSubjects, // For legacy form compatibility
+      suggestedSubjects, // New flexible format
       supportedOptions: {
         teachingStyles: ['academic', 'practical', 'conversational', 'professional'],
         complexityLevels: ['basic', 'intermediate', 'advanced', 'expert'],
         assessmentTypes: ['knowledge_recall', 'application', 'analysis', 'synthesis'],
         questionTypes: ['multiple_choice', 'true_false', 'fill_blank', 'essay', 'matching', 'ordering'],
-        bloomsLevels: ['remember', 'understand', 'apply', 'analyze', 'evaluate', 'create']
-      }
+        bloomsLevels: ['remember', 'understand', 'apply', 'analyze', 'evaluate', 'create'],
+        difficulties: ['beginner', 'intermediate', 'advanced']
+      },
+      note: "Subjects are now free-text. Users can enter any subject they want. The suggested subjects are just common examples."
     })
   } catch (error: any) {
     logger.error('Error fetching quiz generation options:', error)

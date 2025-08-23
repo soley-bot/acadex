@@ -1,6 +1,8 @@
 import { logger } from './logger'
 import { BaseAIService, AIServiceFactory } from './ai-services'
 import { getRecommendedModel, getModelConfig, MODEL_RECOMMENDATIONS } from './ai-model-config'
+import { contentReviewService, ContentReviewResult } from './content-review-system'
+import { supabase } from './supabase'
 
 // Enhanced quiz generation with multi-subject support and prompt control
 export interface EnhancedQuizGenerationRequest {
@@ -47,99 +49,8 @@ export interface SubjectTemplate {
   recommendedQuestionTypes: string[]
 }
 
-// Pre-built subject templates
-export const SUBJECT_TEMPLATES: Record<string, SubjectTemplate> = {
-  mathematics: {
-    systemPromptTemplate: `You are an expert Mathematics instructor creating educational assessments. 
-Focus on mathematical reasoning, problem-solving, and conceptual understanding.
-Ensure calculations are accurate and explanations show clear mathematical steps.`,
-    promptTemplate: `Generate {difficulty} level Mathematics questions about "{topic}"`,
-    defaultCategory: 'Mathematics',
-    commonFocusAreas: ['problem-solving', 'mathematical reasoning', 'formula application'],
-    recommendedQuestionTypes: ['multiple_choice', 'fill_blank', 'essay']
-  },
-  
-  science: {
-    systemPromptTemplate: `You are an expert Science educator creating educational assessments.
-Focus on scientific concepts, experimental design, and real-world applications.
-Include accurate scientific facts and encourage critical thinking.`,
-    promptTemplate: `Generate {difficulty} level Science questions about "{topic}"`,
-    defaultCategory: 'Science',
-    commonFocusAreas: ['conceptual understanding', 'scientific method', 'real-world applications'],
-    recommendedQuestionTypes: ['multiple_choice', 'true_false', 'matching', 'essay']
-  },
-  
-  history: {
-    systemPromptTemplate: `You are an expert History educator creating educational assessments.
-Focus on historical analysis, cause-and-effect relationships, and critical evaluation of sources.
-Encourage understanding of historical context and significance.`,
-    promptTemplate: `Generate {difficulty} level History questions about "{topic}"`,
-    defaultCategory: 'History',
-    commonFocusAreas: ['historical analysis', 'chronological thinking', 'source evaluation'],
-    recommendedQuestionTypes: ['multiple_choice', 'essay', 'ordering']
-  },
-  
-  programming: {
-    systemPromptTemplate: `You are an expert Programming instructor creating coding assessments.
-Focus on code comprehension, debugging skills, and programming concepts.
-Include practical examples and best practices.`,
-    promptTemplate: `Generate {difficulty} level Programming questions about "{topic}"`,
-    defaultCategory: 'Programming',
-    commonFocusAreas: ['code comprehension', 'debugging', 'best practices', 'problem solving'],
-    recommendedQuestionTypes: ['multiple_choice', 'fill_blank', 'essay']
-  },
-  
-  english: {
-    systemPromptTemplate: `You are an expert English language instructor creating educational quizzes.
-Focus on language comprehension, grammar application, and communication skills.
-Ensure questions test practical language usage and understanding.`,
-    promptTemplate: `Generate {difficulty} level English questions about "{topic}"`,
-    defaultCategory: 'English Language',
-    commonFocusAreas: ['grammar application', 'reading comprehension', 'vocabulary usage'],
-    recommendedQuestionTypes: ['multiple_choice', 'true_false', 'fill_blank', 'essay']
-  },
-  
-  custom: {
-    systemPromptTemplate: `You are an expert educator creating educational assessments.
-Focus on clear, educational questions that test understanding and application.
-Ensure questions are appropriate for the specified difficulty level.`,
-    promptTemplate: `Generate {difficulty} level questions about "{topic}"`,
-    defaultCategory: 'General',
-    commonFocusAreas: ['comprehension', 'application', 'analysis'],
-    recommendedQuestionTypes: ['multiple_choice', 'true_false', 'essay']
-  },
-
-  // Additional subject templates showcasing all question types
-  literature: {
-    systemPromptTemplate: `You are an expert Literature instructor creating assessments.
-Focus on literary analysis, comprehension, and critical thinking about texts.
-Include questions about themes, characters, literary devices, and interpretations.`,
-    promptTemplate: `Generate {difficulty} level Literature questions about "{topic}"`,
-    defaultCategory: 'Literature',
-    commonFocusAreas: ['literary analysis', 'character development', 'themes', 'literary devices'],
-    recommendedQuestionTypes: ['multiple_choice', 'essay', 'matching', 'fill_blank']
-  },
-
-  geography: {
-    systemPromptTemplate: `You are an expert Geography instructor creating educational assessments.
-Focus on spatial thinking, location knowledge, and understanding of physical and human geography.
-Include questions about maps, regions, climate, and cultural geography.`,
-    promptTemplate: `Generate {difficulty} level Geography questions about "{topic}"`,
-    defaultCategory: 'Geography',
-    commonFocusAreas: ['spatial awareness', 'location knowledge', 'physical geography', 'human geography'],
-    recommendedQuestionTypes: ['multiple_choice', 'matching', 'ordering', 'fill_blank']
-  },
-
-  biology: {
-    systemPromptTemplate: `You are an expert Biology instructor creating scientific assessments.
-Focus on biological processes, organism structure and function, and scientific methodology.
-Include questions about classification, evolution, genetics, and ecology.`,
-    promptTemplate: `Generate {difficulty} level Biology questions about "{topic}"`,
-    defaultCategory: 'Biology',
-    commonFocusAreas: ['biological processes', 'scientific method', 'classification', 'genetics'],
-    recommendedQuestionTypes: ['multiple_choice', 'matching', 'fill_blank', 'essay']
-  }
-}
+// Subject templates removed - now using flexible subject system
+// All subjects are supported through free-text input with unified prompt generation
 
 export class EnhancedQuizGenerationService {
   private aiService: BaseAIService
@@ -158,30 +69,11 @@ export class EnhancedQuizGenerationService {
 
   // Suggest category based on subject and topic
   private suggestCategoryFromSubject(subject: string, topic: string): string {
-    const subjectKey = subject.toLowerCase()
-    const template = SUBJECT_TEMPLATES[subjectKey]
+    // Simply use the subject as category, with some cleanup
+    const cleanSubject = subject.trim()
     
-    if (template) {
-      return template.defaultCategory
-    }
-    
-    // If custom subject, try to infer from topic
-    const topicLower = topic.toLowerCase()
-    if (topicLower.includes('math') || topicLower.includes('algebra') || topicLower.includes('calculus')) {
-      return 'Mathematics'
-    }
-    if (topicLower.includes('science') || topicLower.includes('physics') || topicLower.includes('chemistry')) {
-      return 'Science'
-    }
-    if (topicLower.includes('history') || topicLower.includes('war') || topicLower.includes('ancient')) {
-      return 'History'
-    }
-    if (topicLower.includes('language') || topicLower.includes('grammar') || topicLower.includes('vocabulary')) {
-      return 'Language'
-    }
-    
-    // Default fallback
-    return subject.charAt(0).toUpperCase() + subject.slice(1)
+    // Capitalize first letter and return
+    return cleanSubject.charAt(0).toUpperCase() + cleanSubject.slice(1).toLowerCase()
   }
 
   private buildSystemPrompt(request: EnhancedQuizGenerationRequest): string {
@@ -190,11 +82,11 @@ export class EnhancedQuizGenerationService {
       return request.customSystemPrompt
     }
 
-    // Get subject template
-    const subjectKey = request.subject.toLowerCase()
-    const template = SUBJECT_TEMPLATES[subjectKey] || SUBJECT_TEMPLATES.custom
-    
-    let systemPrompt = template!.systemPromptTemplate
+    // Use flexible base template that works for any subject
+    let systemPrompt = `You are an expert educator creating educational assessments for ${request.subject}.
+Focus on clear, educational questions that test understanding and application.
+Ensure questions are appropriate for the specified difficulty level and culturally relevant.
+Create content that helps students learn and reinforces key concepts.`
 
     // Add teaching style modifications
     if (request.teachingStyle) {
@@ -253,18 +145,11 @@ export class EnhancedQuizGenerationService {
   }
 
   private buildPrompt(request: EnhancedQuizGenerationRequest): string {
-    const subjectKey = request.subject.toLowerCase()
-    const template = SUBJECT_TEMPLATES[subjectKey] || SUBJECT_TEMPLATES.custom
-    
-    // Start with base prompt
-    let prompt = template!.promptTemplate
-      .replace('{difficulty}', request.difficulty)
-      .replace('{topic}', request.topic)
-
-    prompt += ` with exactly ${request.questionCount} questions.`
+    // Simple, flexible prompt that works for any subject
+    let prompt = `Generate ${request.difficulty} level ${request.subject} questions about "${request.topic}" with exactly ${request.questionCount} questions.`
 
     // Add question type requirements
-    const questionTypes = request.questionTypes || template!.recommendedQuestionTypes
+    const questionTypes = request.questionTypes || ['multiple_choice', 'true_false']
     if (request.questionDistribution) {
       const distribution = Object.entries(request.questionDistribution)
         .map(([type, count]) => `${count} ${type} questions`)
@@ -301,15 +186,25 @@ export class EnhancedQuizGenerationService {
       prompt += `\n\nComplexity: ${complexityGuidance[request.complexityLevel]}.`
     }
 
-    // Add JSON format specification
-    const category = request.category || template!.defaultCategory
+    // Add JSON format specification with enhanced safety for non-English content
+    const category = request.category || request.subject
     const languageNote = request.quizLanguage && request.quizLanguage !== 'english' 
       ? `\n\nIMPORTANT: All text content (questions, options, explanations) should be in ${request.quizLanguage}, but the JSON structure and field names must remain in English.`
       : ''
     
-    prompt += `${languageNote}
+    // Add database-specific character constraints
+    const characterRules = this.buildCharacterConstraints(request.quizLanguage)
+    
+    prompt += `${languageNote}${characterRules}
 
-Return ONLY valid JSON in this exact format (no additional text, comments, or markdown):
+CRITICAL JSON REQUIREMENTS:
+1. Return ONLY valid JSON - no additional text, comments, or markdown
+2. Use double quotes for all strings - never single quotes
+3. Do not escape quotes unless actually needed within string content
+4. Ensure all braces and brackets are properly closed
+5. No trailing commas in arrays or objects
+
+SIMPLE JSON STRUCTURE REQUIRED:
 {
   "title": "Quiz: ${request.topic}",
   "description": "Test your knowledge of ${request.topic}",
@@ -317,53 +212,17 @@ Return ONLY valid JSON in this exact format (no additional text, comments, or ma
   "difficulty": "${request.difficulty}",
   "duration_minutes": ${Math.max(10, request.questionCount * 2)},
   "questions": [
-    {
-      "question": "Question text here",
-      "question_type": "multiple_choice",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
-      "correct_answer": 0,
-      "explanation": "Detailed explanation with reasoning"
-    },
-    {
-      "question": "True or False: Statement here",
-      "question_type": "true_false",
-      "options": ["True", "False"],
-      "correct_answer": 0,
-      "explanation": "Explanation of why this is true/false"
-    },
-    {
-      "question": "Fill in the blank: The capital of France is ____.",
-      "question_type": "fill_blank",
-      "options": [],
-      "correct_answer_text": "Paris",
-      "explanation": "Paris is the capital and largest city of France"
-    },
-    {
-      "question": "Essay question: Explain the concept...",
-      "question_type": "essay",
-      "options": [],
-      "correct_answer_text": "Sample answer or key points",
-      "explanation": "Grading rubric or key concepts to cover"
-    },
-    {
-      "question": "Match the items:",
-      "question_type": "matching",
-      "options": {
-        "left": ["Item 1", "Item 2", "Item 3"],
-        "right": ["Match A", "Match B", "Match C"]
-      },
-      "correct_answer_json": {"Item 1": "Match A", "Item 2": "Match B", "Item 3": "Match C"},
-      "explanation": "Explanation of the correct matches"
-    },
-    {
-      "question": "Put these events in chronological order:",
-      "question_type": "ordering",
-      "options": ["Event C", "Event A", "Event B"],
-      "correct_answer_json": ["Event A", "Event B", "Event C"],
-      "explanation": "Explanation of the correct order"
-    }
+    ${this.buildQuestionExamples(request)}
   ]
 }
+
+VALIDATION CHECKLIST:
+1. Valid JSON syntax (proper quotes, commas, brackets)
+2. "difficulty" field must be EXACTLY "${request.difficulty}"
+3. Include exactly ${request.questionCount} questions
+4. All questions have proper question_type field
+5. All multiple_choice questions have correct_answer as number (0-3)
+6. All explanations are educational and help students learn
 
 QUESTION TYPE GUIDELINES:
 - multiple_choice: 4 options (A,B,C,D), correct_answer is index (0,1,2,3) - ONLY ONE CORRECT ANSWER
@@ -380,11 +239,162 @@ CRITICAL REMINDERS:
 2. Ensure all JSON syntax is correct (proper quotes, commas, brackets)
 3. MANDATORY: "difficulty" field must be EXACTLY "${request.difficulty}" (one of: beginner, intermediate, advanced)
 4. Use the exact difficulty value provided - do not translate or modify it
-3. If generating in a non-English language, translate content but keep JSON field names in English
-4. Test the JSON structure before returning to ensure it's valid
-5. Include exactly ${request.questionCount} questions as requested`
+5. If generating in a non-English language, translate content but keep JSON field names in English
+6. Test the JSON structure before returning to ensure it's valid
+7. Include exactly ${request.questionCount} questions as requested`
 
     return prompt
+  }
+
+  // Build database-specific character constraints for AI generation
+  private buildCharacterConstraints(language?: string): string {
+    let rules = `
+
+DATABASE CHARACTER CONSTRAINTS:
+- Title: Max 255 characters, no special JSON characters (unescaped quotes, backslashes)
+- Description: Max 5000 characters recommended for performance
+- Questions: Max 2000 characters each for readability
+- Options: Max 500 characters each option
+- Explanations: Max 1500 characters for detailed but concise explanations
+
+PROHIBITED CHARACTERS IN JSON:
+- Unescaped double quotes (") - use single quotes for contractions or abbreviations
+- Unescaped backslashes (\\) - avoid file paths or technical notation
+- Line breaks within strings - use spaces or periods instead
+- Tab characters - use regular spaces
+- Control characters (ASCII 0-31) - use standard punctuation
+
+CONTENT GUIDELINES:
+- Use proper punctuation: periods, commas, colons, semicolons
+- Use em dashes (—) instead of double hyphens (--)
+- Use single quotes for contractions: "don't", "can't", "won't"
+- Use standard quotation marks for quoted text: 'He said, "Hello"'
+- Avoid complex mathematical symbols - spell out or use Unicode equivalents
+- Use standard apostrophes (') not curly quotes (')
+`
+
+    // Language-specific character handling
+    if (language) {
+      switch (language.toLowerCase()) {
+        case 'indonesian':
+        case 'bahasa':
+          rules += `
+INDONESIAN LANGUAGE SPECIFIC:
+- Use standard Indonesian punctuation
+- Avoid complex diacritical marks that might cause encoding issues
+- Use standard Indonesian medical/scientific terminology
+- Keep sentences clear and educational
+- Use "dan" instead of "&" symbol
+- Spell out numbers when appropriate: "lima" instead of "5" in explanations
+`
+          break
+        
+        case 'spanish':
+        case 'español':
+          rules += `
+SPANISH LANGUAGE SPECIFIC:
+- Use standard Spanish punctuation including ¿ and ¡
+- Acceptable accented characters: á, é, í, ó, ú, ñ
+- Use "y" instead of "&" symbol
+- Maintain proper Spanish grammar rules
+`
+          break
+        
+        case 'french':
+        case 'français':
+          rules += `
+FRENCH LANGUAGE SPECIFIC:
+- Acceptable accented characters: à, é, è, ê, ë, î, ï, ô, ù, û, ü, ÿ, ç
+- Use proper French punctuation spacing
+- Use "et" instead of "&" symbol
+- Maintain proper French grammar rules
+`
+          break
+        
+        case 'arabic':
+        case 'العربية':
+          rules += `
+ARABIC LANGUAGE SPECIFIC:
+- Use proper Arabic script (right-to-left)
+- Ensure proper Arabic punctuation
+- Avoid mixing Arabic and Latin characters in same sentence
+- Use Arabic numerals where appropriate
+`
+          break
+
+        default:
+          rules += `
+GENERAL NON-ENGLISH GUIDELINES:
+- Use Unicode characters appropriately for the language
+- Maintain consistent character encoding
+- Avoid mixing scripts unless educationally necessary
+- Use proper punctuation for the target language
+`
+      }
+    }
+
+    return rules
+  }
+
+  // Build specific question examples based on requested types
+  private buildQuestionExamples(request: EnhancedQuizGenerationRequest): string {
+    const questionTypes = request.questionTypes || ['multiple_choice', 'true_false']
+    const examples: string[] = []
+
+    // Only show examples for the question types actually being requested
+    if (questionTypes.includes('multiple_choice')) {
+      examples.push(`    {
+      "question": "Question text here",
+      "question_type": "multiple_choice",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correct_answer": 0,
+      "explanation": "Detailed explanation with reasoning"
+    }`)
+    }
+
+    if (questionTypes.includes('true_false')) {
+      examples.push(`    {
+      "question": "True or False: Statement here",
+      "question_type": "true_false",
+      "options": ["True", "False"],
+      "correct_answer": 0,
+      "explanation": "Explanation of why this is true/false"
+    }`)
+    }
+
+    if (questionTypes.includes('fill_blank')) {
+      examples.push(`    {
+      "question": "Fill in the blank: The capital of France is ____.",
+      "question_type": "fill_blank",
+      "options": [],
+      "correct_answer_text": "Paris",
+      "explanation": "Paris is the capital and largest city of France"
+    }`)
+    }
+
+    if (questionTypes.includes('essay')) {
+      examples.push(`    {
+      "question": "Essay question: Explain the concept...",
+      "question_type": "essay",
+      "options": [],
+      "correct_answer_text": "Sample answer or key points",
+      "explanation": "Grading rubric or key concepts to cover"
+    }`)
+    }
+
+    // Default to multiple choice if no specific types requested
+    if (examples.length === 0) {
+      examples.push(`    {
+      "question": "Question text here",
+      "question_type": "multiple_choice",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correct_answer": 0,
+      "explanation": "Detailed explanation with reasoning"
+    }`)
+    }
+
+    // Show only first 2 examples to keep prompt concise
+    return examples.slice(0, 2).join(',\n') + '\n    // ... additional questions following same pattern'
   }
 
   async generateQuiz(request: EnhancedQuizGenerationRequest): Promise<{
@@ -393,115 +403,124 @@ CRITICAL REMINDERS:
     error?: string
     promptUsed?: string
     systemPromptUsed?: string
+    reviewResult?: ContentReviewResult
   }> {
     try {
       const systemPrompt = this.buildSystemPrompt(request)
       const prompt = this.buildPrompt(request)
 
-      logger.info('Generating enhanced quiz', {
+      logger.info('Generating enhanced quiz with content review', {
         subject: request.subject,
         topic: request.topic,
         questionCount: request.questionCount,
-        customPrompt: !!request.customSystemPrompt,
-        teachingStyle: request.teachingStyle
-      })
-
-      const response = await this.aiService.generateContent({
-        prompt,
-        systemPrompt,
-        maxTokens: 4096, // Increased for better quality
-        temperature: 0.7
-      })
-
-      // Override model if using Gemini service
-      if (this.aiService.constructor.name === 'GeminiAIService') {
-        // Force use of the latest model
-        (this.aiService as any).config.model = this.modelId
-      }
-
-      if (!response.success) {
-        return { success: false, error: response.error }
-      }
-
-      // Clean and parse JSON response
-      const cleanedContent = response.content!.replace(/```json|```/g, '').trim()
-      
-      // Additional logging for debugging
-      logger.info('AI response received', {
-        contentLength: response.content?.length || 0,
-        cleanedLength: cleanedContent.length,
-        startsWithBrace: cleanedContent.startsWith('{'),
-        endsWithBrace: cleanedContent.endsWith('}'),
         language: request.quizLanguage || 'english'
       })
-      
-      // Check if response is empty or invalid
-      if (!cleanedContent || cleanedContent.length < 10) {
-        logger.error('Empty or too short AI response', { 
-          content: cleanedContent,
-          originalLength: response.content?.length 
-        })
-        return {
-          success: false,
-          error: 'AI returned empty response. Please try again with a different topic or language.',
-          promptUsed: prompt,
-          systemPromptUsed: systemPrompt
-        }
-      }
-      
-      try {
-        const quiz = JSON.parse(cleanedContent)
-        
-        // Enhance quiz with improved category if not provided
-        if (!quiz.category || quiz.category === 'General') {
-          quiz.category = request.category || this.suggestCategoryFromSubject(request.subject, request.topic)
-        }
-        
-        // Validate the generated quiz
-        if (!quiz.questions || quiz.questions.length === 0) {
-          throw new Error('Generated quiz has no questions')
-        }
 
-        logger.info('Enhanced quiz generated successfully', {
-          subject: request.subject,
-          topic: request.topic,
-          questionsCount: quiz.questions.length,
-          category: quiz.category,
-          suggestedCategory: !request.category
+      // First attempt at generation
+      let attempts = 0
+      const maxAttempts = 3
+      let bestResult: any = null
+      let lastError = ''
+
+      while (attempts < maxAttempts) {
+        attempts++
+        
+        logger.info(`Quiz generation attempt ${attempts}/${maxAttempts}`)
+
+        const response = await this.aiService.generateContent({
+          prompt: attempts > 1 ? this.buildStrictPrompt(request, lastError) : prompt,
+          systemPrompt: attempts > 1 ? this.buildStrictSystemPrompt(request) : systemPrompt,
+          maxTokens: 4096,
+          temperature: attempts > 1 ? 0.3 : 0.7 // Lower temperature for retry attempts
         })
 
-        return {
-          success: true,
-          quiz,
-          promptUsed: prompt,
-          systemPromptUsed: systemPrompt
+        if (!response.success) {
+          lastError = response.error || 'AI service failed'
+          logger.warn(`Attempt ${attempts} failed: ${lastError}`)
+          continue
         }
-      } catch (parseError: any) {
-        logger.error('Failed to parse enhanced quiz JSON', {
-          error: parseError.message,
-          cleanedContent: cleanedContent.substring(0, 200) + '...',
-          language: request.quizLanguage || 'english',
-          contentType: typeof cleanedContent,
-          isEmptyObject: cleanedContent === '{}' || cleanedContent === '{}'
-        })
+
+        // Clean the response
+        let cleanedContent = response.content!.replace(/```json|```/g, '').trim()
         
-        // Special handling for empty object response
-        if (cleanedContent === '{}' || cleanedContent.trim() === '{}') {
-          return {
-            success: false,
-            error: `AI returned empty object for ${request.quizLanguage || 'english'} language. This may be due to language complexity. Try with a simpler topic or different language.`,
-            promptUsed: prompt,
-            systemPromptUsed: systemPrompt
+        if (!cleanedContent || cleanedContent.length < 50) {
+          lastError = 'AI returned empty or too short response'
+          logger.warn(`Attempt ${attempts} failed: ${lastError}`)
+          continue
+        }
+
+        // Content Review Pipeline
+        logger.info('Starting content review pipeline')
+        const reviewResult = await contentReviewService.reviewQuizContent(cleanedContent, request)
+
+        if (reviewResult.isValid || reviewResult.confidence >= 70) {
+          // Use corrected content if available, otherwise use original
+          const finalContent = reviewResult.correctedContent || cleanedContent
+
+          try {
+            const quiz = JSON.parse(finalContent)
+            
+            // Enhance quiz with improved category if needed
+            if (!quiz.category || quiz.category === 'General') {
+              quiz.category = request.category || this.suggestCategoryFromSubject(request.subject, request.topic)
+            }
+
+            logger.info('Quiz generation successful', {
+              attempts,
+              confidence: reviewResult.confidence,
+              issuesFound: reviewResult.issues.length,
+              questionsCount: quiz.questions?.length || 0
+            })
+
+            // Store content review result in database
+            await this.storeContentReview(request, reviewResult, quiz)
+
+            return {
+              success: true,
+              quiz,
+              promptUsed: prompt,
+              systemPromptUsed: systemPrompt,
+              reviewResult
+            }
+
+          } catch (parseError: any) {
+            lastError = `JSON parsing failed: ${parseError.message}`
+            logger.warn(`Attempt ${attempts} JSON parse failed: ${lastError}`)
+            continue
           }
-        }
-        
-        return {
-          success: false,
-          error: `Failed to parse AI response: ${parseError.message}. The AI may have generated invalid JSON for this language.`,
-          promptUsed: prompt,
-          systemPromptUsed: systemPrompt
+        } else {
+          // Content review failed
+          lastError = `Content review failed (confidence: ${reviewResult.confidence}%). Issues: ${reviewResult.issues.map(i => i.message).join(', ')}`
+          logger.warn(`Attempt ${attempts} content review failed`, {
+            confidence: reviewResult.confidence,
+            issues: reviewResult.issues.length,
+            criticalIssues: reviewResult.issues.filter(i => i.severity === 'critical').length
+          })
+          
+          // Store failed review for analytics (only on last attempt to avoid spam)
+          if (attempts === maxAttempts) {
+            await this.storeContentReview(request, reviewResult, cleanedContent)
+          }
+          
+          bestResult = { reviewResult, content: cleanedContent }
         }
       }
+
+      // All attempts failed
+      logger.error('All quiz generation attempts failed', {
+        attempts: maxAttempts,
+        lastError,
+        bestConfidence: bestResult?.reviewResult?.confidence || 0
+      })
+
+      return {
+        success: false,
+        error: `Failed to generate valid quiz after ${maxAttempts} attempts. Last error: ${lastError}. ${bestResult ? `Best confidence: ${bestResult.reviewResult.confidence}%` : ''}`,
+        promptUsed: prompt,
+        systemPromptUsed: systemPrompt,
+        reviewResult: bestResult?.reviewResult
+      }
+
     } catch (error: any) {
       logger.error('Enhanced quiz generation failed:', error)
       return {
@@ -511,15 +530,139 @@ CRITICAL REMINDERS:
     }
   }
 
-  // Utility method to get available subjects
-  getAvailableSubjects(): string[] {
-    return Object.keys(SUBJECT_TEMPLATES).filter(key => key !== 'custom')
+  // Store content review result in database
+  private async storeContentReview(
+    request: EnhancedQuizGenerationRequest,
+    result: ContentReviewResult,
+    generatedContent: any
+  ): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('content_reviews')
+        .insert({
+          content_type: 'quiz',
+          title: `Quiz: ${request.subject} (${request.questionCount} questions)`,
+          subject: request.subject,
+          difficulty: request.difficulty,
+          raw_ai_response: JSON.stringify(generatedContent),
+          review_status: result.isValid ? 'approved' : 'pending',
+          ai_confidence_score: result.confidence / 100, // Convert to decimal (0.00 to 1.00)
+          validation_issues: result.issues,
+          corrected_content: result.correctedContent ? JSON.stringify(result.correctedContent) : null,
+          auto_corrected: !!result.correctedContent,
+          ai_model: 'gemini-2.0-flash-exp',
+          language: request.quizLanguage || 'english',
+          estimated_review_time: Math.max(5, Math.ceil(request.questionCount * 0.5 + (result.issues?.length || 0) * 2))
+        })
+
+      if (error) {
+        logger.error('Failed to store content review:', error)
+      } else {
+        logger.info('Content review stored successfully', {
+          subject: request.subject,
+          status: result.isValid ? 'approved' : 'pending',
+          confidence: result.confidence
+        })
+      }
+    } catch (error: any) {
+      logger.error('Error storing content review:', error)
+    }
   }
 
-  // Utility method to get subject template info
+  // Build strict system prompt for retry attempts
+  private buildStrictSystemPrompt(request: EnhancedQuizGenerationRequest): string {
+    return `You are an expert educator creating educational assessments for ${request.subject}.
+
+CRITICAL JSON GENERATION RULES:
+1. Return ONLY valid JSON - no explanations, comments, or markdown
+2. Use only double quotes (") for strings - never single quotes
+3. Do not escape quotes unless absolutely necessary within content
+4. Ensure all braces { } and brackets [ ] are properly matched
+5. No trailing commas in arrays or objects
+6. Test your JSON structure before responding
+
+CONTENT QUALITY REQUIREMENTS:
+- Educational and accurate content
+- Clear, unambiguous questions
+- Detailed explanations that help students learn
+- Appropriate for ${request.difficulty} difficulty level
+- Culturally appropriate and inclusive
+
+${request.quizLanguage && request.quizLanguage !== 'english' ? 
+  `LANGUAGE REQUIREMENT: All content must be in ${request.quizLanguage}` : ''}
+
+Focus on creating valid JSON that will parse correctly while maintaining educational value.`
+  }
+
+  // Build strict prompt for retry attempts
+  private buildStrictPrompt(request: EnhancedQuizGenerationRequest, previousError: string): string {
+    const category = request.category || request.subject
+    
+    return `PREVIOUS ATTEMPT FAILED: ${previousError}
+
+Create a ${request.difficulty} level ${request.subject} quiz about "${request.topic}" with exactly ${request.questionCount} questions.
+
+MANDATORY JSON STRUCTURE - NO DEVIATIONS ALLOWED:
+{
+  "title": "Quiz: ${request.topic}",
+  "description": "Brief description here",
+  "category": "${category}",
+  "difficulty": "${request.difficulty}",
+  "duration_minutes": ${Math.max(10, request.questionCount * 2)},
+  "questions": [
+    {
+      "question": "Question text here",
+      "question_type": "multiple_choice",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correct_answer": 0,
+      "explanation": "Detailed explanation here"
+    }
+  ]
+}
+
+ABSOLUTE REQUIREMENTS:
+1. Return ONLY the JSON object above
+2. Exactly ${request.questionCount} questions in the array
+3. All questions must follow the structure shown
+4. "difficulty" must be exactly "${request.difficulty}"
+5. No markdown, no explanations, no additional text
+6. Validate JSON syntax before responding
+
+${request.questionTypes ? 
+  `Question types to include: ${request.questionTypes.join(', ')}` : 
+  'Use multiple_choice and true_false question types'}
+
+CONTENT RULES:
+- Keep questions under 500 characters
+- Keep explanations under 300 characters  
+- Use simple punctuation only
+- Avoid special characters that break JSON
+- Ensure educational accuracy
+
+Return the JSON now:`
+  }
+
+  // Return common subject suggestions (but allow any subject)
+  getAvailableSubjects(): string[] {
+    return [
+      'Science',
+      'Mathematics', 
+      'History',
+      'English Language',
+      'Programming',
+      'Literature',
+      'Art',
+      'Geography',
+      'Economics',
+      'Psychology'
+    ]
+  }
+
+  // Old JSON cleaning methods removed - now using Content Review System for validation and correction
+
+  // Legacy method - now returns null since we use flexible subjects
   getSubjectTemplate(subject: string): SubjectTemplate | null {
-    const subjectKey = subject.toLowerCase()
-    return SUBJECT_TEMPLATES[subjectKey] || null
+    return null
   }
 
   // Preview what prompts would be generated
