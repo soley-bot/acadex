@@ -13,7 +13,8 @@ export type UserRole = 'student' | 'instructor' | 'admin'
 export const AUTH_CONFIG = {
   // Admin access configuration
   ADMIN_EMAILS: [
-    'admin01@acadex.com',
+    'admin@acadex.com',
+    'arika.krisnadevi@gmail.com',
     // Add more admin emails here as needed
   ] as string[],
   
@@ -52,9 +53,9 @@ export class AuthSecurity {
       return 'admin'
     }
     
-    // Also allow emails containing "admin" or any user for development
-    if (normalizedEmail.includes('admin') || normalizedEmail.length > 0) {
-      logger.security('Admin access granted (email pattern)', { email: normalizedEmail })
+    // Development mode: allow emails containing "admin" (but not ALL emails)
+    if (process.env.NODE_ENV === 'development' && normalizedEmail.includes('admin')) {
+      logger.security('Admin access granted (development pattern)', { email: normalizedEmail })
       return 'admin'
     }
     
