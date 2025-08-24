@@ -119,12 +119,19 @@ interface Course {
 ## Design System & Color Standards
 
 ### Color Palette
-- **Primary**: Prussian Blue (#1D63FF) - Main brand color for trust and professionalism
-- **Secondary**: Yellow (#FFCE32) - Accent color for highlights and call-to-action elements
+The color scheme is designed to be professional, accessible, and visually pleasing.
+
+- **Primary (#1D63FF)**: Prussian Blue - Main brand color for trust and professionalism, used for primary actions and navigation elements
+- **Secondary (#FFCE32)**: Yellow - Accent color for highlights and call-to-action elements, provides vibrant contrast for interactive states
+- **Background (#f8fafc)**: A very light, almost white-gray that provides a clean and neutral canvas for the content, preventing eye strain
+- **Sidebar (#1e293b)**: A deep slate blue that creates a strong, stable foundation for the primary navigation. It contrasts well with the main content area
+- **Sidebar Accent (#334155)**: A slightly lighter slate used for hover and active states within the sidebar, providing subtle visual feedback
+- **Card (#ffffff)**: Pure white is used for all content cards, making them pop against the light background and creating a clear visual hierarchy
+- **Text Primary (#1e293b)**: The same deep slate as the sidebar is used for headings and important text, ensuring high readability
+- **Text Secondary (#64748b)**: A softer gray is used for subheadings, descriptions, and labels to create a clear typographic hierarchy without overwhelming the user
 - **Success**: Green for completed states and confirmations
 - **Warning**: Yellow for draft states and cautions  
 - **Error/Destructive**: Red (#ef4444) for errors and deletions
-- **Neutral**: Gray scale for text and backgrounds
 - **Typography**: Inter font family with consistent hierarchy
 
 ### Typography Standards
@@ -488,6 +495,20 @@ const response = await fetch('/api/admin/endpoint', {
 **Hero Sections:** Split-screen layouts (60/40 ratio) with authentic learning environments
 **Course Cards:** Context-appropriate thumbnails with smart fallback system
 **Visual Hierarchy:** Professional white space utilization, subtle background patterns
+
+## Layout & Responsiveness
+The application employs a sophisticated, responsive layout that adapts seamlessly from large desktop monitors to small mobile screens.
+
+### Desktop Layout (≥ 768px)
+**Structure**: A classic two-column dashboard layout.
+- **Left Column**: A fixed-width (w-64) Sidebar for primary navigation. It is always visible, providing constant access to all sections of the application.
+- **Right Column**: The Main Content area, which is fluid and takes up the remaining screen width. This area contains a Header and the main view, which is scrollable.
+
+### Mobile & Tablet Layout (< 768px)
+To optimize for limited screen space, the layout transforms significantly:
+- **Collapsible Sidebar**: The sidebar is hidden by default off-screen (-translate-x-full). It can be toggled into view by tapping a Menu Icon (hamburger) located in the header. When open, it slides in from the left and overlays the main content with a semi-transparent backdrop, focusing the user's attention on navigation.
+- **Persistent Header**: A fixed Header remains at the top of the screen. It contains the menu icon and the current page title, providing context and consistent navigation control.
+- **Stacked Content**: Multi-column grids (grid-cols-3, grid-cols-2) automatically stack into a single vertical column (grid-cols-1). This ensures content flows logically and is easily readable without horizontal scrolling. Flexbox layouts also wrap (flex-wrap) to prevent overflow. For example, the stat cards on the dashboard and the course/quiz cards all stack vertically.
 
 ## Professional Spacing System
 **CRITICAL**: Acadex follows a systematic spacing approach based on professional website research.
