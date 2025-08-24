@@ -299,25 +299,25 @@ export default function TakeQuizPage() {
   // Active quiz session - no global navigation for cognitive load reduction
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
-      <div className="max-w-4xl mx-auto px-4 py-4 relative">
+      <div className="max-w-3xl mx-auto px-4 py-3 relative">
         {/* Compact Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-foreground mb-2">{quiz?.title || 'Quiz'}</h1>
+        <div className="text-center mb-4">
+          <h1 className="text-2xl font-bold text-foreground mb-1">{quiz?.title || 'Quiz'}</h1>
           {quiz?.description && (
-            <p className="text-base text-muted-foreground bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl inline-block border border-white/20">
+            <p className="text-sm text-muted-foreground bg-white/80 backdrop-blur-sm px-3 py-1 rounded-lg inline-block border border-white/20">
               {quiz.description}
             </p>
           )}
         </div>
 
-        {/* Progress Bar - Enhanced */}
-        <div className="mb-8 bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border border-white/20">
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-            <span className="font-semibold text-lg">Question {currentQuestionIndex + 1} of {questions.length}</span>
-            <div className="flex items-center gap-4">
+        {/* Progress Bar - Optimized Spacing */}
+        <div className="mb-6 bg-white/90 backdrop-blur-lg rounded-xl p-4 shadow-lg border border-white/20">
+          <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
+            <span className="font-semibold">Question {currentQuestionIndex + 1} of {questions.length}</span>
+            <div className="flex items-center gap-3">
               <span className="font-medium">{Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}% Complete</span>
               {timeLeft > 0 && (
-                <span className={`font-bold px-3 py-1 rounded-lg border ${
+                <span className={`font-bold px-2 py-1 rounded-md text-xs border ${
                   timeLeft <= 60 ? 'bg-destructive text-destructive-foreground border-destructive' : 
                   timeLeft <= 300 ? 'bg-warning text-warning-foreground border-warning' : 
                   'bg-muted text-muted-foreground border-border'
@@ -327,36 +327,36 @@ export default function TakeQuizPage() {
               )}
             </div>
           </div>
-          <div className="w-full bg-muted/60 rounded-full h-4 shadow-inner">
+          <div className="w-full bg-muted/60 rounded-full h-3 shadow-inner">
             <div 
-              className="bg-primary h-4 rounded-full transition-all duration-500 shadow-lg"
+              className="bg-primary h-3 rounded-full transition-all duration-500 shadow-sm"
               style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
             ></div>
           </div>
         </div>
 
-        {/* Main Quiz Content - Enhanced */}
-        <div className="bg-white/95 rounded-2xl p-6 sm:p-8 shadow-xl border border-white/20">
+        {/* Main Quiz Content - Optimized Spacing */}
+        <div className="bg-white/95 rounded-xl p-5 shadow-lg border border-white/20">
           {currentQuestion ? (
             <>
-              {/* Question - Enhanced Typography */}
-              <div className="mb-8">
-                <div className="bg-gradient-to-r from-primary/5 to-secondary/5 rounded-xl p-6 mb-6">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-foreground leading-relaxed">
+              {/* Question - Compact Typography */}
+              <div className="mb-6">
+                <div className="bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg p-4 mb-4">
+                  <h2 className="text-xl font-semibold text-foreground leading-relaxed">
                     {currentQuestion.question}
                   </h2>
                 </div>
               </div>
               
-              {/* Answer Options - Support All Question Types */}
-              <div className="space-y-3 mb-6">
+              {/* Answer Options - Compact Spacing */}
+              <div className="space-y-2 mb-5">
                 {/* Multiple Choice / Single Choice */}
                 {(currentQuestion.question_type === 'multiple_choice' || currentQuestion.question_type === 'single_choice') && Array.isArray(currentQuestion.options) && (
                   <>
                     {(currentQuestion.options as string[]).map((option, index) => (
                       <label
                         key={index}
-                        className={`flex items-start gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                        className={`flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
                           answers[currentQuestion?.id ?? ''] === index
                             ? 'border-primary bg-primary/5'
                             : 'border-gray-200 bg-white hover:border-red-300 hover:bg-red-25'
@@ -379,7 +379,7 @@ export default function TakeQuizPage() {
                           onChange={() => currentQuestion && handleAnswerSelect(currentQuestion.id, index)}
                           className="sr-only"
                         />
-                        <span className="text-sm sm:text-base text-gray-800 flex-1">
+                        <span className="text-base text-gray-800 flex-1">
                           {option}
                         </span>
                       </label>
@@ -393,7 +393,7 @@ export default function TakeQuizPage() {
                     {['True', 'False'].map((option, index) => (
                       <label
                         key={index}
-                        className={`flex items-start gap-3 p-3 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                        className={`flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
                           answers[currentQuestion?.id ?? ''] === index
                             ? 'border-primary bg-primary/5'
                             : 'border-gray-200 bg-white hover:border-red-300 hover:bg-red-25'
@@ -416,7 +416,7 @@ export default function TakeQuizPage() {
                           onChange={() => currentQuestion && handleAnswerSelect(currentQuestion.id, index)}
                           className="sr-only"
                         />
-                        <span className="text-sm sm:text-base text-gray-800 flex-1 font-medium">
+                        <span className="text-base text-gray-800 flex-1 font-medium">
                           {option}
                         </span>
                       </label>
@@ -426,36 +426,36 @@ export default function TakeQuizPage() {
 
                 {/* Fill in the Blank */}
                 {currentQuestion.question_type === 'fill_blank' && (
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <input
                       type="text"
                       placeholder="Type your answer here..."
                       value={answers[currentQuestion?.id ?? ''] || ''}
                       onChange={(e) => currentQuestion && handleAnswerChange(currentQuestion.id, e.target.value)}
-                      className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-primary focus:outline-none transition-all text-sm sm:text-base"
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:outline-none transition-all text-base"
                     />
                   </div>
                 )}
 
                 {/* Essay */}
                 {currentQuestion.question_type === 'essay' && (
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <textarea
                       placeholder="Write your essay answer here..."
                       value={answers[currentQuestion?.id ?? ''] || ''}
                       onChange={(e) => currentQuestion && handleAnswerChange(currentQuestion.id, e.target.value)}
-                      className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-primary focus:outline-none transition-all text-sm sm:text-base resize-vertical min-h-32"
-                      rows={4}
+                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:outline-none transition-all text-base resize-vertical min-h-28"
+                      rows={3}
                     />
                     <p className="text-xs text-gray-500">Take your time to provide a detailed answer.</p>
                   </div>
                 )}
 
-                {/* Matching */}
+                {/* Matching - Improved Layout */}
                 {currentQuestion.question_type === 'matching' && Array.isArray(currentQuestion.options) && (
-                  <div className="space-y-4">
-                    <p className="text-sm text-gray-600 mb-4">Match the items from the left column with the correct items from the right column:</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <p className="text-sm text-gray-600 mb-3">Match the items from the left column with the correct items from the right column:</p>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <h4 className="font-medium text-gray-700 text-sm">Left Column:</h4>
                         {(currentQuestion.options as Array<{left: string; right: string}>).map((pair, index) => (
@@ -467,7 +467,7 @@ export default function TakeQuizPage() {
                       <div className="space-y-2">
                         <h4 className="font-medium text-gray-700 text-sm">Right Column (Select matches):</h4>
                         {(currentQuestion.options as Array<{left: string; right: string}>).map((pair, index) => (
-                          <label key={index} className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg cursor-pointer hover:bg-green-100">
+                          <label key={index} className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg cursor-pointer hover:bg-green-100">
                             <input
                               type="checkbox"
                               checked={(answers[currentQuestion?.id ?? ''] || []).includes(index)}
@@ -480,7 +480,7 @@ export default function TakeQuizPage() {
                                   handleAnswerChange(currentQuestion.id, currentAnswers.filter((i: number) => i !== index));
                                 }
                               }}
-                              className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-red-500"
+                              className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                             />
                             <span className="text-sm">{String.fromCharCode(65 + index)}. {pair.right}</span>
                           </label>
@@ -490,33 +490,43 @@ export default function TakeQuizPage() {
                   </div>
                 )}
 
-                {/* Ordering */}
+                {/* Ordering - Improved Visual Design */}
                 {currentQuestion.question_type === 'ordering' && Array.isArray(currentQuestion.options) && (
-                  <div className="space-y-4">
-                    <p className="text-sm text-gray-600 mb-4">Drag and drop the items to arrange them in the correct order:</p>
+                  <div className="space-y-3">
+                    <p className="text-sm text-gray-600 mb-3">Arrange these items in the correct order (1 = first, higher numbers = later):</p>
                     <div className="space-y-2">
                       {(currentQuestion.options as string[]).map((option, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg cursor-move hover:bg-muted/40 transition-all"
+                          className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg"
                         >
-                          <div className="flex items-center justify-center w-6 h-6 bg-gray-600 text-white text-xs font-bold rounded">
-                            {index + 1}
-                          </div>
-                          <span className="text-sm flex-1">{option}</span>
-                          <div className="text-gray-400">
-                            <Move className="w-4 h-4" />
-                          </div>
+                          <select
+                            value={answers[currentQuestion?.id ?? '']?.[index] || ''}
+                            onChange={(e) => {
+                              if (!currentQuestion) return;
+                              const newAnswers = [...(answers[currentQuestion.id] || new Array(currentQuestion.options.length).fill(''))];
+                              newAnswers[index] = e.target.value;
+                              handleAnswerChange(currentQuestion.id, newAnswers);
+                            }}
+                            className="w-16 p-1 border border-gray-300 rounded text-sm focus:border-primary focus:outline-none"
+                          >
+                            <option value="">-</option>
+                            {Array.from({ length: currentQuestion.options.length }, (_, i) => (
+                              <option key={i + 1} value={i + 1}>{i + 1}</option>
+                            ))}
+                          </select>
+                          <span className="text-base flex-1">{option}</span>
+                          <Move className="w-4 h-4 text-gray-400" />
                         </div>
                       ))}
                     </div>
-                    <p className="text-xs text-gray-500">Note: Drag functionality will be enhanced in future updates.</p>
+                    <p className="text-xs text-gray-500">Select the order number for each item (1, 2, 3, etc.)</p>
                   </div>
                 )}
               </div>
 
-              {/* Navigation - Always Visible */}
-              <div className="flex items-center justify-between gap-2 sm:gap-3 pt-4 border-t border-gray-200">
+              {/* Navigation - Compact Design */}
+              <div className="flex items-center justify-between gap-2 sm:gap-3 pt-3 border-t border-gray-200">
                 {/* Previous Button */}
                 <button
                   onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
