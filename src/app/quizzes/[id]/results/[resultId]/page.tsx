@@ -5,10 +5,8 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getQuizResults } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
-import { H1, H2, H3, H4, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertTriangle, CheckCircle, BarChart3, Lightbulb, Check, Edit, RefreshCw, BookOpen, Clock, Target, Award } from 'lucide-react'
-import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
 import { CollapsibleSection } from '@/components/quiz/CollapsibleSection'
 import { ResultsExplanation } from '@/components/quiz/ResultsExplanation'
 import { logger } from '@/lib/logger'
@@ -84,57 +82,59 @@ export default function QuizResultsPage() {
 
   if (loading) {
     return (
-      <Section className="min-h-screen relative overflow-hidden" background="gradient">
-        <Container className="relative flex items-center justify-center py-20">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
+        <div className="max-w-2xl mx-auto px-4 flex items-center justify-center py-20">
           <Card variant="glass" className="text-center p-12">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary mx-auto mb-6"></div>
-            <BodyLG className="text-gray-700 font-medium">Loading results...</BodyLG>
+            <p className="text-lg text-muted-foreground font-medium">Loading results...</p>
           </Card>
-        </Container>
-      </Section>
+        </div>
+      </div>
     )
   }
 
   if (error || !results) {
     return (
-      <Section className="min-h-screen relative overflow-hidden" background="gradient">
-        <Container className="relative max-w-2xl pt-32 text-center">
-          <Card variant="glass" className="p-12">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
+        <div className="max-w-2xl mx-auto px-4 pt-32 text-center">
+          <Card variant="glass" className="text-center p-12">
             <div className="w-16 h-16 bg-destructive rounded-2xl flex items-center justify-center mx-auto mb-6">
               <AlertTriangle className="w-8 h-8 text-white" />
             </div>
-            <H2 className="text-gray-900 mb-6">Results Not Found</H2>
-            <BodyLG className="text-gray-700 mb-8">{error || 'The quiz results could not be found.'}</BodyLG>
-            <Link
-              href="/quizzes"
-              className="bg-primary hover:bg-secondary text-white hover:text-black px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 inline-block"
-            >
-              Back to Quizzes
-            </Link>
+            <h2 className="text-3xl font-semibold text-foreground mb-6">Results Not Found</h2>
+            <p className="text-lg text-muted-foreground mb-8">{error || 'The quiz results could not be found.'}</p>
+            <div className="flex gap-4 justify-center">
+              <Link 
+                href="/quizzes"
+                className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 rounded-xl font-semibold transition-all duration-300"
+              >
+                Back to Quizzes
+              </Link>
+            </div>
           </Card>
-        </Container>
-      </Section>
+        </div>
+      </div>
     )
   }
 
   const scoreMessage = getScoreMessage(results.score)
 
   return (
-    <Section className="min-h-screen relative overflow-hidden" background="gradient">
-      <Container className="relative max-w-6xl pt-20 pb-12">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 pt-20 pb-12">
 
         {/* Results Header */}
         <Card variant="glass" className="text-center p-8 mb-8">
           <div className="w-16 h-16 bg-success rounded-2xl flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-8 h-8 text-white" />
           </div>
-          <H1 className="text-gray-900 mb-3">Quiz Complete!</H1>
-          <H3 className="text-gray-700 mb-8">{results.quiz_title}</H3>
+          <h1 className="text-4xl font-bold text-foreground mb-3">Quiz Complete!</h1>
+          <h3 className="text-2xl font-medium text-muted-foreground mb-8">{results.quiz_title}</h3>
           
           <div className={`text-6xl font-bold mb-4 ${getScoreColor(results.score)}`}>
             {results.score}%
           </div>
-          <BodyLG className="text-gray-700 mb-8">{scoreMessage.message}</BodyLG>
+          <p className="text-lg text-muted-foreground mb-8">{scoreMessage.message}</p>
           
           {/* Mobile-Optimized Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
@@ -233,46 +233,46 @@ export default function QuizResultsPage() {
           <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center mx-auto mb-6">
             <Lightbulb className="w-8 h-8 text-white" />
           </div>
-          <H3 className="text-gray-900 mb-4">Tips for Improvement</H3>
-          <BodyMD className="text-gray-700 mb-8">Enhance your learning journey with these proven strategies</BodyMD>
+          <h3 className="text-2xl font-medium text-foreground mb-4">Tips for Improvement</h3>
+          <p className="text-base text-muted-foreground mb-8">Enhance your learning journey with these proven strategies</p>
           
-          <Grid cols={2} gap="lg" className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <div className="text-left">
-              <H4 className="text-secondary mb-4">Learning Strategies</H4>
+              <h4 className="text-xl font-medium text-secondary mb-4">Learning Strategies</h4>
               <div className="space-y-3">
                 <div className="flex items-center gap-3 p-3 bg-white/50 rounded-lg">
                   <Check className="w-4 h-4 text-success" />
-                  <span className="text-gray-700">Review explanations carefully</span>
+                  <span className="text-muted-foreground">Review explanations carefully</span>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-white/50 rounded-lg">
                   <Edit className="w-4 h-4 text-primary" />
-                  <span className="text-gray-700">Take detailed notes</span>
+                  <span className="text-muted-foreground">Take detailed notes</span>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-white/50 rounded-lg">
                   <RefreshCw className="w-4 h-4 text-secondary" />
-                  <span className="text-gray-700">Practice regularly</span>
+                  <span className="text-muted-foreground">Practice regularly</span>
                 </div>
               </div>
             </div>
             
             <div className="text-left">
-              <H4 className="text-secondary mb-4">Growth Actions</H4>
+              <h4 className="text-xl font-medium text-secondary mb-4">Growth Actions</h4>
               <div className="space-y-3">
                 <div className="flex items-center gap-3 p-3 bg-white/50 rounded-lg">
                   <BookOpen className="w-4 h-4 text-warning" />
-                  <span className="text-gray-700">Explore related courses</span>
+                  <span className="text-muted-foreground">Explore related courses</span>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-white/50 rounded-lg">
                   <CheckCircle className="w-4 h-4 text-success" />
-                  <span className="text-gray-700">Join study communities</span>
+                  <span className="text-muted-foreground">Join study communities</span>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-white/50 rounded-lg">
                   <BarChart3 className="w-4 h-4 text-primary" />
-                  <span className="text-gray-700">Create study schedule</span>
+                  <span className="text-muted-foreground">Create study schedule</span>
                 </div>
               </div>
             </div>
-          </Grid>
+          </div>
           
           {/* Mobile-Optimized Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-6 sm:mt-8">
@@ -291,7 +291,7 @@ export default function QuizResultsPage() {
           </div>
         </Card>
 
-      </Container>
-    </Section>
+      </div>
+    </div>
   )
 }

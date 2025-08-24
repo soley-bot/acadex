@@ -5,10 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { getQuizQuestions, submitQuizAttempt } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
 import { QuizQuestion, Quiz } from '@/lib/supabase'
-import { H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
-import { Container, Section } from '@/components/ui/Layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { BlobBackground } from '@/components/ui/BlobBackground'
 import { AlertTriangle, Target, Move, Check } from 'lucide-react'
 import { logger } from '@/lib/logger'
 
@@ -145,20 +142,14 @@ export default function TakeQuizPage() {
 
   if (loading) {
     return (
-      <Section 
-        className="min-h-screen relative overflow-hidden"
-        background="gradient"
-      >
-        {/* Standardized Interactive Background */}
-        <BlobBackground variant="vibrant" />
-        
-        <Container className="relative flex items-center justify-center min-h-screen">
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
+        <div className="max-w-4xl mx-auto px-4 flex items-center justify-center min-h-screen">
           <div className="text-center bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <BodyLG color="muted" className="font-medium">Loading quiz...</BodyLG>
+            <p className="text-lg text-muted-foreground font-medium">Loading quiz...</p>
           </div>
-        </Container>
-      </Section>
+        </div>
+      </div>
     )
   }
 
@@ -169,8 +160,8 @@ export default function TakeQuizPage() {
           <div className="w-16 h-16 bg-destructive rounded-2xl flex items-center justify-center mx-auto mb-6">
             <AlertTriangle className="w-8 h-8 text-white" />
           </div>
-          <H3 className="text-gray-900 mb-3">Unable to Load Quiz</H3>
-          <BodyMD className="text-gray-600 mb-6">{error || 'The quiz questions could not be loaded.'}</BodyMD>
+          <h3 className="text-2xl font-medium text-foreground mb-3">Unable to Load Quiz</h3>
+          <p className="text-base text-muted-foreground mb-6">{error || 'The quiz questions could not be loaded.'}</p>
           <button
             onClick={() => router.push('/quizzes')}
             className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 rounded-xl font-semibold transition-all duration-300"
@@ -189,9 +180,9 @@ export default function TakeQuizPage() {
           <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
             <Target className="w-8 h-8 text-white" />
           </div>
-          <H2 className="text-gray-900 mb-3">{quiz.title}</H2>
+          <h2 className="text-3xl font-semibold text-foreground mb-3">{quiz.title}</h2>
           {quiz.description && (
-            <BodyMD className="text-gray-600 mb-6">{quiz.description}</BodyMD>
+            <p className="text-base text-muted-foreground mb-6">{quiz.description}</p>
           )}
           <div className="bg-gray-50/80 rounded-xl p-4 mb-6 space-y-3">
             <div className="flex justify-between items-center">
@@ -220,24 +211,15 @@ export default function TakeQuizPage() {
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
-    <Section 
-      className="min-h-screen relative overflow-hidden"
-      background="gradient"
-    >
-      {/* Standardized Interactive Background */}
-      <BlobBackground variant="vibrant" />
-      
-      <Container className="relative py-4 max-w-4xl">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
+      <div className="max-w-4xl mx-auto px-4 py-4 relative">
         {/* Compact Header */}
         <div className="text-center mb-6">
-          <H1 className="mb-2">{quiz?.title || 'Quiz'}</H1>
+          <h1 className="text-4xl font-bold text-foreground mb-2">{quiz?.title || 'Quiz'}</h1>
           {quiz?.description && (
-            <BodyMD 
-              color="muted" 
-              className="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl inline-block border border-white/20"
-            >
+            <p className="text-base text-muted-foreground bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl inline-block border border-white/20">
               {quiz.description}
-            </BodyMD>
+            </p>
           )}
         </div>
 
@@ -528,10 +510,10 @@ export default function TakeQuizPage() {
               </div>
             </>
           ) : (
-            <div className="text-gray-600 text-center py-8">No question found.</div>
+            <div className="text-muted-foreground text-center py-8">No question found.</div>
           )}
         </div>
-      </Container>
-    </Section>
+      </div>
+    </div>
   )
 }
