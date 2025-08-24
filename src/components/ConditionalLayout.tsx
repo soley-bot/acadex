@@ -9,8 +9,9 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const isAdminRoute = pathname.startsWith('/admin')
   const isCourseStudyRoute = pathname.includes('/courses/') && pathname.endsWith('/study')
   const isDashboardRoute = pathname.startsWith('/dashboard') || pathname === '/progress' || pathname === '/profile'
+  const isQuizTakingRoute = pathname.includes('/quizzes/') && pathname.endsWith('/take')
 
-  if (isAdminRoute || isCourseStudyRoute || isDashboardRoute) {
+  if (isAdminRoute || isCourseStudyRoute || isDashboardRoute || isQuizTakingRoute) {
     return <>{children}</>
   }
 

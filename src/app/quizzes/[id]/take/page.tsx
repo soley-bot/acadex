@@ -8,6 +8,8 @@ import { QuizQuestion, Quiz } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertTriangle, Target, Move, Check } from 'lucide-react'
 import { logger } from '@/lib/logger'
+import Header from '@/components/Header'
+import { Footer } from '@/components/Footer'
 
 interface Question {
   id: string
@@ -142,43 +144,55 @@ export default function TakeQuizPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4 pt-24">
-        <Card variant="glass" className="max-w-md w-full">
-          <div className="p-8 text-center">
-            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">Loading Quiz</h3>
-            <p className="text-muted-foreground text-sm">Preparing your quiz questions...</p>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-4">
+          <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
+            <Card variant="glass" className="max-w-md w-full">
+              <div className="p-8 text-center">
+                <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Loading Quiz</h3>
+                <p className="text-muted-foreground text-sm">Preparing your quiz questions...</p>
+              </div>
+            </Card>
           </div>
-        </Card>
+        </main>
+        <Footer />
       </div>
     )
   }
 
   if (error || !quiz || questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4 pt-24">
-        <Card variant="glass" className="max-w-md w-full overflow-hidden">
-          <div className="bg-card border-b border-border p-6 text-center">
-            <div className="w-16 h-16 bg-destructive rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-8 h-8 text-white" />
-            </div>
-            <h3 className="text-2xl font-bold text-foreground mb-2">Unable to Load Quiz</h3>
-            <p className="text-muted-foreground text-sm">{error || 'The quiz questions could not be loaded.'}</p>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-4">
+          <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
+            <Card variant="glass" className="max-w-md w-full overflow-hidden">
+              <div className="bg-card border-b border-border p-6 text-center">
+                <div className="w-16 h-16 bg-destructive rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <AlertTriangle className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-foreground mb-2">Unable to Load Quiz</h3>
+                <p className="text-muted-foreground text-sm">{error || 'The quiz questions could not be loaded.'}</p>
+              </div>
+              <div className="p-6">
+                <button
+                  onClick={() => router.push('/quizzes')}
+                  className="w-full bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  Back to Quizzes
+                </button>
+              </div>
+            </Card>
           </div>
-          <div className="p-6">
-            <button
-              onClick={() => router.push('/quizzes')}
-              className="w-full bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to Quizzes
-            </button>
-          </div>
-        </Card>
+        </main>
+        <Footer />
       </div>
     )
   }
@@ -201,8 +215,11 @@ export default function TakeQuizPage() {
     }
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4 pt-24">
-        <Card variant="glass" className="max-w-lg w-full overflow-hidden">
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-4">
+          <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
+            <Card variant="glass" className="max-w-lg w-full overflow-hidden">
           {/* Header with Icon and Title */}
           <div className="relative bg-card border-b border-border p-6">
             {/* Difficulty Badge - Top left for better balance */}
@@ -270,14 +287,18 @@ export default function TakeQuizPage() {
             </button>
           </div>
         </Card>
+          </div>
+        </main>
+        <Footer />
       </div>
     )
   }
 
   const currentQuestion = questions[currentQuestionIndex];
 
+  // Active quiz session - no global navigation for cognitive load reduction
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden pt-20">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
       <div className="max-w-4xl mx-auto px-4 py-4 relative">
         {/* Compact Header */}
         <div className="text-center mb-6">
@@ -289,29 +310,42 @@ export default function TakeQuizPage() {
           )}
         </div>
 
-        {/* Progress Bar */}
-        <div className="mb-6 bg-white/80 backdrop-blur-lg rounded-2xl p-4 shadow-xl border border-white/20">
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-            <span className="font-medium">Question {currentQuestionIndex + 1} of {questions.length}</span>
-            <span className="font-medium">{Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}% Complete</span>
+        {/* Progress Bar - Enhanced */}
+        <div className="mb-8 bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border border-white/20">
+          <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+            <span className="font-semibold text-lg">Question {currentQuestionIndex + 1} of {questions.length}</span>
+            <div className="flex items-center gap-4">
+              <span className="font-medium">{Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}% Complete</span>
+              {timeLeft > 0 && (
+                <span className={`font-bold px-3 py-1 rounded-lg border ${
+                  timeLeft <= 60 ? 'bg-destructive text-destructive-foreground border-destructive' : 
+                  timeLeft <= 300 ? 'bg-warning text-warning-foreground border-warning' : 
+                  'bg-muted text-muted-foreground border-border'
+                }`}>
+                  {formatTime(timeLeft)}
+                </span>
+              )}
+            </div>
           </div>
-          <div className="w-full bg-muted/60 rounded-full h-3 shadow-inner">
+          <div className="w-full bg-muted/60 rounded-full h-4 shadow-inner">
             <div 
-              className="bg-primary h-3 rounded-full transition-all duration-500 shadow-lg"
+              className="bg-primary h-4 rounded-full transition-all duration-500 shadow-lg"
               style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
             ></div>
           </div>
         </div>
 
-        {/* Main Quiz Content */}
-        <div className="bg-white/90 rounded-xl p-4 sm:p-6 shadow-lg">
+        {/* Main Quiz Content - Enhanced */}
+        <div className="bg-white/95 rounded-2xl p-6 sm:p-8 shadow-xl border border-white/20">
           {currentQuestion ? (
             <>
-              {/* Question */}
-              <div className="mb-6">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-800 leading-relaxed">
-                  {currentQuestion.question}
-                </h2>
+              {/* Question - Enhanced Typography */}
+              <div className="mb-8">
+                <div className="bg-gradient-to-r from-primary/5 to-secondary/5 rounded-xl p-6 mb-6">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-foreground leading-relaxed">
+                    {currentQuestion.question}
+                  </h2>
+                </div>
               </div>
               
               {/* Answer Options - Support All Question Types */}
