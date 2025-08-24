@@ -10,6 +10,7 @@ import { AlertTriangle, Target, Move, Check, ArrowLeft, GripVertical } from 'luc
 import { logger } from '@/lib/logger'
 import Header from '@/components/Header'
 import { Footer } from '@/components/Footer'
+import { MatchingQuestion } from '@/components/student/quiz/MatchingQuestion'
 import {
   DndContext,
   closestCenter,
@@ -106,6 +107,15 @@ export default function TakeQuizPage() {
   const [timeLeft, setTimeLeft] = useState<number>(0)
   const [submitting, setSubmitting] = useState(false)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
+  const [quizAttemptId, setQuizAttemptId] = useState<string>('')
+
+  // Generate unique quiz attempt ID when quiz starts
+  useEffect(() => {
+    if (quizStarted && !quizAttemptId) {
+      const attemptId = `attempt_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
+      setQuizAttemptId(attemptId)
+    }
+  }, [quizStarted, quizAttemptId])
 
   // Drag & Drop sensors (must be at component level)
   const sensors = useSensors(
@@ -563,102 +573,19 @@ export default function TakeQuizPage() {
                   </div>
                 )}
 
-                {/* Matching - Interactive Drag & Drop Style */}
-                {currentQuestion.question_type === 'matching' && Array.isArray(currentQuestion.options) && (
-                  <div className="space-y-4">
-                    <p className="text-sm text-gray-600 mb-4">
-                      <strong>Instructions:</strong> Click on items from the right column to match them with items on the left.
-                    </p>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
-                      {/* Left Column - Items to match */}
-                      <div className="space-y-3">
-                        <h4 className="font-semibold text-gray-800 text-sm border-b border-gray-300 pb-2">Items to Match:</h4>
-                        {(currentQuestion.options as Array<{left: string; right: string}>).map((pair, index) => {
-                          const currentAnswer = answers[currentQuestion?.id ?? ''] || {};
-                          const isMatched = currentAnswer[index] !== undefined;
-                          const matchedWith = currentAnswer[index];
-                          
-                          return (
-                            <div 
-                              key={index} 
-                              className={`p-3 border-2 rounded-lg transition-all ${
-                                isMatched 
-                                  ? 'border-green-400 bg-green-50' 
-                                  : 'border-blue-200 bg-blue-50'
-                              }`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-gray-800">
-                                  {index + 1}. {pair.left}
-                                </span>
-                                {isMatched && (
-                                  <span className="text-xs text-green-600 font-medium">
-                                    → {String.fromCharCode(65 + matchedWith)}
-                                  </span>
-                                )}
-                              </div>
-                              {isMatched && (
-                                <div className="mt-2 text-xs text-green-700 bg-green-100 p-2 rounded">
-                                  Matched with: {(currentQuestion.options as Array<{left: string; right: string}>)[matchedWith]?.right}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                      
-                      {/* Right Column - Answer options */}
-                      <div className="space-y-3">
-                        <h4 className="font-semibold text-gray-800 text-sm border-b border-gray-300 pb-2">Match Options:</h4>
-                        {(currentQuestion.options as Array<{left: string; right: string}>).map((pair, rightIndex) => {
-                          const currentAnswer = answers[currentQuestion?.id ?? ''] || {};
-                          const isUsed = Object.values(currentAnswer).includes(rightIndex);
-                          
-                          return (
-                            <button
-                              key={rightIndex}
-                              onClick={() => {
-                                if (!currentQuestion) return;
-                                const newAnswer = { ...(answers[currentQuestion.id] || {}) };
-                                
-                                // Find if this right option is already used
-                                const usedByIndex = Object.keys(newAnswer).find(key => newAnswer[key] === rightIndex);
-                                if (usedByIndex) {
-                                  // Remove the existing match
-                                  delete newAnswer[usedByIndex];
-                                } else {
-                                  // Find the next unmatched left item
-                                  const nextUnmatched = (currentQuestion.options as Array<{left: string; right: string}>)
-                                    .findIndex((_, leftIndex) => newAnswer[leftIndex] === undefined);
-                                  
-                                  if (nextUnmatched !== -1) {
-                                    newAnswer[nextUnmatched] = rightIndex;
-                                  }
-                                }
-                                
-                                handleAnswerChange(currentQuestion.id, newAnswer);
-                              }}
-                              className={`w-full text-left p-3 border-2 rounded-lg transition-all ${
-                                isUsed
-                                  ? 'border-green-400 bg-green-100 text-green-800'
-                                  : 'border-gray-300 bg-white hover:border-primary hover:bg-primary/5'
-                              }`}
-                            >
-                              <span className="text-sm font-medium">
-                                {String.fromCharCode(65 + rightIndex)}. {pair.right}
-                              </span>
-                              {isUsed && (
-                                <span className="text-xs text-green-600 ml-2">✓ Used</span>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-500 bg-blue-50 p-2 rounded">
-                      💡 Click options from the right to match them with items on the left in order.
-                    </p>
-                  </div>
+                {/* Matching - Modern Connected Lines Interface */}
+                {currentQuestion.question_type === 'matching' && Array.isArray(currentQuestion.options) && quizAttemptId && (
+                  <MatchingQuestion
+                    question={{
+                      id: currentQuestion.id,
+                      question: currentQuestion.question,
+                      options: currentQuestion.options as Array<{left: string; right: string}>
+                    }}
+                    userAnswer={answers[currentQuestion.id] || {}}
+                    onAnswerChange={handleAnswerChange}
+                    quizAttemptId={quizAttemptId}
+                    isSubmitted={submitting}
+                  />
                 )}
 
                 {/* Ordering - Modern Drag & Drop Interface */}
@@ -803,10 +730,6 @@ export default function TakeQuizPage() {
 
                         return (
                           <>
-                            <p className="text-sm text-gray-600 mb-4">
-                              <strong>Instructions:</strong> Click words to add/remove, drag blue words to reorder.
-                            </p>
-                            
                             {/* Sentence Building Area */}
                             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border-2 border-blue-200">
                               <h4 className="font-semibold text-sm text-gray-800 mb-3">Build your sentence:</h4>
@@ -864,20 +787,12 @@ export default function TakeQuizPage() {
                                 ))}
                               </div>
                             </div>
-                            
-                            <p className="text-xs text-gray-500 bg-yellow-50 p-2 rounded">
-                              💡 Click gray words to add them, click blue words to remove them, drag blue words to reorder.
-                            </p>
                           </>
                         );
                       } else {
                         // List Ordering with Drag & Drop
                         return (
                           <>
-                            <p className="text-sm text-gray-600 mb-4">
-                              <strong>Instructions:</strong> Drag items to arrange them in the correct order.
-                            </p>
-                            
                             <DndContext 
                               sensors={sensors}
                               collisionDetection={closestCenter}
@@ -935,10 +850,6 @@ export default function TakeQuizPage() {
                                 ))}
                               </div>
                             </div>
-                            
-                            <p className="text-xs text-gray-500 bg-yellow-50 p-2 rounded">
-                              💡 Drag items within the ordered list to rearrange, or click to add/remove them.
-                            </p>
                           </>
                         );
                       }

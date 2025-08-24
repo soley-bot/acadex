@@ -189,9 +189,9 @@ export const quizAPI = {
         category,
         difficulty,
         duration_minutes,
-        total_questions,
         is_published,
-        created_at
+        created_at,
+        quiz_questions(count)
       `, { count: 'exact' })
       .eq('is_published', true)
       .order('created_at', { ascending: false })
@@ -207,8 +207,14 @@ export const quizAPI = {
 
     const { data, error, count } = await query
     
+    // Transform data to include actual question count
+    const transformedData = data?.map((quiz: any) => ({
+      ...quiz,
+      total_questions: quiz.quiz_questions[0]?.count || 0
+    })) || []
+    
     return { 
-      data, 
+      data: transformedData, 
       error, 
       pagination: {
         page,
