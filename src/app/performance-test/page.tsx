@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useOptimizedLoading } from '@/hooks/useOptimizedLoading'
-import { useSmartRedirect } from '@/hooks/useSmartRedirect'
+// import { useSmartRedirect } from '@/hooks/useSmartRedirect'
 import { cacheUtils } from '@/lib/smartCache'
 
 interface PerformanceMetrics {
@@ -32,7 +32,7 @@ export default function PerformanceTestPage() {
     cacheKey: 'performance-test',
     enablePreemptiveLoading: true
   })
-  const { navigate, preloadRoutes } = useSmartRedirect()
+  // const { navigate, preloadRoutes } = useSmartRedirect()
 
   useEffect(() => {
     const startTime = Date.now()
@@ -111,12 +111,12 @@ export default function PerformanceTestPage() {
     
     // Preload common routes
     const routes = ['/dashboard', '/courses', '/quizzes', '/profile']
-    preloadRoutes(routes, 100)
+    // preloadRoutes(routes, 100)
     
     setTestResults(prev => [
       ...prev,
-      `Preloaded ${routes.length} routes for faster navigation`,
-      'Routes ready for instant navigation'
+      `Would preload ${routes.length} routes for faster navigation`,
+      'Smart redirect temporarily disabled for testing'
     ])
   }
 
