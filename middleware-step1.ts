@@ -1,6 +1,6 @@
 /**
- * OPTIMIZED Next.js Middleware
- * Eliminates duplicate auth checks, improves caching, and streamlines redirects
+ * STEP 1: OPTIMIZED MIDDLEWARE IMPLEMENTATION
+ * Replaces the current middleware with enhanced performance
  */
 
 import { NextResponse } from 'next/server'
@@ -9,12 +9,12 @@ import { createServerClient } from '@supabase/ssr'
 import { securityHeaders, withCORS } from './src/lib/security-headers'
 import { AuthSecurity } from './src/lib/auth-security'
 
-// Enhanced rate limiting store with TTL cleanup
+// Rate limiting store with TTL cleanup
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
 
-// Auth result cache to avoid duplicate checks within same request cycle
-const authCache = new Map<string, { user: any; role: string; timestamp: number }>()
-const AUTH_CACHE_TTL = 5000 // 5 seconds
+// Auth result cache to avoid duplicate checks (5 second TTL)
+const authCache = new Map<string, { user: any; role: string | null; timestamp: number }>()
+const AUTH_CACHE_TTL = 5000
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -50,17 +50,18 @@ export async function middleware(request: NextRequest) {
   const authResult = await getAuthResult(request, pathname)
   
   if (authResult.requiresRedirect) {
-    console.log('Middleware redirect:', {
+    console.log('Optimized middleware redirect:', {
       pathname,
       redirectTo: authResult.redirectTo,
       reason: authResult.reason,
       duration: Date.now() - startTime + 'ms'
     })
-    return NextResponse.redirect(new URL(authResult.redirectTo, request.url))
+    return NextResponse.redirect(new URL(authResult.redirectTo!, request.url))
   }
 
   // Add performance headers
   response.headers.set('X-Middleware-Duration', (Date.now() - startTime).toString())
+  response.headers.set('X-Auth-Cache', authResult.fromCache ? 'HIT' : 'MISS')
   
   return response
 }
@@ -69,13 +70,14 @@ export async function middleware(request: NextRequest) {
  * UNIFIED AUTH RESULT - Single auth check for all routes
  */
 async function getAuthResult(request: NextRequest, pathname: string) {
-  const cacheKey = `${pathname}:${request.cookies.toString()}`
+  const cacheKey = `${pathname}:${request.cookies.toString().substring(0, 100)}` // Limit cache key size
   const now = Date.now()
   
   // Check auth cache first
   const cached = authCache.get(cacheKey)
   if (cached && (now - cached.timestamp) < AUTH_CACHE_TTL) {
-    return determineRouteAccess(pathname, cached.user, cached.role)
+    const result = determineRouteAccess(pathname, cached.user, cached.role)
+    return { ...result, fromCache: true }
   }
 
   try {
@@ -97,23 +99,26 @@ async function getAuthResult(request: NextRequest, pathname: string) {
     // Cache the auth result
     authCache.set(cacheKey, { user, role: userRole, timestamp: now })
     
-    // Cleanup old cache entries
-    if (authCache.size > 100) {
-      for (const [key, value] of authCache.entries()) {
-        if ((now - value.timestamp) > AUTH_CACHE_TTL) {
-          authCache.delete(key)
-        }
-      }
+    // Cleanup old cache entries (LRU-style)
+    if (authCache.size > 50) {
+      const entries = Array.from(authCache.entries())
+      const oldEntries = entries
+        .sort(([,a], [,b]) => a.timestamp - b.timestamp)
+        .slice(0, 10)
+      
+      oldEntries.forEach(([key]) => authCache.delete(key))
     }
 
-    return determineRouteAccess(pathname, user, userRole)
+    const result = determineRouteAccess(pathname, user, userRole)
+    return { ...result, fromCache: false }
 
   } catch (error) {
-    console.error('Middleware auth error:', error)
+    console.error('Optimized middleware auth error:', error)
     return {
       requiresRedirect: isProtectedRoute(pathname),
       redirectTo: `/auth/login?redirectTo=${encodeURIComponent(pathname)}`,
-      reason: 'auth_error'
+      reason: 'auth_error',
+      fromCache: false
     }
   }
 }
@@ -121,7 +126,11 @@ async function getAuthResult(request: NextRequest, pathname: string) {
 /**
  * ROUTE ACCESS DETERMINATION - Single source of truth
  */
-function determineRouteAccess(pathname: string, user: any, userRole: string | null) {
+function determineRouteAccess(pathname: string, user: any, userRole: string | null): {
+  requiresRedirect: boolean
+  redirectTo?: string
+  reason?: string
+} {
   // Admin routes
   if (pathname.startsWith('/admin')) {
     if (!user) {
@@ -205,22 +214,26 @@ function getClientIP(request: NextRequest): string {
   return realIP || 'unknown'
 }
 
-// Cleanup intervals
-setInterval(() => {
-  const now = Date.now()
-  // Clean rate limit store
-  for (const [key, record] of rateLimitStore.entries()) {
-    if (now > record.resetTime) {
-      rateLimitStore.delete(key)
+// Cleanup intervals for production
+if (typeof setInterval !== 'undefined') {
+  setInterval(() => {
+    const now = Date.now()
+    
+    // Clean rate limit store
+    for (const [key, record] of rateLimitStore.entries()) {
+      if (now > record.resetTime) {
+        rateLimitStore.delete(key)
+      }
     }
-  }
-  // Clean auth cache
-  for (const [key, value] of authCache.entries()) {
-    if ((now - value.timestamp) > AUTH_CACHE_TTL) {
-      authCache.delete(key)
+    
+    // Clean auth cache
+    for (const [key, value] of authCache.entries()) {
+      if ((now - value.timestamp) > AUTH_CACHE_TTL) {
+        authCache.delete(key)
+      }
     }
-  }
-}, 5 * 60 * 1000) // Every 5 minutes
+  }, 2 * 60 * 1000) // Every 2 minutes
+}
 
 export const config = {
   matcher: [

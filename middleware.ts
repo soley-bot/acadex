@@ -1,6 +1,6 @@
 /**
- * Next.js Middleware with Security Enhancements
- * Implements comprehensive security for the Acadex platform
+ * STEP 1: OPTIMIZED MIDDLEWARE IMPLEMENTATION
+ * Replaces the current middleware with enhanced performance
  */
 
 import { NextResponse } from 'next/server'
@@ -9,12 +9,17 @@ import { createServerClient } from '@supabase/ssr'
 import { securityHeaders, withCORS } from './src/lib/security-headers'
 import { AuthSecurity } from './src/lib/auth-security'
 
-// Rate limiting store (in production, use Redis)
+// Rate limiting store with TTL cleanup
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
+
+// Auth result cache to avoid duplicate checks (5 second TTL)
+const authCache = new Map<string, { user: any; role: string | null; timestamp: number }>()
+const AUTH_CACHE_TTL = 5000
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const origin = request.headers.get('origin')
+  const startTime = Date.now()
 
   // Apply security headers to all responses
   let response = securityHeaders(request)
@@ -26,9 +31,8 @@ export async function middleware(request: NextRequest) {
 
   // API routes security
   if (pathname.startsWith('/api/')) {
-    // Rate limiting for API routes
     const clientIP = getClientIP(request)
-    const rateLimitResult = checkRateLimit(clientIP, 100, 60000) // 100 requests per minute
+    const rateLimitResult = checkRateLimit(clientIP, 100, 60000)
 
     if (!rateLimitResult.allowed) {
       return withCORS(
@@ -39,189 +43,200 @@ export async function middleware(request: NextRequest) {
         origin || undefined
       )
     }
-
-    // Apply CORS to API responses
     response = withCORS(response, origin || undefined)
   }
 
-  // Admin route protection
-  if (pathname.startsWith('/admin')) {
-    try {
-      const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          cookies: {
-            get: (name: string) => {
-              return request.cookies.get(name)?.value
-            },
-            set: (name: string, value: string, options: any) => {
-              // In middleware, we can't set cookies directly
-              // This will be handled by the response
-            },
-            remove: (name: string, options: any) => {
-              // In middleware, we can't remove cookies directly
-              // This will be handled by the response
-            }
-          }
-        }
-      )
-
-      const { data: { user } } = await supabase.auth.getUser()
-
-      console.log('Middleware admin check:', {
-        pathname,
-        hasUser: !!user,
-        userEmail: user?.email,
-        timestamp: new Date().toISOString()
-      })
-
-      if (!user) {
-        // Redirect to login with new auth path
-        const loginUrl = new URL('/auth/login', request.url)
-        loginUrl.searchParams.set('redirectTo', pathname)
-        console.log('Middleware: Redirecting to login, no user found')
-        return NextResponse.redirect(loginUrl)
-      }
-
-      // Check admin role
-      const userRole = AuthSecurity.determineRole(user.email || '')
-      
-      console.log('Middleware role check:', {
-        userEmail: user.email,
-        determinedRole: userRole,
-        isAdmin: userRole === 'admin'
-      })
-      
-      if (userRole !== 'admin') {
-        // Redirect to unauthorized page
-        console.log('Middleware: Redirecting to unauthorized, not admin')
-        return NextResponse.redirect(new URL('/unauthorized', request.url))
-      }
-
-      console.log('Middleware: Admin access granted, proceeding')
-
-    } catch (error) {
-      console.error('Middleware auth error:', error)
-      const loginUrl = new URL('/auth/login', request.url)
-      loginUrl.searchParams.set('redirectTo', pathname)
-      return NextResponse.redirect(loginUrl)
-    }
+  // UNIFIED AUTH CHECK - Handles both admin and protected routes
+  const authResult = await getAuthResult(request, pathname)
+  
+  if (authResult.requiresRedirect) {
+    console.log('Optimized middleware redirect:', {
+      pathname,
+      redirectTo: authResult.redirectTo,
+      reason: authResult.reason,
+      duration: Date.now() - startTime + 'ms'
+    })
+    return NextResponse.redirect(new URL(authResult.redirectTo!, request.url))
   }
 
-  // Protected routes that require authentication
-  const protectedRoutes = ['/dashboard', '/courses/*/study', '/profile']
-  const isProtectedRoute = protectedRoutes.some(route => {
-    if (route.includes('*')) {
-      const pattern = route.replace('*', '[^/]+')
-      return new RegExp(`^${pattern}`).test(pathname)
-    }
-    return pathname.startsWith(route)
-  })
-
-  if (isProtectedRoute) {
-    try {
-      const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          cookies: {
-            get: (name: string) => {
-              return request.cookies.get(name)?.value
-            }
-          }
-        }
-      )
-
-      const { data: { user } } = await supabase.auth.getUser()
-
-      if (!user) {
-        const loginUrl = new URL('/auth/login', request.url)
-        loginUrl.searchParams.set('redirectTo', pathname)
-        return NextResponse.redirect(loginUrl)
-      }
-
-    } catch (error) {
-      console.error('Middleware auth error:', error)
-      const loginUrl = new URL('/auth/login', request.url)
-      loginUrl.searchParams.set('redirectTo', pathname)
-      return NextResponse.redirect(loginUrl)
-    }
-  }
-
+  // Add performance headers
+  response.headers.set('X-Middleware-Duration', (Date.now() - startTime).toString())
+  response.headers.set('X-Auth-Cache', authResult.fromCache ? 'HIT' : 'MISS')
+  
   return response
 }
 
 /**
- * Extract client IP address
+ * UNIFIED AUTH RESULT - Single auth check for all routes
+ */
+async function getAuthResult(request: NextRequest, pathname: string) {
+  const cacheKey = `${pathname}:${request.cookies.toString().substring(0, 100)}` // Limit cache key size
+  const now = Date.now()
+  
+  // Check auth cache first
+  const cached = authCache.get(cacheKey)
+  if (cached && (now - cached.timestamp) < AUTH_CACHE_TTL) {
+    const result = determineRouteAccess(pathname, cached.user, cached.role)
+    return { ...result, fromCache: true }
+  }
+
+  try {
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get: (name: string) => request.cookies.get(name)?.value,
+          set: () => {}, // Not needed in middleware
+          remove: () => {} // Not needed in middleware
+        }
+      }
+    )
+
+    const { data: { user } } = await supabase.auth.getUser()
+    const userRole = user ? AuthSecurity.determineRole(user.email || '') : null
+
+    // Cache the auth result
+    authCache.set(cacheKey, { user, role: userRole, timestamp: now })
+    
+    // Cleanup old cache entries (LRU-style)
+    if (authCache.size > 50) {
+      const entries = Array.from(authCache.entries())
+      const oldEntries = entries
+        .sort(([,a], [,b]) => a.timestamp - b.timestamp)
+        .slice(0, 10)
+      
+      oldEntries.forEach(([key]) => authCache.delete(key))
+    }
+
+    const result = determineRouteAccess(pathname, user, userRole)
+    return { ...result, fromCache: false }
+
+  } catch (error) {
+    console.error('Optimized middleware auth error:', error)
+    return {
+      requiresRedirect: isProtectedRoute(pathname),
+      redirectTo: `/auth/login?redirectTo=${encodeURIComponent(pathname)}`,
+      reason: 'auth_error',
+      fromCache: false
+    }
+  }
+}
+
+/**
+ * ROUTE ACCESS DETERMINATION - Single source of truth
+ */
+function determineRouteAccess(pathname: string, user: any, userRole: string | null): {
+  requiresRedirect: boolean
+  redirectTo?: string
+  reason?: string
+} {
+  // Admin routes
+  if (pathname.startsWith('/admin')) {
+    if (!user) {
+      return {
+        requiresRedirect: true,
+        redirectTo: `/auth/login?redirectTo=${encodeURIComponent(pathname)}`,
+        reason: 'no_user'
+      }
+    }
+    if (userRole !== 'admin') {
+      return {
+        requiresRedirect: true,
+        redirectTo: '/unauthorized',
+        reason: 'not_admin'
+      }
+    }
+    return { requiresRedirect: false }
+  }
+
+  // Protected routes
+  if (isProtectedRoute(pathname)) {
+    if (!user) {
+      return {
+        requiresRedirect: true,
+        redirectTo: `/auth/login?redirectTo=${encodeURIComponent(pathname)}`,
+        reason: 'no_user'
+      }
+    }
+    return { requiresRedirect: false }
+  }
+
+  return { requiresRedirect: false }
+}
+
+/**
+ * PROTECTED ROUTES CHECK - Optimized pattern matching
+ */
+function isProtectedRoute(pathname: string): boolean {
+  const protectedPatterns = [
+    /^\/dashboard/,
+    /^\/courses\/[^/]+\/study/,
+    /^\/profile/,
+    /^\/progress/
+  ]
+  
+  return protectedPatterns.some(pattern => pattern.test(pathname))
+}
+
+/**
+ * OPTIMIZED RATE LIMITING
+ */
+function checkRateLimit(key: string, maxRequests: number, windowMs: number) {
+  const now = Date.now()
+  const record = rateLimitStore.get(key)
+
+  if (!record || now > record.resetTime) {
+    rateLimitStore.set(key, { count: 1, resetTime: now + windowMs })
+    return { allowed: true }
+  }
+
+  if (record.count >= maxRequests) {
+    return { allowed: false, resetTime: record.resetTime }
+  }
+
+  record.count++
+  return { allowed: true }
+}
+
+/**
+ * CLIENT IP EXTRACTION
  */
 function getClientIP(request: NextRequest): string {
   const forwardedFor = request.headers.get('x-forwarded-for')
   const realIP = request.headers.get('x-real-ip')
   
-  if (forwardedFor && forwardedFor.length > 0) {
+  if (forwardedFor) {
     const firstIP = forwardedFor.split(',')[0]?.trim()
     if (firstIP) return firstIP
   }
   
-  if (realIP && realIP.length > 0) {
-    return realIP
-  }
-  
-  return 'unknown'
+  return realIP || 'unknown'
 }
 
-/**
- * Rate limiting implementation
- */
-function checkRateLimit(
-  key: string,
-  maxRequests: number,
-  windowMs: number
-): { allowed: boolean; resetTime?: number } {
-  const now = Date.now()
-  const record = rateLimitStore.get(key)
-
-  if (!record || now > record.resetTime) {
-    rateLimitStore.set(key, {
-      count: 1,
-      resetTime: now + windowMs
-    })
-    return { allowed: true }
-  }
-
-  if (record.count >= maxRequests) {
-    return { 
-      allowed: false,
-      resetTime: record.resetTime 
+// Cleanup intervals for production
+if (typeof setInterval !== 'undefined') {
+  setInterval(() => {
+    const now = Date.now()
+    
+    // Clean rate limit store
+    for (const [key, record] of rateLimitStore.entries()) {
+      if (now > record.resetTime) {
+        rateLimitStore.delete(key)
+      }
     }
-  }
-
-  record.count++
-  rateLimitStore.set(key, record)
-  
-  return { allowed: true }
+    
+    // Clean auth cache
+    for (const [key, value] of authCache.entries()) {
+      if ((now - value.timestamp) > AUTH_CACHE_TTL) {
+        authCache.delete(key)
+      }
+    }
+  }, 2 * 60 * 1000) // Every 2 minutes
 }
-
-// Cleanup expired rate limit records
-setInterval(() => {
-  const now = Date.now()
-  for (const [key, record] of rateLimitStore.entries()) {
-    if (now > record.resetTime) {
-      rateLimitStore.delete(key)
-    }
-  }
-}, 5 * 60 * 1000) // Every 5 minutes
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
     '/((?!_next/static|_next/image|favicon.ico|public/|images/|svgicon/|Icons8/).*)',
   ],
 }
