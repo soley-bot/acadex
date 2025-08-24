@@ -69,7 +69,7 @@ export default function AuthDiagnosticPublicPage() {
 
   const testLogin = async () => {
     // Redirect to login
-    window.location.href = '/auth/login?redirect=/auth-check'
+    window.location.href = '/auth/login?redirectTo=/auth-check'
   }
 
   const testLogout = async () => {

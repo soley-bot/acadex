@@ -208,7 +208,7 @@ export default function AdminEnrollmentsPage() {
             <h3 className="text-lg font-medium text-red-800 mb-2">Authentication Error</h3>
             <p className="text-primary text-sm mb-4">{error}</p>
             <button
-              onClick={() => router.push('/auth/login?redirect=/admin/enrollments')}
+              onClick={() => router.push('/auth/login?redirectTo=/admin/enrollments')}
               className="px-4 py-2 bg-primary hover:bg-secondary text-white hover:text-black rounded-lg transition-colors"
             >
               Login Again
