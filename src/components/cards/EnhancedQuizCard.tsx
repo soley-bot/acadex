@@ -107,7 +107,7 @@ export function EnhancedQuizCard({ quiz, showProgress = true }: EnhancedQuizCard
 
   return (
     <UnifiedCard variant="interactive" size="md" className="overflow-hidden">
-      {/* Quiz Image */}
+      {/* Quiz Image - Clean without overlays */}
       <div className="relative h-48 bg-muted/40">
         {(() => {
           const quizImage = getQuizImage(quiz)
@@ -129,59 +129,61 @@ export function EnhancedQuizCard({ quiz, showProgress = true }: EnhancedQuizCard
             />
           )
         })()}
-        
-        {/* Difficulty Badge Overlay */}
+      </div>
+
+      {/* Quiz Header - Standard Card Style */}
+      <div className="relative bg-card border-b border-border p-4">
+        {/* Top Row: Title with Icon */}
+        <div className="flex items-center mb-2">
+          <div className="flex items-center gap-3">
+            <Icon name="target" size={18} color="current" />
+            <h3 className="text-lg font-bold text-foreground">
+              {quiz.title}
+            </h3>
+          </div>
+        </div>
+
+        {/* Bottom Row: Category and Status */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-muted-foreground text-sm">
+            <Icon name="folder" size={14} color="current" />
+            <span>{quiz.category}</span>
+          </div>
+          
+          {/* Attempt Status Badge */}
+          {showProgress && user && attempted && (
+            <div>
+              {lastAttempt?.completed_at ? (
+                <span className="px-2 py-1 bg-success text-white text-xs font-semibold rounded-md flex items-center gap-1">
+                  <Icon name="check" size={12} color="white" />
+                  Completed
+                </span>
+              ) : (
+                <span className="px-2 py-1 bg-warning text-black text-xs font-semibold rounded-md">
+                  In Progress
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Quiz Content - Compact */}
+      <div className="p-4 relative">
+        {/* Difficulty Badge - Floating top-right */}
         <div className="absolute top-4 right-4">
-          <span className={`px-3 py-1 text-xs font-semibold rounded-full border backdrop-blur-sm ${getDifficultyColor(quiz.difficulty)}`}>
+          <span className={`px-2 py-1 text-xs font-semibold rounded-md ${getDifficultyColor(quiz.difficulty)}`}>
             {quiz.difficulty}
           </span>
         </div>
-
-        {/* Attempt Status Badge */}
-        {showProgress && user && attempted && (
-          <div className="absolute top-12 right-4">
-            {lastAttempt?.completed_at ? (
-              <span className="px-2 py-1 bg-success text-white text-xs font-semibold rounded-md flex items-center gap-1 backdrop-blur-sm">
-                <Icon name="check" size={12} color="white" />
-                Completed
-              </span>
-            ) : (
-              <span className="px-2 py-1 bg-warning text-black text-xs font-semibold rounded-md backdrop-blur-sm">
-                In Progress
-              </span>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Quiz Header */}
-      <div className="relative bg-gradient-to-br from-primary to-primary/90 text-white p-6">
-        {/* Quiz Icon */}
-        <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
-          <Icon name="target" size={32} color="white" />
-        </div>
-
-        {/* Quiz Title */}
-        <h3 className="text-xl font-bold mb-2 text-white">
-          {quiz.title}
-        </h3>
-
-        {/* Quiz Category */}
-        <div className="flex items-center gap-2 text-white/80 text-sm">
-          <Icon name="folder" size={14} color="current" />
-          <span>{quiz.category}</span>
-        </div>
-      </div>
-
-      {/* Quiz Content */}
-      <div className="p-6">
+        
         {/* Quiz Description */}
-        <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+        <p className="text-muted-foreground text-sm mb-3 line-clamp-2 pr-20">
           {quiz.description}
         </p>
 
         {/* Quiz Meta Information */}
-        <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+        <div className="grid grid-cols-2 gap-4 mb-3 text-sm">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Icon name="file" size={14} color="current" />
             <span>{quiz.total_questions} questions</span>
@@ -194,7 +196,7 @@ export function EnhancedQuizCard({ quiz, showProgress = true }: EnhancedQuizCard
 
         {/* Score Display for Completed Quizzes */}
         {showProgress && user && getScoreDisplay() && (
-          <div className="mb-4 p-3 bg-muted rounded-lg">
+          <div className="mb-3 p-2 bg-muted rounded-lg">
             {getScoreDisplay()}
           </div>
         )}

@@ -305,6 +305,9 @@ export default function QuizzesPage() {
           </Card>
         </div>
 
+        {/* Spacer between filters and content */}
+        <div className="mt-12"></div>
+
         {/* Error State */}
         {error && (
           <Card variant="elevated" className="mb-8">
