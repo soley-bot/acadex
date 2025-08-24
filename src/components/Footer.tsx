@@ -137,7 +137,7 @@ export function Footer() {
       <div className="relative border-t border-gray-200">
         <Container size="xl" className="py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
-            <div suppressHydrationWarning>
+            <div>
               <p className="text-muted-foreground font-medium text-center md:text-left">
                 © {currentYear} Acadex. All rights reserved.
                 <br className="sm:hidden" />
