@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { EnhancedQuizCard } from '@/components/cards/EnhancedQuizCard'
 import { getHeroImage } from '@/lib/imageMapping'
-import { quizCategories, quizDifficulties, getCategoryInfo } from '@/lib/quizConstants'
+import { quizDifficulties } from '@/lib/quizConstants'
 
 // Quiz list item type - subset of full Quiz with required display fields
 interface QuizListItem {
@@ -62,19 +62,15 @@ export default function QuizzesPage() {
 
   const fetchAvailableCategories = useCallback(async () => {
     try {
-      const { data: quizzesData, error } = await quizAPI.getQuizzes({ limit: 1000 }) // Get all to extract categories
-      if (error) throw error
+      const response = await fetch('/api/quiz-categories')
+      if (!response.ok) throw new Error('Failed to fetch categories')
       
-      // Extract unique categories from database quizzes
-      const dbCategories = [...new Set(quizzesData?.map((q: QuizListItem) => q.category).filter(Boolean) || [])] as string[]
-      
-      // Combine with predefined categories, prioritizing database categories
-      const combinedCategories = [...new Set([...dbCategories, ...quizCategories])] as string[]
-      setAvailableCategories(combinedCategories.sort())
+      const { categories } = await response.json()
+      setAvailableCategories(categories || [])
     } catch (err) {
       logger.error('Failed to fetch categories:', err)
-      // Fallback to predefined categories
-      setAvailableCategories([...quizCategories])
+      // Fallback to empty array if API fails
+      setAvailableCategories([])
     }
   }, [])
 
@@ -263,14 +259,11 @@ export default function QuizzesPage() {
                   className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 >
                   <option value="all">All Categories</option>
-                  {availableCategories.map((category) => {
-                    const categoryInfo = getCategoryInfo(category)
-                    return (
-                      <option key={category} value={category}>
-                        {categoryInfo.icon} {categoryInfo.label}
-                      </option>
-                    )
-                  })}
+                  {availableCategories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
                 </select>
               </div>
               

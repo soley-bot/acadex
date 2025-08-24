@@ -15,6 +15,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -111,6 +112,12 @@ export default function TakeQuizPage() {
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8, // Require 8px movement before drag starts
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 150, // 150ms delay before drag starts on touch
+        tolerance: 8, // Allow 8px movement during delay
       },
     }),
     useSensor(KeyboardSensor, {
@@ -764,19 +771,26 @@ export default function TakeQuizPage() {
                           return (
                             <button
                               ref={setNodeRef}
-                              style={style}
                               onClick={onClick}
                               className={`
-                                px-4 py-2 rounded-full font-medium min-h-[44px] touch-manipulation
-                                transition-all duration-200 select-none
+                                px-4 py-2 rounded-full font-medium min-h-[44px] 
+                                touch-manipulation cursor-pointer select-none
+                                transition-all duration-200 
                                 ${isInSentence 
-                                  ? 'bg-primary hover:bg-secondary text-white hover:text-black cursor-pointer' 
-                                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700 cursor-pointer'
+                                  ? 'bg-primary hover:bg-secondary text-white hover:text-black active:bg-secondary active:text-black' 
+                                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700 active:bg-gray-300'
                                 }
-                                ${isDragging ? 'shadow-lg scale-105' : 'hover:scale-102'}
-                                ${isInSentence ? 'hover:shadow-md' : ''}
+                                ${isDragging ? 'shadow-lg scale-105 z-50' : 'hover:scale-102 active:scale-95'}
+                                ${isInSentence ? 'hover:shadow-md touch-action-none' : ''}
                               `}
-                              {...(isInSentence ? { ...attributes, ...listeners } : {})}
+                              {...(isInSentence ? { 
+                                ...attributes, 
+                                ...listeners,
+                                style: { 
+                                  ...style, 
+                                  touchAction: 'none' // Prevent browser touch behaviors
+                                }
+                              } : { style })}
                               aria-label={isInSentence ? `${item.content} - click to remove or drag to reorder` : `${item.content} - click to add`}
                             >
                               {item.content}
