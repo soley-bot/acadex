@@ -6,7 +6,7 @@ import { getQuizQuestions, submitQuizAttempt } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
 import { QuizQuestion, Quiz } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertTriangle, Target, Move, Check } from 'lucide-react'
+import { AlertTriangle, Target, Move, Check, ArrowLeft } from 'lucide-react'
 import { logger } from '@/lib/logger'
 import Header from '@/components/Header'
 import { Footer } from '@/components/Footer'
@@ -38,6 +38,7 @@ export default function TakeQuizPage() {
   const [startTime, setStartTime] = useState<Date | null>(null)
   const [timeLeft, setTimeLeft] = useState<number>(0)
   const [submitting, setSubmitting] = useState(false)
+  const [showExitConfirm, setShowExitConfirm] = useState(false)
 
   useEffect(() => {
     if (!user) {
@@ -135,6 +136,18 @@ export default function TakeQuizPage() {
       ...prev,
       [questionId]: answer
     }))
+  }
+
+  const handleExitQuiz = () => {
+    if (Object.keys(answers).length > 0) {
+      setShowExitConfirm(true)
+    } else {
+      router.push('/quizzes')
+    }
+  }
+
+  const confirmExit = () => {
+    router.push('/quizzes')
   }
 
   const getProgressPercentage = () => {
@@ -300,6 +313,17 @@ export default function TakeQuizPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
       <div className="max-w-3xl mx-auto px-4 py-3 relative">
+        {/* Back Navigation */}
+        <div className="mb-3">
+          <button
+            onClick={handleExitQuiz}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 bg-white/60 hover:bg-white/80 px-3 py-1 rounded-lg border border-white/30"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Quizzes
+          </button>
+        </div>
+
         {/* Compact Header */}
         <div className="text-center mb-4">
           <h1 className="text-2xl font-bold text-foreground mb-1">{quiz?.title || 'Quiz'}</h1>
@@ -451,76 +475,343 @@ export default function TakeQuizPage() {
                   </div>
                 )}
 
-                {/* Matching - Improved Layout */}
+                {/* Matching - Interactive Drag & Drop Style */}
                 {currentQuestion.question_type === 'matching' && Array.isArray(currentQuestion.options) && (
-                  <div className="space-y-3">
-                    <p className="text-sm text-gray-600 mb-3">Match the items from the left column with the correct items from the right column:</p>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                      <div className="space-y-2">
-                        <h4 className="font-medium text-gray-700 text-sm">Left Column:</h4>
-                        {(currentQuestion.options as Array<{left: string; right: string}>).map((pair, index) => (
-                          <div key={index} className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                            <span className="text-sm font-medium">{index + 1}. {pair.left}</span>
-                          </div>
-                        ))}
+                  <div className="space-y-4">
+                    <p className="text-sm text-gray-600 mb-4">
+                      <strong>Instructions:</strong> Click on items from the right column to match them with items on the left.
+                    </p>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                      {/* Left Column - Items to match */}
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-gray-800 text-sm border-b border-gray-300 pb-2">Items to Match:</h4>
+                        {(currentQuestion.options as Array<{left: string; right: string}>).map((pair, index) => {
+                          const currentAnswer = answers[currentQuestion?.id ?? ''] || {};
+                          const isMatched = currentAnswer[index] !== undefined;
+                          const matchedWith = currentAnswer[index];
+                          
+                          return (
+                            <div 
+                              key={index} 
+                              className={`p-3 border-2 rounded-lg transition-all ${
+                                isMatched 
+                                  ? 'border-green-400 bg-green-50' 
+                                  : 'border-blue-200 bg-blue-50'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-gray-800">
+                                  {index + 1}. {pair.left}
+                                </span>
+                                {isMatched && (
+                                  <span className="text-xs text-green-600 font-medium">
+                                    → {String.fromCharCode(65 + matchedWith)}
+                                  </span>
+                                )}
+                              </div>
+                              {isMatched && (
+                                <div className="mt-2 text-xs text-green-700 bg-green-100 p-2 rounded">
+                                  Matched with: {(currentQuestion.options as Array<{left: string; right: string}>)[matchedWith]?.right}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
-                      <div className="space-y-2">
-                        <h4 className="font-medium text-gray-700 text-sm">Right Column (Select matches):</h4>
-                        {(currentQuestion.options as Array<{left: string; right: string}>).map((pair, index) => (
-                          <label key={index} className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg cursor-pointer hover:bg-green-100">
-                            <input
-                              type="checkbox"
-                              checked={(answers[currentQuestion?.id ?? ''] || []).includes(index)}
-                              onChange={(e) => {
+                      
+                      {/* Right Column - Answer options */}
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-gray-800 text-sm border-b border-gray-300 pb-2">Match Options:</h4>
+                        {(currentQuestion.options as Array<{left: string; right: string}>).map((pair, rightIndex) => {
+                          const currentAnswer = answers[currentQuestion?.id ?? ''] || {};
+                          const isUsed = Object.values(currentAnswer).includes(rightIndex);
+                          
+                          return (
+                            <button
+                              key={rightIndex}
+                              onClick={() => {
                                 if (!currentQuestion) return;
-                                const currentAnswers = answers[currentQuestion.id] || [];
-                                if (e.target.checked) {
-                                  handleAnswerChange(currentQuestion.id, [...currentAnswers, index]);
+                                const newAnswer = { ...(answers[currentQuestion.id] || {}) };
+                                
+                                // Find if this right option is already used
+                                const usedByIndex = Object.keys(newAnswer).find(key => newAnswer[key] === rightIndex);
+                                if (usedByIndex) {
+                                  // Remove the existing match
+                                  delete newAnswer[usedByIndex];
                                 } else {
-                                  handleAnswerChange(currentQuestion.id, currentAnswers.filter((i: number) => i !== index));
+                                  // Find the next unmatched left item
+                                  const nextUnmatched = (currentQuestion.options as Array<{left: string; right: string}>)
+                                    .findIndex((_, leftIndex) => newAnswer[leftIndex] === undefined);
+                                  
+                                  if (nextUnmatched !== -1) {
+                                    newAnswer[nextUnmatched] = rightIndex;
+                                  }
                                 }
+                                
+                                handleAnswerChange(currentQuestion.id, newAnswer);
                               }}
-                              className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
-                            />
-                            <span className="text-sm">{String.fromCharCode(65 + index)}. {pair.right}</span>
-                          </label>
-                        ))}
+                              className={`w-full text-left p-3 border-2 rounded-lg transition-all ${
+                                isUsed
+                                  ? 'border-green-400 bg-green-100 text-green-800'
+                                  : 'border-gray-300 bg-white hover:border-primary hover:bg-primary/5'
+                              }`}
+                            >
+                              <span className="text-sm font-medium">
+                                {String.fromCharCode(65 + rightIndex)}. {pair.right}
+                              </span>
+                              {isUsed && (
+                                <span className="text-xs text-green-600 ml-2">✓ Used</span>
+                              )}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
+                    <p className="text-xs text-gray-500 bg-blue-50 p-2 rounded">
+                      💡 Click options from the right to match them with items on the left in order.
+                    </p>
                   </div>
                 )}
 
-                {/* Ordering - Improved Visual Design */}
+                {/* Ordering - Smart Interface for Sentences vs Lists */}
                 {currentQuestion.question_type === 'ordering' && Array.isArray(currentQuestion.options) && (
-                  <div className="space-y-3">
-                    <p className="text-sm text-gray-600 mb-3">Arrange these items in the correct order (1 = first, higher numbers = later):</p>
-                    <div className="space-y-2">
-                      {(currentQuestion.options as string[]).map((option, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg"
-                        >
-                          <select
-                            value={answers[currentQuestion?.id ?? '']?.[index] || ''}
-                            onChange={(e) => {
-                              if (!currentQuestion) return;
-                              const newAnswers = [...(answers[currentQuestion.id] || new Array(currentQuestion.options.length).fill(''))];
-                              newAnswers[index] = e.target.value;
-                              handleAnswerChange(currentQuestion.id, newAnswers);
-                            }}
-                            className="w-16 p-1 border border-gray-300 rounded text-sm focus:border-primary focus:outline-none"
-                          >
-                            <option value="">-</option>
-                            {Array.from({ length: currentQuestion.options.length }, (_, i) => (
-                              <option key={i + 1} value={i + 1}>{i + 1}</option>
-                            ))}
-                          </select>
-                          <span className="text-base flex-1">{option}</span>
-                          <Move className="w-4 h-4 text-gray-400" />
-                        </div>
-                      ))}
-                    </div>
-                    <p className="text-xs text-gray-500">Select the order number for each item (1, 2, 3, etc.)</p>
+                  <div className="space-y-4">
+                    {(() => {
+                      // Detect if this is sentence ordering (short words) vs list ordering
+                      const avgWordLength = (currentQuestion.options as string[]).reduce((sum, word) => sum + word.length, 0) / currentQuestion.options.length;
+                      const isSentenceOrdering = avgWordLength < 8 && (currentQuestion.options as string[]).length <= 8;
+                      
+                      if (isSentenceOrdering) {
+                        // Sentence Building Interface
+                        const currentOrder = answers[currentQuestion?.id ?? ''] || {};
+                        const orderedWords = Array.from({ length: currentQuestion.options.length }, (_, position) => {
+                          const itemIndex = Object.keys(currentOrder).find(
+                            itemIndex => currentOrder[itemIndex] === position + 1
+                          );
+                          return itemIndex ? (currentQuestion.options as string[])[parseInt(itemIndex)] : null;
+                        });
+                        
+                        return (
+                          <>
+                            <p className="text-sm text-gray-600 mb-4">
+                              <strong>Instructions:</strong> Click the words below to build the sentence in the correct order.
+                            </p>
+                            
+                            {/* Sentence Building Area */}
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border-2 border-blue-200">
+                              <h4 className="font-semibold text-sm text-gray-800 mb-3">Build your sentence:</h4>
+                              <div className="min-h-16 flex flex-wrap items-center gap-2 p-4 bg-white rounded-lg border-2 border-dashed border-blue-300">
+                                {orderedWords.map((word, position) => (
+                                  <div key={position} className="relative">
+                                    {word ? (
+                                      <button
+                                        onClick={() => {
+                                          if (!currentQuestion) return;
+                                          const newOrder = { ...(answers[currentQuestion.id] || {}) };
+                                          const itemIndex = Object.keys(newOrder).find(
+                                            idx => newOrder[idx] === position + 1
+                                          );
+                                          if (itemIndex) delete newOrder[itemIndex];
+                                          handleAnswerChange(currentQuestion.id, newOrder);
+                                        }}
+                                        className="px-3 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/80 transition-all shadow-sm"
+                                      >
+                                        {word}
+                                        <span className="ml-2 text-xs opacity-70">✕</span>
+                                      </button>
+                                    ) : (
+                                      <div className="px-3 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-400 italic text-sm">
+                                        {position + 1}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                                {orderedWords.every(word => word) && (
+                                  <div className="text-lg text-gray-600">!</div>
+                                )}
+                              </div>
+                              
+                              {/* Sentence Preview */}
+                              {orderedWords.some(word => word) && (
+                                <div className="mt-4 p-3 bg-blue-100 rounded-lg">
+                                  <span className="text-sm font-medium text-blue-800">Preview: </span>
+                                  <span className="text-base text-blue-900">
+                                    "{orderedWords.filter(Boolean).join(' ')}{orderedWords.every(word => word) ? '' : '...'}"
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* Available Words */}
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <h4 className="font-semibold text-sm text-gray-800 mb-3">Available words:</h4>
+                              <div className="flex flex-wrap gap-2">
+                                {(currentQuestion.options as string[]).map((word, index) => {
+                                  const currentOrder = answers[currentQuestion?.id ?? ''] || {};
+                                  const isUsed = currentOrder[index] !== undefined;
+                                  
+                                  return (
+                                    <button
+                                      key={index}
+                                      onClick={() => {
+                                        if (!currentQuestion) return;
+                                        const currentOrder = answers[currentQuestion.id] || {};
+                                        
+                                        if (isUsed) {
+                                          // Remove from current position
+                                          const newOrder = { ...currentOrder };
+                                          delete newOrder[index];
+                                          handleAnswerChange(currentQuestion.id, newOrder);
+                                        } else {
+                                          // Place in next available position
+                                          const usedPositions = Object.values(currentOrder);
+                                          const nextPosition = Array.from({ length: currentQuestion.options.length }, (_, i) => i + 1)
+                                            .find(pos => !usedPositions.includes(pos));
+                                          
+                                          if (nextPosition) {
+                                            handleAnswerChange(currentQuestion.id, {
+                                              ...currentOrder,
+                                              [index]: nextPosition
+                                            });
+                                          }
+                                        }
+                                      }}
+                                      className={`px-4 py-2 border-2 rounded-lg font-medium transition-all ${
+                                        isUsed
+                                          ? 'border-gray-300 bg-gray-200 text-gray-500 opacity-50'
+                                          : 'border-gray-300 bg-white hover:border-primary hover:bg-primary/5 text-gray-800'
+                                      }`}
+                                      disabled={isUsed}
+                                    >
+                                      {word}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                            
+                            <p className="text-xs text-gray-500 bg-yellow-50 p-2 rounded">
+                              💡 Click words to add them to your sentence. Click words in the sentence to remove them.
+                            </p>
+                          </>
+                        );
+                      } else {
+                        // List Ordering Interface (original design for longer items)
+                        const currentOrder = answers[currentQuestion?.id ?? ''] || {};
+                        
+                        return (
+                          <>
+                            <p className="text-sm text-gray-600 mb-4">
+                              <strong>Instructions:</strong> Click the items to arrange them in the correct order.
+                            </p>
+                            
+                            {/* Current Order Display */}
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                              <h4 className="font-semibold text-sm text-gray-800 mb-3">Your Current Order:</h4>
+                              <div className="space-y-2">
+                                {Array.from({ length: currentQuestion.options.length }, (_, position) => {
+                                  const itemAtPosition = Object.keys(currentOrder).find(
+                                    itemIndex => currentOrder[itemIndex] === position + 1
+                                  );
+                                  
+                                  return (
+                                    <div 
+                                      key={position}
+                                      className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
+                                        itemAtPosition 
+                                          ? 'border-green-400 bg-green-50' 
+                                          : 'border-gray-300 bg-gray-100 border-dashed'
+                                      }`}
+                                    >
+                                      <div className="flex items-center justify-center w-8 h-8 bg-primary text-white text-sm font-bold rounded-full">
+                                        {position + 1}
+                                      </div>
+                                      <span className="flex-1 text-base">
+                                        {itemAtPosition 
+                                          ? (currentQuestion.options as string[])[parseInt(itemAtPosition)]
+                                          : <span className="text-gray-400 italic">Click an item below to place it here</span>
+                                        }
+                                      </span>
+                                      {itemAtPosition && (
+                                        <button
+                                          onClick={() => {
+                                            if (!currentQuestion) return;
+                                            const newOrder = { ...(answers[currentQuestion.id] || {}) };
+                                            delete newOrder[itemAtPosition];
+                                            handleAnswerChange(currentQuestion.id, newOrder);
+                                          }}
+                                          className="text-red-500 hover:text-red-700 p-1"
+                                        >
+                                          ✕
+                                        </button>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                            
+                            {/* Available Items */}
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <h4 className="font-semibold text-sm text-gray-800 mb-3">Available Items:</h4>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {(currentQuestion.options as string[]).map((option, index) => {
+                                  const isPlaced = currentOrder[index] !== undefined;
+                                  const position = currentOrder[index];
+                                  
+                                  return (
+                                    <button
+                                      key={index}
+                                      onClick={() => {
+                                        if (!currentQuestion) return;
+                                        const currentOrder = answers[currentQuestion.id] || {};
+                                        
+                                        if (isPlaced) {
+                                          // Remove from current position
+                                          const newOrder = { ...currentOrder };
+                                          delete newOrder[index];
+                                          handleAnswerChange(currentQuestion.id, newOrder);
+                                        } else {
+                                          // Place in next available position
+                                          const usedPositions = Object.values(currentOrder);
+                                          const nextPosition = Array.from({ length: currentQuestion.options.length }, (_, i) => i + 1)
+                                            .find(pos => !usedPositions.includes(pos));
+                                          
+                                          if (nextPosition) {
+                                            handleAnswerChange(currentQuestion.id, {
+                                              ...currentOrder,
+                                              [index]: nextPosition
+                                            });
+                                          }
+                                        }
+                                      }}
+                                      className={`w-full text-left p-3 border-2 rounded-lg transition-all ${
+                                        isPlaced
+                                          ? 'border-green-400 bg-green-100 text-green-800'
+                                          : 'border-gray-300 bg-white hover:border-primary hover:bg-primary/5'
+                                      }`}
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-sm">{option}</span>
+                                        {isPlaced && (
+                                          <span className="text-xs bg-green-200 text-green-700 px-2 py-1 rounded font-medium">
+                                            Position {position}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                            
+                            <p className="text-xs text-gray-500 bg-yellow-50 p-2 rounded">
+                              💡 Click items to place them in order. Click placed items to remove them.
+                            </p>
+                          </>
+                        );
+                      }
+                    })()}
                   </div>
                 )}
               </div>
@@ -624,6 +915,40 @@ export default function TakeQuizPage() {
           )}
         </div>
       </div>
+
+      {/* Exit Confirmation Modal */}
+      {showExitConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <Card variant="glass" className="max-w-md w-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <AlertTriangle className="w-5 h-5 text-warning" />
+                Leave Quiz?
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-6">
+                You have answered {Object.keys(answers).length} out of {questions.length} questions. 
+                If you leave now, your progress will be lost.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowExitConfirm(false)}
+                  className="flex-1 px-4 py-2 border border-border rounded-lg text-foreground hover:bg-muted/50 transition-colors"
+                >
+                  Stay
+                </button>
+                <button
+                  onClick={confirmExit}
+                  className="flex-1 px-4 py-2 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg transition-colors"
+                >
+                  Leave Quiz
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }
