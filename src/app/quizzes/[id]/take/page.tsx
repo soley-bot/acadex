@@ -636,7 +636,7 @@ export default function TakeQuizPage() {
                                 <div className="mt-4 p-3 bg-blue-100 rounded-lg">
                                   <span className="text-sm font-medium text-blue-800">Preview: </span>
                                   <span className="text-base text-blue-900">
-                                    "{orderedWords.filter(Boolean).join(' ')}{orderedWords.every(word => word) ? '' : '...'}"
+                                    &ldquo;{orderedWords.filter(Boolean).join(' ')}{orderedWords.every(word => word) ? '' : '...'}&rdquo;
                                   </span>
                                 </div>
                               )}
