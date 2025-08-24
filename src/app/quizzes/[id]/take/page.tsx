@@ -6,10 +6,75 @@ import { getQuizQuestions, submitQuizAttempt } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
 import { QuizQuestion, Quiz } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertTriangle, Target, Move, Check, ArrowLeft } from 'lucide-react'
+import { AlertTriangle, Target, Move, Check, ArrowLeft, GripVertical } from 'lucide-react'
 import { logger } from '@/lib/logger'
 import Header from '@/components/Header'
 import { Footer } from '@/components/Footer'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import {
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+// Sortable Item Component for Drag & Drop
+interface SortableItemProps {
+  id: string
+  children: React.ReactNode
+  isDragOverlay?: boolean
+}
+
+function SortableItem({ id, children, isDragOverlay = false }: SortableItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`touch-none ${isDragOverlay ? 'z-50' : ''}`}
+      {...attributes}
+    >
+      <div className="flex items-center gap-3 p-4 bg-white border-2 border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all">
+        <div
+          {...listeners}
+          className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-primary cursor-grab active:cursor-grabbing touch-manipulation"
+          style={{ touchAction: 'none' }}
+        >
+          <GripVertical className="w-5 h-5" />
+        </div>
+        <div className="flex-1">
+          {children}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 interface Question {
   id: string
@@ -39,6 +104,18 @@ export default function TakeQuizPage() {
   const [timeLeft, setTimeLeft] = useState<number>(0)
   const [submitting, setSubmitting] = useState(false)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
+
+  // Drag & Drop sensors (must be at component level)
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Require 8px movement before drag starts
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   useEffect(() => {
     if (!user) {
@@ -573,7 +650,7 @@ export default function TakeQuizPage() {
                   </div>
                 )}
 
-                {/* Ordering - Smart Interface for Sentences vs Lists */}
+                {/* Ordering - Modern Drag & Drop Interface */}
                 {currentQuestion.question_type === 'ordering' && Array.isArray(currentQuestion.options) && (
                   <div className="space-y-4">
                     {(() => {
@@ -581,62 +658,135 @@ export default function TakeQuizPage() {
                       const avgWordLength = (currentQuestion.options as string[]).reduce((sum, word) => sum + word.length, 0) / currentQuestion.options.length;
                       const isSentenceOrdering = avgWordLength < 8 && (currentQuestion.options as string[]).length <= 8;
                       
-                      if (isSentenceOrdering) {
-                        // Sentence Building Interface
-                        const currentOrder = answers[currentQuestion?.id ?? ''] || {};
-                        const orderedWords = Array.from({ length: currentQuestion.options.length }, (_, position) => {
-                          const itemIndex = Object.keys(currentOrder).find(
-                            itemIndex => currentOrder[itemIndex] === position + 1
-                          );
-                          return itemIndex ? (currentQuestion.options as string[])[parseInt(itemIndex)] : null;
+                      // Get current order from answers
+                      const currentAnswer = answers[currentQuestion?.id ?? ''] || {};
+                      
+                      // Convert answer format to sortable array
+                      const sortedItems = Array.from({ length: currentQuestion.options.length }, (_, position) => {
+                        const itemIndex = Object.keys(currentAnswer).find(
+                          idx => currentAnswer[idx] === position + 1
+                        );
+                        return itemIndex ? {
+                          id: `item-${itemIndex}`,
+                          content: (currentQuestion.options as string[])[parseInt(itemIndex)],
+                          originalIndex: parseInt(itemIndex)
+                        } : null;
+                      }).filter(Boolean) as Array<{id: string; content: string; originalIndex: number}>;
+                      
+                      // Get unplaced items
+                      const placedIndices = new Set(sortedItems.map(item => item.originalIndex));
+                      const unplacedItems = (currentQuestion.options as string[])
+                        .map((content, index) => ({ 
+                          id: `item-${index}`, 
+                          content, 
+                          originalIndex: index 
+                        }))
+                        .filter(item => !placedIndices.has(item.originalIndex));
+
+                      const handleDragEnd = (event: DragEndEvent) => {
+                        const { active, over } = event;
+                        
+                        if (!over || !currentQuestion) return;
+
+                        const activeId = active.id as string;
+                        const overId = over.id as string;
+
+                        // Handle drag within sorted area
+                        if (activeId !== overId && sortedItems.find(item => item.id === activeId)) {
+                          const oldIndex = sortedItems.findIndex(item => item.id === activeId);
+                          const newIndex = sortedItems.findIndex(item => item.id === overId);
+                          
+                          const newSortedItems = arrayMove(sortedItems, oldIndex, newIndex);
+                          
+                          // Convert back to answer format
+                          const newAnswer: Record<string, number> = {};
+                          newSortedItems.forEach((item, position) => {
+                            newAnswer[item.originalIndex] = position + 1;
+                          });
+                          
+                          handleAnswerChange(currentQuestion.id, newAnswer);
+                        }
+                      };
+
+                      const addToOrder = (item: {id: string; content: string; originalIndex: number}) => {
+                        if (!currentQuestion) return;
+                        const newAnswer = { ...currentAnswer };
+                        newAnswer[item.originalIndex] = sortedItems.length + 1;
+                        handleAnswerChange(currentQuestion.id, newAnswer);
+                      };
+
+                      const removeFromOrder = (item: {id: string; content: string; originalIndex: number}) => {
+                        if (!currentQuestion) return;
+                        const newAnswer = { ...currentAnswer };
+                        const removedPosition = newAnswer[item.originalIndex];
+                        delete newAnswer[item.originalIndex];
+                        
+                        // Shift other items down
+                        Object.keys(newAnswer).forEach(key => {
+                          if (newAnswer[key] > removedPosition) {
+                            newAnswer[key]--;
+                          }
                         });
                         
+                        handleAnswerChange(currentQuestion.id, newAnswer);
+                      };
+                      
+                      if (isSentenceOrdering) {
+                        // Sentence Building with Drag & Drop
                         return (
                           <>
                             <p className="text-sm text-gray-600 mb-4">
-                              <strong>Instructions:</strong> Click the words below to build the sentence in the correct order.
+                              <strong>Instructions:</strong> Drag words to build the sentence, or click to add/remove them.
                             </p>
                             
                             {/* Sentence Building Area */}
-                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border-2 border-blue-200">
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border-2 border-blue-200">
                               <h4 className="font-semibold text-sm text-gray-800 mb-3">Build your sentence:</h4>
-                              <div className="min-h-16 flex flex-wrap items-center gap-2 p-4 bg-white rounded-lg border-2 border-dashed border-blue-300">
-                                {orderedWords.map((word, position) => (
-                                  <div key={position} className="relative">
-                                    {word ? (
-                                      <button
-                                        onClick={() => {
-                                          if (!currentQuestion) return;
-                                          const newOrder = { ...(answers[currentQuestion.id] || {}) };
-                                          const itemIndex = Object.keys(newOrder).find(
-                                            idx => newOrder[idx] === position + 1
-                                          );
-                                          if (itemIndex) delete newOrder[itemIndex];
-                                          handleAnswerChange(currentQuestion.id, newOrder);
-                                        }}
-                                        className="px-3 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/80 transition-all shadow-sm"
-                                      >
-                                        {word}
-                                        <span className="ml-2 text-xs opacity-70">✕</span>
-                                      </button>
-                                    ) : (
-                                      <div className="px-3 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-400 italic text-sm">
-                                        {position + 1}
+                              
+                              {/* Sortable Sentence Area */}
+                              <DndContext 
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                              >
+                                <div className="min-h-16 p-4 bg-white rounded-lg border-2 border-dashed border-blue-300">
+                                  {sortedItems.length > 0 ? (
+                                    <SortableContext 
+                                      items={sortedItems.map(item => item.id)}
+                                      strategy={verticalListSortingStrategy}
+                                    >
+                                      <div className="flex flex-wrap items-center gap-2">
+                                        {sortedItems.map((item, index) => (
+                                          <SortableItem key={item.id} id={item.id}>
+                                            <div className="flex items-center gap-2">
+                                              <span className="px-3 py-2 bg-primary text-white rounded-lg font-medium text-sm">
+                                                {item.content}
+                                              </span>
+                                              <button
+                                                onClick={() => removeFromOrder(item)}
+                                                className="text-red-500 hover:text-red-700 text-xs p-1"
+                                              >
+                                                ✕
+                                              </button>
+                                            </div>
+                                          </SortableItem>
+                                        ))}
                                       </div>
-                                    )}
-                                  </div>
-                                ))}
-                                {orderedWords.every(word => word) && (
-                                  <div className="text-lg text-gray-600">!</div>
-                                )}
-                              </div>
+                                    </SortableContext>
+                                  ) : (
+                                    <div className="text-gray-400 italic text-center py-4">
+                                      Drag words here to build your sentence
+                                    </div>
+                                  )}
+                                </div>
+                              </DndContext>
                               
                               {/* Sentence Preview */}
-                              {orderedWords.some(word => word) && (
-                                <div className="mt-4 p-3 bg-blue-100 rounded-lg">
+                              {sortedItems.length > 0 && (
+                                <div className="mt-3 p-3 bg-blue-100 rounded-lg">
                                   <span className="text-sm font-medium text-blue-800">Preview: </span>
                                   <span className="text-base text-blue-900">
-                                    &ldquo;{orderedWords.filter(Boolean).join(' ')}{orderedWords.every(word => word) ? '' : '...'}&rdquo;
+                                    &ldquo;{sortedItems.map(item => item.content).join(' ')}&rdquo;
                                   </span>
                                 </div>
                               )}
@@ -646,167 +796,92 @@ export default function TakeQuizPage() {
                             <div className="bg-gray-50 p-4 rounded-lg">
                               <h4 className="font-semibold text-sm text-gray-800 mb-3">Available words:</h4>
                               <div className="flex flex-wrap gap-2">
-                                {(currentQuestion.options as string[]).map((word, index) => {
-                                  const currentOrder = answers[currentQuestion?.id ?? ''] || {};
-                                  const isUsed = currentOrder[index] !== undefined;
-                                  
-                                  return (
-                                    <button
-                                      key={index}
-                                      onClick={() => {
-                                        if (!currentQuestion) return;
-                                        const currentOrder = answers[currentQuestion.id] || {};
-                                        
-                                        if (isUsed) {
-                                          // Remove from current position
-                                          const newOrder = { ...currentOrder };
-                                          delete newOrder[index];
-                                          handleAnswerChange(currentQuestion.id, newOrder);
-                                        } else {
-                                          // Place in next available position
-                                          const usedPositions = Object.values(currentOrder);
-                                          const nextPosition = Array.from({ length: currentQuestion.options.length }, (_, i) => i + 1)
-                                            .find(pos => !usedPositions.includes(pos));
-                                          
-                                          if (nextPosition) {
-                                            handleAnswerChange(currentQuestion.id, {
-                                              ...currentOrder,
-                                              [index]: nextPosition
-                                            });
-                                          }
-                                        }
-                                      }}
-                                      className={`px-4 py-2 border-2 rounded-lg font-medium transition-all ${
-                                        isUsed
-                                          ? 'border-gray-300 bg-gray-200 text-gray-500 opacity-50'
-                                          : 'border-gray-300 bg-white hover:border-primary hover:bg-primary/5 text-gray-800'
-                                      }`}
-                                      disabled={isUsed}
-                                    >
-                                      {word}
-                                    </button>
-                                  );
-                                })}
+                                {unplacedItems.map((item) => (
+                                  <button
+                                    key={item.id}
+                                    onClick={() => addToOrder(item)}
+                                    className="px-4 py-2 border-2 border-gray-300 bg-white rounded-lg font-medium transition-all hover:border-primary hover:bg-primary/5 text-gray-800 touch-manipulation"
+                                    style={{ minHeight: '44px' }} // Ensure touch-friendly size
+                                  >
+                                    {item.content}
+                                  </button>
+                                ))}
                               </div>
                             </div>
                             
                             <p className="text-xs text-gray-500 bg-yellow-50 p-2 rounded">
-                              💡 Click words to add them to your sentence. Click words in the sentence to remove them.
+                              💡 Drag words within the sentence to reorder, or click to add/remove them.
                             </p>
                           </>
                         );
                       } else {
-                        // List Ordering Interface (original design for longer items)
-                        const currentOrder = answers[currentQuestion?.id ?? ''] || {};
-                        
+                        // List Ordering with Drag & Drop
                         return (
                           <>
                             <p className="text-sm text-gray-600 mb-4">
-                              <strong>Instructions:</strong> Click the items to arrange them in the correct order.
+                              <strong>Instructions:</strong> Drag items to arrange them in the correct order.
                             </p>
                             
-                            {/* Current Order Display */}
-                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
-                              <h4 className="font-semibold text-sm text-gray-800 mb-3">Your Current Order:</h4>
-                              <div className="space-y-2">
-                                {Array.from({ length: currentQuestion.options.length }, (_, position) => {
-                                  const itemAtPosition = Object.keys(currentOrder).find(
-                                    itemIndex => currentOrder[itemIndex] === position + 1
-                                  );
-                                  
-                                  return (
-                                    <div 
-                                      key={position}
-                                      className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
-                                        itemAtPosition 
-                                          ? 'border-green-400 bg-green-50' 
-                                          : 'border-gray-300 bg-gray-100 border-dashed'
-                                      }`}
-                                    >
-                                      <div className="flex items-center justify-center w-8 h-8 bg-primary text-white text-sm font-bold rounded-full">
-                                        {position + 1}
-                                      </div>
-                                      <span className="flex-1 text-base">
-                                        {itemAtPosition 
-                                          ? (currentQuestion.options as string[])[parseInt(itemAtPosition)]
-                                          : <span className="text-gray-400 italic">Click an item below to place it here</span>
-                                        }
-                                      </span>
-                                      {itemAtPosition && (
-                                        <button
-                                          onClick={() => {
-                                            if (!currentQuestion) return;
-                                            const newOrder = { ...(answers[currentQuestion.id] || {}) };
-                                            delete newOrder[itemAtPosition];
-                                            handleAnswerChange(currentQuestion.id, newOrder);
-                                          }}
-                                          className="text-red-500 hover:text-red-700 p-1"
-                                        >
-                                          ✕
-                                        </button>
-                                      )}
+                            <DndContext 
+                              sensors={sensors}
+                              collisionDetection={closestCenter}
+                              onDragEnd={handleDragEnd}
+                            >
+                              {/* Current Order Display */}
+                              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                                <h4 className="font-semibold text-sm text-gray-800 mb-3">Your Current Order:</h4>
+                                
+                                {sortedItems.length > 0 ? (
+                                  <SortableContext 
+                                    items={sortedItems.map(item => item.id)}
+                                    strategy={verticalListSortingStrategy}
+                                  >
+                                    <div className="space-y-2">
+                                      {sortedItems.map((item, index) => (
+                                        <SortableItem key={item.id} id={item.id}>
+                                          <div className="flex items-center gap-3">
+                                            <div className="flex items-center justify-center w-8 h-8 bg-primary text-white text-sm font-bold rounded-full">
+                                              {index + 1}
+                                            </div>
+                                            <span className="flex-1 text-base">{item.content}</span>
+                                            <button
+                                              onClick={() => removeFromOrder(item)}
+                                              className="text-red-500 hover:text-red-700 p-1"
+                                            >
+                                              ✕
+                                            </button>
+                                          </div>
+                                        </SortableItem>
+                                      ))}
                                     </div>
-                                  );
-                                })}
+                                  </SortableContext>
+                                ) : (
+                                  <div className="text-gray-400 italic text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                                    Drag items here to create your ordered list
+                                  </div>
+                                )}
                               </div>
-                            </div>
+                            </DndContext>
                             
                             {/* Available Items */}
                             <div className="bg-gray-50 p-4 rounded-lg">
                               <h4 className="font-semibold text-sm text-gray-800 mb-3">Available Items:</h4>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                {(currentQuestion.options as string[]).map((option, index) => {
-                                  const isPlaced = currentOrder[index] !== undefined;
-                                  const position = currentOrder[index];
-                                  
-                                  return (
-                                    <button
-                                      key={index}
-                                      onClick={() => {
-                                        if (!currentQuestion) return;
-                                        const currentOrder = answers[currentQuestion.id] || {};
-                                        
-                                        if (isPlaced) {
-                                          // Remove from current position
-                                          const newOrder = { ...currentOrder };
-                                          delete newOrder[index];
-                                          handleAnswerChange(currentQuestion.id, newOrder);
-                                        } else {
-                                          // Place in next available position
-                                          const usedPositions = Object.values(currentOrder);
-                                          const nextPosition = Array.from({ length: currentQuestion.options.length }, (_, i) => i + 1)
-                                            .find(pos => !usedPositions.includes(pos));
-                                          
-                                          if (nextPosition) {
-                                            handleAnswerChange(currentQuestion.id, {
-                                              ...currentOrder,
-                                              [index]: nextPosition
-                                            });
-                                          }
-                                        }
-                                      }}
-                                      className={`w-full text-left p-3 border-2 rounded-lg transition-all ${
-                                        isPlaced
-                                          ? 'border-green-400 bg-green-100 text-green-800'
-                                          : 'border-gray-300 bg-white hover:border-primary hover:bg-primary/5'
-                                      }`}
-                                    >
-                                      <div className="flex items-center justify-between">
-                                        <span className="text-sm">{option}</span>
-                                        {isPlaced && (
-                                          <span className="text-xs bg-green-200 text-green-700 px-2 py-1 rounded font-medium">
-                                            Position {position}
-                                          </span>
-                                        )}
-                                      </div>
-                                    </button>
-                                  );
-                                })}
+                              <div className="grid grid-cols-1 gap-2">
+                                {unplacedItems.map((item) => (
+                                  <button
+                                    key={item.id}
+                                    onClick={() => addToOrder(item)}
+                                    className="w-full text-left p-3 border-2 border-gray-300 bg-white rounded-lg transition-all hover:border-primary hover:bg-primary/5 touch-manipulation"
+                                    style={{ minHeight: '44px' }}
+                                  >
+                                    <span className="text-sm">{item.content}</span>
+                                  </button>
+                                ))}
                               </div>
                             </div>
                             
                             <p className="text-xs text-gray-500 bg-yellow-50 p-2 rounded">
-                              💡 Click items to place them in order. Click placed items to remove them.
+                              💡 Drag items within the ordered list to rearrange, or click to add/remove them.
                             </p>
                           </>
                         );
