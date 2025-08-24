@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Typography, DisplayLG, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
 import Icon from '@/components/ui/Icon'
 import { Metadata } from 'next'
 
 export default function ContactPage() {
+  const searchParams = useSearchParams()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,6 +18,27 @@ export default function ContactPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+
+  // Handle URL query parameters
+  useEffect(() => {
+    const subject = searchParams.get('subject')
+    if (subject) {
+      // Map common subjects to user-friendly text
+      const subjectMap: { [key: string]: string } = {
+        'course-suggestion': 'Course Suggestion',
+        'feedback': 'Feedback',
+        'support': 'Technical Support',
+        'partnership': 'Partnership Inquiry',
+        'general': 'General Inquiry'
+      }
+      
+      const friendlySubject = subjectMap[subject] || decodeURIComponent(subject)
+      setFormData(prev => ({
+        ...prev,
+        subject: friendlySubject
+      }))
+    }
+  }, [searchParams])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -190,6 +213,7 @@ export default function ContactPage() {
                     className="w-full px-4 py-3 border border-input rounded-xl bg-white/90 backdrop-blur-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-sm"
                   >
                     <option value="">Select a topic</option>
+                    <option value="Course Suggestion">Course Suggestion</option>
                     <option value="Course Question">Course Question</option>
                     <option value="Quiz Feedback">Quiz Feedback</option>
                     <option value="Technical Support">Technical Support</option>
