@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       topic: requestData.topic,
       questionCount: requestData.question_count,
       difficulty: requestData.difficulty,
-      questionTypes: ['multiple_choice', 'true_false'],
+      questionTypes: ['multiple_choice', 'true_false', 'ordering', 'matching'],
       subject: requestData.subject,
       language: requestData.language
     })

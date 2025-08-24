@@ -584,18 +584,49 @@ export const submitQuizAttempt = async (attemptData: {
         }
       }
     } else if (['matching', 'ordering'].includes(question.question_type)) {
-      // Array-based answers - compare with JSON deserialized correct_answer_text
-      if (question.correct_answer_text) {
+      // Complex answers - compare with correct_answer_json
+      if (question.correct_answer_json) {
         try {
-          const correctAnswer = JSON.parse(question.correct_answer_text)
-          // For arrays, compare length and contents
-          if (Array.isArray(correctAnswer) && Array.isArray(userAnswer)) {
-            isCorrect = correctAnswer.length === userAnswer.length && 
-                       correctAnswer.every((val, index) => val === userAnswer[index])
+          const correctAnswer = question.correct_answer_json
+          
+          if (question.question_type === 'ordering') {
+            // For ordering: user answer is {originalIndex: position}, correct answer should be in same format
+            // or we convert from array format to position format
+            let correctPositions: Record<string, number>
+            
+            if (Array.isArray(correctAnswer)) {
+              // Convert array format ["word1", "word2", "word3"] to position format
+              correctPositions = {}
+              const options = Array.isArray(question.options) ? question.options : JSON.parse(question.options)
+              correctAnswer.forEach((word, position) => {
+                const originalIndex = options.findIndex((opt: string) => opt === word)
+                if (originalIndex !== -1) {
+                  correctPositions[originalIndex] = position + 1
+                }
+              })
+            } else {
+              // Already in position format
+              correctPositions = correctAnswer
+            }
+            
+            // Compare user answer with correct positions
+            if (typeof userAnswer === 'object' && userAnswer !== null) {
+              const userPositions = userAnswer as Record<string, number>
+              isCorrect = Object.keys(correctPositions).length === Object.keys(userPositions).length &&
+                         Object.keys(correctPositions).every(key => correctPositions[key] === userPositions[key])
+            }
+          } else if (question.question_type === 'matching') {
+            // For matching: similar logic but for pairs
+            if (typeof userAnswer === 'object' && userAnswer !== null && typeof correctAnswer === 'object') {
+              const userMatches = userAnswer as Record<string, number>
+              const correctMatches = correctAnswer as Record<string, number>
+              isCorrect = Object.keys(correctMatches).length === Object.keys(userMatches).length &&
+                         Object.keys(correctMatches).every(key => correctMatches[key] === userMatches[key])
+            }
           }
         } catch (err) {
-          // If JSON parsing fails, mark as incorrect
-          console.error('Error parsing correct answer JSON:', err)
+          // If parsing fails, mark as incorrect
+          console.error('Error processing correct_answer_json:', err)
           isCorrect = false
         }
       }

@@ -506,13 +506,8 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
           // Text-based answers stored in correct_answer_text
           correct_answer = q.correct_answer_text || ''
         } else if (['matching', 'ordering'].includes(q.question_type)) {
-          // Array-based answers stored as JSON in correct_answer_text
-          try {
-            correct_answer = q.correct_answer_text ? JSON.parse(q.correct_answer_text) : []
-          } catch (err) {
-            console.warn('Failed to parse correct_answer_text as JSON:', q.correct_answer_text)
-            correct_answer = []
-          }
+          // Complex answers stored in correct_answer_json
+          correct_answer = q.correct_answer_json || []
         } else {
           // Single numeric answers (multiple_choice, true_false) stored in correct_answer
           correct_answer = q.correct_answer || 0
@@ -880,15 +875,16 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
         // Handle different correct_answer formats based on question type
         let correctAnswer: number = 0
         let correctAnswerText: string | null = null
+        let correctAnswerJson: any = null
         
         if (['fill_blank', 'essay'].includes(questionType)) {
           // Text-based answers
           correctAnswer = 0
           correctAnswerText = q.correct_answer as string
         } else if (['matching', 'ordering'].includes(questionType)) {
-          // Array-based answers - serialize to JSON
+          // Complex answers - store in JSON field
           correctAnswer = 0
-          correctAnswerText = JSON.stringify(q.correct_answer)
+          correctAnswerJson = q.correct_answer
         } else {
           // Single numeric answers (multiple_choice, true_false)
           correctAnswer = typeof q.correct_answer === 'number' ? q.correct_answer : 0
@@ -902,6 +898,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
           options: ['fill_blank', 'essay'].includes(questionType) ? [] : q.options,
           correct_answer: correctAnswer,
           correct_answer_text: correctAnswerText,
+          correct_answer_json: correctAnswerJson,
           explanation: q.explanation || null,
           order_index: q.order_index,
           points: q.points || 1,

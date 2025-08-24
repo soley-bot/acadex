@@ -172,7 +172,7 @@ export interface QuizGenerationRequest {
   topic: string
   questionCount: number
   difficulty: 'beginner' | 'intermediate' | 'advanced'
-  questionTypes?: ('multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay')[]
+  questionTypes?: ('multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay' | 'matching' | 'ordering')[]
   subject?: string // Subject category (Math, Science, History, etc.)
   language?: string // Content language
 }
@@ -216,7 +216,9 @@ Generate content in ${language} language.
 CRITICAL: Follow exact JSON format requirements for each question type:
 - multiple_choice/single_choice: use "correct_answer" as number (0-3 index)
 - true_false: use "correct_answer" as number (0 for True, 1 for False)  
-- fill_blank/essay: use "correct_answer_text" as string with the answer text`
+- fill_blank/essay: use "correct_answer_text" as string with the answer text
+- ordering: use "correct_answer_json" as object mapping original indices to positions
+- matching: use "correct_answer_json" as object mapping left indices to right indices`
 
     const prompt = `Generate a ${request.difficulty} level ${subject} quiz about "${request.topic}" with ${request.questionCount} questions.
 Content should be in ${language} language.
@@ -254,6 +256,24 @@ For fill_blank questions:
   "question_type": "fill_blank",
   "correct_answer_text": "go",
   "explanation": "Brief explanation"
+}
+
+For ordering questions:
+{
+  "question": "Arrange these words to form a correct sentence:",
+  "question_type": "ordering",
+  "options": ["quickly", "The", "ran", "dog", "home"],
+  "correct_answer_json": {"1": 1, "3": 2, "2": 3, "4": 4, "0": 5},
+  "explanation": "The correct order forms: 'The dog ran home quickly'"
+}
+
+For matching questions:
+{
+  "question": "Match the animals with their sounds:",
+  "question_type": "matching", 
+  "options": [{"left": ["Cat", "Dog", "Cow"], "right": ["Bark", "Meow", "Moo"]}],
+  "correct_answer_json": {"0": 1, "1": 0, "2": 2},
+  "explanation": "Each animal makes a distinctive sound"
 }
 
 Generate quiz with this structure:
