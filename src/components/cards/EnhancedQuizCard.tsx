@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useUserProgress } from '@/hooks/useUserProgress'
 import Icon from '@/components/ui/Icon'
 import { UnifiedCard } from '@/components/ui/CardVariants'
+import { getQuizImage } from '@/lib/imageMapping'
 
 interface Quiz {
   id: string
@@ -105,16 +107,32 @@ export function EnhancedQuizCard({ quiz, showProgress = true }: EnhancedQuizCard
 
   return (
     <UnifiedCard variant="interactive" size="md" className="overflow-hidden">
-      {/* Quiz Header */}
-      <div className="relative bg-gradient-to-br from-primary to-primary/90 text-white p-6">
-        {/* Quiz Icon */}
-        <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
-          <Icon name="target" size={32} color="white" />
-        </div>
-
-        {/* Difficulty Badge */}
+      {/* Quiz Image */}
+      <div className="relative h-48 bg-muted/40">
+        {(() => {
+          const quizImage = getQuizImage(quiz)
+          return quiz.image_url ? (
+            <Image
+              src={quiz.image_url}
+              alt={quiz.title}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          ) : (
+            <Image
+              src={quizImage.src}
+              alt={quizImage.alt}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          )
+        })()}
+        
+        {/* Difficulty Badge Overlay */}
         <div className="absolute top-4 right-4">
-          <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getDifficultyColor(quiz.difficulty)}`}>
+          <span className={`px-3 py-1 text-xs font-semibold rounded-full border backdrop-blur-sm ${getDifficultyColor(quiz.difficulty)}`}>
             {quiz.difficulty}
           </span>
         </div>
@@ -123,17 +141,25 @@ export function EnhancedQuizCard({ quiz, showProgress = true }: EnhancedQuizCard
         {showProgress && user && attempted && (
           <div className="absolute top-12 right-4">
             {lastAttempt?.completed_at ? (
-              <span className="px-2 py-1 bg-success text-white text-xs font-semibold rounded-md flex items-center gap-1">
+              <span className="px-2 py-1 bg-success text-white text-xs font-semibold rounded-md flex items-center gap-1 backdrop-blur-sm">
                 <Icon name="check" size={12} color="white" />
                 Completed
               </span>
             ) : (
-              <span className="px-2 py-1 bg-warning text-black text-xs font-semibold rounded-md">
+              <span className="px-2 py-1 bg-warning text-black text-xs font-semibold rounded-md backdrop-blur-sm">
                 In Progress
               </span>
             )}
           </div>
         )}
+      </div>
+
+      {/* Quiz Header */}
+      <div className="relative bg-gradient-to-br from-primary to-primary/90 text-white p-6">
+        {/* Quiz Icon */}
+        <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
+          <Icon name="target" size={32} color="white" />
+        </div>
 
         {/* Quiz Title */}
         <h3 className="text-xl font-bold mb-2 text-white">

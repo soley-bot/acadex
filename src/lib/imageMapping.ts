@@ -249,6 +249,55 @@ export function getCourseImage(course: {
   }
 }
 
+// Function to get quiz image based on category, title, or fallback
+export function getQuizImage(quiz: { 
+  category?: string 
+  title?: string 
+  image_url?: string | null 
+}): ImageMapping {
+  // If quiz already has an image_url, use it
+  if (quiz.image_url) {
+    return {
+      src: quiz.image_url,
+      alt: quiz.title || 'Quiz Image',
+      category: quiz.category || 'Quiz'
+    }
+  }
+
+  // Try to match by category first
+  if (quiz.category) {
+    const categoryKey = quiz.category.toLowerCase().replace(/\s+/g, '-')
+    if (courseImageMappings[categoryKey]) {
+      return {
+        ...courseImageMappings[categoryKey],
+        alt: `${quiz.title || 'Quiz'} - ${courseImageMappings[categoryKey].category}`
+      }
+    }
+  }
+
+  // Try to match by title keywords
+  if (quiz.title) {
+    const titleLower = quiz.title.toLowerCase()
+    
+    // Look for keywords in title
+    for (const [key, mapping] of Object.entries(courseImageMappings)) {
+      if (titleLower.includes(key) || titleLower.includes(mapping.category.toLowerCase())) {
+        return {
+          ...mapping,
+          alt: `${quiz.title} - ${mapping.category}`
+        }
+      }
+    }
+  }
+
+  // Default fallback to general quiz image
+  return {
+    src: '/images/hero/online-learning.jpg',
+    alt: quiz.title || 'Quiz Practice',
+    category: 'General Quiz'
+  }
+}
+
 // Function to get hero image for specific pages
 export function getHeroImage(page: keyof typeof heroImageMappings) {
   return heroImageMappings[page] || heroImageMappings['courses']
