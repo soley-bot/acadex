@@ -54,6 +54,10 @@ module.exports = {
   				DEFAULT: 'hsl(var(--warning))',
   				foreground: 'hsl(var(--warning-foreground))'
   			},
+  			sidebar: {
+  				DEFAULT: 'hsl(var(--sidebar))',
+  				accent: 'hsl(var(--sidebar-accent))'
+  			},
   			chart: {
   				'1': 'hsl(var(--chart-1))',
   				'2': 'hsl(var(--chart-2))',

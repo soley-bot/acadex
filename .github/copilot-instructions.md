@@ -24,7 +24,7 @@ This is a comprehensive Next.js application for English learning, quiz practice,
 ### Student Features
 - Course enrollment and study interface with progress tracking
 - Interactive quiz system with detailed results
-- User dashboard with enrollment history
+- Dedicated student dashboard with sidebar navigation (no global nav header)
 - Responsive course content viewer with video support
 
 ### Admin Features
@@ -84,6 +84,7 @@ interface Course {
 ## File Structure & Components
 
 ### Key Pages
+- `/src/app/dashboard/page.tsx` - Student dashboard with sidebar navigation (no global nav)
 - `/src/app/courses/[id]/study/page.tsx` - Course study interface with progress tracking
 - `/src/app/admin/courses/page.tsx` - Admin course management dashboard
 - `/src/app/admin/quizzes/page.tsx` - Quiz management interface
@@ -460,7 +461,7 @@ const response = await fetch('/api/admin/endpoint', {
 - Newsletter signup integration
 
 ### 📋 **Next Priority Pages**:
-1. **Dashboard Page** (`/src/app/dashboard/page.tsx`) - High-impact student experience
+1. **Student Dashboard** (`/src/app/dashboard/page.tsx`) - High-impact student experience with sidebar navigation
 2. **Authentication Pages** (`/src/app/auth/`) - Critical user onboarding
 3. **Course Study Page** (`/src/app/courses/[id]/study/page.tsx`) - Core learning experience
 4. **About & Contact Pages** - Brand consistency
@@ -497,18 +498,55 @@ const response = await fetch('/api/admin/endpoint', {
 **Visual Hierarchy:** Professional white space utilization, subtle background patterns
 
 ## Layout & Responsiveness
-The application employs a sophisticated, responsive layout that adapts seamlessly from large desktop monitors to small mobile screens.
+The application employs a sophisticated, responsive layout that adapts seamlessly from large desktop monitors to small mobile screens. Both student and admin interfaces use consistent sidebar navigation patterns.
+
+### Dashboard Layout System (Students & Admins)
+**Structure**: A unified two-column dashboard layout for all authenticated users.
+- **Left Column**: A fixed-width (w-64) Sidebar for primary navigation. Always visible on desktop, providing constant access to all sections.
+- **Right Column**: The Main Content area, which is fluid and takes up the remaining screen width. This area contains the main view content, which is scrollable.
+- **No Global Header**: Student dashboard interfaces use sidebar-only navigation without the global header/navigation bar.
 
 ### Desktop Layout (≥ 768px)
-**Structure**: A classic two-column dashboard layout.
-- **Left Column**: A fixed-width (w-64) Sidebar for primary navigation. It is always visible, providing constant access to all sections of the application.
-- **Right Column**: The Main Content area, which is fluid and takes up the remaining screen width. This area contains a Header and the main view, which is scrollable.
+**Student Dashboard**:
+- Fixed sidebar navigation (w-64) with student-specific menu items
+- Main content area without global header
+- Sidebar contains: Dashboard, My Courses, Quizzes, Progress, Profile, Settings
+
+**Admin Dashboard**:
+- Fixed sidebar navigation (w-64) with admin-specific menu items  
+- Main content area for admin management interfaces
+- Sidebar contains: Dashboard, Courses, Quizzes, Users, Analytics, Settings
 
 ### Mobile & Tablet Layout (< 768px)
-To optimize for limited screen space, the layout transforms significantly:
-- **Collapsible Sidebar**: The sidebar is hidden by default off-screen (-translate-x-full). It can be toggled into view by tapping a Menu Icon (hamburger) located in the header. When open, it slides in from the left and overlays the main content with a semi-transparent backdrop, focusing the user's attention on navigation.
-- **Persistent Header**: A fixed Header remains at the top of the screen. It contains the menu icon and the current page title, providing context and consistent navigation control.
-- **Stacked Content**: Multi-column grids (grid-cols-3, grid-cols-2) automatically stack into a single vertical column (grid-cols-1). This ensures content flows logically and is easily readable without horizontal scrolling. Flexbox layouts also wrap (flex-wrap) to prevent overflow. For example, the stat cards on the dashboard and the course/quiz cards all stack vertically.
+To optimize for limited screen space, both student and admin layouts transform:
+- **Collapsible Sidebar**: The sidebar is hidden by default off-screen (-translate-x-full). It can be toggled into view by tapping a Menu Icon (hamburger) in a minimal header. When open, it slides in from the left and overlays the main content with a semi-transparent backdrop.
+- **Minimal Header**: A fixed minimal header remains at the top containing only the menu toggle and current page title.
+- **Stacked Content**: Multi-column grids (grid-cols-3, grid-cols-2) automatically stack into a single vertical column (grid-cols-1). This ensures content flows logically and is easily readable without horizontal scrolling. All dashboard cards and content elements stack vertically.
+
+### Navigation Architecture
+**Student Navigation Pattern**:
+```tsx
+// Student sidebar navigation (no global header)
+<StudentSidebar>
+  <SidebarItem href="/dashboard" icon={Home}>Dashboard</SidebarItem>
+  <SidebarItem href="/courses" icon={BookOpen}>My Courses</SidebarItem>
+  <SidebarItem href="/quizzes" icon={Brain}>Quizzes</SidebarItem>
+  <SidebarItem href="/progress" icon={TrendingUp}>Progress</SidebarItem>
+  <SidebarItem href="/profile" icon={User}>Profile</SidebarItem>
+</StudentSidebar>
+```
+
+**Admin Navigation Pattern**:
+```tsx
+// Admin sidebar navigation (consistent with student layout)
+<AdminSidebar>
+  <SidebarItem href="/admin" icon={BarChart3}>Dashboard</SidebarItem>
+  <SidebarItem href="/admin/courses" icon={BookOpen}>Courses</SidebarItem>
+  <SidebarItem href="/admin/quizzes" icon={Brain}>Quizzes</SidebarItem>
+  <SidebarItem href="/admin/users" icon={Users}>Users</SidebarItem>
+  <SidebarItem href="/admin/analytics" icon={TrendingUp}>Analytics</SidebarItem>
+</AdminSidebar>
+```
 
 ## Professional Spacing System
 **CRITICAL**: Acadex follows a systematic spacing approach based on professional website research.
