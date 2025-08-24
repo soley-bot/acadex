@@ -5,6 +5,7 @@
 
 import { logger } from './logger'
 import type { User } from './supabase'
+import { sanitizeRedirectUrl, SAFE_REDIRECTS } from './redirect-security'
 
 // Valid roles in our system (keeping it simple)
 export type UserRole = 'student' | 'instructor' | 'admin'
@@ -273,16 +274,17 @@ export class AuthSecurity {
       return {
         canAccess: false,
         reason: 'Authentication required',
-        redirectTo: '/auth/login'
+        redirectTo: SAFE_REDIRECTS.LOGIN
       }
     }
 
     // Check role permissions
     if (user && !protection.allowedRoles.includes(user.role)) {
+      const secureRedirect = user.role === 'admin' ? SAFE_REDIRECTS.ADMIN : SAFE_REDIRECTS.DASHBOARD
       return {
         canAccess: false,
         reason: `Access denied. Required role: ${protection.allowedRoles.join(' or ')}`,
-        redirectTo: user.role === 'admin' ? '/admin' : '/dashboard'
+        redirectTo: secureRedirect
       }
     }
 

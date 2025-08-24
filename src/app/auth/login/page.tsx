@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Loader2, ArrowRight, AlertTriangle, Sparkles } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmailField, PasswordField } from '@/components/auth/FormField'
+import { getSecureRedirect } from '@/lib/redirect-security'
 
 function EnhancedLoginForm() {
   const { signIn, signUp, user } = useAuth()
@@ -26,13 +27,9 @@ function EnhancedLoginForm() {
       // Check for redirect parameter first
       const redirectTo = searchParams.get('redirect') || searchParams.get('redirectTo')
       
-      if (redirectTo) {
-        router.push(redirectTo)
-      } else {
-        // Default redirect based on role
-        const defaultRedirect = user.role === 'admin' ? '/admin' : '/dashboard'
-        router.push(defaultRedirect)
-      }
+      // Use secure redirect validation
+      const secureRedirect = getSecureRedirect(redirectTo, user.role)
+      router.push(secureRedirect)
     }
   }, [user, router, searchParams])
 

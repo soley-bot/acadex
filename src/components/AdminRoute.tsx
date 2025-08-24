@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { SAFE_REDIRECTS } from '@/lib/redirect-security'
 
 interface AdminRouteProps {
   children: React.ReactNode
@@ -16,13 +17,13 @@ export default function AdminRoute({ children }: AdminRouteProps) {
     if (!loading) {
       if (!user) {
         // Not logged in - redirect to login
-        router.push('/auth/login?redirectTo=/admin')
+        router.push(`${SAFE_REDIRECTS.LOGIN}?redirectTo=${encodeURIComponent('/admin')}`)
         return
       }
       
       if (user.role !== 'admin') {
         // Not an admin - redirect to dashboard with error
-        router.push('/dashboard?error=unauthorized')
+        router.push(`${SAFE_REDIRECTS.DASHBOARD}?error=unauthorized`)
         return
       }
     }
