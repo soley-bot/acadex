@@ -25,7 +25,7 @@ interface Question {
   question: string
   question_type: string
   options: string[] | Array<{left: string; right: string}>
-  correct_answer: number | string | number[]
+  correct_answer: number | string | number[] | string[] // ✅ FIX: Add string[] for ordering questions
   correct_answer_text?: string | null
   explanation?: string
   points?: number

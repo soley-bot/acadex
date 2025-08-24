@@ -28,7 +28,7 @@ interface FeatureFlags {
 export const featureFlags: FeatureFlags = {
   // Phase 1: Foundation & Type Safety (ENABLED)
   enableFoundation: true,
-  enableEnhancedValidation: true, 
+  enableEnhancedValidation: true,
   enableMonitoring: true,
   
   // Phase 2: Enhanced Question Cards & Visual Improvements (NOW ENABLED!)

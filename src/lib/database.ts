@@ -985,10 +985,97 @@ export const getQuizResults = async (resultId: string) => {
 
   // Step 3: Format the results, combining attempt data with question data
   const answers = questions.map((question: any) => {
-    const userAnswerIndex = attempt.answers[question.id]
-    const userAnswer = question.options[userAnswerIndex] ?? 'No answer'
-    const correctAnswer = question.options[question.correct_answer]
-    const isCorrect = userAnswerIndex === question.correct_answer
+    const userAnswerData = attempt.answers[question.id]
+    
+    // Handle different question types properly
+    let userAnswer: string
+    let correctAnswer: string
+    let isCorrect: boolean
+    
+    if (question.question_type === 'ordering') {
+      // For ordering questions: user answer is {originalIndex: position}, need to convert to ordered array
+      if (userAnswerData && typeof userAnswerData === 'object' && !Array.isArray(userAnswerData)) {
+        // Convert position object back to ordered array
+        const options = Array.isArray(question.options) ? question.options : JSON.parse(question.options || '[]')
+        const userPositions = userAnswerData as Record<string, number>
+        
+        // Create array based on positions
+        const orderedArray: string[] = []
+        Object.keys(userPositions).forEach(originalIndex => {
+          const position = userPositions[originalIndex]
+          const word = options[parseInt(originalIndex)]
+          if (word && position !== undefined && position > 0) {
+            orderedArray[position - 1] = word
+          }
+        })
+        
+        userAnswer = orderedArray.filter(Boolean).length > 0 ? orderedArray.filter(Boolean).join(' → ') : 'No answer'
+      } else {
+        // Fallback for array format or empty
+        const userArray = Array.isArray(userAnswerData) ? userAnswerData : []
+        userAnswer = userArray.length > 0 ? userArray.join(' → ') : 'No answer'
+      }
+      
+      const correctArray = question.correct_answer_json || []
+      correctAnswer = Array.isArray(correctArray) ? correctArray.join(' → ') : 'No correct answer set'
+      
+      // Check correctness using the same logic as submitQuizAttempt
+      let correctPositions: Record<string, number> = {}
+      if (Array.isArray(correctArray)) {
+        const options = Array.isArray(question.options) ? question.options : JSON.parse(question.options || '[]')
+        correctArray.forEach((word, position) => {
+          const originalIndex = options.findIndex((opt: string) => opt === word)
+          if (originalIndex !== -1) {
+            correctPositions[originalIndex] = position + 1
+          }
+        })
+      }
+      
+      if (userAnswerData && typeof userAnswerData === 'object' && !Array.isArray(userAnswerData)) {
+        const userPositions = userAnswerData as Record<string, number>
+        isCorrect = Object.keys(correctPositions).length === Object.keys(userPositions).length &&
+                   Object.keys(correctPositions).every(key => correctPositions[key] === userPositions[key])
+      } else {
+        isCorrect = false
+      }
+      
+    } else if (question.question_type === 'matching') {
+      // For matching questions: user answer is {leftIndex: rightIndex}
+      if (userAnswerData && typeof userAnswerData === 'object' && !Array.isArray(userAnswerData)) {
+        const userMatches = userAnswerData as Record<string, number>
+        const matchCount = Object.keys(userMatches).length
+        userAnswer = matchCount > 0 ? `${matchCount} matches made` : 'No answer'
+      } else {
+        userAnswer = 'No answer'
+      }
+      
+      const correctArray = question.correct_answer_json || []
+      correctAnswer = Array.isArray(correctArray) && correctArray.length > 0 ? 'Correct matching pairs defined' : 'No correct answer set'
+      
+      // Check correctness using the same logic as submitQuizAttempt
+      if (userAnswerData && typeof userAnswerData === 'object' && !Array.isArray(userAnswerData) && 
+          question.correct_answer_json && typeof question.correct_answer_json === 'object') {
+        const userMatches = userAnswerData as Record<string, number>
+        const correctMatches = question.correct_answer_json as Record<string, number>
+        isCorrect = Object.keys(correctMatches).length === Object.keys(userMatches).length &&
+                   Object.keys(correctMatches).every(key => correctMatches[key] === userMatches[key])
+      } else {
+        isCorrect = false
+      }
+      
+    } else if (['fill_blank', 'essay'].includes(question.question_type)) {
+      // For text-based questions
+      userAnswer = userAnswerData || 'No answer'
+      correctAnswer = question.correct_answer_text || 'No correct answer set'
+      isCorrect = userAnswer.toLowerCase().trim() === correctAnswer.toLowerCase().trim()
+      
+    } else {
+      // For multiple choice, true/false (index-based)
+      const userAnswerIndex = userAnswerData
+      userAnswer = question.options[userAnswerIndex] ?? 'No answer'
+      correctAnswer = question.options[question.correct_answer] ?? 'No correct answer set'
+      isCorrect = userAnswerIndex === question.correct_answer
+    }
 
     return {
       question: question.question,

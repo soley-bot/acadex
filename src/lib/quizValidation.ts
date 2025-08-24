@@ -396,6 +396,45 @@ function validateMatchingQuestion(question: Question, rules: any): { errors: Val
     })
   }
   
+  // ✅ CRITICAL: Validate correct answer for matching questions
+  if (!question.correct_answer || 
+      (Array.isArray(question.correct_answer) && question.correct_answer.length === 0) ||
+      (typeof question.correct_answer === 'object' && Object.keys(question.correct_answer).length === 0)) {
+    errors.push({
+      field: 'correct_answer',
+      message: 'Matching questions must have correct matching pairs defined',
+      code: 'MATCHING_ANSWER_REQUIRED'
+    })
+  }
+  
+  // Validate correct answer structure if it exists
+  if (question.correct_answer && typeof question.correct_answer === 'object' && !Array.isArray(question.correct_answer)) {
+    const correctMatches = question.correct_answer as Record<string, number>
+    const maxLeftIndex = question.options.length - 1
+    const maxRightIndex = question.options.length - 1
+    
+    Object.entries(correctMatches).forEach(([leftIndex, rightIndex]) => {
+      const leftIdx = parseInt(leftIndex)
+      const rightIdx = rightIndex as number
+      
+      if (leftIdx < 0 || leftIdx > maxLeftIndex) {
+        errors.push({
+          field: 'correct_answer',
+          message: `Invalid left item index in matching: ${leftIdx}`,
+          code: 'INVALID_MATCHING_INDEX'
+        })
+      }
+      
+      if (rightIdx < 0 || rightIdx > maxRightIndex) {
+        errors.push({
+          field: 'correct_answer',
+          message: `Invalid right item index in matching: ${rightIdx}`,
+          code: 'INVALID_MATCHING_INDEX'
+        })
+      }
+    })
+  }
+  
   return { errors, warnings }
 }
 
@@ -429,6 +468,51 @@ function validateOrderingQuestion(question: Question, rules: any): { errors: Val
       message: 'All ordering items must have text',
       code: 'EMPTY_ITEMS'
     })
+  }
+  
+  // ✅ CRITICAL: Validate correct answer for ordering questions
+  if (!question.correct_answer || 
+      (Array.isArray(question.correct_answer) && question.correct_answer.length === 0)) {
+    errors.push({
+      field: 'correct_answer',
+      message: 'Ordering questions must have a correct sequence defined',
+      code: 'ORDERING_ANSWER_REQUIRED'
+    })
+  }
+  
+  // Validate correct answer structure
+  if (Array.isArray(question.correct_answer)) {
+    const correctSequence = question.correct_answer as string[]
+    
+    // Check that all items in correct answer exist in options
+    const missingItems = correctSequence.filter(item => !question.options.includes(item))
+    if (missingItems.length > 0) {
+      errors.push({
+        field: 'correct_answer',
+        message: `Correct sequence contains items not in options: ${missingItems.join(', ')}`,
+        code: 'INVALID_SEQUENCE_ITEMS'
+      })
+    }
+    
+    // Check that all options are included in correct answer
+    const missingFromSequence = question.options.filter(item => !correctSequence.includes(item))
+    if (missingFromSequence.length > 0) {
+      errors.push({
+        field: 'correct_answer',
+        message: `Some options are missing from correct sequence: ${missingFromSequence.join(', ')}`,
+        code: 'INCOMPLETE_SEQUENCE'
+      })
+    }
+    
+    // Check for duplicates in sequence
+    const duplicates = correctSequence.filter((item, index) => correctSequence.indexOf(item) !== index)
+    if (duplicates.length > 0) {
+      errors.push({
+        field: 'correct_answer',
+        message: `Duplicate items in correct sequence: ${duplicates.join(', ')}`,
+        code: 'DUPLICATE_SEQUENCE_ITEMS'
+      })
+    }
   }
   
   return { errors, warnings }

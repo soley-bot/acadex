@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { getQuizQuestions, submitQuizAttempt } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
@@ -125,6 +125,25 @@ export default function TakeQuizPage() {
     })
   )
 
+  // ✅ MISSING FUNCTION: Handle answer changes for all question types
+  const handleAnswerChange = useCallback((questionId: string, answer: any) => {
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: answer
+    }))
+  }, [])
+
+  // ✅ MISSING FUNCTION: Handle answer selection for multiple choice/true-false
+  const handleAnswerSelect = useCallback((questionId: string, selectedIndex: number) => {
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: selectedIndex
+    }))
+  }, [])
+
+  // ✅ MISSING HELPER: Get current question (must be declared before functions that use it)
+  const currentQuestion = questions[currentQuestionIndex]
+
   useEffect(() => {
     if (!user) {
       router.push('/auth/login')
@@ -207,20 +226,6 @@ export default function TakeQuizPage() {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
-  }
-
-  const handleAnswerSelect = (questionId: string, answerIndex: number) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: answerIndex
-    }))
-  }
-
-  const handleAnswerChange = (questionId: string, answer: any) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: answer
-    }))
   }
 
   const handleExitQuiz = () => {
@@ -391,8 +396,6 @@ export default function TakeQuizPage() {
       </div>
     )
   }
-
-  const currentQuestion = questions[currentQuestionIndex];
 
   // Active quiz session - no global navigation for cognitive load reduction
   return (
