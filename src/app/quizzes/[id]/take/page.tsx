@@ -24,6 +24,7 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
+  horizontalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import {
   useSortable,
@@ -732,53 +733,93 @@ export default function TakeQuizPage() {
                       };
                       
                       if (isSentenceOrdering) {
-                        // Sentence Building with Drag & Drop
+                        // Clean Word Pill Component - Click to toggle, Drag to reorder
+                        const WordPill = ({ 
+                          item, 
+                          isInSentence = false, 
+                          onClick 
+                        }: { 
+                          item: {id: string; content: string; originalIndex: number};
+                          isInSentence?: boolean;
+                          onClick: () => void;
+                        }) => {
+                          const {
+                            attributes,
+                            listeners,
+                            setNodeRef,
+                            transform,
+                            transition,
+                            isDragging,
+                          } = useSortable({ 
+                            id: item.id,
+                            disabled: !isInSentence // Only allow dragging within sentence
+                          });
+
+                          const style = {
+                            transform: CSS.Transform.toString(transform),
+                            transition,
+                            opacity: isDragging ? 0.5 : 1,
+                          };
+
+                          return (
+                            <button
+                              ref={setNodeRef}
+                              style={style}
+                              onClick={onClick}
+                              className={`
+                                px-4 py-2 rounded-full font-medium min-h-[44px] touch-manipulation
+                                transition-all duration-200 select-none
+                                ${isInSentence 
+                                  ? 'bg-primary hover:bg-secondary text-white hover:text-black cursor-pointer' 
+                                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700 cursor-pointer'
+                                }
+                                ${isDragging ? 'shadow-lg scale-105' : 'hover:scale-102'}
+                                ${isInSentence ? 'hover:shadow-md' : ''}
+                              `}
+                              {...(isInSentence ? { ...attributes, ...listeners } : {})}
+                              aria-label={isInSentence ? `${item.content} - click to remove or drag to reorder` : `${item.content} - click to add`}
+                            >
+                              {item.content}
+                            </button>
+                          );
+                        };
+
                         return (
                           <>
                             <p className="text-sm text-gray-600 mb-4">
-                              <strong>Instructions:</strong> Drag words to build the sentence, or click to add/remove them.
+                              <strong>Instructions:</strong> Click words to add/remove, drag blue words to reorder.
                             </p>
                             
                             {/* Sentence Building Area */}
                             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border-2 border-blue-200">
                               <h4 className="font-semibold text-sm text-gray-800 mb-3">Build your sentence:</h4>
                               
-                              {/* Sortable Sentence Area */}
-                              <DndContext 
+                              <DndContext
                                 sensors={sensors}
                                 collisionDetection={closestCenter}
                                 onDragEnd={handleDragEnd}
                               >
-                                <div className="min-h-16 p-4 bg-white rounded-lg border-2 border-dashed border-blue-300">
-                                  {sortedItems.length > 0 ? (
-                                    <SortableContext 
-                                      items={sortedItems.map(item => item.id)}
-                                      strategy={verticalListSortingStrategy}
-                                    >
-                                      <div className="flex flex-wrap items-center gap-2">
-                                        {sortedItems.map((item, index) => (
-                                          <SortableItem key={item.id} id={item.id}>
-                                            <div className="flex items-center gap-2">
-                                              <span className="px-3 py-2 bg-primary text-white rounded-lg font-medium text-sm">
-                                                {item.content}
-                                              </span>
-                                              <button
-                                                onClick={() => removeFromOrder(item)}
-                                                className="text-red-500 hover:text-red-700 text-xs p-1"
-                                              >
-                                                ✕
-                                              </button>
-                                            </div>
-                                          </SortableItem>
-                                        ))}
+                                <SortableContext 
+                                  items={sortedItems.map(item => item.id)} 
+                                  strategy={horizontalListSortingStrategy}
+                                >
+                                  <div className="min-h-[80px] border-2 border-dashed border-blue-300 rounded-lg p-4 flex flex-wrap gap-2 items-center bg-white">
+                                    {sortedItems.length === 0 ? (
+                                      <div className="text-center text-gray-400 py-4 w-full">
+                                        Click words below to build your sentence
                                       </div>
-                                    </SortableContext>
-                                  ) : (
-                                    <div className="text-gray-400 italic text-center py-4">
-                                      Drag words here to build your sentence
-                                    </div>
-                                  )}
-                                </div>
+                                    ) : (
+                                      sortedItems.map((item) => (
+                                        <WordPill 
+                                          key={item.id} 
+                                          item={item}
+                                          isInSentence={true}
+                                          onClick={() => removeFromOrder(item)}
+                                        />
+                                      ))
+                                    )}
+                                  </div>
+                                </SortableContext>
                               </DndContext>
                               
                               {/* Sentence Preview */}
@@ -797,20 +838,18 @@ export default function TakeQuizPage() {
                               <h4 className="font-semibold text-sm text-gray-800 mb-3">Available words:</h4>
                               <div className="flex flex-wrap gap-2">
                                 {unplacedItems.map((item) => (
-                                  <button
+                                  <WordPill
                                     key={item.id}
+                                    item={item}
+                                    isInSentence={false}
                                     onClick={() => addToOrder(item)}
-                                    className="px-4 py-2 border-2 border-gray-300 bg-white rounded-lg font-medium transition-all hover:border-primary hover:bg-primary/5 text-gray-800 touch-manipulation"
-                                    style={{ minHeight: '44px' }} // Ensure touch-friendly size
-                                  >
-                                    {item.content}
-                                  </button>
+                                  />
                                 ))}
                               </div>
                             </div>
                             
                             <p className="text-xs text-gray-500 bg-yellow-50 p-2 rounded">
-                              💡 Drag words within the sentence to reorder, or click to add/remove them.
+                              💡 Click gray words to add them, click blue words to remove them, drag blue words to reorder.
                             </p>
                           </>
                         );
