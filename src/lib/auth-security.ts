@@ -273,7 +273,7 @@ export class AuthSecurity {
       return {
         canAccess: false,
         reason: 'Authentication required',
-        redirectTo: '/login'
+        redirectTo: '/auth/login'
       }
     }
 

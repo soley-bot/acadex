@@ -96,7 +96,7 @@ export default function CreateAdminPage() {
 
         <div className="mt-6 text-center">
           <a 
-            href="/login" 
+            href="/auth/login" 
             className="text-secondary hover:text-blue-700 text-sm"
           >
             ← Back to Login
