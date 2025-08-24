@@ -59,10 +59,10 @@ export function Footer() {
             <h3 className="text-lg font-semibold text-secondary mb-6">Courses</h3>
             <ul className="space-y-4">
               {[
-                { name: "English for Daily Use", href: "/courses/english-daily" },
-                { name: "Grammar & Vocabulary", href: "/courses/grammar-vocabulary" },
-                { name: "Communication Skills", href: "/courses/communication" },
-                { name: "Study & Productivity", href: "/courses/study-productivity" }
+                { name: "Browse All Courses", href: "/courses" },
+                { name: "English Grammar", href: "/courses?category=grammar" },
+                { name: "Conversation Practice", href: "/courses?category=speaking" },
+                { name: "Business English", href: "/courses?category=business" }
               ].map((link) => (
                 <li key={link.name}>
                   <Link 
@@ -83,8 +83,7 @@ export function Footer() {
               {[
                 { name: "Help Center (coming soon)", href: "#" },
                 { name: "Contact Us", href: "/contact" },
-                { name: "Suggest a Course", href: "/contact?subject=course-suggestion" },
-                { name: "FAQ", href: "/faq" }
+                { name: "Suggest a Course", href: "/contact?subject=course-suggestion" }
               ].map((link) => (
                 <li key={link.name}>
                   <Link 
@@ -147,9 +146,8 @@ export function Footer() {
             </div>
             <div className="flex items-center gap-4 flex-wrap justify-center">
               {[
-                { name: "Sitemap", href: "/sitemap" },
                 { name: "Terms", href: "/terms" },
-                { name: "Status", href: "/status" }
+                { name: "Privacy", href: "/privacy" }
               ].map((link) => (
                 <Link 
                   key={link.name}
