@@ -142,67 +142,133 @@ export default function TakeQuizPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 flex items-center justify-center min-h-screen">
-          <div className="text-center bg-white/80 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-lg text-muted-foreground font-medium">Loading quiz...</p>
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4 pt-24">
+        <Card variant="glass" className="max-w-md w-full">
+          <div className="p-8 text-center">
+            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+            <h3 className="text-xl font-semibold text-foreground mb-2">Loading Quiz</h3>
+            <p className="text-muted-foreground text-sm">Preparing your quiz questions...</p>
           </div>
-        </div>
+        </Card>
       </div>
     )
   }
 
   if (error || !quiz || questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
-        <Card variant="glass" className="text-center p-8 max-w-md w-full">
-          <div className="w-16 h-16 bg-destructive rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <AlertTriangle className="w-8 h-8 text-white" />
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4 pt-24">
+        <Card variant="glass" className="max-w-md w-full overflow-hidden">
+          <div className="bg-card border-b border-border p-6 text-center">
+            <div className="w-16 h-16 bg-destructive rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-foreground mb-2">Unable to Load Quiz</h3>
+            <p className="text-muted-foreground text-sm">{error || 'The quiz questions could not be loaded.'}</p>
           </div>
-          <h3 className="text-2xl font-medium text-foreground mb-3">Unable to Load Quiz</h3>
-          <p className="text-base text-muted-foreground mb-6">{error || 'The quiz questions could not be loaded.'}</p>
-          <button
-            onClick={() => router.push('/quizzes')}
-            className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 rounded-xl font-semibold transition-all duration-300"
-          >
-            Back to Quizzes
-          </button>
+          <div className="p-6">
+            <button
+              onClick={() => router.push('/quizzes')}
+              className="w-full bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Quizzes
+            </button>
+          </div>
         </Card>
       </div>
     )
   }
 
   if (!quizStarted) {
+    const getDifficultyColor = (difficulty: string) => {
+      switch (difficulty.toLowerCase()) {
+        case 'beginner':
+        case 'easy':
+          return 'bg-success/10 text-success border-success/20'
+        case 'intermediate':
+        case 'medium':
+          return 'bg-warning/10 text-warning border-warning/20'
+        case 'advanced':
+        case 'hard':
+          return 'bg-destructive/10 text-destructive border-destructive/20'
+        default:
+          return 'bg-muted text-muted-foreground border-border'
+      }
+    }
+
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
-        <Card variant="glass" className="text-center p-8 max-w-md w-full">
-          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Target className="w-8 h-8 text-white" />
-          </div>
-          <h2 className="text-3xl font-semibold text-foreground mb-3">{quiz.title}</h2>
-          {quiz.description && (
-            <p className="text-base text-muted-foreground mb-6">{quiz.description}</p>
-          )}
-          <div className="bg-gray-50/80 rounded-xl p-4 mb-6 space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Questions:</span>
-              <span className="font-semibold text-gray-900">{questions.length}</span>
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4 pt-24">
+        <Card variant="glass" className="max-w-lg w-full overflow-hidden">
+          {/* Header with Icon and Title */}
+          <div className="relative bg-card border-b border-border p-6">
+            {/* Difficulty Badge - Top left for better balance */}
+            {quiz.difficulty && (
+              <div className="mb-4">
+                <span className={`px-3 py-1 text-xs font-semibold rounded-md border ${getDifficultyColor(quiz.difficulty)}`}>
+                  {quiz.difficulty}
+                </span>
+              </div>
+            )}
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+                <Target className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-foreground">{quiz.title}</h2>
+                {quiz.category && (
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
+                    <span className="w-1 h-1 bg-muted-foreground rounded-full"></span>
+                    <span>{quiz.category}</span>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Time limit:</span>
-              <span className="font-semibold text-gray-900">{quiz.duration_minutes} minutes</span>
-            </div>
           </div>
-          <button
-            onClick={() => {
-              setQuizStarted(true)
-              setStartTime(new Date())
-            }}
-            className="w-full bg-primary hover:bg-secondary text-white hover:text-black px-6 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            Start Quiz
-          </button>
+
+          {/* Content */}
+          <div className="p-6">
+            {/* Description */}
+            {quiz.description && (
+              <p className="text-muted-foreground text-sm mb-6 leading-relaxed">{quiz.description}</p>
+            )}
+
+            {/* Quiz Meta Information - Professional Grid */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="bg-muted/30 rounded-lg p-4 text-center">
+                <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm mb-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span>Questions</span>
+                </div>
+                <div className="text-2xl font-bold text-foreground">{questions.length}</div>
+              </div>
+              <div className="bg-muted/30 rounded-lg p-4 text-center">
+                <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm mb-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Time Limit</span>
+                </div>
+                <div className="text-2xl font-bold text-foreground">{quiz.duration_minutes}<span className="text-sm font-normal text-muted-foreground ml-1">min</span></div>
+              </div>
+            </div>
+
+            {/* Start Button */}
+            <button
+              onClick={() => {
+                setQuizStarted(true)
+                setStartTime(new Date())
+              }}
+              className="w-full bg-primary hover:bg-secondary text-white hover:text-black px-6 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg"
+            >
+              Start Quiz
+            </button>
+          </div>
         </Card>
       </div>
     )
@@ -211,7 +277,7 @@ export default function TakeQuizPage() {
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden pt-20">
       <div className="max-w-4xl mx-auto px-4 py-4 relative">
         {/* Compact Header */}
         <div className="text-center mb-6">
