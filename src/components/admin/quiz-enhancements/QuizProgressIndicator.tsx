@@ -13,6 +13,7 @@ interface Question {
   question_type: QuestionType
   options: string[] | Array<{left: string; right: string}>
   correct_answer: number | string | number[]
+  correct_answer_text?: string | null
   explanation?: string
   points?: number
   difficulty_level?: 'easy' | 'medium' | 'hard'
@@ -248,7 +249,8 @@ function calculateQuestionsProgress(questions: Question[]): number {
     }
     
     if (q.question_type === 'fill_blank') {
-      return q.correct_answer && (q.correct_answer as string).trim()
+      // For fill_blank questions, check correct_answer_text field
+      return q.correct_answer_text && q.correct_answer_text.trim()
     }
     
     if (q.question_type === 'matching') {

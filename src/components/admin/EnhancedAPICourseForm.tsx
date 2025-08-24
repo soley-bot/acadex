@@ -80,7 +80,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
   const [formData, setFormData] = useState<EnhancedCourseData>({
     title: '',
     description: '',
-    category: 'english',
+    category: 'general',
     level: 'beginner',
     duration: '',
     price: 0,
@@ -167,7 +167,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
             setFormData({
               title: fullCourse.title || '',
               description: fullCourse.description || '',
-              category: fullCourse.category || 'english',
+              category: fullCourse.category || 'general',
               level: fullCourse.level || 'beginner',
               duration: fullCourse.duration || '',
               price: fullCourse.price || 0,
@@ -193,7 +193,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
         setFormData({
           title: '',
           description: '',
-          category: 'english',
+          category: 'general',
           level: 'beginner',
           duration: '',
           price: 0,
@@ -382,7 +382,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
       const mappedFormData: EnhancedCourseData = {
         title: generatedCourse.course.title,
         description: generatedCourse.course.description,
-        category: 'english', // Default to english category
+        category: 'general', // Default to general category
         level: generatedCourse.course.level,
         duration: generatedCourse.course.duration,
         price: generatedCourse.course.price,

@@ -114,8 +114,9 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
   const validateForm = useCallback((): ValidationError[] => {
     let newErrors: ValidationError[] = []
 
+    // TEMPORARILY DISABLE enhanced validation to prevent conflicts and flickering
     // Use Phase 1 enhanced validation if enabled
-    if (featureFlags.enableFoundation) {
+    if (false && featureFlags.enableFoundation) {
       try {
         // Use enhanced validation utilities
         const quizValidation = validateQuizData(formData)
@@ -251,7 +252,8 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
         }
 
         if (q.question_type === 'fill_blank') {
-          if (!q.correct_answer || (q.correct_answer as string).trim() === '') {
+          // For fill_blank questions, check if correct_answer is a non-empty string
+          if (!q.correct_answer || typeof q.correct_answer !== 'string' || q.correct_answer.trim() === '') {
             newErrors.push({ 
               field: 'correct_answer', 
               message: 'Fill-in-the-blank answer required',
@@ -269,8 +271,9 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
   const validateFormData = useCallback((formDataToValidate: typeof formData, questionsToValidate: Question[]): ValidationError[] => {
     let newErrors: ValidationError[] = []
 
+    // TEMPORARILY DISABLE enhanced validation to prevent conflicts and flickering
     // Use Phase 1 enhanced validation if enabled
-    if (featureFlags.enableFoundation) {
+    if (false && featureFlags.enableFoundation) {
       try {
         // Use enhanced validation utilities
         const quizValidation = validateQuizData(formDataToValidate)
@@ -404,7 +407,8 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
         }
 
         if (q.question_type === 'fill_blank') {
-          if (!q.correct_answer || (q.correct_answer as string).trim() === '') {
+          // For fill_blank questions, check if correct_answer is a non-empty string
+          if (!q.correct_answer || typeof q.correct_answer !== 'string' || q.correct_answer.trim() === '') {
             newErrors.push({ 
               field: 'correct_answer', 
               message: 'Fill-in-the-blank answer required',
@@ -615,11 +619,12 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
     }, 100)
   }, [quiz, isOpen, loadQuestions, prefilledData])
 
-  // Real-time validation
-  useEffect(() => {
-    const validationErrors = validateForm()
-    setErrors(validationErrors)
-  }, [validateForm])
+  // DISABLE real-time validation to prevent flickering
+  // Validation will only run on form submission
+  // useEffect(() => {
+  //   const validationErrors = validateForm()
+  //   setErrors(validationErrors)
+  // }, [validateForm])
 
   // Question management functions
   const addQuestion = useCallback((questionType: QuestionType = 'multiple_choice') => {
@@ -1413,31 +1418,22 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                       </div>
                     </div>
 
-                    {/* Options for Multiple Choice/True False */}
-                    {['multiple_choice', 'true_false'].includes(question.question_type) && (
+                    {/* Options for Multiple Choice */}
+                    {question.question_type === 'multiple_choice' && (
                       <div>
                         <div className="flex items-center justify-between mb-2">
                           <label className="block text-sm font-medium text-gray-700">
                             Answer Options *
                           </label>
                           <div className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded">
-                            {question.question_type === 'multiple_choice' && (
-                              <span className="flex items-center gap-1">
-                                <span className="w-3 h-3 border border-gray-400 rounded-full flex-shrink-0"></span>
-                                Select one correct answer
-                              </span>
-                            )}
-                            {question.question_type === 'true_false' && (
-                              <span className="flex items-center gap-1">
-                                <span className="w-3 h-3 border border-gray-400 rounded-full flex-shrink-0"></span>
-                                Select the correct answer
-                              </span>
-                            )}
+                            <span className="flex items-center gap-1">
+                              <span className="w-3 h-3 border border-gray-400 rounded-full flex-shrink-0"></span>
+                              Select one correct answer
+                            </span>
                           </div>
                         </div>
                         <div className="space-y-3">
                           {(question.options as string[]).map((option, optionIndex) => {
-                            // Multiple choice now uses single answer (like radio button)
                             const isCorrect = question.correct_answer === optionIndex
                             
                             return (
@@ -1450,7 +1446,6 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                                   name={`correct_${questionIndex}`}
                                   checked={isCorrect}
                                   onChange={() => {
-                                    // Multiple choice now uses single answer (like radio button)
                                     updateQuestion(questionIndex, 'correct_answer', optionIndex)
                                   }}
                                   className="h-5 w-5 text-secondary focus:ring-secondary border-gray-300"
@@ -1530,6 +1525,49 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
                           >
                             + Add Option
                           </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* True/False Options - Fixed to 2 options only */}
+                    {question.question_type === 'true_false' && (
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="block text-sm font-medium text-gray-700">
+                            Answer Options *
+                          </label>
+                          <div className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded">
+                            <span className="flex items-center gap-1">
+                              <span className="w-3 h-3 border border-gray-400 rounded-full flex-shrink-0"></span>
+                              Select True or False
+                            </span>
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          {['True', 'False'].map((option, optionIndex) => {
+                            const isCorrect = question.correct_answer === optionIndex
+                            
+                            return (
+                            <div key={optionIndex} className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+                              isCorrect ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200 hover:border-gray-300'
+                            }`}>
+                              <div className="relative">
+                                <input
+                                  type="radio"
+                                  name={`correct_${questionIndex}`}
+                                  checked={isCorrect}
+                                  onChange={() => {
+                                    updateQuestion(questionIndex, 'correct_answer', optionIndex)
+                                  }}
+                                  className="h-4 w-4 text-secondary"
+                                />
+                              </div>
+                              <span className={`flex-1 text-sm ${isCorrect ? 'font-medium text-green-700' : 'text-gray-700'}`}>
+                                {option}
+                              </span>
+                            </div>
+                            )
+                          })}
                         </div>
                       </div>
                     )}

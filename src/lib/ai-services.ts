@@ -173,6 +173,8 @@ export interface QuizGenerationRequest {
   questionCount: number
   difficulty: 'beginner' | 'intermediate' | 'advanced'
   questionTypes?: ('multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay')[]
+  subject?: string // Subject category (Math, Science, History, etc.)
+  language?: string // Content language
 }
 
 export interface GeneratedQuizQuestion {
@@ -202,22 +204,26 @@ export class QuizGenerationService {
 
   async generateQuiz(request: QuizGenerationRequest): Promise<{ success: boolean; quiz?: GeneratedQuiz; error?: string }> {
     const questionTypes = request.questionTypes || ['multiple_choice', 'true_false']
+    const subject = request.subject || 'General Knowledge'
+    const language = request.language || 'English'
     
-    const systemPrompt = `You are an expert English language instructor creating educational quizzes. 
-Generate high-quality, educational questions that test comprehension and application of knowledge.
+    const systemPrompt = `You are an expert educator creating educational quizzes across various subjects. 
+Generate high-quality, educational questions that test comprehension and application of knowledge in ${subject}.
 Ensure questions are clear, accurate, and appropriate for the specified difficulty level.
 Always provide helpful explanations for correct answers.
+Generate content in ${language} language.
 
 CRITICAL: Follow exact JSON format requirements for each question type:
 - multiple_choice/single_choice: use "correct_answer" as number (0-3 index)
 - true_false: use "correct_answer" as number (0 for True, 1 for False)  
 - fill_blank/essay: use "correct_answer_text" as string with the answer text`
 
-    const prompt = `Generate a ${request.difficulty} level English quiz about "${request.topic}" with ${request.questionCount} questions.
+    const prompt = `Generate a ${request.difficulty} level ${subject} quiz about "${request.topic}" with ${request.questionCount} questions.
+Content should be in ${language} language.
 
 Requirements:
 - Mix of question types: ${questionTypes.join(', ')}
-- Questions should be clear and educational
+- Questions should be clear and educational for ${subject}
 - Include brief explanations for correct answers
 - Return valid JSON only
 - Use correct answer format for each question type
@@ -254,7 +260,7 @@ Generate quiz with this structure:
 {
   "title": "Quiz: ${request.topic}",
   "description": "Test your knowledge of ${request.topic}",
-  "category": "English",
+  "category": "${subject}",
   "difficulty": "${request.difficulty}",
   "duration_minutes": ${Math.max(10, request.questionCount * 2)},
   "questions": [

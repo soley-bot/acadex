@@ -26,6 +26,7 @@ interface Question {
   question_type: QuestionType
   options: string[] | Array<{left: string; right: string}>
   correct_answer: number | string | number[]
+  correct_answer_text?: string | null
   explanation?: string
   order_index: number
   points?: number
@@ -311,7 +312,8 @@ function calculateCompleteness(question: Question): number {
       score += 20
     }
   } else if (question.question_type === 'fill_blank') {
-    if (question.correct_answer && (question.correct_answer as string).trim()) {
+    // For fill_blank questions, check correct_answer_text field
+    if (question.correct_answer_text && question.correct_answer_text.trim()) {
       score += 40
     }
   } else if (question.question_type === 'matching') {

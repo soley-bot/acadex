@@ -26,6 +26,7 @@ interface Question {
   question_type: string
   options: string[] | Array<{left: string; right: string}>
   correct_answer: number | string | number[]
+  correct_answer_text?: string | null
   explanation?: string
   points?: number
   difficulty_level?: string
@@ -212,9 +213,10 @@ const validateTrueFalseQuestion = (question: Question, index: number, errors: Va
  * Validate fill in the blank question
  */
 const validateFillBlankQuestion = (question: Question, index: number, errors: ValidationError[]) => {
-  if (!question.correct_answer || (question.correct_answer as string).trim() === '') {
+  // For fill_blank questions, check correct_answer_text field
+  if (!question.correct_answer_text || question.correct_answer_text.trim() === '') {
     errors.push({
-      field: 'correct_answer',
+      field: 'correct_answer_text',
       message: 'Fill-in-the-blank answer required',
       questionIndex: index
     })

@@ -11,10 +11,12 @@ export interface CourseGenerationRequest {
   module_count: number
   lessons_per_module: number
   focus_area?: string
+  subject?: string // Subject/category for the course
   course_type?: 'comprehensive' | 'practical' | 'intensive'
   language_level?: 'basic' | 'intermediate' | 'advanced' | 'native'
   target_audience?: string
   learning_style?: 'visual' | 'practical' | 'theoretical' | 'mixed'
+  language?: string // Content language
 }
 
 export interface GeneratedCourseModule {
@@ -61,10 +63,12 @@ export function AICourseGenerator({ isOpen, onClose, onCourseGenerated }: AICour
     module_count: 4,
     lessons_per_module: 4,
     focus_area: '',
+    subject: 'General Knowledge',
     course_type: 'comprehensive',
     language_level: 'intermediate',
     target_audience: '',
-    learning_style: 'mixed'
+    learning_style: 'mixed',
+    language: 'English'
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,9 +103,10 @@ export function AICourseGenerator({ isOpen, onClose, onCourseGenerated }: AICour
         module_count: formData.module_count,
         lessons_per_module: formData.lessons_per_module,
         course_format: formData.course_type || 'comprehensive',
-        subject_area: formData.focus_area || '',
+        subject_area: formData.subject || formData.focus_area || 'General Knowledge',
         target_audience: formData.target_audience || '',
-        language_focus: formData.language_level || 'intermediate'
+        language_focus: formData.language_level || 'intermediate',
+        language: formData.language || 'English'
       }
       
       console.log('📝 [AI_COURSE] Sending API request:', apiRequest)
@@ -124,7 +129,7 @@ export function AICourseGenerator({ isOpen, onClose, onCourseGenerated }: AICour
       const flattenedCourse: GeneratedCourse = {
         title: aiResponse.course?.title || aiResponse.title || formData.topic,
         description: aiResponse.course?.description || aiResponse.description || `A comprehensive ${formData.level} course on ${formData.topic}`,
-        category: formData.focus_area || 'English Learning',
+        category: formData.focus_area || formData.subject || 'General Knowledge',
         level: formData.level,
         duration: `${formData.module_count * formData.lessons_per_module * 25} minutes`, // Estimate duration
         instructor_name: 'AI Generated Course',
@@ -192,10 +197,50 @@ export function AICourseGenerator({ isOpen, onClose, onCourseGenerated }: AICour
                     type="text"
                     value={formData.topic}
                     onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
-                    placeholder="e.g., Advanced English Grammar, Business Communication, IELTS Preparation..."
+                    placeholder="e.g., Photosynthesis, World War II, Python Programming, Algebra..."
                     className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                     required
                   />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Subject Category *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.subject || ''}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    placeholder="e.g., Mathematics, Science, History, Programming..."
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Content Language
+                  </label>
+                  <select
+                    value={formData.language}
+                    onChange={(e) => setFormData({ ...formData, language: e.target.value })}
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
+                  >
+                    <option value="English">English</option>
+                    <option value="Spanish">Spanish</option>
+                    <option value="French">French</option>
+                    <option value="German">German</option>
+                    <option value="Italian">Italian</option>
+                    <option value="Portuguese">Portuguese</option>
+                    <option value="Chinese">Chinese</option>
+                    <option value="Japanese">Japanese</option>
+                    <option value="Korean">Korean</option>
+                    <option value="Arabic">Arabic</option>
+                    <option value="Russian">Russian</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="Khmer">Khmer</option>
+                    <option value="Indonesian">Indonesian</option>
+                  </select>
                 </div>
                 
                 <div>
@@ -206,7 +251,7 @@ export function AICourseGenerator({ isOpen, onClose, onCourseGenerated }: AICour
                     type="text"
                     value={formData.focus_area || ''}
                     onChange={(e) => setFormData({ ...formData, focus_area: e.target.value })}
-                    placeholder="e.g., Present Perfect, Email Writing, Speaking Fluency..."
+                    placeholder="e.g., Cellular respiration, Renaissance period..."
                     className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                   />
                 </div>
@@ -219,7 +264,7 @@ export function AICourseGenerator({ isOpen, onClose, onCourseGenerated }: AICour
                     type="text"
                     value={formData.target_audience || ''}
                     onChange={(e) => setFormData({ ...formData, target_audience: e.target.value })}
-                    placeholder="e.g., Business professionals, Students, Beginners..."
+                    placeholder="e.g., High school students, Professionals, Beginners..."
                     className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                   />
                 </div>

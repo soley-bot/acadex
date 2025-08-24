@@ -72,11 +72,11 @@ export default function QuizzesPage() {
   const [showAnalytics, setShowAnalytics] = useState(false)
   const [contentReviewRefresh, setContentReviewRefresh] = useState(0)
 
-  // Auto-refresh system for slow loading
+  // Auto-refresh system for slow loading (disabled when AI generator is open)
   const { isSlowLoading, countdown, manualRefresh, cancelAutoRefresh } = useAutoRefresh({
-    timeoutSeconds: 10,
+    timeoutSeconds: 15, // Increased timeout to give more time for AI operations
     showWarning: true,
-    enableAutoRefresh: true
+    enableAutoRefresh: !showAIGenerator // Disable auto-refresh when AI generator is open
   })
 
   // Refs for click outside

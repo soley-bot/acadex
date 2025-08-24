@@ -107,7 +107,7 @@ export function ContentReviewPanel({ compact = false, maxItems = 5, className = 
         {
           id: '1',
           content_type: 'quiz',
-          title: 'AI Quiz: English Grammar Fundamentals (10 questions)',
+          title: 'AI Quiz: Science Fundamentals (10 questions)',
           ai_confidence_score: 0.87,
           created_at: new Date(Date.now() - 2 * 60 * 1000).toISOString(), // 2 minutes ago
           estimated_review_time: 8
@@ -115,7 +115,7 @@ export function ContentReviewPanel({ compact = false, maxItems = 5, className = 
         {
           id: '2',
           content_type: 'quiz',
-          title: 'AI Quiz: Business English Communication (15 questions)',
+          title: 'AI Quiz: Business Communication (15 questions)',
           ai_confidence_score: 0.92,
           created_at: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 minutes ago
           estimated_review_time: 12

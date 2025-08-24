@@ -72,7 +72,8 @@ export async function POST(request: NextRequest) {
       include_exercises,
       rich_text_format,
       content_length,
-      language_focus
+      language_focus,
+      language // Content language
     } = body
 
     // Validate request
@@ -104,7 +105,8 @@ export async function POST(request: NextRequest) {
       include_exercises: include_exercises !== false,
       rich_text_format: rich_text_format || false,
       content_length: content_length || 'medium',
-      language_focus: language_focus || 'general'
+      language_focus: language_focus || 'general',
+      language: language || 'English' // Default to English if not specified
     }, custom_prompt)
 
     if (result.error) {

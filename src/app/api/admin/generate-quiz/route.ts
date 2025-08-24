@@ -73,14 +73,18 @@ export async function POST(request: NextRequest) {
     logger.info('Starting AI quiz generation with new service', { 
       topic: requestData.topic, 
       questionCount: requestData.question_count,
-      difficulty: requestData.difficulty
+      difficulty: requestData.difficulty,
+      subject: requestData.subject,
+      language: requestData.language
     })
     
     const result = await quizGenerationService.generateQuiz({
       topic: requestData.topic,
       questionCount: requestData.question_count,
       difficulty: requestData.difficulty,
-      questionTypes: ['multiple_choice', 'true_false']
+      questionTypes: ['multiple_choice', 'true_false'],
+      subject: requestData.subject,
+      language: requestData.language
     })
 
     if (!result.success) {

@@ -22,6 +22,7 @@ export interface CourseGenerationRequest {
   rich_text_format?: boolean
   content_length?: 'short' | 'medium' | 'long'
   language_focus?: 'general' | 'business' | 'academic' | 'conversational'
+  language?: string // Content language for the course
   ai_provider?: AIProvider  // Choose which AI to use
   // Quiz generation options
   include_lesson_quizzes?: boolean
@@ -107,6 +108,7 @@ export class AICourseGenerator {
     const includeExercises = request.include_exercises !== false
     const richTextFormat = request.rich_text_format || false
     const contentLength = request.content_length || 'medium'
+    const contentLanguage = request.language || 'English'
     
     // Content length guidelines
     const lengthGuidelines = {
@@ -131,6 +133,13 @@ export class AICourseGenerator {
 
     return `You are an expert curriculum designer creating a comprehensive ${subjectArea.toLowerCase()} course.
 
+LANGUAGE REQUIREMENT: Generate ALL content in ${contentLanguage} language. This includes:
+- Course title, description, and all metadata
+- Module titles and descriptions
+- Lesson titles and content
+- Learning objectives and prerequisites
+- Quiz questions and explanations (if applicable)
+
 COURSE SPECIFICATIONS:
 - Title: ${request.title}
 - Description: ${request.description}
@@ -142,6 +151,7 @@ COURSE SPECIFICATIONS:
 - Number of Modules: ${request.module_count}
 - Lessons per Module: ${request.lessons_per_module}
 - Format: ${request.course_format}
+- Content Language: ${contentLanguage}
 
 CONTENT REQUIREMENTS:
 Content Depth: ${depthGuidelines[contentDepth]}
@@ -157,12 +167,18 @@ ${includeExercises ? '✓ Include practice exercises and activities' : ''}
 ✓ Use rich HTML formatting with proper headers (<h3>, <h4>), bullet points (<ul>, <li>), paragraphs (<p>), emphasis (<strong>, <em>), and code blocks (<pre>, <code>) for better readability
 ${request.include_lesson_quizzes ? `✓ Include ${request.quiz_questions_per_lesson || 3} quiz questions per lesson to test understanding` : ''}
 
+CULTURAL AND LINGUISTIC ADAPTATION:
+- Adapt examples and cultural references to be appropriate for ${contentLanguage} language context
+- Use terminology and concepts that are familiar in the ${contentLanguage} educational context
+- Ensure all technical terms are properly translated or explained in ${contentLanguage}
+- Maintain educational standards appropriate for the language and cultural context
+
 QUIZ REQUIREMENTS (if enabled):
 ${request.include_lesson_quizzes ? `
-- Generate ${request.quiz_questions_per_lesson || 3} multiple choice questions per lesson
+- Generate ${request.quiz_questions_per_lesson || 3} multiple choice questions per lesson in ${contentLanguage}
 - Questions should test key concepts from the lesson content
-- Provide 4 answer options (A, B, C, D) for each question
-- Include clear explanations for correct answers
+- Provide 4 answer options (A, B, C, D) for each question in ${contentLanguage}
+- Include clear explanations for correct answers in ${contentLanguage}
 - Set appropriate difficulty level: ${request.quiz_difficulty || 'medium'}
 - Quiz duration: ${Math.max(2, (request.quiz_questions_per_lesson || 3) * 2)} minutes
 - Passing score: 70%` : 'No quizzes required for this course'}

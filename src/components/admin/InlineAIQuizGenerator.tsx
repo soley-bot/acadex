@@ -3,6 +3,15 @@
 import { useState, useEffect } from 'react'
 import { Brain, Loader2, Settings, Eye, EyeOff } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { 
+  LanguageSelector, 
+  SubjectSelector, 
+  DifficultyLevelSelector, 
+  QuestionCountSelector, 
+  ErrorDisplay 
+} from './shared/QuizFormComponents'
+import { validateBasicQuizForm, formatValidationErrors, sanitizeFormInput } from '@/lib/quiz-validation'
+import { EnhancedQuizFormData, SUPPORTED_LANGUAGES, QuestionType, LanguageCode } from '@/lib/quiz-constants'
 
 interface InlineAIQuizGeneratorProps {
   onQuizGenerated: (quiz: any) => void
@@ -25,32 +34,35 @@ interface QuizOptions {
 
 export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQuizGeneratorProps) {
   const [loading, setLoading] = useState(false)
+  const [optionsLoading, setOptionsLoading] = useState(true)
   const [error, setError] = useState('')
   const [options, setOptions] = useState<QuizOptions | null>(null)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [showPromptPreview, setShowPromptPreview] = useState(false)
   const [promptPreview, setPromptPreview] = useState<{ systemPrompt: string; prompt: string } | null>(null)
 
-  const [formData, setFormData] = useState({
-    // Basic fields
+  const [formData, setFormData] = useState<EnhancedQuizFormData>({
+    // Basic fields (standardized to camelCase)
     topic: '',
-    questionCount: 10,
-    difficulty: 'beginner' as const,
     subject: '',
+    questionCount: 10,
+    difficulty: 'beginner',
+    language: 'english',
+    questionTypes: ['multiple_choice', 'true_false'],
+    focusArea: '',
     
     // Enhanced fields
     category: '',
     customSystemPrompt: '',
     customInstructions: '',
     teachingStyle: '',
-    focusAreas: [] as string[],
-    questionTypes: [] as string[],
+    focusAreas: [],
     includeExamples: false,
     realWorldApplications: false,
     complexityLevel: '',
     assessmentType: '',
     
-    // Language options
+    // Language options (standardized)
     quizLanguage: 'english',
     explanationLanguage: 'english',
     includeTranslations: false,
@@ -63,13 +75,54 @@ export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQui
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        const response = await fetch('/api/admin/generate-enhanced-quiz')
+        setOptionsLoading(true)
+        
+        // Set a reasonable timeout for the API call
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+
+        const response = await fetch('/api/admin/generate-enhanced-quiz', {
+          signal: controller.signal,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        
+        clearTimeout(timeoutId)
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
         const result = await response.json()
         if (result.success) {
           setOptions(result)
+        } else {
+          // Set fallback options if API fails
+          setOptions({
+            supportedOptions: {
+              teachingStyles: ['Traditional', 'Interactive', 'Visual', 'Hands-on'],
+              complexityLevels: ['Basic', 'Intermediate', 'Advanced', 'Expert'],
+              assessmentTypes: ['Formative', 'Summative', 'Diagnostic', 'Benchmark'],
+              questionTypes: ['multiple_choice', 'true_false', 'fill_in_the_blank', 'short_answer'],
+              bloomsLevels: ['Remember', 'Understand', 'Apply', 'Analyze', 'Evaluate', 'Create']
+            }
+          })
         }
       } catch (error) {
         console.error('Failed to load quiz options:', error)
+        // Set fallback options to prevent the component from staying in loading state
+        setOptions({
+          supportedOptions: {
+            teachingStyles: ['Traditional', 'Interactive', 'Visual', 'Hands-on'],
+            complexityLevels: ['Basic', 'Intermediate', 'Advanced', 'Expert'],
+            assessmentTypes: ['Formative', 'Summative', 'Diagnostic', 'Benchmark'],
+            questionTypes: ['multiple_choice', 'true_false', 'fill_in_the_blank', 'short_answer'],
+            bloomsLevels: ['Remember', 'Understand', 'Apply', 'Analyze', 'Evaluate', 'Create']
+          }
+        })
+      } finally {
+        setOptionsLoading(false)
       }
     }
 
@@ -124,14 +177,24 @@ export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQui
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <Card variant="glass">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3">
-            <Brain className="h-6 w-6 text-primary" />
-            Enhanced AI Quiz Generator
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      {optionsLoading ? (
+        <Card variant="glass">
+          <CardContent className="p-8">
+            <div className="flex items-center justify-center space-x-3">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <span className="text-lg text-gray-600">Loading AI quiz options...</span>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card variant="glass">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+              <Brain className="h-6 w-6 text-primary" />
+              Enhanced AI Quiz Generator
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="p-4 bg-destructive/5 border border-destructive/30 rounded-lg">
@@ -145,38 +208,13 @@ export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQui
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Subject Input */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Subject *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.subject}
-                    onChange={(e) => updateFormData({ subject: e.target.value })}
-                    placeholder="e.g., Mathematics, History, Medicine, Computer Science, Art, Psychology..."
-                    className="w-full px-3 py-3 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-base bg-background text-foreground"
-                    disabled={loading}
-                    required
-                  />
-                  {(options?.suggestedSubjects || options?.availableSubjects) && (
-                    <div className="mt-2">
-                      <p className="text-xs text-muted-foreground mb-1">Popular subjects:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {(options.suggestedSubjects || options.availableSubjects || []).slice(0, 6).map(subject => (
-                          <button
-                            key={subject}
-                            type="button"
-                            onClick={() => updateFormData({ subject })}
-                            className="text-xs px-2 py-1 bg-muted hover:bg-primary hover:text-primary-foreground rounded-md transition-colors"
-                            disabled={loading}
-                          >
-                            {subject}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <SubjectSelector
+                  value={formData.subject}
+                  onChange={(value) => updateFormData({ subject: value })}
+                  disabled={loading}
+                  mode="input"
+                  placeholder="e.g., Mathematics, History, Medicine, Computer Science, Art, Psychology..."
+                />
 
                 {/* Topic Input */}
                 <div>
@@ -194,6 +232,26 @@ export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQui
                   />
                 </div>
               </div>
+
+              {/* Popular subjects quick-select */}
+              {(options?.suggestedSubjects || options?.availableSubjects) && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Popular subjects:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {(options.suggestedSubjects || options.availableSubjects || []).slice(0, 6).map(subject => (
+                      <button
+                        key={subject}
+                        type="button"
+                        onClick={() => updateFormData({ subject })}
+                        className="text-xs px-2 py-1 bg-muted hover:bg-primary hover:text-primary-foreground rounded-md transition-colors"
+                        disabled={loading}
+                      >
+                        {subject}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Category Selection */}
               <div>
@@ -315,10 +373,10 @@ export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQui
                         <label key={type} className="flex items-center gap-2">
                           <input
                             type="checkbox"
-                            checked={formData.questionTypes.includes(type)}
+                            checked={formData.questionTypes.includes(type as QuestionType)}
                             onChange={(e) => {
                               if (e.target.checked) {
-                                updateFormData({ questionTypes: [...formData.questionTypes, type] })
+                                updateFormData({ questionTypes: [...formData.questionTypes, type as QuestionType] })
                               } else {
                                 updateFormData({ questionTypes: formData.questionTypes.filter(t => t !== type) })
                               }
@@ -373,57 +431,19 @@ export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQui
                     <h5 className="font-medium text-gray-800 mb-3">Language Options</h5>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Quiz Language
-                        </label>
-                        <select
-                          value={formData.quizLanguage}
-                          onChange={(e) => updateFormData({ quizLanguage: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                        >
-                          <option value="english">English</option>
-                          <option value="spanish">Spanish</option>
-                          <option value="french">French</option>
-                          <option value="german">German</option>
-                          <option value="italian">Italian</option>
-                          <option value="portuguese">Portuguese</option>
-                          <option value="dutch">Dutch</option>
-                          <option value="chinese">Chinese</option>
-                          <option value="japanese">Japanese</option>
-                          <option value="korean">Korean</option>
-                          <option value="arabic">Arabic</option>
-                          <option value="russian">Russian</option>
-                          <option value="indonesian">Indonesian</option>
-                          <option value="khmer">Khmer</option>
-                        </select>
-                      </div>
+                      <LanguageSelector
+                        value={formData.quizLanguage}
+                        onChange={(value) => updateFormData({ quizLanguage: value as LanguageCode })}
+                        disabled={loading}
+                        label="Quiz Language"
+                      />
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Explanation Language
-                        </label>
-                        <select
-                          value={formData.explanationLanguage}
-                          onChange={(e) => updateFormData({ explanationLanguage: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                        >
-                          <option value="english">English</option>
-                          <option value="spanish">Spanish</option>
-                          <option value="french">French</option>
-                          <option value="german">German</option>
-                          <option value="italian">Italian</option>
-                          <option value="portuguese">Portuguese</option>
-                          <option value="dutch">Dutch</option>
-                          <option value="chinese">Chinese</option>
-                          <option value="japanese">Japanese</option>
-                          <option value="korean">Korean</option>
-                          <option value="arabic">Arabic</option>
-                          <option value="russian">Russian</option>
-                          <option value="indonesian">Indonesian</option>
-                          <option value="khmer">Khmer</option>
-                        </select>
-                      </div>
+                      <LanguageSelector
+                        value={formData.explanationLanguage}
+                        onChange={(value) => updateFormData({ explanationLanguage: value as LanguageCode })}
+                        disabled={loading}
+                        label="Explanation Language"
+                      />
                     </div>
 
                     <div className="mt-3">
@@ -502,7 +522,8 @@ export function InlineAIQuizGenerator({ onQuizGenerated, onCancel }: InlineAIQui
             </div>
           </form>
         </CardContent>
-      </Card>
+        </Card>
+      )}
     </div>
   )
 }
