@@ -11,6 +11,7 @@ import { logger } from '@/lib/logger'
 import Header from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { MatchingQuestion } from '@/components/student/quiz/MatchingQuestion'
+import { MobileNavBarMinimal } from '@/components/mobile/MobileNavBar'
 import {
   DndContext,
   closestCenter,
@@ -410,9 +411,16 @@ export default function TakeQuizPage() {
   // Active quiz session - no global navigation for cognitive load reduction
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
+      {/* Mobile Navigation - Only visible on mobile screens */}
+      <MobileNavBarMinimal 
+        backHref="/quizzes"
+        showHome={true}
+        homeHref="/dashboard"
+      />
+
       <div className="max-w-3xl mx-auto px-4 py-3 relative">
-        {/* Back Navigation */}
-        <div className="mb-3">
+        {/* Desktop Back Navigation - Hidden on mobile */}
+        <div className="mb-3 hidden md:block">
           <button
             onClick={handleExitQuiz}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 bg-white/60 hover:bg-white/80 px-3 py-1 rounded-lg border border-white/30"
