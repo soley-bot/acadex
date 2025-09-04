@@ -2,7 +2,7 @@
 
 import { logger } from '@/lib/logger'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo, useCallback, useMemo } from 'react'
 import { Course, Question } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import Icon, { IconName } from '@/components/ui/Icon'
@@ -11,9 +11,8 @@ import { CategoryManagement } from '@/components/admin/CategoryManagement'
 import { RichTextFormatGuide } from './RichTextFormatGuide'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import { uploadCourseImage } from '@/lib/storage'
-import { AICourseBuilder } from './AICourseBuilder'
 import { LessonQuizManager } from './LessonQuizManager'
-import { GeneratedCourse } from '@/lib/ai-course-generator'
+import { useEnhancedCourseFormPerformance } from '@/lib/adminPerformanceSystem'
 
 interface Module {
   id?: string
@@ -60,6 +59,11 @@ interface EnhancedCourseData {
   tags: string[]
 }
 
+// Memoized sub-components for optimal performance
+const OptimizedCategorySelector = memo(CategorySelector)
+const OptimizedImageUpload = memo(ImageUpload)
+const OptimizedCategoryManagement = memo(CategoryManagement)
+
 interface Props {
   course?: Course
   isOpen: boolean
@@ -67,15 +71,23 @@ interface Props {
   onSuccess: () => void
 }
 
-export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Props) {
+const EnhancedAPICourseFormComponent = ({ course, isOpen, onClose, onSuccess }: Props) => {
   const { user } = useAuth()
+  
+  // Performance monitoring
+  const { 
+    metrics, 
+    logPerformanceReport, 
+    isSlowComponent, 
+    performanceScore 
+  } = useEnhancedCourseFormPerformance()
+  
   const [loading, setLoading] = useState(false)
   const [dataLoading, setDataLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('basic')
   const [showCategoryManagement, setShowCategoryManagement] = useState(false)
-  const [showAICourseBuilder, setShowAICourseBuilder] = useState(false)
 
   const [formData, setFormData] = useState<EnhancedCourseData>({
     title: '',
@@ -376,55 +388,6 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
     }))
   }
 
-  const handleAICourseGenerated = (generatedCourse: GeneratedCourse) => {
-    try {
-      // Map generated course to form data structure
-      const mappedFormData: EnhancedCourseData = {
-        title: generatedCourse.course.title,
-        description: generatedCourse.course.description,
-        category: 'general', // Default to general category
-        level: generatedCourse.course.level,
-        duration: generatedCourse.course.duration,
-        price: generatedCourse.course.price,
-        is_published: false, // Always start as draft
-        instructor_name: user?.name || user?.email || '',
-        image_url: '',
-        learning_outcomes: generatedCourse.course.learning_objectives.map((obj, index) => ({
-          id: (index + 1).toString(),
-          description: obj
-        })),
-        prerequisites: generatedCourse.course.prerequisites || [''],
-        modules: generatedCourse.modules.map((module, moduleIndex) => ({
-          id: undefined, // New module
-          title: module.title,
-          description: module.description,
-          order_index: moduleIndex,
-          lessons: module.lessons.map((lesson, lessonIndex) => ({
-            id: undefined, // New lesson
-            title: lesson.title,
-            content: lesson.content,
-            video_url: '',
-            duration: `${lesson.duration_minutes} minutes`,
-            order_index: lessonIndex,
-            is_preview: lessonIndex === 0 // Make first lesson preview
-          }))
-        })),
-        certificate_enabled: false,
-        estimated_completion_time: generatedCourse.course.duration,
-        difficulty_rating: generatedCourse.course.level === 'beginner' ? 1 : 
-                          generatedCourse.course.level === 'intermediate' ? 3 : 5,
-        tags: []
-      }
-
-      setFormData(mappedFormData)
-      setShowAICourseBuilder(false)
-      setSuccess('Course generated successfully! You can now review and customize the content.')
-    } catch (error) {
-      console.error('Error mapping AI generated course:', error)
-      setError('Failed to apply generated course data')
-    }
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -504,18 +467,6 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {/* AI Course Builder Button - Only show for new courses */}
-            {!course && (
-              <button
-                type="button"
-                onClick={() => setShowAICourseBuilder(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-secondary to-secondary/90 text-white rounded-lg hover:from-secondary/90 hover:to-secondary transition-all shadow-lg hover:shadow-xl"
-              >
-                <Icon name="lightning" size={16} className="text-current" />
-                <span className="hidden sm:inline">Generate with AI</span>
-                <span className="sm:hidden">AI</span>
-              </button>
-            )}
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-white/50 rounded-lg"
@@ -641,7 +592,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Category *
                     </label>
-                    <CategorySelector
+                    <OptimizedCategorySelector
                       value={formData.category}
                       onChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
                       type="course"
@@ -702,7 +653,7 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Course Image
                     </label>
-                    <ImageUpload
+                    <OptimizedImageUpload
                       value={formData.image_url || ''}
                       onChange={(url) => setFormData(prev => ({ ...prev, image_url: url || '' }))}
                       onFileUpload={async (file) => {
@@ -1109,21 +1060,25 @@ export function EnhancedAPICourseForm({ course, isOpen, onClose, onSuccess }: Pr
         </form>
       </div>
 
-      <CategoryManagement
+      <OptimizedCategoryManagement
         isOpen={showCategoryManagement}
         onClose={() => setShowCategoryManagement(false)}
         onCategoryCreated={() => {
           // Categories will be refreshed automatically by CategorySelector
         }}
       />
-
-      {/* AI Course Builder Modal */}
-      {showAICourseBuilder && (
-        <AICourseBuilder
-          onClose={() => setShowAICourseBuilder(false)}
-          onCourseGenerated={handleAICourseGenerated}
-        />
-      )}
     </div>
   )
 }
+
+// Performance-optimized export with custom comparison
+export const EnhancedAPICourseForm = memo(EnhancedAPICourseFormComponent, (prevProps, nextProps) => {
+  // Custom comparison for optimal re-rendering
+  return (
+    prevProps.isOpen === nextProps.isOpen &&
+    prevProps.course?.id === nextProps.course?.id &&
+    prevProps.course?.title === nextProps.course?.title &&
+    prevProps.onClose === nextProps.onClose &&
+    prevProps.onSuccess === nextProps.onSuccess
+  )
+})

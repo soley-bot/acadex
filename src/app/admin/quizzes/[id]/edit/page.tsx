@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Save, Eye, Loader2 } from 'lucide-react'
-import { QuizForm } from '@/components/admin/QuizForm'
+import { QuizBuilder } from '@/components/admin/QuizBuilder'
 import { supabase } from '@/lib/supabase'
 import type { Quiz } from '@/lib/supabase'
 
@@ -20,17 +20,40 @@ export default function EditQuizPage() {
       if (!params.id) return
 
       try {
-        const { data, error } = await supabase
-          .from('quizzes')
-          .select('*')
-          .eq('id', params.id)
-          .single()
+        // For admin access, we need to make an API call instead of direct Supabase
+        // to bypass RLS policies properly
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) {
+          setError('Authentication required')
+          return
+        }
 
-        if (error) throw error
+        // Use API route for proper admin authentication
+        const response = await fetch(`/api/admin/quizzes/${params.id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          credentials: 'include'
+        })
+
+        if (!response.ok) {
+          const errorData = await response.text()
+          throw new Error(`Failed to fetch quiz: ${response.status} - ${errorData}`)
+        }
+
+        const data = await response.json()
+        
+        if (!data) {
+          throw new Error('Quiz not found')
+        }
+        
+        console.log('Fetched quiz with questions:', data)
         setQuiz(data)
       } catch (err: any) {
         console.error('Error fetching quiz:', err)
-        setError('Failed to load quiz')
+        setError(err?.message || 'Failed to load quiz')
       } finally {
         setLoading(false)
       }
@@ -107,7 +130,7 @@ export default function EditQuizPage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <QuizForm
+          <QuizBuilder
             isOpen={true}
             onClose={() => router.push('/admin/quizzes')}
             onSuccess={handleSuccess}

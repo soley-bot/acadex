@@ -5,8 +5,6 @@ import React, { lazy, Suspense } from 'react'
 // Lazy load heavy admin components - only the ones that exist
 const QuizForm = lazy(() => import('./QuizForm').then(module => ({ default: module.QuizForm })))
 const EnhancedAPICourseForm = lazy(() => import('./EnhancedAPICourseForm').then(module => ({ default: module.EnhancedAPICourseForm })))
-const AICourseBuilder = lazy(() => import('./AICourseBuilder').then(module => ({ default: module.AICourseBuilder })))
-const AIQuizGenerator = lazy(() => import('./AIQuizGenerator').then(module => ({ default: module.AIQuizGenerator })))
 
 // Loading components
 const LoadingSpinner = () => (
@@ -57,27 +55,11 @@ export function LazyEnhancedAPICourseForm(props: any) {
   )
 }
 
-export function LazyAICourseBuilder(props: any) {
-  return (
-    <LazyComponentLoader>
-      <AICourseBuilder {...props} />
-    </LazyComponentLoader>
-  )
-}
-
-export function LazyAIQuizGenerator(props: any) {
-  return (
-    <LazyComponentLoader>
-      <AIQuizGenerator {...props} />
-    </LazyComponentLoader>
-  )
-}
-
 // Optimized modal wrapper that only loads content when opened
 interface LazyModalProps {
   isOpen: boolean
   onClose: () => void
-  component: 'quiz' | 'course' | 'ai-builder' | 'ai-quiz'
+  component: 'quiz' | 'course'
   props?: any
 }
 
@@ -87,8 +69,6 @@ export function LazyModal({ isOpen, onClose, component, props = {} }: LazyModalP
   const componentMap = {
     quiz: LazyQuizForm,
     course: LazyEnhancedAPICourseForm,
-    'ai-builder': LazyAICourseBuilder,
-    'ai-quiz': LazyAIQuizGenerator,
   }
 
   const Component = componentMap[component]

@@ -8,6 +8,7 @@ import { H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Container, Section, Grid } from '@/components/ui/Layout'
 import { logger } from '@/lib/logger'
 import Icon from '@/components/ui/Icon'
+import { useDashboardPerformance } from '@/lib/adminPerformanceSystem'
 
 interface DashboardStats {
   totalUsers: number
@@ -20,6 +21,15 @@ interface DashboardStats {
 
 export default function AdminDashboard() {
   const router = useRouter()
+  
+  // Performance monitoring
+  const { 
+    metrics, 
+    logPerformanceReport, 
+    isSlowComponent, 
+    performanceScore 
+  } = useDashboardPerformance()
+  
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     totalCourses: 0,
@@ -267,21 +277,6 @@ export default function AdminDashboard() {
                   <div>
                     <div className="font-semibold text-gray-900">Manage Users</div>
                     <div className="text-sm text-gray-500">View and manage user accounts</div>
-                  </div>
-                </div>
-              </button>
-              
-              <button 
-                onClick={() => router.push('/admin/content-review')}
-                className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all duration-200 group"
-              >
-                <div className="flex items-center">
-                  <div className="bg-orange-100 p-2 rounded-lg mr-3 group-hover:bg-orange-200 transition-colors">
-                    <Icon name="eye" size={20} color="current" className="text-orange-600" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">Review AI Content</div>
-                    <div className="text-sm text-gray-500">Review and approve AI-generated quizzes & lessons</div>
                   </div>
                 </div>
               </button>

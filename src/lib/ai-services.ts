@@ -90,7 +90,28 @@ export class GeminiAIService extends BaseAIService {
 
       const result = await model.generateContent(prompt)
       const response = await result.response
+      
+      // Check for content filtering or other issues
+      logger.info('Gemini response details', {
+        candidates: result.response.candidates?.length || 0,
+        finishReason: result.response.candidates?.[0]?.finishReason,
+        safetyRatings: result.response.candidates?.[0]?.safetyRatings,
+        hasText: !!response.text
+      })
+
       const content = response.text()
+
+      if (!content || content.trim().length === 0) {
+        logger.error('Gemini returned empty content', {
+          finishReason: result.response.candidates?.[0]?.finishReason,
+          safetyRatings: result.response.candidates?.[0]?.safetyRatings
+        })
+        
+        return {
+          success: false,
+          error: 'AI service returned empty content. This might be due to content filtering or model restrictions.'
+        }
+      }
 
       return {
         success: true,

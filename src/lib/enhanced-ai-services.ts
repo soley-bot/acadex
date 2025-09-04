@@ -1,7 +1,6 @@
 import { logger } from './logger'
 import { BaseAIService, AIServiceFactory } from './ai-services'
 import { getRecommendedModel, getModelConfig, MODEL_RECOMMENDATIONS } from './ai-model-config'
-import { contentReviewService, ContentReviewResult } from './content-review-system'
 import { supabase } from './supabase'
 
 // Enhanced quiz generation with multi-subject support and prompt control
@@ -124,12 +123,32 @@ Create content that helps students learn and reinforces key concepts.`
 - Explanations must be in ${languageName}
 - Use proper ${languageName} grammar and vocabulary
 - Ensure questions are culturally appropriate for ${languageName} speakers
-- If generating in Khmer, use proper Khmer script (ខ្មែរ)
-- Always maintain the JSON structure regardless of language`
+- If generating in Khmer, use proper Khmer script (ខ្មែរ) BUT avoid complex character combinations
+- CRITICAL FOR KHMER: Keep text simple to avoid JSON parsing errors, no special symbols
+- Always maintain the JSON structure regardless of language
+- Never use backslashes (\) or unescaped quotes in text content`
     }
     
     if (request.explanationLanguage && request.explanationLanguage !== request.quizLanguage) {
-      systemPrompt += `\n\nExplanations should be provided in ${request.explanationLanguage}, while questions remain in ${request.quizLanguage || 'the primary language'}.`
+      const explanationLang = request.explanationLanguage.toLowerCase()
+      const questionLang = request.quizLanguage?.toLowerCase() || 'english'
+      
+      if (explanationLang === 'khmer' || questionLang === 'khmer') {
+        systemPrompt += `\n\nMIXED LANGUAGE EXPLANATIONS (CRITICAL FOR JSON SAFETY):
+- Questions in ${request.quizLanguage || 'English'}
+- Explanations in ${request.explanationLanguage} 
+- For mixed English-Khmer explanations:
+  * Use simple Khmer words without complex consonant clusters
+  * Avoid quotes around Khmer text: use "concept" NOT "គន្លឹះ"
+  * Keep each language section together, avoid frequent switching
+  * Use : instead of ៖ for punctuation
+  * Use Arabic numerals (1,2,3) instead of Khmer numerals
+  * Example: "This concept គឺជាមូលដ្ឋាន means foundation in English"
+- CRITICAL: Test all mixed content for JSON compatibility
+- NO unescaped quotes, backslashes, or control characters`
+      } else {
+        systemPrompt += `\n\nExplanations should be provided in ${request.explanationLanguage}, while questions remain in ${request.quizLanguage || 'the primary language'}.`
+      }
     }
     
     if (request.includeTranslations) {
@@ -321,6 +340,23 @@ ARABIC LANGUAGE SPECIFIC:
 - Use Arabic numerals where appropriate
 `
           break
+        
+        case 'khmer':
+        case 'cambodian':
+        case 'ខ្មែរ':
+          rules += `
+KHMER LANGUAGE SPECIFIC:
+- Use proper Khmer script (Unicode range U+1780-U+17FF)
+- CRITICAL: Avoid complex Khmer character combinations that might break JSON parsing
+- Use simple Khmer words and avoid complex consonant clusters when possible
+- Replace any backslashes with forward slashes or spaces
+- Ensure all Khmer text is properly encoded in UTF-8
+- Use Khmer numerals (០-៩) or Arabic numerals (0-9) consistently
+- Avoid special Khmer symbols that might interfere with JSON: ៖ ៗ ៘ ៙ ៚ ៛
+- Keep Khmer sentences clear and avoid overly complex grammar
+- Test JSON compatibility: ensure no unescaped quotes or backslashes in Khmer text
+`
+          break
 
         default:
           rules += `
@@ -397,13 +433,40 @@ GENERAL NON-ENGLISH GUIDELINES:
     return examples.slice(0, 2).join(',\n') + '\n    // ... additional questions following same pattern'
   }
 
+  // Clean Unicode characters that might break JSON parsing
+  private cleanUnicodeForJSON(content: string, language?: string): string {
+    let cleaned = content
+
+    // General Unicode cleaning
+    cleaned = cleaned
+      // Remove any control characters that might break JSON
+      .replace(/[\x00-\x1F\x7F]/g, ' ')
+      // Normalize quotes to prevent JSON parsing issues
+      .replace(/[""]/g, '"')
+      .replace(/['']/g, "'")
+      // Remove any zero-width characters
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      
+    // Language-specific cleaning
+    if (language?.toLowerCase() === 'khmer' || language?.toLowerCase() === 'cambodian') {
+      cleaned = cleaned
+        // Replace problematic Khmer punctuation that might break JSON
+        .replace(/[៖ៗ៘៙៚៛]/g, ' ')
+        // Ensure proper Unicode normalization for Khmer
+        .normalize('NFC')
+        // Replace any backslashes that might appear in Khmer text
+        .replace(/\\/g, '/')
+    }
+
+    return cleaned
+  }
+
   async generateQuiz(request: EnhancedQuizGenerationRequest): Promise<{
     success: boolean
     quiz?: any
     error?: string
     promptUsed?: string
     systemPromptUsed?: string
-    reviewResult?: ContentReviewResult
   }> {
     try {
       const systemPrompt = this.buildSystemPrompt(request)
@@ -419,7 +482,6 @@ GENERAL NON-ENGLISH GUIDELINES:
       // First attempt at generation
       let attempts = 0
       const maxAttempts = 3
-      let bestResult: any = null
       let lastError = ''
 
       while (attempts < maxAttempts) {
@@ -440,7 +502,7 @@ GENERAL NON-ENGLISH GUIDELINES:
           continue
         }
 
-        // Clean the response
+        // Enhanced JSON cleaning with Unicode support
         let cleanedContent = response.content!.replace(/```json|```/g, '').trim()
         
         if (!cleanedContent || cleanedContent.length < 50) {
@@ -449,76 +511,91 @@ GENERAL NON-ENGLISH GUIDELINES:
           continue
         }
 
-        // Content Review Pipeline
-        logger.info('Starting content review pipeline')
-        const reviewResult = await contentReviewService.reviewQuizContent(cleanedContent, request)
+        // Additional cleaning for Unicode and Khmer characters
+        cleanedContent = this.cleanUnicodeForJSON(cleanedContent, request.quizLanguage)
 
-        if (reviewResult.isValid || reviewResult.confidence >= 70) {
-          // Use corrected content if available, otherwise use original
-          const finalContent = reviewResult.correctedContent || cleanedContent
-
-          try {
-            const quiz = JSON.parse(finalContent)
+        try {
+          const quiz = JSON.parse(cleanedContent)
+          
+          // Validate mixed-language content if applicable
+          if (request.explanationLanguage && request.explanationLanguage !== request.quizLanguage) {
+            const { MixedLanguageValidator } = await import('./mixed-language-validator')
             
-            // Enhance quiz with improved category if needed
-            if (!quiz.category || quiz.category === 'General') {
-              quiz.category = request.category || this.suggestCategoryFromSubject(request.subject, request.topic)
+            // Check each question's explanation for mixed content issues
+            if (quiz.questions && Array.isArray(quiz.questions)) {
+              for (let i = 0; i < quiz.questions.length; i++) {
+                const question = quiz.questions[i]
+                if (question.explanation) {
+                  const validation = MixedLanguageValidator.validateMixedContent(question.explanation)
+                  
+                  if (!validation.isValid) {
+                    logger.warn(`Mixed language validation failed for question ${i + 1}:`, {
+                      issues: validation.issues,
+                      explanation: question.explanation.substring(0, 100) + '...'
+                    })
+                    
+                    // Try to sanitize the explanation
+                    question.explanation = MixedLanguageValidator.sanitizeMixedContent(question.explanation)
+                    
+                    // Test JSON compatibility after sanitization
+                    const jsonTest = MixedLanguageValidator.testJSONCompatibility(question.explanation)
+                    if (!jsonTest.success) {
+                      throw new Error(`Mixed language content in question ${i + 1} cannot be safely stored as JSON: ${jsonTest.error}`)
+                    }
+                  }
+                }
+              }
             }
-
-            logger.info('Quiz generation successful', {
-              attempts,
-              confidence: reviewResult.confidence,
-              issuesFound: reviewResult.issues.length,
-              questionsCount: quiz.questions?.length || 0
-            })
-
-            // Store content review result in database
-            await this.storeContentReview(request, reviewResult, quiz)
-
-            return {
-              success: true,
-              quiz,
-              promptUsed: prompt,
-              systemPromptUsed: systemPrompt,
-              reviewResult
-            }
-
-          } catch (parseError: any) {
-            lastError = `JSON parsing failed: ${parseError.message}`
-            logger.warn(`Attempt ${attempts} JSON parse failed: ${lastError}`)
-            continue
           }
-        } else {
-          // Content review failed
-          lastError = `Content review failed (confidence: ${reviewResult.confidence}%). Issues: ${reviewResult.issues.map(i => i.message).join(', ')}`
-          logger.warn(`Attempt ${attempts} content review failed`, {
-            confidence: reviewResult.confidence,
-            issues: reviewResult.issues.length,
-            criticalIssues: reviewResult.issues.filter(i => i.severity === 'critical').length
+          
+          // Enhance quiz with improved category if needed
+          if (!quiz.category || quiz.category === 'General') {
+            quiz.category = request.category || this.suggestCategoryFromSubject(request.subject, request.topic)
+          }
+
+          logger.info('Quiz generation successful', {
+            attempts,
+            questionsCount: quiz.questions?.length || 0
           })
+
+          return {
+            success: true,
+            quiz,
+            promptUsed: prompt,
+            systemPromptUsed: systemPrompt
+          }
+
+        } catch (parseError: any) {
+          lastError = `JSON parsing failed: ${parseError.message}`
+          logger.warn(`Attempt ${attempts} JSON parse failed: ${lastError}`)
           
-          // Store failed review for analytics (only on last attempt to avoid spam)
-          if (attempts === maxAttempts) {
-            await this.storeContentReview(request, reviewResult, cleanedContent)
+          // Log snippet around the error position for debugging
+          if (parseError.message.includes('position')) {
+            const position = parseInt(parseError.message.match(/position (\d+)/)?.[1] || '0')
+            const start = Math.max(0, position - 100)
+            const end = Math.min(cleanedContent.length, position + 100)
+            const snippet = cleanedContent.slice(start, end)
+            logger.warn(`JSON error context around position ${position}:`, {
+              snippet: snippet.replace(/\n/g, '\\n'),
+              language: request.quizLanguage
+            })
           }
           
-          bestResult = { reviewResult, content: cleanedContent }
+          continue
         }
       }
 
       // All attempts failed
       logger.error('All quiz generation attempts failed', {
         attempts: maxAttempts,
-        lastError,
-        bestConfidence: bestResult?.reviewResult?.confidence || 0
+        lastError
       })
 
       return {
         success: false,
-        error: `Failed to generate valid quiz after ${maxAttempts} attempts. Last error: ${lastError}. ${bestResult ? `Best confidence: ${bestResult.reviewResult.confidence}%` : ''}`,
+        error: `Failed to generate valid quiz after ${maxAttempts} attempts. Last error: ${lastError}`,
         promptUsed: prompt,
-        systemPromptUsed: systemPrompt,
-        reviewResult: bestResult?.reviewResult
+        systemPromptUsed: systemPrompt
       }
 
     } catch (error: any) {
@@ -530,47 +607,15 @@ GENERAL NON-ENGLISH GUIDELINES:
     }
   }
 
-  // Store content review result in database
-  private async storeContentReview(
-    request: EnhancedQuizGenerationRequest,
-    result: ContentReviewResult,
-    generatedContent: any
-  ): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('content_reviews')
-        .insert({
-          content_type: 'quiz',
-          title: `Quiz: ${request.subject} (${request.questionCount} questions)`,
-          subject: request.subject,
-          difficulty: request.difficulty,
-          raw_ai_response: JSON.stringify(generatedContent),
-          review_status: result.isValid ? 'approved' : 'pending',
-          ai_confidence_score: result.confidence / 100, // Convert to decimal (0.00 to 1.00)
-          validation_issues: result.issues,
-          corrected_content: result.correctedContent ? JSON.stringify(result.correctedContent) : null,
-          auto_corrected: !!result.correctedContent,
-          ai_model: 'gemini-2.0-flash-exp',
-          language: request.quizLanguage || 'english',
-          estimated_review_time: Math.max(5, Math.ceil(request.questionCount * 0.5 + (result.issues?.length || 0) * 2))
-        })
-
-      if (error) {
-        logger.error('Failed to store content review:', error)
-      } else {
-        logger.info('Content review stored successfully', {
-          subject: request.subject,
-          status: result.isValid ? 'approved' : 'pending',
-          confidence: result.confidence
-        })
-      }
-    } catch (error: any) {
-      logger.error('Error storing content review:', error)
-    }
-  }
-
   // Build strict system prompt for retry attempts
   private buildStrictSystemPrompt(request: EnhancedQuizGenerationRequest): string {
+    const languageInstructions = request.quizLanguage && request.quizLanguage !== 'english' 
+      ? `\n\nLANGUAGE REQUIREMENT: All content must be in ${request.quizLanguage}
+${request.quizLanguage.toLowerCase() === 'khmer' || request.quizLanguage.toLowerCase() === 'cambodian' 
+  ? '⚠️  KHMER JSON SAFETY: Use simple Khmer words, avoid complex symbols, no backslashes' 
+  : ''}`
+      : ''
+
     return `You are an expert educator creating educational assessments for ${request.subject}.
 
 CRITICAL JSON GENERATION RULES:
@@ -580,16 +625,14 @@ CRITICAL JSON GENERATION RULES:
 4. Ensure all braces { } and brackets [ ] are properly matched
 5. No trailing commas in arrays or objects
 6. Test your JSON structure before responding
+7. For non-English content: avoid special characters that break JSON parsing
 
 CONTENT QUALITY REQUIREMENTS:
 - Educational and accurate content
 - Clear, unambiguous questions
 - Detailed explanations that help students learn
 - Appropriate for ${request.difficulty} difficulty level
-- Culturally appropriate and inclusive
-
-${request.quizLanguage && request.quizLanguage !== 'english' ? 
-  `LANGUAGE REQUIREMENT: All content must be in ${request.quizLanguage}` : ''}
+- Culturally appropriate and inclusive${languageInstructions}
 
 Focus on creating valid JSON that will parse correctly while maintaining educational value.`
   }

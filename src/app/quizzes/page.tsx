@@ -10,6 +10,7 @@ import { Pagination } from '@/components/ui/Pagination'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { EnhancedQuizCard } from '@/components/cards/EnhancedQuizCard'
+import { QuizListCard } from '@/components/cards/QuizListCard'
 import { getHeroImage } from '@/lib/imageMapping'
 import { quizDifficulties } from '@/lib/quizConstants'
 
@@ -55,6 +56,7 @@ export default function QuizzesPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all')
   const [availableCategories, setAvailableCategories] = useState<string[]>([])
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   const formatDifficulty = (difficulty: string) => {
     return difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
@@ -332,78 +334,169 @@ export default function QuizzesPage() {
           </Card>
         )}
 
-        {/* Quizzes Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {isLoading && currentPage !== 1 ? (
-            // Enhanced loading skeleton cards for pagination
-            Array.from({ length: 6 }).map((_, index) => (
-              <Card key={index} variant="elevated" className="overflow-hidden group">
-                <div className="h-48 bg-muted animate-pulse relative">
-                </div>
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex gap-2">
-                    <div className="h-6 w-16 bg-muted animate-pulse rounded-full"></div>
-                    <div className="h-6 w-20 bg-muted animate-pulse rounded-full"></div>
-                  </div>
-                  <div className="h-8 bg-muted animate-pulse rounded-lg"></div>
-                  <div className="h-5 bg-muted animate-pulse rounded w-3/4"></div>
-                  <div className="h-5 bg-muted animate-pulse rounded w-1/2"></div>
-                  <div className="flex justify-between items-center pt-4">
-                    <div className="h-8 w-16 bg-muted animate-pulse rounded"></div>
-                    <div className="h-10 w-24 bg-muted animate-pulse rounded-lg"></div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : quizzes.length > 0 ? (
-            quizzes.map((quiz) => (
-              <EnhancedQuizCard 
-                key={quiz.id}
-                quiz={{
-                  id: quiz.id,
-                  title: quiz.title,
-                  description: quiz.description,
-                  category: quiz.category,
-                  difficulty: quiz.difficulty,
-                  total_questions: quiz.total_questions,
-                  duration_minutes: quiz.duration_minutes,
-                  image_url: quiz.image_url,
-                  is_published: true,
-                  created_at: quiz.created_at || new Date().toISOString()
-                }}
-              />
-            ))
-          ) : (
-            // Enhanced Empty State
-            <div className="col-span-full text-center py-12">
-              <Card variant="elevated" className="max-w-md mx-auto border-border shadow-sm bg-background">
-                <CardContent className="p-8">
-                  <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Brain className="text-white h-8 w-8" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-4">No quizzes found</h3>
-                  <p className="text-muted-foreground mb-6">
-                    We don&apos;t have any quizzes matching your current filters yet.
-                  </p>
-                  <Button
-                    onClick={() => {
-                      setSelectedCategory('all')
-                      setSelectedDifficulty('all')
-                    }}
-                    className="bg-primary hover:bg-secondary text-white hover:text-black"
-                  >
-                    <Filter className="h-4 w-4 mr-2" />
-                    Clear Filters
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+        {/* View Toggle */}
+        <div className="flex justify-between items-center mb-6">
+          <div></div>
+          <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                viewMode === 'grid'
+                  ? 'bg-white text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Grid
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                viewMode === 'list'
+                  ? 'bg-white text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              List
+            </button>
+          </div>
         </div>
+
+        {/* Quizzes Display */}
+        {viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {isLoading && currentPage !== 1 ? (
+              // Enhanced loading skeleton cards for pagination
+              Array.from({ length: 8 }).map((_, index) => (
+                <Card key={index} variant="elevated" className="overflow-hidden group">
+                  <div className="h-40 bg-muted animate-pulse relative">
+                  </div>
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex gap-2">
+                      <div className="h-5 w-16 bg-muted animate-pulse rounded-full"></div>
+                      <div className="h-5 w-20 bg-muted animate-pulse rounded-full"></div>
+                    </div>
+                    <div className="h-6 bg-muted animate-pulse rounded-lg"></div>
+                    <div className="h-4 bg-muted animate-pulse rounded w-3/4"></div>
+                    <div className="flex justify-between items-center pt-2">
+                      <div className="h-6 w-16 bg-muted animate-pulse rounded"></div>
+                      <div className="h-8 w-20 bg-muted animate-pulse rounded-lg"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : quizzes.length > 0 ? (
+              quizzes.map((quiz) => (
+                <EnhancedQuizCard 
+                  key={quiz.id}
+                  quiz={{
+                    id: quiz.id,
+                    title: quiz.title,
+                    description: quiz.description,
+                    category: quiz.category,
+                    difficulty: quiz.difficulty,
+                    total_questions: quiz.total_questions,
+                    duration_minutes: quiz.duration_minutes,
+                    image_url: quiz.image_url,
+                    is_published: true,
+                    created_at: quiz.created_at || new Date().toISOString()
+                  }}
+                />
+              ))
+            ) : (
+              // Enhanced Empty State
+              <div className="col-span-full text-center py-12">
+                <Card variant="elevated" className="max-w-md mx-auto border-border shadow-sm bg-background">
+                  <CardContent className="p-8">
+                    <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <Brain className="text-white h-8 w-8" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-foreground mb-4">No quizzes found</h3>
+                    <p className="text-muted-foreground mb-6">
+                      We don&apos;t have any quizzes matching your current filters yet.
+                    </p>
+                    <Button
+                      onClick={() => {
+                        setSelectedCategory('all')
+                        setSelectedDifficulty('all')
+                      }}
+                      className="bg-primary hover:bg-secondary text-white hover:text-black"
+                    >
+                      <Filter className="h-4 w-4 mr-2" />
+                      Clear Filters
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* List View */
+          <div className="space-y-3">
+            {isLoading && currentPage !== 1 ? (
+              // Loading skeletons for list view
+              Array.from({ length: 8 }).map((_, index) => (
+                <Card key={index} variant="elevated" className="p-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 h-16 bg-muted animate-pulse rounded-lg flex-shrink-0"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-5 bg-muted animate-pulse rounded w-1/3"></div>
+                      <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
+                      <div className="flex gap-4">
+                        <div className="h-4 w-16 bg-muted animate-pulse rounded"></div>
+                        <div className="h-4 w-20 bg-muted animate-pulse rounded"></div>
+                        <div className="h-4 w-24 bg-muted animate-pulse rounded"></div>
+                      </div>
+                    </div>
+                    <div className="h-8 w-24 bg-muted animate-pulse rounded-lg"></div>
+                  </div>
+                </Card>
+              ))
+            ) : quizzes.length > 0 ? (
+              quizzes.map((quiz) => (
+                <QuizListCard 
+                  key={quiz.id}
+                  quiz={{
+                    id: quiz.id,
+                    title: quiz.title,
+                    description: quiz.description,
+                    category: quiz.category,
+                    difficulty: quiz.difficulty,
+                    total_questions: quiz.total_questions,
+                    duration_minutes: quiz.duration_minutes,
+                    image_url: quiz.image_url,
+                    is_published: true,
+                    created_at: quiz.created_at || new Date().toISOString()
+                  }}
+                />
+              ))
+            ) : (
+              // Enhanced Empty State for List View
+              <Card variant="elevated" className="p-8 text-center">
+                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Brain className="text-white h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-4">No quizzes found</h3>
+                <p className="text-muted-foreground mb-6">
+                  We don&apos;t have any quizzes matching your current filters yet.
+                </p>
+                <Button
+                  onClick={() => {
+                    setSelectedCategory('all')
+                    setSelectedDifficulty('all')
+                  }}
+                  className="bg-primary hover:bg-secondary text-white hover:text-black"
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  Clear Filters
+                </Button>
+              </Card>
+            )}
+          </div>
+        )}
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-8">
             <Card variant="elevated">
               <CardContent className="p-4">
                 <Pagination

@@ -4,8 +4,7 @@ import React, { memo, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { ImageUpload } from '@/components/ui/ImageUpload'
-import { Plus, Trash2, GripVertical, Check } from 'lucide-react'
+import { Trash2, GripVertical, Plus, Check } from 'lucide-react'
 import { MultipleChoiceData, QuestionEditorProps } from '@/types/question-types'
 
 interface MultipleChoiceEditorProps extends QuestionEditorProps<MultipleChoiceData> {}
@@ -84,16 +83,6 @@ export const MultipleChoiceEditor = memo<MultipleChoiceEditorProps>(({
           {errors.question && (
             <p className="text-sm text-red-500">{errors.question}</p>
           )}
-        </div>
-
-        {/* Question Image */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Question Image (Optional)</label>
-          <ImageUpload
-            value={question.image_url}
-            onChange={(url: string | null) => updateQuestion('image_url', url)}
-            className="w-full max-w-md"
-          />
         </div>
 
         {/* Options */}

@@ -8,6 +8,7 @@ export interface ValidationError {
   field: string
   message: string
   severity: 'error' | 'warning'
+  questionIndex?: number
 }
 
 export interface QuizValidationResult {
@@ -138,31 +139,57 @@ export const useQuizValidation = () => {
     return errors
   }
 
-  const validateQuiz = (questions: QuizQuestion[]): QuizValidationResult => {
-    if (questions.length === 0) {
-      return {
-        isValid: false,
-        errors: [{
-          field: 'questions',
-          message: 'Quiz must have at least one question',
-          severity: 'error'
-        }],
-        warnings: []
-      }
-    }
+  // Quiz data interface for validation
+  interface QuizValidationData {
+    title: string
+    description: string
+    questions: QuizQuestion[]
+    category?: string
+    duration_minutes?: number
+  }
 
+  const validateQuiz = (data: QuizValidationData): QuizValidationResult => {
     const allErrors: ValidationError[] = []
     const allWarnings: ValidationError[] = []
 
-    questions.forEach((question, index) => {
+    // Validate quiz metadata
+    if (!data.title?.trim()) {
+      allErrors.push({
+        field: 'title',
+        message: 'Quiz title is required',
+        severity: 'error'
+      })
+    }
+
+    if (!data.description?.trim()) {
+      allErrors.push({
+        field: 'description',
+        message: 'Quiz description is required',
+        severity: 'error'
+      })
+    }
+
+    if (data.questions.length === 0) {
+      allErrors.push({
+        field: 'questions',
+        message: 'Quiz must have at least one question',
+        severity: 'error'
+      })
+      return {
+        isValid: false,
+        errors: allErrors,
+        warnings: allWarnings
+      }
+    }
+
+    // Validate individual questions
+    data.questions.forEach((question, index) => {
       const questionErrors = validateQuestion(question)
       questionErrors.forEach(error => {
-        const errorWithIndex = {
-          ...error,
-          field: `question_${index + 1}_${error.field}`,
-          message: `Question ${index + 1}: ${error.message}`
+        const errorWithIndex = { 
+          ...error, 
+          questionIndex: index 
         }
-        
         if (error.severity === 'error') {
           allErrors.push(errorWithIndex)
         } else {
@@ -170,6 +197,23 @@ export const useQuizValidation = () => {
         }
       })
     })
+
+    // Quiz-level warnings
+    if (data.questions.length < 3) {
+      allWarnings.push({
+        field: 'questions',
+        message: 'Consider adding more questions for a comprehensive quiz',
+        severity: 'warning'
+      })
+    }
+
+    if (data.duration_minutes && data.duration_minutes < data.questions.length) {
+      allWarnings.push({
+        field: 'duration_minutes',
+        message: 'Duration might be too short for the number of questions',
+        severity: 'warning'
+      })
+    }
 
     return {
       isValid: allErrors.length === 0,

@@ -65,24 +65,34 @@ export const GET = withAdminAuth(async (request: NextRequest, user) => {
         return acc
       }, {}) || {}
 
-      // Get attempt counts for each quiz
+      // Get attempt counts and scores for each quiz
       const { data: attempts } = await serviceClient
         .from('quiz_attempts')
-        .select('quiz_id')
+        .select('quiz_id, score')
         .in('quiz_id', quizIds)
 
-      // Count attempts per quiz
-      const attemptCountMap = attempts?.reduce((acc: any, a: any) => {
-        acc[a.quiz_id] = (acc[a.quiz_id] || 0) + 1
+      // Count attempts and calculate average scores per quiz
+      const quizStats = attempts?.reduce((acc: any, attempt: any) => {
+        if (!acc[attempt.quiz_id]) {
+          acc[attempt.quiz_id] = { count: 0, totalScore: 0 }
+        }
+        acc[attempt.quiz_id].count++
+        acc[attempt.quiz_id].totalScore += attempt.score || 0
         return acc
       }, {}) || {}
 
-      // Combine data
-      const enrichedQuizzes = quizzes?.map((quiz: any) => ({
-        ...quiz,
-        question_count: questionCountMap[quiz.id] || 0,
-        attempt_count: attemptCountMap[quiz.id] || 0
-      }))
+      // Combine data with frontend-expected field names
+      const enrichedQuizzes = quizzes?.map((quiz: any) => {
+        const stats = quizStats[quiz.id] || { count: 0, totalScore: 0 }
+        const averageScore = stats.count > 0 ? Math.round(stats.totalScore / stats.count) : 0
+        
+        return {
+          ...quiz,
+          total_questions: questionCountMap[quiz.id] || 0, // Frontend expects this field name
+          attempts_count: stats.count, // Frontend expects this field name
+          average_score: averageScore // Frontend expects this field name
+        }
+      })
 
       return {
         quizzes: enrichedQuizzes,

@@ -11,7 +11,6 @@ import { useAuth } from '@/contexts/AuthContext'
 import { supabase, Quiz } from '@/lib/supabase'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import { uploadImage } from '@/lib/imageUpload'
-import { AIQuizGenerator, GeneratedQuiz } from './AIQuizGenerator'
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
 import { quizCategories, quizDifficulties, getCategoryInfo } from '@/lib/quizConstants'
 
@@ -60,10 +59,9 @@ interface QuizFormProps {
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
-  prefilledData?: GeneratedQuiz | null
 }
 
-export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: QuizFormProps) {
+export function QuizForm({ quiz, isOpen, onClose, onSuccess }: QuizFormProps) {
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<ValidationError[]>([])
@@ -425,9 +423,6 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
   const autoSave = useCallback(async () => {
     if (!user || !unsavedChanges || loading) return
 
-    const validationErrors = validateForm()
-    if (validationErrors.length > 0) return // Don't auto-save if there are validation errors
-
     try {
       setAutoSaving(true)
       
@@ -438,6 +433,57 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
         timestamp: new Date().toISOString()
       }))
 
+      // For new quizzes, create a draft in the database
+      if (!quiz?.id && (formData.title.trim() || questions.length > 0)) {
+        try {
+          const draftQuiz = {
+            title: formData.title.trim() || 'Untitled Quiz',
+            description: formData.description,
+            category: formData.category,
+            difficulty: formData.difficulty,
+            duration_minutes: formData.duration_minutes || 30,
+            time_limit_type: formData.time_limit_type || 'quiz',
+            max_attempts: formData.max_attempts || null,
+            passing_score: formData.passing_score || 70,
+            is_published: false, // Always save as draft
+            image_url: formData.image_url || '',
+            created_by: user.id
+          }
+
+          const { data: savedQuiz, error: quizError } = await supabase
+            .from('quizzes')
+            .insert(draftQuiz)
+            .select()
+            .single()
+
+          if (quizError) throw quizError
+
+          // Save questions if any exist
+          if (questions.length > 0 && savedQuiz) {
+            const questionsToSave = questions.map((q, index) => ({
+              quiz_id: savedQuiz.id,
+              question_text: q.question,
+              question_type: q.question_type,
+              options: q.options,
+              correct_answer: q.correct_answer,
+              explanation: q.explanation || null,
+              points: q.points || 1,
+              order_index: index
+            }))
+
+            const { error: questionsError } = await supabase
+              .from('quiz_questions')
+              .insert(questionsToSave)
+
+            if (questionsError) throw questionsError
+          }
+
+          logger.info('Draft quiz auto-saved to database', { quizId: savedQuiz.id })
+        } catch (dbError) {
+          logger.warn('Failed to auto-save to database, kept in localStorage:', dbError)
+        }
+      }
+
       setLastSaved(new Date())
       setUnsavedChanges(false)
     } catch (error) {
@@ -445,7 +491,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
     } finally {
       setAutoSaving(false)
     }
-  }, [user, unsavedChanges, loading, formData, questions, quiz?.id, validateForm])
+  }, [user, unsavedChanges, loading, formData, questions, quiz?.id])
 
   // Set up auto-save timer
   useEffect(() => {
@@ -540,29 +586,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
     const draftKey = `quiz-draft-${quiz?.id || 'new'}`
     const savedDraft = localStorage.getItem(draftKey)
 
-    if (prefilledData) {
-      // Use AI generated data
-      setFormData(prev => ({
-        ...prev,
-        title: prefilledData.title,
-        description: prefilledData.description,
-        category: prefilledData.category,
-        difficulty: prefilledData.difficulty,
-        duration_minutes: prefilledData.duration_minutes,
-      }))
-      
-      const convertedQuestions: Question[] = prefilledData.questions.map((q, index) => ({
-        question: q.question,
-        question_type: q.question_type as QuestionType,
-        options: q.options || [],
-        correct_answer: q.correct_answer,
-        explanation: q.explanation || '',
-        order_index: index,
-        points: 1
-      }))
-      
-      setQuestions(convertedQuestions)
-    } else if (savedDraft && !quiz) {
+    if (savedDraft && !quiz) {
       // Load draft for new quiz
       try {
         const draft = JSON.parse(savedDraft)
@@ -611,7 +635,7 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
     setTimeout(() => {
       hasInitialized.current = true
     }, 100)
-  }, [quiz, isOpen, loadQuestions, prefilledData])
+  }, [quiz, isOpen, loadQuestions])
 
   // DISABLE real-time validation to prevent flickering
   // Validation will only run on form submission
@@ -979,73 +1003,6 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
       clearTimeout(saveTimeout)
       logger.debug('Setting loading to false')
       setLoading(false)
-    }
-  }
-
-  const handleAIQuizGenerated = async (generatedQuiz: GeneratedQuiz) => {
-    // Normalize difficulty to ensure database compliance
-    const normalizedDifficulty = (quizDifficulties.includes(generatedQuiz.difficulty as any)) 
-      ? generatedQuiz.difficulty 
-      : quizDifficulties[0] // Default fallback
-
-    // Normalize category to ensure it's not empty
-    const normalizedCategory = generatedQuiz.category?.trim() || 'General'
-
-    const normalizedFormData = {
-      ...formData,
-      title: generatedQuiz.title,
-      description: generatedQuiz.description,
-      category: normalizedCategory,
-      difficulty: normalizedDifficulty,
-      duration_minutes: generatedQuiz.duration_minutes
-    }
-
-    setFormData(normalizedFormData)
-
-    const convertedQuestions: Question[] = generatedQuiz.questions.map((q, index) => {
-      logger.info('Processing AI generated question', {
-        questionIndex: index,
-        questionType: q.question_type,
-        correctAnswer: q.correct_answer,
-        correctAnswerType: typeof q.correct_answer,
-        options: q.options
-      })
-      
-      return {
-        question: q.question,
-        question_type: q.question_type as QuestionType,
-        options: q.options || [],
-        correct_answer: q.correct_answer,
-        explanation: q.explanation || '',
-        order_index: index,
-        points: 1
-      }
-    })
-
-    setQuestions(convertedQuestions)
-    setShowAIGenerator(false)
-    markUnsaved()
-    
-    // Auto-save the generated quiz to database
-    if (user) {
-      try {
-        setLoading(true)
-        logger.info('Auto-saving AI generated quiz to database', {
-          originalDifficulty: generatedQuiz.difficulty,
-          normalizedDifficulty: normalizedDifficulty,
-          category: normalizedCategory
-        })
-        
-        // Trigger save by creating a synthetic form submission
-        const fakeEvent = { preventDefault: () => {} } as React.FormEvent
-        await handleSubmitWithData(fakeEvent, normalizedFormData, convertedQuestions)
-        
-      } catch (error) {
-        logger.error('Failed to auto-save generated quiz:', error)
-        // Don't throw error - let user manually save if auto-save fails
-      } finally {
-        setLoading(false)
-      }
     }
   }
 
@@ -2419,13 +2376,6 @@ export function QuizForm({ quiz, isOpen, onClose, onSuccess, prefilledData }: Qu
           </div>
         </div>
       </form>
-
-      {/* AI Quiz Generator Modal */}
-      <AIQuizGenerator
-        isOpen={showAIGenerator}
-        onClose={() => setShowAIGenerator(false)}
-        onQuizGenerated={handleAIQuizGenerated}
-      />
 
       {/* Category Management Modal */}
       <CategoryManagement

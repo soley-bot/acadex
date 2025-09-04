@@ -3,7 +3,6 @@
 import React, { memo, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ImageUpload } from '@/components/ui/ImageUpload'
 import { Trash2, GripVertical, Check, X } from 'lucide-react'
 import { TrueFalseData, QuestionEditorProps } from '@/types/question-types'
 
@@ -56,16 +55,6 @@ export const TrueFalseEditor = memo<TrueFalseEditorProps>(({
           {errors.question && (
             <p className="text-sm text-red-500">{errors.question}</p>
           )}
-        </div>
-
-        {/* Question Image */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Supporting Image (Optional)</label>
-          <ImageUpload
-            value={question.image_url}
-            onChange={(url: string | null) => updateQuestion('image_url', url)}
-            className="w-full max-w-md"
-          />
         </div>
 
         {/* Correct Answer Selection */}

@@ -8,11 +8,11 @@ import { X, Save, Loader2, Upload, AlertCircle, Plus, Trash2, BookOpen, Video, L
 import { Course, CourseModule, CourseLesson, Quiz } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { useCourseMutations } from '@/lib/cachedOperations'
+import { useCourseFormPerformance } from '@/lib/adminPerformanceSystem'
 import { categories, levels } from '@/lib/courseConstants'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import { uploadImage } from '@/lib/imageUpload'
 import { quizAPI, courseAPI } from '@/lib/auth-api'
-import { GeneratedCourse } from '@/components/admin/AICourseGenerator'
 
 interface CourseFormProps {
   course?: Course
@@ -20,7 +20,6 @@ interface CourseFormProps {
   onClose: () => void
   onSuccess: (updatedCourse?: Course) => void
   embedded?: boolean // New prop to control rendering mode
-  prefilledData?: GeneratedCourse | null // New prop for AI-generated course data
 }
 
 // Enhanced interfaces for course structure
@@ -65,9 +64,17 @@ interface EnhancedCourseData {
   modules: ModuleData[]
 }
 
-export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = false, prefilledData }: CourseFormProps) {
+export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = false }: CourseFormProps) {
   const { user } = useAuth()
   const { createCourse, updateCourse, isCreating, isUpdating, error: mutationError } = useCourseMutations()
+  
+  // Performance monitoring
+  const { 
+    metrics, 
+    logPerformanceReport, 
+    isSlowComponent, 
+    performanceScore 
+  } = useCourseFormPerformance()
   
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
@@ -108,47 +115,6 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
   const hasValidationErrors = useMemo(() => {
     return !formData.title.trim() || !formData.description.trim() || !formData.instructor_name.trim()
   }, [formData.title, formData.description, formData.instructor_name])
-
-  // Initialize form with prefilled data from AI generator
-  useEffect(() => {
-    if (prefilledData && !course) {
-      logger.info('CourseForm: Initializing with AI-generated course data:', prefilledData.title)
-      
-      // Transform GeneratedCourse to EnhancedCourseData
-      const transformedModules: ModuleData[] = prefilledData.modules?.map((module, moduleIndex) => ({
-        ...module,
-        order_index: moduleIndex,
-        lessons: module.lessons?.map((lesson, lessonIndex) => ({
-          ...lesson,
-          order_index: lessonIndex,
-          is_free_preview: lessonIndex === 0 // First lesson of each module is free preview
-        })) || []
-      })) || []
-
-      setFormData({
-        title: prefilledData.title,
-        description: prefilledData.description,
-        instructor_name: prefilledData.instructor_name,
-        price: prefilledData.price,
-        category: prefilledData.category,
-        level: prefilledData.level,
-        duration: prefilledData.duration,
-        image_url: '',
-        is_published: false,
-        learning_objectives: prefilledData.learning_objectives || [],
-        modules: transformedModules
-      })
-
-      // Expand all modules by default for AI-generated content
-      const expandedIndexes = new Set(transformedModules.map((_, index) => index))
-      setExpandedModules(expandedIndexes)
-      
-      // Switch to modules tab if there are modules
-      if (transformedModules.length > 0) {
-        setActiveTab('modules')
-      }
-    }
-  }, [prefilledData, course])
 
   // Load available quizzes
   useEffect(() => {
@@ -404,7 +370,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
     logger.info('Saving modules and lessons for course:', courseId)
     
     // Check if this is an AI-generated course
-    const isAIGenerated = formData.instructor_name === 'AI Generated Course' || prefilledData?.title
+    const isAIGenerated = formData.instructor_name === 'AI Generated Course'
     if (isAIGenerated) {
       logger.info('Processing AI-generated course modules')
     }
@@ -426,7 +392,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
       logger.error('💥 [COURSE_FORM] Error saving modules and lessons:', err)
       throw new Error('Failed to save course content')
     }
-  }, [formData.modules, formData.instructor_name, prefilledData])
+  }, [formData.modules, formData.instructor_name])
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -435,7 +401,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
     setIsSubmitting(true) // Set local loading state
 
     // Check if this is an AI-generated course
-    const isAIGenerated = formData.instructor_name === 'AI Generated Course' || prefilledData?.title
+    const isAIGenerated = formData.instructor_name === 'AI Generated Course'
 
     logger.debug('🔄 [COURSE_FORM] === STARTING COURSE SUBMISSION ===')
     logger.debug('🔄 [COURSE_FORM] Form submitted at:', new Date().toISOString())
@@ -540,7 +506,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
       setIsSubmitting(false) // Always clear loading state
       logger.debug('🔄 [COURSE_FORM] Loading state cleared')
     }
-  }, [formData, prefilledData, course, user, createCourse, updateCourse, onSuccess, onClose, saveModulesAndLessons])
+  }, [formData, course, user, createCourse, updateCourse, onSuccess, onClose, saveModulesAndLessons])
 
   if (!isOpen) {
     logger.debug('🚫 [COURSE_FORM] Form not rendering - isOpen is false')
