@@ -75,12 +75,14 @@ export function LessonContent({
       <div className="flex-1 overflow-y-auto p-6 space-y-8">
         {/* Video Player */}
         {lesson.video_url && (
-          <YouTubePlayer
-            videoId={lesson.video_url}
-            title={lesson.title}
-            onVideoEnd={handleVideoEnd}
-            className="mb-8"
-          />
+          <div className="max-w-4xl mx-auto">
+            <YouTubePlayer
+              videoId={lesson.video_url}
+              title={lesson.title}
+              onVideoEnd={handleVideoEnd}
+              className="mb-8"
+            />
+          </div>
         )}
 
         {/* Lesson Description */}

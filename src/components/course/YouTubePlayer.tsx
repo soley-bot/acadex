@@ -78,13 +78,6 @@ export function YouTubePlayer({ videoId, title, onVideoEnd, className = '' }: Yo
         onLoad={() => setIsLoaded(true)}
         className="absolute inset-0 w-full h-full"
       />
-      
-      {/* Video overlay with lesson info */}
-      <div className="absolute top-4 left-4 right-4 z-10 pointer-events-none">
-        <div className="bg-black/70 backdrop-blur-sm rounded-lg px-4 py-2 text-white">
-          <h3 className="font-medium text-sm truncate">{title}</h3>
-        </div>
-      </div>
     </div>
   )
 }
