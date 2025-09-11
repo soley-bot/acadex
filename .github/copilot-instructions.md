@@ -17,6 +17,7 @@ This is a comprehensive Next.js application for English learning, quiz practice,
 - **Users**: Extended auth.users with roles (student/instructor/admin)
 - **Courses**: Full course management with modules, lessons, resources
 - **Quizzes**: Interactive quiz system with questions and attempts
+- **Quiz Questions**: Uses `randomize_options` (boolean) and `partial_credit` (boolean) for single-choice questions
 - **Enrollments**: Student progress tracking and completion
 - **Enhanced Tables**: course_modules, course_lessons, course_resources, lesson_progress
 
@@ -38,6 +39,33 @@ This is a comprehensive Next.js application for English learning, quiz practice,
 - Real-time progress tracking
 - Mobile-first responsive design
 - Type-safe database operations
+
+## Quiz System Architecture & Naming Conventions
+
+### Question Type Naming
+**CRITICAL**: The quiz system uses specific naming conventions that must be understood:
+
+- **"multiple_choice"**: This is actually **SINGLE CHOICE** (only one correct answer allowed)
+- **NO TRUE MULTIPLE CHOICE**: There is no question type that allows multiple correct answers
+- **Naming Convention**: The name "multiple_choice" is used for convenience, but it behaves as single choice
+- **Database Fields**: 
+  - `partial_credit`: Used for partial scoring on single choice questions, NOT for enabling multiple selection
+  - `randomize_options`: Controls whether answer options are shuffled for the student
+
+### Quiz Question Types
+1. **multiple_choice**: Single choice questions (despite the name) - only one answer can be selected
+2. **true_false**: Boolean questions with true/false options
+3. **fill_blank**: Fill-in-the-blank questions with text input
+4. **essay**: Open-ended essay questions
+5. **matching**: Match items between two columns
+6. **ordering**: Arrange items in correct sequence
+
+### Implementation Guidelines
+- When working with "multiple_choice" questions, always treat as single selection
+- Use `allowMultiple = false` in student-facing components
+- The `partial_credit` field is for scoring partial points, not enabling multiple answers
+- Never implement multiple selection behavior for "multiple_choice" type
+- All question editors and renderers should enforce single selection for "multiple_choice"
 
 ## TypeScript-First Development Standards
 

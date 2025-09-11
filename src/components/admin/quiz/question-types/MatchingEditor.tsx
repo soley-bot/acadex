@@ -13,7 +13,7 @@ export function MatchingEditor({ question, onChange, onRemove, isValid, errors }
   const leftColumn = question.left_column || []
   const rightColumn = question.right_column || []
   const correctPairs = question.correct_pairs || []
-  const shuffleOptions = question.shuffle_options ?? true
+  const randomizeOptions = question.randomize_options ?? true
 
   const updateQuestion = (field: keyof MatchingData, value: any) => {
     onChange({ [field]: value })
@@ -72,7 +72,7 @@ export function MatchingEditor({ question, onChange, onRemove, isValid, errors }
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         {/* Question Text */}
         <FormField label="Question Text (English)" error={errors.question}>
           <TextareaInput
@@ -154,12 +154,12 @@ export function MatchingEditor({ question, onChange, onRemove, isValid, errors }
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-sm font-medium">Shuffle Options</span>
+                <span className="text-sm font-medium">Randomize Options</span>
                 <p className="text-xs text-gray-500">Randomize the order of items for students</p>
               </div>
               <Switch
-                checked={shuffleOptions}
-                onCheckedChange={(checked) => updateQuestion('shuffle_options', checked)}
+                checked={randomizeOptions}
+                onCheckedChange={(checked) => updateQuestion('randomize_options', checked)}
               />
             </div>
           </div>

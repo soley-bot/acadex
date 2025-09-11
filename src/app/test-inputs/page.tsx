@@ -11,10 +11,10 @@ const TestInputs = () => {
     quiz_id: 'test',
     question: '',
     question_type: 'multiple_choice' as const,
-    options: ['', ''],
+    options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
     correct_answer: 0,
-    allow_multiple: false,
-    shuffle_options: false,
+    partial_credit: false,
+    randomize_options: false,
     explanation: '',
     order_index: 0,
     points: 1,
@@ -97,7 +97,7 @@ const TestInputs = () => {
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold mb-4">Fill Blank Editor</h2>
+          <h2 className="text-xl font-semibold mb-4">Fill in the Blanks Editor</h2>
           <FillBlankEditor
             question={fbQuestion}
             onChange={(updates) => {
@@ -109,19 +109,6 @@ const TestInputs = () => {
             errors={{}}
           />
         </div>
-      </div>
-
-      <div className="mt-8 p-4 bg-gray-100 rounded">
-        <h3 className="font-semibold">Current State:</h3>
-        <pre className="text-xs mt-2">
-          MC: {JSON.stringify(mcQuestion, null, 2)}
-        </pre>
-        <pre className="text-xs mt-2">
-          TF: {JSON.stringify(tfQuestion, null, 2)}
-        </pre>
-        <pre className="text-xs mt-2">
-          FB: {JSON.stringify(fbQuestion, null, 2)}
-        </pre>
       </div>
     </div>
   )

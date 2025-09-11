@@ -81,7 +81,7 @@ export function OrderingEditor({ question, onChange, onRemove, isValid, errors }
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         {/* Question Text */}
         <FormField label="Question Text (English)" error={errors.question}>
           <TextareaInput

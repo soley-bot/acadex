@@ -1,11 +1,10 @@
 'use client'
 
 import { logger } from '@/lib/logger'
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Brain, Loader2, Filter } from 'lucide-react'
-import { quizAPI } from '@/lib/database'
+import { Brain, Loader2, Filter, RefreshCcw } from 'lucide-react'
 import { Pagination } from '@/components/ui/Pagination'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -13,25 +12,9 @@ import { EnhancedQuizCard } from '@/components/cards/EnhancedQuizCard'
 import { QuizListCard } from '@/components/cards/QuizListCard'
 import { getHeroImage } from '@/lib/imageMapping'
 import { quizDifficulties } from '@/lib/quizConstants'
-
-// Quiz list item type - subset of full Quiz with required display fields
-interface QuizListItem {
-  id: string
-  title: string
-  description: string
-  category: string
-  difficulty: string
-  duration_minutes: number
-  total_questions: number
-  is_published: boolean
-  created_at: string
-  // Optional fields for card display
-  image_url?: string | null
-  passing_score?: number
-  max_attempts?: number
-  time_limit_minutes?: number | null
-  updated_at?: string
-}
+import { useQuizzes, useQuizCategories } from '@/hooks/useQuizQueries'
+import { Badge } from '@/components/ui/badge'
+import { TextInput, SelectInput } from '@/components/ui/FormInputs'
 
 interface PaginationData {
   page: number
@@ -41,477 +24,326 @@ interface PaginationData {
   hasMore: boolean
 }
 
-export default function QuizzesPage() {
-  const [quizzes, setQuizzes] = useState<QuizListItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export default function QuizzesPageWithReactQuery() {
+  // Filter and pagination state
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('')
+  const [selectedDifficulty, setSelectedDifficulty] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [pagination, setPagination] = useState<PaginationData>({
-    page: 1,
-    limit: 9,
-    total: 0,
-    totalPages: 0,
-    hasMore: false
-  })
-  const [selectedCategory, setSelectedCategory] = useState<string>('all')
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all')
-  const [availableCategories, setAvailableCategories] = useState<string[]>([])
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
+  const itemsPerPage = 9
 
-  const formatDifficulty = (difficulty: string) => {
-    return difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
+  // Memoized filters for React Query
+  const filters = useMemo(() => ({
+    search: searchTerm.trim(),
+    category: selectedCategory,
+    difficulty: selectedDifficulty,
+    published: true, // Only show published quizzes on public page
+    page: currentPage,
+    limit: itemsPerPage
+  }), [searchTerm, selectedCategory, selectedDifficulty, currentPage])
+
+  // React Query hooks - automatically handles loading, error, and caching!
+  const { 
+    data: quizData, 
+    isLoading, 
+    error,
+    isStale,
+    isFetching,
+    refetch
+  } = useQuizzes(filters)
+  
+  const categories = useQuizCategories()
+
+  // Extract data with fallbacks
+  const quizzes = quizData?.quizzes || []
+  const totalQuizzes = quizData?.total || 0
+  const totalPages = quizData?.totalPages || 1
+  const categoriesLoading = false // Categories derive from quizzes, so no separate loading state
+
+  // Pagination helpers
+  const pagination: PaginationData = {
+    page: currentPage,
+    limit: itemsPerPage,
+    total: totalQuizzes,
+    totalPages,
+    hasMore: currentPage < totalPages
   }
 
-  const fetchAvailableCategories = useCallback(async () => {
-    try {
-      const response = await fetch('/api/quiz-categories')
-      if (!response.ok) throw new Error('Failed to fetch categories')
-      
-      const { categories } = await response.json()
-      setAvailableCategories(categories || [])
-    } catch (err) {
-      logger.error('Failed to fetch categories:', err)
-      // Fallback to empty array if API fails
-      setAvailableCategories([])
-    }
-  }, [])
-
-  const fetchQuizzes = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      setError(null)
-
-      const filters = {
-        page: currentPage,
-        limit: 9,
-        ...(selectedCategory !== 'all' && { category: selectedCategory }),
-        ...(selectedDifficulty !== 'all' && { difficulty: selectedDifficulty })
-      }
-
-      const { data, error, pagination: paginationData } = await quizAPI.getQuizzes(filters)
-      
-      if (error) {
-        throw error
-      }
-      
-      setQuizzes(data || [])
-      setPagination(paginationData)
-    } catch (err) {
-      logger.error('Failed to fetch quizzes:', err)
-      setError('Failed to load quizzes. Please try again.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [currentPage, selectedCategory, selectedDifficulty])
-
-  useEffect(() => {
-    fetchAvailableCategories()
-  }, [fetchAvailableCategories])
-
-  useEffect(() => {
-    fetchQuizzes()
-  }, [fetchQuizzes])
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+  // Event handlers
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setCurrentPage(1) // Reset to first page on search
   }
 
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category)
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value === 'all' ? '' : value)
     setCurrentPage(1)
   }
 
-  const handleDifficultyChange = (difficulty: string) => {
-    setSelectedDifficulty(difficulty)
+  const handleDifficultyChange = (value: string) => {
+    setSelectedDifficulty(value === 'all' ? '' : value)
     setCurrentPage(1)
   }
 
-  const getDifficultyColor = useMemo(() => {
-    return (difficulty: string) => {
-      switch (difficulty.toLowerCase()) {
-        case 'beginner':
-          return 'text-success bg-success/10 border-success/20'
-        case 'intermediate':
-          return 'text-warning bg-warning/10 border-warning/20'
-        case 'advanced':
-          return 'text-destructive bg-destructive/10 border-destructive/20'
-        default:
-          return 'text-muted-foreground bg-muted/10 border-border'
-      }
-    }
-  }, [])
-
-  if (isLoading && currentPage === 1) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="max-w-4xl mx-auto px-4 py-24">
-          <div className="text-center">
-            <div className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full text-sm font-semibold mb-8 shadow-lg">
-              <Brain className="w-4 h-4 animate-pulse" />
-              Quiz Practice
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-8">
-              Practice What You Know,
-              <span className="block text-secondary font-extrabold mt-4">Without the Stress</span>
-            </h1>
-            <p className="text-lg text-muted-foreground mb-12">Loading quizzes...</p>
-            <div className="flex justify-center">
-              <div className="relative">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <div className="absolute inset-0 h-12 w-12 animate-ping rounded-full bg-secondary/20"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+  const clearFilters = () => {
+    setSearchTerm('')
+    setSelectedCategory('')
+    setSelectedDifficulty('')
+    setCurrentPage(1)
   }
+
+  const hasActiveFilters = searchTerm || selectedCategory || selectedDifficulty
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section - Professional Quiz Environment */}
-      <div className="bg-gradient-to-br from-blue-50 via-white to-slate-50 relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]"></div>
-        
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20 lg:py-24 relative">
-          <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
-            {/* Content */}
-            <div className="text-center lg:text-left space-y-6 md:space-y-8">
-              <div className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full text-sm font-semibold shadow-lg">
-                <Brain className="w-4 h-4" />
-                Quiz Practice
-              </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
-                Practice What You Know,
-                <span className="block text-secondary font-extrabold mt-2">Without the Stress</span>
-              </h1>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Try simple quizzes to test your understanding, build confidence, and see what you&apos;re ready to learn next. 
-                <span className="font-medium text-foreground">No grades. Just learning.</span>
-              </p>
+      {/* Hero Section - Mobile First */}
+      <section className="relative py-12 md:py-16 lg:py-20 bg-gradient-to-br from-primary/5 via-white to-secondary/5">
+        <div className="absolute inset-0 bg-grid-primary/[0.02] bg-[size:30px_30px] md:bg-[size:50px_50px]" />
+        <div className="container mx-auto px-2 sm:px-4 relative z-10">
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium mb-4 md:mb-6">
+              <Brain className="w-3 h-3 md:w-4 md:h-4" />
+              Test Your Knowledge
             </div>
-
-            {/* Hero Image */}
-            <div className="relative order-first lg:order-last">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white p-2">
-                <Image
-                  src="/images/hero/online-learning.jpg"
-                  alt="Online learning and quiz practice setup"
-                  width={600}
-                  height={400}
-                  className="object-cover w-full h-[400px] rounded-xl"
-                  priority
-                  quality={90}
-                />
-                {/* Image Overlay with Quiz Stats */}
-                <div className="absolute bottom-4 left-4 right-4">
-                  <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                        <span className="font-medium text-foreground">Quiz practice</span>
-                      </div>
-                      <span className="font-bold text-secondary">Test your skills</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Floating elements for visual interest */}
-              <div className="absolute -top-4 -left-4 w-24 h-24 bg-primary/10 rounded-full blur-xl"></div>
-              <div className="absolute -bottom-6 -right-6 w-16 h-16 bg-secondary/10 rounded-full blur-xl"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content - White Background */}
-      <div className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
-          {/* Filters */}
-          <div className="space-y-8">
-            <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
-            <div className="flex items-start gap-4 w-full lg:w-auto">
-              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
-                <Brain className="h-6 w-6 text-white" />
-              </div>
-              <div className="space-y-3">
-                <h2 className="text-2xl font-semibold text-foreground">Try a Quiz</h2>
-                <p className="text-muted-foreground">
-                  More quizzes coming soon — we&apos;re starting with the basics and improving each week.
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Showing <span className="font-semibold text-primary">{((currentPage - 1) * pagination.limit + 1)}</span> - <span className="font-semibold text-secondary">{Math.min(currentPage * pagination.limit, pagination.total)}</span> of <span className="font-semibold text-foreground">{pagination.total}</span> quizzes
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-              <div className="min-w-[180px] w-full sm:w-auto">
-                <label htmlFor="category" className="block mb-2 text-sm font-medium text-foreground flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-primary" />
-                  Category
-                </label>
-                <select
-                  id="category"
-                  value={selectedCategory}
-                  onChange={(e) => handleCategoryChange(e.target.value)}
-                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                >
-                  <option value="all">All Categories</option>
-                  {availableCategories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className="min-w-[180px] w-full sm:w-auto">
-                <label htmlFor="difficulty" className="block mb-2 text-sm font-medium text-foreground flex items-center gap-2">
-                  <Brain className="h-4 w-4 text-primary" />
-                  Difficulty
-                </label>
-                <select
-                  id="difficulty"
-                  value={selectedDifficulty}
-                  onChange={(e) => handleDifficultyChange(e.target.value)}
-                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                >
-                  <option value="all">All Levels</option>
-                  {quizDifficulties.map((difficulty) => (
-                    <option key={difficulty} value={difficulty}>
-                      {formatDifficulty(difficulty)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-          
-          {/* Filter microcopy */}
-          <Card variant="elevated" className="p-4 border-border shadow-sm bg-background">
-            <p className="text-sm text-muted-foreground text-center flex items-center justify-center gap-2">
-              <Filter className="h-4 w-4 text-primary" />
-              Use these filters to find quizzes that match your current level or topic.
+            <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
+              Practice English Quizzes
+            </h1>
+            <p className="text-base md:text-xl text-gray-600 mb-6 md:mb-8 leading-relaxed px-2">
+              Challenge yourself with our comprehensive collection of English language quizzes. 
+              From grammar basics to advanced comprehension, find the perfect quiz for your level.
             </p>
-          </Card>
-        </div>
-
-        {/* Spacer between filters and content */}
-        <div className="mt-12"></div>
-
-        {/* Error State */}
-        {error && (
-          <Card variant="elevated" className="mb-8">
-            <CardContent className="p-6">
-              <p className="font-medium text-destructive mb-1">Error loading quizzes</p>
-              <p className="text-sm text-muted-foreground mb-4">{error}</p>
-              <Button 
-                variant="outline"
-                onClick={fetchQuizzes}
-                className="text-sm"
-              >
-                Try again
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Small library message */}
-        {!isLoading && quizzes.length > 0 && quizzes.length <= 3 && (
-          <Card variant="glass" className="text-center mb-8">
-            <CardContent className="p-6">
-              <p className="font-medium text-foreground mb-2">
-                Not many quizzes yet? That&apos;s okay — we&apos;re building more each week.
-              </p>
-              <p className="text-muted-foreground">
-                Want to request a topic? <Link href="/contact" className="text-primary hover:text-primary/80 underline font-medium">Send us a message</Link>.
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* View Toggle */}
-        <div className="flex justify-between items-center mb-6">
-          <div></div>
-          <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                viewMode === 'grid'
-                  ? 'bg-white text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Grid
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                viewMode === 'list'
-                  ? 'bg-white text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              List
-            </button>
+            
+            {/* Quick Stats - Mobile Optimized */}
+            <div className="grid grid-cols-3 md:grid-cols-3 gap-3 md:gap-6 max-w-sm md:max-w-2xl mx-auto mb-6 md:mb-8">
+              <Card variant="glass" className="p-3 md:p-4">
+                <div className="text-lg md:text-2xl font-bold text-primary">{totalQuizzes}</div>
+                <div className="text-xs md:text-sm text-gray-600">Available Quizzes</div>
+              </Card>
+              <Card variant="glass" className="p-3 md:p-4">
+                <div className="text-lg md:text-2xl font-bold text-primary">{categories.length}</div>
+                <div className="text-xs md:text-sm text-gray-600">Categories</div>
+              </Card>
+              <Card variant="glass" className="p-3 md:p-4">
+                <div className="text-lg md:text-2xl font-bold text-primary">Free</div>
+                <div className="text-xs md:text-sm text-gray-600">Practice Tests</div>
+              </Card>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Quizzes Display */}
-        {viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {isLoading && currentPage !== 1 ? (
-              // Enhanced loading skeleton cards for pagination
-              Array.from({ length: 8 }).map((_, index) => (
-                <Card key={index} variant="elevated" className="overflow-hidden group">
-                  <div className="h-40 bg-muted animate-pulse relative">
+      {/* Filters Section - Mobile First */}
+      <section className="py-4 md:py-6 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-40 shadow-sm">
+        <div className="container mx-auto px-2 sm:px-4">
+          {/* Mobile-first search and filter toggle */}
+          <div className="space-y-4">
+            {/* Search Bar - Full width on mobile */}
+            <div className="w-full">
+              <TextInput
+                placeholder="Search quizzes..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="w-full text-base md:text-sm"
+              />
+            </div>
+
+            {/* Filter Controls Row */}
+            <div className="flex items-center justify-between gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                className="gap-2 text-sm"
+              >
+                <Filter className="w-4 h-4" />
+                <span className="hidden sm:inline">Filters</span>
+                {hasActiveFilters && (
+                  <Badge variant="secondary" className="ml-1 px-1.5 py-0.5 text-xs">
+                    {[searchTerm, selectedCategory, selectedDifficulty].filter(Boolean).length}
+                  </Badge>
+                )}
+              </Button>
+
+              <div className="flex items-center gap-2">
+                {/* Refresh Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="gap-2 text-sm"
+                >
+                  <RefreshCcw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+                  <span className="hidden sm:inline">{isFetching ? 'Refreshing...' : 'Refresh'}</span>
+                </Button>
+
+                {hasActiveFilters && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearFilters}
+                    className="text-gray-600 hover:text-gray-900 text-sm"
+                  >
+                    <span className="hidden sm:inline">Clear</span>
+                    <span className="sm:hidden">✕</span>
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Advanced Filters - Mobile Optimized */}
+            {showAdvancedFilters && (
+              <div className="pt-4 border-t space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Category
+                    </label>
+                    <SelectInput
+                      value={selectedCategory || 'all'}
+                      onChange={handleCategoryChange}
+                      options={[
+                        { value: 'all', label: 'All Categories' },
+                        ...categories.map(cat => ({ value: cat, label: cat }))
+                      ]}
+                      placeholder="All Categories"
+                      className="w-full"
+                    />
                   </div>
-                  <CardContent className="p-4 space-y-3">
-                    <div className="flex gap-2">
-                      <div className="h-5 w-16 bg-muted animate-pulse rounded-full"></div>
-                      <div className="h-5 w-20 bg-muted animate-pulse rounded-full"></div>
-                    </div>
-                    <div className="h-6 bg-muted animate-pulse rounded-lg"></div>
-                    <div className="h-4 bg-muted animate-pulse rounded w-3/4"></div>
-                    <div className="flex justify-between items-center pt-2">
-                      <div className="h-6 w-16 bg-muted animate-pulse rounded"></div>
-                      <div className="h-8 w-20 bg-muted animate-pulse rounded-lg"></div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : quizzes.length > 0 ? (
-              quizzes.map((quiz) => (
-                <EnhancedQuizCard 
-                  key={quiz.id}
-                  quiz={{
-                    id: quiz.id,
-                    title: quiz.title,
-                    description: quiz.description,
-                    category: quiz.category,
-                    difficulty: quiz.difficulty,
-                    total_questions: quiz.total_questions,
-                    duration_minutes: quiz.duration_minutes,
-                    image_url: quiz.image_url,
-                    is_published: true,
-                    created_at: quiz.created_at || new Date().toISOString()
-                  }}
-                />
-              ))
-            ) : (
-              // Enhanced Empty State
-              <div className="col-span-full text-center py-12">
-                <Card variant="elevated" className="max-w-md mx-auto border-border shadow-sm bg-background">
-                  <CardContent className="p-8">
-                    <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <Brain className="text-white h-8 w-8" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-foreground mb-4">No quizzes found</h3>
-                    <p className="text-muted-foreground mb-6">
-                      We don&apos;t have any quizzes matching your current filters yet.
-                    </p>
-                    <Button
-                      onClick={() => {
-                        setSelectedCategory('all')
-                        setSelectedDifficulty('all')
-                      }}
-                      className="bg-primary hover:bg-secondary text-white hover:text-black"
-                    >
-                      <Filter className="h-4 w-4 mr-2" />
-                      Clear Filters
-                    </Button>
-                  </CardContent>
-                </Card>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Difficulty
+                    </label>
+                    <SelectInput
+                      value={selectedDifficulty || 'all'}
+                      onChange={handleDifficultyChange}
+                      options={[
+                        { value: 'all', label: 'All Difficulties' },
+                        ...quizDifficulties.map(diff => ({ 
+                          value: diff, 
+                          label: diff.charAt(0).toUpperCase() + diff.slice(1) 
+                        }))
+                      ]}
+                      placeholder="All Difficulties"
+                      className="w-full"
+                    />
+                  </div>
+                </div>
               </div>
             )}
+
+            {/* Results Count and Status - Mobile Friendly */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <span>
+                  {quizzes.length} of {totalQuizzes} quizzes
+                  {hasActiveFilters && ' (filtered)'}
+                </span>
+                {isStale && (
+                  <Badge variant="outline" className="text-xs">
+                    Stale
+                  </Badge>
+                )}
+              </div>
+              {isFetching && (
+                <div className="flex items-center gap-2 text-primary">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Updating...</span>
+                </div>
+              )}
+            </div>
           </div>
-        ) : (
-          /* List View */
-          <div className="space-y-3">
-            {isLoading && currentPage !== 1 ? (
-              // Loading skeletons for list view
-              Array.from({ length: 8 }).map((_, index) => (
-                <Card key={index} variant="elevated" className="p-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-20 h-16 bg-muted animate-pulse rounded-lg flex-shrink-0"></div>
-                    <div className="flex-1 space-y-2">
-                      <div className="h-5 bg-muted animate-pulse rounded w-1/3"></div>
-                      <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
-                      <div className="flex gap-4">
-                        <div className="h-4 w-16 bg-muted animate-pulse rounded"></div>
-                        <div className="h-4 w-20 bg-muted animate-pulse rounded"></div>
-                        <div className="h-4 w-24 bg-muted animate-pulse rounded"></div>
-                      </div>
+        </div>
+      </section>
+
+      {/* Content Section - Mobile First */}
+      <section className="py-6 md:py-12">
+        <div className="container mx-auto px-2 sm:px-4">
+          {/* Loading State - Wider Cards on Mobile */}
+          {isLoading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i} className="p-4 md:p-6">
+                  <div className="animate-pulse">
+                    <div className="h-3 md:h-4 bg-gray-200 rounded w-3/4 mb-3 md:mb-4"></div>
+                    <div className="h-2 md:h-3 bg-gray-200 rounded w-full mb-2"></div>
+                    <div className="h-2 md:h-3 bg-gray-200 rounded w-2/3 mb-3 md:mb-4"></div>
+                    <div className="flex gap-2 mb-3 md:mb-4">
+                      <div className="h-5 md:h-6 bg-gray-200 rounded w-12 md:w-16"></div>
+                      <div className="h-5 md:h-6 bg-gray-200 rounded w-16 md:w-20"></div>
                     </div>
-                    <div className="h-8 w-24 bg-muted animate-pulse rounded-lg"></div>
+                    <div className="h-8 md:h-10 bg-gray-200 rounded w-full"></div>
                   </div>
                 </Card>
-              ))
-            ) : quizzes.length > 0 ? (
-              quizzes.map((quiz) => (
-                <QuizListCard 
-                  key={quiz.id}
-                  quiz={{
-                    id: quiz.id,
-                    title: quiz.title,
-                    description: quiz.description,
-                    category: quiz.category,
-                    difficulty: quiz.difficulty,
-                    total_questions: quiz.total_questions,
-                    duration_minutes: quiz.duration_minutes,
-                    image_url: quiz.image_url,
-                    is_published: true,
-                    created_at: quiz.created_at || new Date().toISOString()
-                  }}
-                />
-              ))
-            ) : (
-              // Enhanced Empty State for List View
-              <Card variant="elevated" className="p-8 text-center">
-                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <Brain className="text-white h-8 w-8" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-4">No quizzes found</h3>
-                <p className="text-muted-foreground mb-6">
-                  We don&apos;t have any quizzes matching your current filters yet.
-                </p>
-                <Button
-                  onClick={() => {
-                    setSelectedCategory('all')
-                    setSelectedDifficulty('all')
-                  }}
-                  className="bg-primary hover:bg-secondary text-white hover:text-black"
-                >
-                  <Filter className="h-4 w-4 mr-2" />
-                  Clear Filters
-                </Button>
-              </Card>
-            )}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
 
-        {/* Pagination */}
-        {pagination.totalPages > 1 && (
-          <div className="flex justify-center mt-8">
-            <Card variant="elevated">
-              <CardContent className="p-4">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={pagination.totalPages}
-                  totalItems={pagination.total}
-                  itemsPerPage={pagination.limit}
-                  onPageChange={handlePageChange}
-                />
-              </CardContent>
+          {/* Error State - Mobile Optimized */}
+          {error && !isLoading && (
+            <Card className="p-6 md:p-8 text-center mx-4 md:mx-auto max-w-md">
+              <div className="text-red-500">
+                <Brain className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-3 md:mb-4 opacity-50" />
+                <h3 className="text-base md:text-lg font-semibold mb-2">Failed to Load Quizzes</h3>
+                <p className="text-sm md:text-base text-gray-600 mb-4 leading-relaxed">
+                  {error instanceof Error ? error.message : 'Something went wrong while loading the quizzes.'}
+                </p>
+                <Button onClick={() => refetch()} className="gap-2 w-full md:w-auto">
+                  <RefreshCcw className="w-4 h-4" />
+                  Try Again
+                </Button>
+              </div>
             </Card>
-          </div>
-        )}
+          )}
+
+          {/* Empty State - Mobile Optimized */}
+          {!isLoading && !error && quizzes.length === 0 && (
+            <Card className="p-6 md:p-8 text-center mx-4 md:mx-auto max-w-md">
+              <Brain className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-3 md:mb-4 text-gray-400" />
+              <h3 className="text-base md:text-lg font-semibold mb-2">No Quizzes Found</h3>
+              <p className="text-sm md:text-base text-gray-600 mb-4 leading-relaxed">
+                {hasActiveFilters 
+                  ? "No quizzes match your current filters. Try adjusting your search criteria."
+                  : "There are no published quizzes available at the moment."
+                }
+              </p>
+              {hasActiveFilters && (
+                <Button variant="outline" onClick={clearFilters} className="w-full md:w-auto">
+                  Clear All Filters
+                </Button>
+              )}
+            </Card>
+          )}
+
+          {/* Quiz Grid - Wider Cards on Mobile */}
+          {!isLoading && !error && quizzes.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-6">
+              {quizzes.map((quiz) => (
+                <QuizListCard
+                  key={quiz.id}
+                  quiz={quiz}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Pagination - Mobile Friendly */}
+          {!isLoading && !error && totalPages > 1 && (
+            <div className="mt-8 md:mt-12 px-4">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={totalQuizzes}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+                isLoading={isFetching}
+              />
+            </div>
+          )}
         </div>
-      </div>
+      </section>
     </div>
   )
 }

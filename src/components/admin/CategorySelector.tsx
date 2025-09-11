@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
+import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle, memo } from 'react'
 import { ChevronDown, Plus, Settings } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
@@ -29,7 +29,7 @@ export interface CategorySelectorRef {
   refreshCategories: () => void
 }
 
-export const CategorySelector = forwardRef<CategorySelectorRef, CategorySelectorProps>(({ 
+export const CategorySelector = memo(forwardRef<CategorySelectorRef, CategorySelectorProps>(({ 
   value, 
   onChange, 
   type = 'general', 
@@ -40,11 +40,14 @@ export const CategorySelector = forwardRef<CategorySelectorRef, CategorySelector
   const [categories, setCategories] = useState<Category[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true)
+      setError(null)
+      
       const { data, error } = await supabase
         .from('categories')
         .select('*')
@@ -55,11 +58,13 @@ export const CategorySelector = forwardRef<CategorySelectorRef, CategorySelector
       if (error) throw error
       setCategories(data || [])
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load categories'
       logger.error('Error fetching categories:', err)
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
-  }, [type])
+  }, [type]) // Only depend on type, not on other props
 
   useEffect(() => {
     fetchCategories()
@@ -106,7 +111,16 @@ export const CategorySelector = forwardRef<CategorySelectorRef, CategorySelector
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-input rounded-lg shadow-xl z-50 py-2 max-h-64 overflow-y-auto">
+        <div 
+          className="absolute top-full left-0 right-0 mt-2 bg-background border border-input rounded-lg shadow-xl py-2 max-h-64 overflow-y-auto"
+          style={{
+            zIndex: 9999, // Very high z-index to escape modal constraints
+            position: 'fixed', // Use fixed positioning to escape overflow constraints
+            left: dropdownRef.current?.getBoundingClientRect()?.left || 0,
+            top: (dropdownRef.current?.getBoundingClientRect()?.bottom || 0) + 8,
+            width: dropdownRef.current?.getBoundingClientRect()?.width || 'auto'
+          }}
+        >
           {/* Header with manage button */}
           {onManageCategories && (
             <div className="px-4 py-2 border-b border-border flex justify-between items-center">
@@ -127,7 +141,21 @@ export const CategorySelector = forwardRef<CategorySelectorRef, CategorySelector
 
           {/* Category options */}
           {loading ? (
-            <div className="px-4 py-3 text-sm text-muted-foreground">Loading categories...</div>
+            <div className="px-4 py-3 text-sm text-muted-foreground flex items-center gap-2">
+              <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
+              Loading categories...
+            </div>
+          ) : error ? (
+            <div className="px-4 py-3">
+              <div className="text-sm text-destructive mb-2">Failed to load categories</div>
+              <button
+                type="button"
+                onClick={() => fetchCategories()}
+                className="text-sm text-primary hover:text-primary/80 font-medium"
+              >
+                Try again
+              </button>
+            </div>
           ) : categories.length === 0 ? (
             <div className="px-4 py-3">
               <div className="text-sm text-muted-foreground mb-2">No categories found</div>
@@ -180,7 +208,7 @@ export const CategorySelector = forwardRef<CategorySelectorRef, CategorySelector
       )}
     </div>
   )
-})
+}))
 
 // Add display name for debugging
 CategorySelector.displayName = 'CategorySelector'

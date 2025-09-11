@@ -121,6 +121,17 @@ export interface QuizQuestion {
   image_url?: string | null
   audio_url?: string | null
   video_url?: string | null
+  
+  // Database fields (matching actual schema)
+  randomize_options?: boolean
+  partial_credit?: boolean
+  feedback_correct?: string | null
+  feedback_incorrect?: string | null
+  hint?: string | null
+  time_limit_seconds?: number | null
+  weight?: number
+  auto_grade?: boolean
+  question_metadata?: any
 }
 
 export interface Question {

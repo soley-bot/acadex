@@ -55,6 +55,7 @@ export function EnhancedAIStep({
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<QuestionType[]>(['multiple_choice', 'true_false'])
   const [language, setLanguage] = useState(aiConfig.language || 'english')
   const [explanationLanguage, setExplanationLanguage] = useState(aiConfig.language || 'english')
+  const [customPrompt, setCustomPrompt] = useState(aiConfig.customPrompt || '')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -81,7 +82,8 @@ export function EnhancedAIStep({
           difficulty,
           questionTypes: selectedQuestionTypes,
           language,
-          explanationLanguage
+          explanationLanguage,
+          customPrompt: customPrompt.trim() || undefined // Only send if not empty
         })
       })
 
@@ -136,6 +138,26 @@ export function EnhancedAIStep({
               placeholder="e.g., English Grammar, Business Writing, Vocabulary..."
               className="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-background"
             />
+          </div>
+
+          {/* Custom Prompt Override */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
+              Custom Prompt (Optional)
+            </label>
+            <div className="space-y-1">
+              <textarea
+                value={customPrompt}
+                onChange={(e) => setCustomPrompt(e.target.value)}
+                placeholder="Override the automatic prompt with your custom instructions for AI generation..."
+                rows={4}
+                className="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-background resize-vertical"
+              />
+              <p className="text-xs text-muted-foreground">
+                If provided, this will override the automatic prompt generation based on your settings above. 
+                Leave empty to use the standard AI configuration.
+              </p>
+            </div>
           </div>
 
           {/* Subject Category */}

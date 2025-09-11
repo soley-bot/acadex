@@ -4,6 +4,7 @@ import { useQuizBuilderState, QuizBuilderState } from '@/contexts/QuizBuilderCon
 import { useQuizEditor, QuizWithQuestions } from '@/hooks/useQuizEditor'
 import { useQuizValidation, ValidationError } from '@/hooks/useQuizValidation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CategorySelector } from '@/components/admin/CategorySelector'
 import { QuizQuestion } from '@/lib/supabase'
 import { NewQuestionModal } from '../NewQuestionModal'
 
@@ -146,12 +147,12 @@ export const QuizEditorStep: React.FC<QuizEditorStepProps> = ({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Category
               </label>
-              <input
-                type="text"
+              <CategorySelector
                 value={quiz.category || ''}
-                onChange={(e) => updateQuiz({ category: e.target.value })}
-                placeholder="e.g., English Grammar"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                onChange={(value) => updateQuiz({ category: value })}
+                type="general"
+                placeholder="Select quiz category..."
+                className="w-full"
               />
             </div>
 

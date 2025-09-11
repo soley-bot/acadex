@@ -1,6 +1,6 @@
 'use client'
 
-import React, { memo, useCallback } from 'react'
+import React, { memo, useCallback, useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CheckCircle, XCircle, Circle } from 'lucide-react'
@@ -17,10 +17,16 @@ export const MultipleChoiceRenderer = memo<MultipleChoiceRendererProps>(({
   showCorrectAnswer,
   isReview
 }) => {
+  // Map database fields to expected names for backward compatibility
+  // Note: In this quiz system, "multiple_choice" is actually single choice
+  // partial_credit is used for partial scoring, not multiple selection
+  const allowMultiple = false  // Always false since "multiple_choice" is actually single choice
+  const shuffleOptions = question.randomize_options ?? true
+  
   const handleOptionSelect = useCallback((optionIndex: number) => {
     if (isSubmitted && !isReview) return
 
-    if (question.allow_multiple) {
+    if (allowMultiple) {
       // Multiple selection mode
       const currentAnswers = Array.isArray(userAnswer) ? userAnswer : []
       const newAnswers = currentAnswers.includes(optionIndex)
@@ -31,14 +37,14 @@ export const MultipleChoiceRenderer = memo<MultipleChoiceRendererProps>(({
       // Single selection mode
       onAnswerChange(optionIndex)
     }
-  }, [question.allow_multiple, userAnswer, onAnswerChange, isSubmitted, isReview])
+  }, [allowMultiple, userAnswer, onAnswerChange, isSubmitted, isReview])
 
   const isOptionSelected = useCallback((optionIndex: number) => {
-    if (question.allow_multiple) {
+    if (allowMultiple) {
       return Array.isArray(userAnswer) && userAnswer.includes(optionIndex)
     }
     return userAnswer === optionIndex
-  }, [question.allow_multiple, userAnswer])
+  }, [allowMultiple, userAnswer])
 
   const getOptionStatus = useCallback((optionIndex: number) => {
     if (!showCorrectAnswer) return 'default'
@@ -86,16 +92,21 @@ export const MultipleChoiceRenderer = memo<MultipleChoiceRendererProps>(({
     }
   }
 
-  const shuffledOptions = React.useMemo(() => {
-    if (!question.shuffle_options) {
-      return question.options.map((option, index) => ({ option, index }))
+  const [shuffledOptions, setShuffledOptions] = useState<Array<{ option: string; index: number }>>([])
+
+  // Initialize and shuffle options
+  useEffect(() => {
+    if (!shuffleOptions) {
+      const optionsWithIndex = question.options.map((option, index) => ({ option, index }))
+      setShuffledOptions(optionsWithIndex)
+      return
     }
     
     // For demonstration - in real implementation, use a seeded random function
     // based on user ID + question ID to ensure consistent shuffling
     const optionsWithIndex = question.options.map((option, index) => ({ option, index }))
-    return optionsWithIndex.sort(() => Math.random() - 0.5)
-  }, [question.options, question.shuffle_options])
+    setShuffledOptions(optionsWithIndex.sort(() => Math.random() - 0.5))
+  }, [question.options, shuffleOptions])
 
   return (
     <Card className="w-full">
@@ -122,7 +133,7 @@ export const MultipleChoiceRenderer = memo<MultipleChoiceRendererProps>(({
 
         {/* Instructions */}
         <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-          {question.allow_multiple 
+          {allowMultiple 
             ? "Select all correct answers:" 
             : "Select the best answer:"
           }

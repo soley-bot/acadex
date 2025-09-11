@@ -100,61 +100,63 @@ export function QuizListCard({ quiz, showProgress = true }: QuizListCardProps) {
   }
 
   return (
-    <Card variant="elevated" className="hover:shadow-md transition-all duration-200">
-      <CardContent className="p-4">
-        <div className="flex items-center gap-4">
-          {/* Quiz Image - Compact */}
-          <div className="relative w-20 h-16 bg-muted rounded-lg overflow-hidden flex-shrink-0">
-            {(() => {
-              const quizImage = getQuizImage(quiz)
-              return quiz.image_url ? (
-                <Image
-                  src={quiz.image_url}
-                  alt={quiz.title}
-                  fill
-                  className="object-cover"
-                  sizes="80px"
-                />
-              ) : (
-                <Image
-                  src={quizImage.src}
-                  alt={quizImage.alt}
-                  fill
-                  className="object-cover"
-                  sizes="80px"
-                />
-              )
-            })()}
+    <Card variant="elevated" className="hover:shadow-md transition-all duration-200 h-full overflow-hidden">
+      <div className="h-full flex flex-col">
+        {/* Quiz Image - Top Position for All Screens */}
+        <div className="relative w-full h-40 sm:h-48 bg-muted overflow-hidden">
+          {(() => {
+            const quizImage = getQuizImage(quiz)
+            return quiz.image_url ? (
+              <Image
+                src={quiz.image_url}
+                alt={quiz.title}
+                fill
+                className="object-cover transition-transform duration-300 hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            ) : (
+              <Image
+                src={quizImage.src}
+                alt={quizImage.alt}
+                fill
+                className="object-cover transition-transform duration-300 hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            )
+          })()}
+        </div>
+
+        {/* Card Content - Below Image */}
+        <CardContent className="p-4 flex-1 flex flex-col">
+          {/* Title and Status Row */}
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <h3 className="font-semibold text-foreground text-lg sm:text-xl line-clamp-2 leading-tight flex-1">
+              {quiz.title}
+            </h3>
+            {showProgress && user && attempted && (
+              <div className="flex-shrink-0">
+                {lastAttempt?.completed_at ? (
+                  <span className="px-2 py-1 bg-success text-white text-xs font-semibold rounded-md flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3" />
+                    Done
+                  </span>
+                ) : (
+                  <span className="px-2 py-1 bg-warning text-black text-xs font-semibold rounded-md">
+                    In Progress
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Quiz Content - Flexible */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-3 mb-2">
-              <h3 className="font-semibold text-foreground text-lg line-clamp-1">
-                {quiz.title}
-              </h3>
-              {showProgress && user && attempted && (
-                <div>
-                  {lastAttempt?.completed_at ? (
-                    <span className="px-2 py-1 bg-success text-white text-xs font-semibold rounded-md flex items-center gap-1">
-                      <CheckCircle className="w-3 h-3" />
-                      Done
-                    </span>
-                  ) : (
-                    <span className="px-2 py-1 bg-warning text-black text-xs font-semibold rounded-md">
-                      In Progress
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
+          {/* Description */}
+          <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 mb-3 flex-1">
+            {quiz.description}
+          </p>
 
-            <p className="text-muted-foreground text-sm mb-3 line-clamp-1">
-              {quiz.description}
-            </p>
-
-            {/* Quiz Meta - Horizontal Layout */}
-            <div className="flex items-center gap-6 text-sm text-muted-foreground mb-3">
+          {/* Quiz Meta - Stack on Mobile */}
+          <div className="mb-3">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
               <div className="flex items-center gap-1">
                 <Brain className="w-4 h-4" />
                 <span>{quiz.total_questions}q</span>
@@ -166,38 +168,38 @@ export function QuizListCard({ quiz, showProgress = true }: QuizListCardProps) {
               <span className={`px-2 py-1 text-xs font-semibold rounded-md border ${getDifficultyColor(quiz.difficulty)}`}>
                 {quiz.difficulty}
               </span>
-              <span className="text-xs px-2 py-1 bg-muted rounded-md">
+            </div>
+            <div>
+              <span className="text-xs px-2 py-1 bg-muted/50 rounded-md">
                 {quiz.category}
               </span>
             </div>
-
-            {/* Score Display for Completed Quizzes */}
-            {showProgress && user && getScoreDisplay() && (
-              <div className="mb-2">
-                {getScoreDisplay()}
-              </div>
-            )}
           </div>
 
-          {/* Action Button - Fixed Width */}
-          <div className="flex-shrink-0">
-            <Button
-              onClick={handleQuickStart}
-              disabled={actionLoading}
-              className="bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2 text-sm"
-            >
-              <span className="flex items-center gap-1">
-                {actionLoading ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <Play className="w-4 h-4" />
-                )}
-                {getActionButtonText()}
-              </span>
-            </Button>
-          </div>
-        </div>
-      </CardContent>
+          {/* Score Display for Completed Quizzes */}
+          {showProgress && user && getScoreDisplay() && (
+            <div className="mb-3">
+              {getScoreDisplay()}
+            </div>
+          )}
+
+          {/* Action Button - Bottom */}
+          <Button
+            onClick={handleQuickStart}
+            disabled={actionLoading}
+            className="w-full bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2.5 text-sm font-medium mt-auto"
+          >
+            <span className="flex items-center justify-center gap-2">
+              {actionLoading ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+              {getActionButtonText()}
+            </span>
+          </Button>
+        </CardContent>
+      </div>
     </Card>
   )
 }

@@ -10,6 +10,7 @@ export interface SimpleQuizRequest {
   questionTypes?: QuestionType[]
   language?: string
   explanationLanguage?: string
+  customPrompt?: string // Optional custom prompt to override default generation
 }
 
 // Enhanced question types matching QuizForm exactly
@@ -194,6 +195,13 @@ Remember to format answers correctly:
   }
 
   private buildSimplePrompt(request: SimpleQuizRequest): string {
+    // If custom prompt is provided, use it instead of the generated one
+    if (request.customPrompt && request.customPrompt.trim()) {
+      logger.info('Using custom prompt override instead of generated prompt')
+      return request.customPrompt.trim()
+    }
+
+    // Otherwise, build the standard prompt
     const questionTypes = request.questionTypes || ['multiple_choice', 'true_false', 'fill_blank']
     
     // Helper function to get explanation in the correct language

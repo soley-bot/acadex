@@ -52,16 +52,37 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
   const fetchCategories = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/admin/categories')
+      
+      // Get the current session to include Authorization header
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      // Prepare headers
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json'
+      }
+      
+      // Add Authorization header if we have a session
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`
+      }
+      
+      const response = await fetch('/api/admin/categories', {
+        method: 'GET',
+        credentials: 'include', // Include cookies as fallback
+        headers
+      })
       
       if (!response.ok) {
-        throw new Error('Failed to fetch categories')
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`)
       }
       
       const data = await response.json()
       setCategories(data.categories || [])
-    } catch (err) {
-      logger.error('Error fetching categories:', err)
+    } catch (err: any) {
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      logger.error('Error fetching categories:', errorMessage)
+      console.error('Category fetch error:', errorMessage)
     } finally {
       setLoading(false)
     }
@@ -77,35 +98,45 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
     e.preventDefault()
     
     try {
+      // Get the current session to include Authorization header
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      // Prepare headers
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json'
+      }
+      
+      // Add Authorization header if we have a session
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`
+      }
+      
+      let response: Response
+      
       if (editingCategory) {
         // Update existing category
-        const response = await fetch('/api/admin/categories', {
+        response = await fetch('/api/admin/categories', {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          credentials: 'include', // Include cookies as fallback
+          headers,
           body: JSON.stringify({
             id: editingCategory.id,
             ...formData
           })
         })
-
-        if (!response.ok) {
-          throw new Error('Failed to update category')
-        }
       } else {
         // Create new category
-        const response = await fetch('/api/admin/categories', {
+        response = await fetch('/api/admin/categories', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          credentials: 'include', // Include cookies as fallback
+          headers,
           body: JSON.stringify(formData)
         })
+      }
 
-        if (!response.ok) {
-          throw new Error('Failed to create category')
-        }
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`)
       }
 
       await fetchCategories()
@@ -122,8 +153,11 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
       if (onCategoryCreated) {
         onCategoryCreated()
       }
-    } catch (err) {
-      logger.error('Error saving category:', err)
+    } catch (err: any) {
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      logger.error('Error saving category:', errorMessage)
+      // TODO: Add user-facing error notification
+      console.error('Category save error:', errorMessage)
     }
   }
 
@@ -161,16 +195,16 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="surface-primary rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-subtle">
-        <div className="bg-gradient-to-r from-secondary to-secondary/90 p-6 text-current">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-gray-200">
+        <div className="bg-primary p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold">Category Management</h2>
-              <p className="text-purple-100">Create and manage categories for quizzes and courses</p>
+              <p className="text-white/80">Create and manage categories for quizzes and courses</p>
             </div>
             <button
               onClick={onClose}
-              className="text-purple-200 hover:text-white transition-colors p-2"
+              className="text-white/80 hover:text-white transition-colors p-2"
             >
               <X size={24} />
             </button>
@@ -195,7 +229,7 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
                 })
                 setShowForm(true)
               }}
-              className="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
             >
               <Plus size={16} />
               Add Category
@@ -204,9 +238,9 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
 
           {/* Category Form */}
           {showForm && (
-            <Card className="mb-6 border-purple-200">
-              <CardHeader className="bg-purple-50">
-                <CardTitle className="text-lg text-purple-900">
+            <Card className="mb-6 border-primary/20">
+              <CardHeader className="bg-primary/5">
+                <CardTitle className="text-lg text-gray-900">
                   {editingCategory ? 'Edit Category' : 'Create New Category'}
                 </CardTitle>
               </CardHeader>
@@ -285,7 +319,7 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
                       <select
                         value={formData.icon}
                         onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                       >
                         {iconOptions.map(icon => (
                           <option key={icon} value={icon}>
@@ -299,7 +333,7 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
                   <div className="flex gap-3 pt-4">
                     <button
                       type="submit"
-                      className="bg-primary text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                      className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
                     >
                       <Save size={16} />
                       {editingCategory ? 'Update' : 'Create'} Category
@@ -341,13 +375,13 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
                     <div className="flex gap-1">
                       <button
                         onClick={() => handleEdit(category)}
-                        className="text-gray-400 hover:text-purple-600 p-1 transition-colors"
+                        className="text-gray-400 hover:text-primary p-1 transition-colors"
                       >
                         <Edit size={14} />
                       </button>
                       <button
                         onClick={() => handleDelete(category.id)}
-                        className="text-gray-400 hover:text-primary p-1 transition-colors"
+                        className="text-gray-400 hover:text-destructive p-1 transition-colors"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -363,8 +397,8 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
 
           {categories.filter(c => c.is_active).length === 0 && !loading && (
             <div className="text-center py-12">
-              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Palette className="h-8 w-8 text-purple-600" />
+              <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Palette className="h-8 w-8 text-primary" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No categories yet</h3>
               <p className="text-gray-600 mb-4">Create your first category to organize your content</p>

@@ -70,7 +70,7 @@ export const MultipleChoiceEditor = memo<MultipleChoiceEditorProps>(({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         {/* Question Text */}
         <div className="space-y-2">
           <label className="text-sm font-medium">Question</label>
@@ -149,18 +149,18 @@ export const MultipleChoiceEditor = memo<MultipleChoiceEditorProps>(({
         {/* Settings */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium">Allow Multiple Selections</label>
+            <label className="text-sm font-medium">Allow Partial Credit</label>
             <Switch
-              checked={question.allow_multiple}
-              onCheckedChange={(checked) => updateQuestion('allow_multiple', checked)}
+              checked={question.partial_credit}
+              onCheckedChange={(checked) => updateQuestion('partial_credit', checked)}
             />
           </div>
 
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium">Shuffle Options</label>
+            <label className="text-sm font-medium">Randomize Options</label>
             <Switch
-              checked={question.shuffle_options}
-              onCheckedChange={(checked) => updateQuestion('shuffle_options', checked)}
+              checked={question.randomize_options}
+              onCheckedChange={(checked) => updateQuestion('randomize_options', checked)}
             />
           </div>
         </div>

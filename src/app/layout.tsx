@@ -4,6 +4,7 @@ import { GeistMono } from 'geist/font/mono'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { QueryProvider } from '@/providers/QueryProvider'
 import { ConditionalLayout } from '@/components/ConditionalLayout'
 
 const inter = Inter({ 
@@ -84,11 +85,13 @@ html {
         `}</style>
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <AuthProvider>
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
-        </AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   )

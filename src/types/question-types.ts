@@ -18,8 +18,15 @@ export interface MultipleChoiceData extends BaseQuestionData {
   question_type: 'multiple_choice'
   options: string[]
   correct_answer: number
-  allow_multiple: boolean
-  shuffle_options: boolean
+  randomize_options: boolean    // ✅ Matches DB field
+  partial_credit: boolean       // ✅ Matches DB field (logical for allow_multiple)
+  
+  // Rich features from database
+  feedback_correct?: string | null
+  feedback_incorrect?: string | null
+  hint?: string | null
+  time_limit_seconds?: number | null
+  weight?: number
 }
 
 // Single Choice specific data  
@@ -27,7 +34,12 @@ export interface SingleChoiceData extends BaseQuestionData {
   question_type: 'single_choice'
   options: string[]
   correct_answer: number
-  shuffle_options: boolean
+  randomize_options: boolean    // ✅ Matches DB field
+  
+  // Rich features from database
+  feedback_correct?: string | null
+  feedback_incorrect?: string | null
+  hint?: string | null
 }
 
 // True/False specific data
@@ -60,7 +72,7 @@ export interface MatchingData extends BaseQuestionData {
   left_column: MatchingItem[]
   right_column: MatchingItem[]
   correct_pairs: MatchingPair[]
-  shuffle_options: boolean
+  randomize_options: boolean    // ✅ Matches DB field
 }
 
 // Ordering specific data

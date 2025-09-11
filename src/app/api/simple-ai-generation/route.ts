@@ -23,7 +23,8 @@ export async function POST(request: NextRequest) {
       difficulty: body.difficulty || 'intermediate',
       questionTypes: body.questionTypes || ['multiple_choice', 'true_false'],
       language: body.language || 'english',
-      explanationLanguage: body.explanationLanguage || 'english'
+      explanationLanguage: body.explanationLanguage || 'english',
+      customPrompt: body.customPrompt // Pass the custom prompt if provided
     })
 
     return NextResponse.json(result)

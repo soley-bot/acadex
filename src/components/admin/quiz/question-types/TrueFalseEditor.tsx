@@ -42,7 +42,7 @@ export const TrueFalseEditor = memo<TrueFalseEditorProps>(({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         {/* Question Text */}
         <div className="space-y-2">
           <label className="text-sm font-medium">Statement</label>
