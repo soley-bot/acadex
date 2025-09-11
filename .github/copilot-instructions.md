@@ -5,6 +5,59 @@
 ## Project Overview
 This is a comprehensive Next.js application for English learning, quiz practice, and online course management, built with TypeScript and Tailwind CSS. The platform includes student-facing features and a complete admin panel for course/quiz management.
 
+## 🔐 CRITICAL SECURITY PROTOCOLS
+
+### Pre-Commit Security Checklist
+**MANDATORY**: Before any git commit or push operations, ALWAYS verify:
+
+1. **🔍 Scan for Hardcoded Secrets**
+   - Use automated secret scanning tools before commits
+   - Review all script files and configuration changes
+   - Check for any hardcoded API keys or tokens
+
+2. **🚨 Never Commit Sensitive Data**
+   - API keys, tokens, or service credentials
+   - Database connection strings with passwords
+   - OAuth secrets or private keys
+   - Any authentication credentials
+
+3. **✅ Environment Variable Usage**
+   ```typescript
+   // ✅ CORRECT: Use environment variables
+   const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY
+   
+   // ❌ NEVER: Hardcode secrets in source code
+   const serviceRole = "hardcoded-secret-here"
+   ```
+
+4. **🔒 File Patterns to Review**
+   - All `.js`, `.ts`, `.tsx` files in `/scripts/`
+   - Database migration files
+   - Configuration files
+   - Test files and debugging scripts
+
+5. **🛡️ Security Command Integration**
+   ```bash
+   # Add security scanning to workflow
+   npm run security:scan  # Custom security scanning
+   git secrets --scan     # If using git-secrets tool
+   ```
+
+### Security Incident Response
+If secrets are accidentally committed:
+1. **IMMEDIATE**: Stop all operations and assess exposure
+2. **PURGE**: Remove from git history using `git filter-branch`
+3. **ROTATE**: Generate new secrets in respective services
+4. **MONITOR**: Check access logs for unauthorized usage
+5. **DOCUMENT**: Record incident and prevention measures
+
+### Security Best Practices
+- **Environment Files**: Keep all secrets in `.env.local` (never commit)
+- **Script Safety**: Review all scripts before committing (especially debugging files)
+- **Access Monitoring**: Regular audit of API key usage
+- **Team Education**: Share security incidents as learning opportunities
+- **Automated Scanning**: Integrate secret scanning in CI/CD pipeline
+
 ## Architecture & Tech Stack
 - **Framework**: Next.js 15.4.4 with App Router
 - **Language**: TypeScript (strict mode)
@@ -679,8 +732,10 @@ p-6                        // Standard card padding
 
 ## Development Notes
 - Always run `npm run build` before committing changes
+- **🔐 SECURITY FIRST**: Before ANY commit/push, scan for hardcoded secrets using automated tools and manual review
 - **Development Server Restart**: After successful build validation, ALWAYS restart the development server to ensure changes are properly loaded: `pkill -f "npm run dev" && npm run dev`
 - **TypeScript Error Prevention**: When facing TypeScript errors, ALWAYS run `npx tsc --noEmit` first to identify all type issues before making fixes
+- **🚨 NEVER COMMIT**: Supabase service keys, API tokens, database credentials, or any hardcoded secrets - use environment variables only
 - Database schema changes require interface updates in `/src/lib/supabase.ts`
 - New components must include proper TypeScript interfaces
 - Form components require safety checks for array operations
