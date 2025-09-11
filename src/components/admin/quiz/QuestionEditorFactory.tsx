@@ -1,7 +1,7 @@
 'use client'
 
-import React, { Suspense } from 'react'
-import { Loader2 } from 'lucide-react'
+import React, { Suspense, useState } from 'react'
+import { Loader2, ChevronDown, ChevronRight, CheckCircle, AlertTriangle, Trash2 } from 'lucide-react'
 import { QuestionData, QuestionEditorProps, MultipleChoiceData } from '@/types/question-types'
 import type { QuizQuestion } from '@/lib/supabase'
 
@@ -27,8 +27,13 @@ function convertQuizQuestionToQuestionData(quizQuestion: QuizQuestion): Question
         question_type: 'multiple_choice',
         options: Array.isArray(quizQuestion.options) ? quizQuestion.options : [],
         correct_answer: quizQuestion.correct_answer,
-        allow_multiple: true,
-        shuffle_options: true,
+        randomize_options: quizQuestion.randomize_options ?? true,
+        partial_credit: quizQuestion.partial_credit ?? false,
+        feedback_correct: quizQuestion.feedback_correct,
+        feedback_incorrect: quizQuestion.feedback_incorrect,
+        hint: quizQuestion.hint,
+        time_limit_seconds: quizQuestion.time_limit_seconds,
+        weight: quizQuestion.weight,
       } as MultipleChoiceData
 
     case 'single_choice':
@@ -37,7 +42,10 @@ function convertQuizQuestionToQuestionData(quizQuestion: QuizQuestion): Question
         question_type: 'single_choice',
         options: Array.isArray(quizQuestion.options) ? quizQuestion.options : [],
         correct_answer: quizQuestion.correct_answer,
-        shuffle_options: true,
+        randomize_options: quizQuestion.randomize_options ?? true,
+        feedback_correct: quizQuestion.feedback_correct,
+        feedback_incorrect: quizQuestion.feedback_incorrect,
+        hint: quizQuestion.hint,
       }
 
     case 'true_false':
@@ -74,7 +82,7 @@ function convertQuizQuestionToQuestionData(quizQuestion: QuizQuestion): Question
         left_column: [],
         right_column: [],
         correct_pairs: [],
-        shuffle_options: true,
+        randomize_options: quizQuestion.randomize_options ?? true,
       }
 
     case 'ordering':
@@ -93,8 +101,8 @@ function convertQuizQuestionToQuestionData(quizQuestion: QuizQuestion): Question
         question_type: 'multiple_choice',
         options: [],
         correct_answer: 0,
-        allow_multiple: false,
-        shuffle_options: true,
+        randomize_options: true,
+        partial_credit: false,
       } as MultipleChoiceData
   }
 }
@@ -128,6 +136,13 @@ function convertQuestionDataToQuizQuestion(updates: any): Partial<QuizQuestion> 
     case 'single_choice':
       if (updates.options !== undefined) result.options = updates.options
       if (updates.correct_answer !== undefined) result.correct_answer = updates.correct_answer
+      if (updates.randomize_options !== undefined) result.randomize_options = updates.randomize_options
+      if (updates.partial_credit !== undefined) result.partial_credit = updates.partial_credit
+      if (updates.feedback_correct !== undefined) result.feedback_correct = updates.feedback_correct
+      if (updates.feedback_incorrect !== undefined) result.feedback_incorrect = updates.feedback_incorrect
+      if (updates.hint !== undefined) result.hint = updates.hint
+      if (updates.time_limit_seconds !== undefined) result.time_limit_seconds = updates.time_limit_seconds
+      if (updates.weight !== undefined) result.weight = updates.weight
       break
       
     case 'true_false':
@@ -199,7 +214,9 @@ const LoadingFallback = () => (
   </div>
 )
 
-export function QuestionEditorFactory({ question: rawQuestion, onChange, ...props }: QuestionEditorFactoryProps) {
+export function QuestionEditorFactory({ question: rawQuestion, onChange, onRemove, isValid, ...props }: QuestionEditorFactoryProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  
   // Convert QuizQuestion to QuestionData if needed
   const question = 'question_type' in rawQuestion && typeof rawQuestion.question_type === 'string' 
     ? convertQuizQuestionToQuestionData(rawQuestion as QuizQuestion)
@@ -222,8 +239,30 @@ export function QuestionEditorFactory({ question: rawQuestion, onChange, ...prop
     onChange(quizQuestionUpdates)
   }
 
+  const getQuestionTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      'multiple_choice': 'Multiple Choice',
+      'single_choice': 'Single Choice', 
+      'true_false': 'True/False',
+      'fill_blank': 'Fill in the Blank',
+      'essay': 'Essay Question',
+      'matching': 'Matching',
+      'ordering': 'Ordering'
+    }
+    return labels[type] || type
+  }
+
+  const getQuestionPreview = () => {
+    if (question.question?.trim()) {
+      return question.question.length > 60 
+        ? question.question.substring(0, 60) + '...'
+        : question.question
+    }
+    return 'No question text'
+  }
+
   const renderEditor = () => {
-    const editorProps = { ...props, errors, onChange: wrappedOnChange }
+    const editorProps = { ...props, errors, onChange: wrappedOnChange, isValid, onRemove }
     
     switch (question.question_type) {
       case 'multiple_choice':
@@ -260,8 +299,79 @@ export function QuestionEditorFactory({ question: rawQuestion, onChange, ...prop
   }
 
   return (
-    <Suspense fallback={<LoadingFallback />}>
-      {renderEditor()}
-    </Suspense>
+    <div className={`border rounded-lg bg-white shadow-sm ${isValid ? 'border-green-200' : 'border-red-200'}`}>
+      {/* Collapsible Header */}
+      <div className="flex items-center justify-between p-4 border-b cursor-pointer hover:bg-gray-50" onClick={() => setIsCollapsed(!isCollapsed)}>
+        <div className="flex items-center gap-3">
+          <button type="button" className="flex items-center justify-center">
+            {isCollapsed ? (
+              <ChevronRight className="h-4 w-4 text-gray-400" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-gray-400" />
+            )}
+          </button>
+          
+          <div className="flex items-center gap-2">
+            {isValid ? (
+              <CheckCircle className="h-4 w-4 text-green-500" />
+            ) : (
+              <AlertTriangle className="h-4 w-4 text-red-500" />
+            )}
+            <span className="text-sm font-medium text-gray-500">
+              {getQuestionTypeLabel(question.question_type)}
+            </span>
+          </div>
+          
+          <div className="text-sm text-gray-600">
+            {getQuestionPreview()}
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <div className={`text-xs px-2 py-1 rounded-full ${
+            isValid 
+              ? 'bg-green-100 text-green-700' 
+              : 'bg-red-100 text-red-700'
+          }`}>
+            {isValid ? 'Ready' : 'Incomplete'}
+          </div>
+          
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onRemove()
+            }}
+            className="p-1 hover:bg-red-50 rounded"
+          >
+            <Trash2 className="h-4 w-4 text-gray-400 hover:text-red-500" />
+          </button>
+        </div>
+      </div>
+      
+      {/* Question Editor Content */}
+      {!isCollapsed && (
+        <div className="p-4">
+          <Suspense fallback={<LoadingFallback />}>
+            {renderEditor()}
+          </Suspense>
+          
+          {/* Error Display */}
+          {!isValid && Object.keys(errors).length > 0 && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="h-4 w-4 text-red-500" />
+                <span className="text-sm font-medium text-red-700">Issues to fix:</span>
+              </div>
+              <ul className="text-sm text-red-600 space-y-1">
+                {Object.values(errors).map((error, index) => (
+                  <li key={index}>• {error}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   )
 }

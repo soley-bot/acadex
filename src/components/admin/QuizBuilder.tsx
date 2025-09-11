@@ -1,5 +1,5 @@
-import React, { memo, useCallback, useMemo, Suspense, lazy } from 'react'
-import { X, AlertTriangle, CheckCircle, Target } from 'lucide-react'
+import React, { memo, useCallback, useMemo, Suspense, lazy, useState } from 'react'
+import { X, AlertTriangle, CheckCircle, Target, Plus, ChevronDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
 import { usePerformanceMonitor } from '@/hooks/usePerformanceOptimization'
@@ -36,12 +36,6 @@ const LazyQuizPreviewStep = lazy(() =>
   }))
 )
 
-const LazyNewQuestionModal = lazy(() => 
-  import('./quiz-builder/NewQuestionModal').then(module => ({
-    default: module.NewQuestionModal
-  }))
-)
-
 interface QuizBuilderProps {
   quiz?: Quiz | null
   isOpen: boolean
@@ -66,7 +60,6 @@ interface QuizBuilderState {
   isGenerating: boolean
   isSaving: boolean
   isPublishing: boolean
-  showNewQuestionModal: boolean
 }
 
 // Initial state
@@ -84,38 +77,108 @@ const initialState: QuizBuilderState = {
   },
   isGenerating: false,
   isSaving: false,
-  isPublishing: false,
-  showNewQuestionModal: false
+  isPublishing: false
 }
 
-// Simple step indicator component
+// Simple question type dropdown - replaces modal
+const QuestionTypeDropdown = memo<{ 
+  onCreateQuestion: (type: string) => void 
+}>(({ onCreateQuestion }) => {
+  const [isOpen, setIsOpen] = useState(false)
+  
+  const questionTypes = [
+    { type: 'multiple_choice', label: 'Multiple Choice (Single Answer)', icon: '☑️' },
+    { type: 'true_false', label: 'True/False', icon: '✓' },
+    { type: 'fill_blank', label: 'Fill in the Blank', icon: '📝' },
+    { type: 'essay', label: 'Essay Question', icon: '📄' },
+    { type: 'matching', label: 'Matching', icon: '🔗' },
+    { type: 'ordering', label: 'Ordering', icon: '🔢' }
+  ]
+
+  const handleSelect = (type: string) => {
+    onCreateQuestion(type)
+    setIsOpen(false)
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+      >
+        <Plus className="h-4 w-4" />
+        Add Question
+        <ChevronDown className="h-4 w-4" />
+      </button>
+      
+      {isOpen && (
+        <>
+          <div 
+            className="fixed inset-0 z-10" 
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute top-full left-0 mt-1 w-72 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
+            <div className="py-1">
+              {questionTypes.map(({ type, label, icon }) => (
+                <button
+                  key={type}
+                  onClick={() => handleSelect(type)}
+                  className="w-full px-4 py-3 text-left flex items-center gap-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <span className="text-lg">{icon}</span>
+                  <span className="text-sm font-medium">{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+})
+QuestionTypeDropdown.displayName = 'QuestionTypeDropdown'
+
+// Modern step indicator component
 const SimpleStepIndicator = memo<{
   currentStep: string
   onStepClick: (step: string) => void
 }>(({ currentStep, onStepClick }) => {
   const steps = [
-    { id: 'settings', label: 'Quiz Settings' },
-    { id: 'ai-configuration', label: 'AI Configuration' },
-    { id: 'quiz-editing', label: 'Edit Questions' },
-    { id: 'review', label: 'Review & Publish' }
+    { id: 'settings', label: 'Settings', icon: '⚙️' },
+    { id: 'ai-configuration', label: 'AI Config', icon: '🤖' },
+    { id: 'quiz-editing', label: 'Questions', icon: '📝' },
+    { id: 'review', label: 'Review', icon: '✅' }
   ]
 
+  const currentIndex = steps.findIndex(step => step.id === currentStep)
+
   return (
-    <div className="flex space-x-4">
-      {steps.map((step, index) => (
-        <button
-          key={step.id}
-          onClick={() => onStepClick(step.id)}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-            currentStep === step.id
-              ? 'bg-primary text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          <span className="text-sm font-medium">{index + 1}</span>
-          <span>{step.label}</span>
-        </button>
-      ))}
+    <div className="flex items-center justify-center">
+      <div className="flex items-center space-x-2">
+        {steps.map((step, index) => (
+          <React.Fragment key={step.id}>
+            <button
+              onClick={() => onStepClick(step.id)}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                currentStep === step.id
+                  ? 'bg-primary text-white shadow-sm'
+                  : index < currentIndex
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-gray-100 text-gray-500'
+              }`}
+            >
+              <span className="text-sm">{step.icon}</span>
+              <span className="text-sm font-medium">{step.label}</span>
+              {index < currentIndex && (
+                <CheckCircle className="h-4 w-4 text-green-600" />
+              )}
+            </button>
+            {index < steps.length - 1 && (
+              <div className={`w-8 h-0.5 ${index < currentIndex ? 'bg-green-300' : 'bg-gray-200'}`} />
+            )}
+          </React.Fragment>
+        ))}
+      </div>
     </div>
   )
 })
@@ -276,7 +339,7 @@ QuizSettings.displayName = 'QuizSettings'
 const QuizQuestions = memo<{
   questions: QuizQuestion[]
   onUpdate: (index: number, updates: Partial<QuizQuestion>) => void
-  onAdd: () => void
+  onAdd: (questionType: string) => void
   onDuplicate: (index: number) => void
   onRemove: (index: number) => void
 }>(({ questions, onUpdate, onAdd, onDuplicate, onRemove }) => {
@@ -295,12 +358,44 @@ const QuizQuestions = memo<{
   const questionsWithValidation = useMemo(() => {
     return questions.map((question: QuizQuestion, index: number) => {
       const errors: string[] = []
+      
+      // Basic validation
       if (!question.question.trim()) errors.push('Question text is required')
-      if (question.question_type === 'multiple_choice' && (!question.options || question.options.length < 2)) {
-        errors.push('At least 2 options required for multiple choice')
-      }
-      if (question.question_type === 'multiple_choice' && (question.correct_answer === null || question.correct_answer === undefined)) {
-        errors.push('Correct answer must be selected')
+      
+      // Type-specific validation
+      switch (question.question_type) {
+        case 'multiple_choice':
+        case 'single_choice':
+          if (!question.options || question.options.length < 2) {
+            errors.push('At least 2 options required for multiple choice')
+          }
+          if (question.correct_answer === null || question.correct_answer === undefined) {
+            errors.push('Correct answer must be selected')
+          }
+          break
+          
+        case 'true_false':
+          if (question.correct_answer === null || question.correct_answer === undefined) {
+            errors.push('Please select True or False as the correct answer')
+          }
+          break
+          
+        case 'fill_blank':
+          if (!question.correct_answer || question.correct_answer.toString().trim() === '') {
+            errors.push('Correct answer is required for fill in the blank')
+          }
+          break
+          
+        case 'essay':
+          // Essay questions only need question text (no specific validation)
+          break
+          
+        case 'matching':
+        case 'ordering':
+          if (!question.options || question.options.length < 2) {
+            errors.push('At least 2 options required')
+          }
+          break
       }
       
       return { question, errors, index }
@@ -313,12 +408,7 @@ const QuizQuestions = memo<{
         <h3 className="text-lg font-medium text-gray-900">
           Quiz Questions ({questions.length})
         </h3>
-        <button
-          onClick={onAdd}
-          className="bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2 rounded-lg transition-colors"
-        >
-          Add Question
-        </button>
+        <QuestionTypeDropdown onCreateQuestion={onAdd} />
       </div>
 
       {questionsWithValidation.length === 0 ? (
@@ -331,12 +421,7 @@ const QuizQuestions = memo<{
             <p className="text-gray-600 mb-4">
               Start building your quiz by adding your first question
             </p>
-            <button
-              onClick={onAdd}
-              className="bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2 rounded-lg transition-colors"
-            >
-              Add First Question
-            </button>
+            <QuestionTypeDropdown onCreateQuestion={onAdd} />
           </CardContent>
         </Card>
       ) : (
@@ -644,9 +729,29 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
     }))
   }, [])
 
-  const handleAddQuestion = useCallback(() => {
-    setState(prev => ({ ...prev, showNewQuestionModal: true }))
-  }, [])
+  const handleAddQuestion = useCallback((questionType: string) => {
+    const newQuestion: QuizQuestion = {
+      id: `temp-${Date.now()}`,
+      quiz_id: quiz?.id || '',
+      question: '',
+      question_type: questionType as any,
+      options: questionType === 'multiple_choice' ? ['', ''] : undefined,
+      correct_answer: (questionType === 'multiple_choice' ? 0 : 
+                     questionType === 'true_false' ? true : '') as any,
+      explanation: '',
+      order_index: state.questions.length,
+      points: 1,
+      difficulty_level: 'medium',
+      image_url: null,
+      audio_url: null,
+      video_url: null
+    }
+    
+    setState(prev => ({ 
+      ...prev, 
+      questions: [...prev.questions, newQuestion]
+    }))
+  }, [quiz?.id, state.questions.length])
 
   const handleQuestionTypeSelect = useCallback((questionType: string) => {
     const newQuestion: QuizQuestion = {
@@ -663,14 +768,9 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
     }
     setState(prev => ({ 
       ...prev, 
-      questions: [...prev.questions, newQuestion],
-      showNewQuestionModal: false 
+      questions: [...prev.questions, newQuestion]
     }))
   }, [state.questions.length])
-
-  const handleCloseNewQuestionModal = useCallback(() => {
-    setState(prev => ({ ...prev, showNewQuestionModal: false }))
-  }, [])
 
   const handleDuplicateQuestion = useCallback((index: number) => {
     const questionToDuplicate = state.questions[index]
@@ -1029,52 +1129,60 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
 
   return (
     <QuizBuilderErrorBoundary>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[90vh] flex flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Quiz Builder</h2>
-              <p className="text-gray-600 mt-1">Create and manage your quiz content</p>
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-7xl h-[90vh] flex flex-col overflow-hidden">
+          {/* Compact Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+            <div className="flex items-center gap-4">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Quiz Builder</h2>
+                <p className="text-sm text-gray-500 mt-0.5">Create and manage your quiz content</p>
+              </div>
               {process.env.NODE_ENV === 'development' && (
-                <span className="text-xs text-gray-500">
-                  Renders: {metrics.renderCount} | Avg: {metrics.averageRenderTime.toFixed(2)}ms
+                <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
+                  R: {metrics.renderCount} | Avg: {metrics.averageRenderTime.toFixed(2)}ms
                 </span>
               )}
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 p-2 rounded-lg"
             >
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5" />
             </button>
           </div>
 
-          {/* Step Navigation */}
-          <div className="px-6 py-4 border-b border-gray-200">
+          {/* Clean Step Navigation */}
+          <div className="px-6 py-3 bg-white border-b border-gray-100">
             <SimpleStepIndicator
               currentStep={state.currentStep}
               onStepClick={handleStepChange}
             />
           </div>
 
-          {/* Main Content */}
-          <div className="flex-1 overflow-auto p-6">
-            {renderCurrentStep}
+          {/* Main Content - Optimized spacing */}
+          <div className="flex-1 overflow-auto">
+            <div className="p-6">
+              {renderCurrentStep}
+            </div>
           </div>
 
-          {/* Footer */}
-          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+          {/* Compact Footer */}
+          <div className="px-6 py-3 border-t border-gray-100 bg-gray-50/50">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
-                {state.questions.length} question{state.questions.length !== 1 ? 's' : ''} • 
-                {state.questions.reduce((sum: number, q: QuizQuestion) => sum + (q.points || 1), 0)} total points
+              <div className="text-xs text-gray-500 flex items-center gap-4">
+                <span>
+                  {state.questions.length} question{state.questions.length !== 1 ? 's' : ''}
+                </span>
+                <span>
+                  {state.questions.reduce((sum: number, q: QuizQuestion) => sum + (q.points || 1), 0)} total points
+                </span>
               </div>
               
-              <div className="flex space-x-3">
+              <div className="flex space-x-2">
                 <button
                   onClick={onClose}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg"
                 >
                   Cancel
                 </button>
@@ -1082,7 +1190,7 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
                 <button
                   onClick={handleSave}
                   disabled={state.isSaving}
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm bg-primary hover:bg-secondary text-white hover:text-black rounded-lg transition-colors disabled:opacity-50"
                 >
                   {state.isSaving ? 'Saving...' : 'Save Draft'}
                 </button>
@@ -1092,16 +1200,6 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
         </div>
       </div>
 
-      {/* New Question Modal */}
-      {state.showNewQuestionModal && (
-        <Suspense fallback={<div>Loading...</div>}>
-          <LazyNewQuestionModal
-            isOpen={state.showNewQuestionModal}
-            onClose={handleCloseNewQuestionModal}
-            onCreateQuestion={handleQuestionTypeSelect}
-          />
-        </Suspense>
-      )}
     </QuizBuilderErrorBoundary>
   )
 })

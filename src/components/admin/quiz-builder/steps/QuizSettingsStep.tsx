@@ -1,12 +1,13 @@
 // Quiz Settings Step Component
 // Handles quiz basic configuration and metadata
 
-import React, { memo, useCallback } from 'react'
+import React, { memo, useCallback, useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Settings, FileText, Clock, Target, Globe, Camera } from 'lucide-react'
 import { usePerformanceMonitor } from '@/hooks/usePerformanceOptimization'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import { uploadImage } from '@/lib/imageUpload'
+import { supabase } from '@/lib/supabase'
 import type { Quiz } from '@/lib/supabase'
 
 interface QuizSettingsStepProps {
@@ -22,6 +23,9 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
   isValid = true,
   errors = []
 }) => {
+  const [categories, setCategories] = useState<string[]>([])
+  const [loadingCategories, setLoadingCategories] = useState(true)
+
   // Performance monitoring
   const { metrics } = usePerformanceMonitor({
     componentName: 'QuizSettingsStep',
@@ -29,8 +33,44 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
     logSlowRenders: process.env.NODE_ENV === 'development'
   })
 
+  // Load categories from database
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('categories')
+          .select('name')
+          .eq('is_active', true)
+          .in('type', ['general', 'quiz'])
+          .order('name')
+        
+        if (error) throw error
+        setCategories(data?.map((cat: any) => cat.name) || [])
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+        // Fallback categories
+        setCategories([
+          'English Grammar',
+          'English Language',
+          'General English',
+          'IELTS Preparation',
+          'TOEFL Preparation'
+        ])
+      } finally {
+        setLoadingCategories(false)
+      }
+    }
+
+    fetchCategories()
+  }, [])
+
   const handleFieldChange = useCallback((field: keyof Quiz, value: any) => {
     onQuizUpdate({ [field]: value })
+  }, [onQuizUpdate])
+
+  // Memoize category change specifically to prevent CategorySelector re-renders
+  const handleCategoryChange = useCallback((value: string) => {
+    onQuizUpdate({ category: value })
   }, [onQuizUpdate])
 
   const handleImageUpload = useCallback(async (file: File): Promise<string> => {
@@ -41,17 +81,6 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
     throw new Error(result.error || 'Failed to upload image')
   }, [])
 
-  const categories = [
-    'English Grammar',
-    'Vocabulary',
-    'Reading Comprehension',
-    'Listening Skills',
-    'Business English',
-    'IELTS Preparation',
-    'TOEFL Preparation',
-    'General English'
-  ]
-
   const difficulties = [
     { value: 'beginner', label: 'Beginner', color: 'bg-green-100 text-green-800' },
     { value: 'intermediate', label: 'Intermediate', color: 'bg-yellow-100 text-yellow-800' },
@@ -59,22 +88,24 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
   ]
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center text-xl text-gray-900">
-            <Settings className="h-6 w-6 mr-3 text-primary" />
-            Quiz Settings
-          </CardTitle>
-          <p className="text-gray-600">Configure basic quiz information and settings</p>
-          {process.env.NODE_ENV === 'development' && (
-            <div className="text-xs text-gray-500">
-              QuizSettingsStep - {metrics.renderCount} renders | Avg: {metrics.averageRenderTime.toFixed(2)}ms
-            </div>
-          )}
-        </CardHeader>
-      </Card>
+    <div className="space-y-8">
+      {/* Clean Header - No card wrapper */}
+      <div className="border-b border-gray-100 pb-6">
+        <div className="flex items-start gap-4">
+          <div className="p-3 bg-primary/10 rounded-xl">
+            <Settings className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-1">Quiz Settings</h3>
+            <p className="text-gray-600">Configure basic quiz information and settings</p>
+            {process.env.NODE_ENV === 'development' && (
+              <div className="text-xs text-gray-400 mt-2 bg-gray-50 px-3 py-1 rounded">
+                QuizSettingsStep - {metrics.renderCount} renders | Avg: {metrics.averageRenderTime.toFixed(2)}ms
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Basic Information */}
       <Card>
@@ -84,7 +115,7 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
             Basic Information
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -95,7 +126,7 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
               value={quiz.title || ''}
               onChange={(e) => handleFieldChange('title', e.target.value)}
               placeholder="Enter quiz title..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
             />
           </div>
 
@@ -109,7 +140,7 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
               onChange={(e) => handleFieldChange('description', e.target.value)}
               placeholder="Describe what this quiz covers..."
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none"
             />
           </div>
 
@@ -139,9 +170,10 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
               <select
                 value={quiz.category || ''}
                 onChange={(e) => handleFieldChange('category', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                disabled={loadingCategories}
               >
-                <option value="">Select category...</option>
+                <option value="">{loadingCategories ? 'Loading categories...' : 'Select category...'}</option>
                 {categories.map(category => (
                   <option key={category} value={category}>{category}</option>
                 ))}
@@ -157,10 +189,10 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
                   <button
                     key={diff.value}
                     onClick={() => handleFieldChange('difficulty', diff.value)}
-                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium ${
                       quiz.difficulty === diff.value
-                        ? diff.color
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? diff.color + ' ring-2 ring-offset-1 ring-current'
+                        : 'bg-gray-100 text-gray-600'
                     }`}
                   >
                     {diff.label}

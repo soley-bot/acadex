@@ -34,12 +34,33 @@ export const QuizPreviewStep = memo<QuizPreviewStepProps>(({
   // Calculate quiz statistics
   const quizStats = useMemo(() => {
     const totalQuestions = questions.length
-    const validQuestions = questions.filter(q => 
-      q.question?.trim() && 
-      q.options && 
-      q.options.length >= 2 &&
-      q.correct_answer !== null
-    ).length
+    const validQuestions = questions.filter(q => {
+      // Basic validation - all questions need question text
+      if (!q.question?.trim()) return false
+      
+      // Type-specific validation
+      switch (q.question_type) {
+        case 'multiple_choice':
+        case 'single_choice':
+          return q.options && q.options.length >= 2 && q.correct_answer !== null
+        
+        case 'true_false':
+          return q.correct_answer !== null && q.correct_answer !== undefined
+        
+        case 'fill_blank':
+        case 'essay':
+          return true // Only need question text
+        
+        case 'matching':
+          return q.options && q.options.length >= 2
+        
+        case 'ordering':
+          return q.options && q.options.length >= 2
+        
+        default:
+          return q.correct_answer !== null
+      }
+    }).length
     
     const totalPoints = questions.reduce((sum, q) => sum + (q.points || 1), 0)
     const estimatedTime = Math.ceil(totalQuestions * 1.5) // 1.5 minutes per question average
@@ -142,7 +163,112 @@ export const QuizPreviewStep = memo<QuizPreviewStepProps>(({
         </CardContent>
       </Card>
 
-      {/* Quiz Statistics */}
+      {/* Questions Preview */}
+      {questions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg">
+              <Target className="h-5 w-5 mr-2 text-primary" />
+              Questions ({questions.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {questions.map((question, index) => {
+                // Use the same validation logic as the quiz stats
+                let isValid = false
+                if (question.question?.trim()) {
+                  switch (question.question_type) {
+                    case 'multiple_choice':
+                    case 'single_choice':
+                      isValid = !!(question.options && question.options.length >= 2 && question.correct_answer !== null)
+                      break
+                    case 'true_false':
+                      isValid = (question.correct_answer !== null && question.correct_answer !== undefined)
+                      break
+                    case 'fill_blank':
+                    case 'essay':
+                      isValid = true
+                      break
+                    case 'matching':
+                    case 'ordering':
+                      isValid = !!(question.options && question.options.length >= 2)
+                      break
+                    default:
+                      isValid = question.correct_answer !== null
+                  }
+                }
+                
+                return (
+                  <div key={question.id || index} className={`border rounded-lg p-4 ${isValid ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-sm font-medium text-gray-500">
+                            Q{index + 1} - {questionTypeLabels[question.question_type] || question.question_type}
+                          </span>
+                          {isValid ? (
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <AlertTriangle className="h-4 w-4 text-red-500" />
+                          )}
+                        </div>
+                        <p className="text-gray-900 font-medium mb-2">
+                          {question.question || 'No question text'}
+                        </p>
+                        
+                        {/* Display options based on question type */}
+                        {question.question_type === 'multiple_choice' && question.options && (
+                          <div className="space-y-1">
+                            {question.options.map((option: string, optionIndex: number) => (
+                              <div key={optionIndex} className={`text-sm px-2 py-1 rounded ${
+                                question.correct_answer === optionIndex 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : 'bg-gray-100 text-gray-700'
+                              }`}>
+                                {String.fromCharCode(65 + optionIndex)}. {option || `Option ${optionIndex + 1}`}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {question.question_type === 'true_false' && (
+                          <div className="space-y-1">
+                            <div className={`text-sm px-2 py-1 rounded ${
+                              question.correct_answer === 1
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-gray-100 text-gray-700'
+                            }`}>
+                              ✓ True
+                            </div>
+                            <div className={`text-sm px-2 py-1 rounded ${
+                              question.correct_answer === 0
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-gray-100 text-gray-700'
+                            }`}>
+                              ✗ False
+                            </div>
+                          </div>
+                        )}
+                        
+                        {(question.question_type === 'fill_blank' || question.question_type === 'essay') && question.correct_answer && (
+                          <div className="text-sm px-2 py-1 rounded bg-green-100 text-green-800">
+                            Answer: {question.correct_answer.toString()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {question.points || 1} pt{(question.points || 1) !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Question Types */}
         <Card>
@@ -250,7 +376,7 @@ export const QuizPreviewStep = memo<QuizPreviewStepProps>(({
                 <button
                   onClick={onSave}
                   disabled={isSaving}
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors disabled:opacity-50"
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg disabled:opacity-50"
                 >
                   {isSaving ? 'Saving...' : 'Save Draft'}
                 </button>
@@ -260,7 +386,7 @@ export const QuizPreviewStep = memo<QuizPreviewStepProps>(({
                 <button
                   onClick={onPublish}
                   disabled={!quizStats.isValid || isPublishing}
-                  className="px-4 py-2 bg-primary hover:bg-secondary text-white hover:text-black rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 bg-primary text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isPublishing ? 'Publishing...' : 'Publish Quiz'}
                 </button>
