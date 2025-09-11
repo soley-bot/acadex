@@ -65,6 +65,21 @@ export const GET = withAdminAuth(async (
       )
     }
 
+    // Debug logging - check what Supabase actually returned
+    console.log('🔍 Raw Supabase response:', {
+      quizId: quiz.id,
+      title: quiz.title,
+      hasQuizQuestions: !!(quiz.quiz_questions),
+      quizQuestionsLength: quiz.quiz_questions ? quiz.quiz_questions.length : 0,
+      quizQuestionsType: typeof quiz.quiz_questions,
+      firstQuestion: quiz.quiz_questions && quiz.quiz_questions[0] ? {
+        id: quiz.quiz_questions[0].id,
+        question: quiz.quiz_questions[0].question?.substring(0, 50),
+        question_type: quiz.quiz_questions[0].question_type
+      } : null,
+      allQuizKeys: Object.keys(quiz)
+    })
+
     // Transform the data to match QuizWithQuestions interface
     const transformedQuiz = {
       ...quiz,

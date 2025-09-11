@@ -30,7 +30,11 @@ export function ImageUpload({
 
   // Update urlInput when value prop changes to keep it in sync
   useEffect(() => {
-    setUrlInput(value || '')
+    // Only update if the value actually changed to prevent unnecessary re-renders
+    setUrlInput(prevInput => {
+      const newValue = value || ''
+      return prevInput !== newValue ? newValue : prevInput
+    })
   }, [value])
 
   const handleFileSelect = useCallback(async (file: File) => {

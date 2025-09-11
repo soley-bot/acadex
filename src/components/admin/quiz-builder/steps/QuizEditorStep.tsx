@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { Edit, Plus, Trash2, Copy, Eye, Save, AlertCircle } from 'lucide-react'
 import { useQuizBuilderState, QuizBuilderState } from '@/contexts/QuizBuilderContext'
 import { useQuizEditor, QuizWithQuestions } from '@/hooks/useQuizEditor'
 import { useQuizValidation, ValidationError } from '@/hooks/useQuizValidation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { QuizQuestion } from '@/lib/supabase'
+import { NewQuestionModal } from '../NewQuestionModal'
 
 interface QuizEditorStepProps {
   onPreview?: () => void
@@ -17,6 +18,8 @@ export const QuizEditorStep: React.FC<QuizEditorStepProps> = ({
 }) => {
   const { data, transitionTo } = useQuizBuilderState()
   const { validateQuiz } = useQuizValidation()
+  const [showNewQuestionModal, setShowNewQuestionModal] = useState(false)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   
   const initialQuiz: QuizWithQuestions = {
     title: '',
@@ -37,6 +40,16 @@ export const QuizEditorStep: React.FC<QuizEditorStepProps> = ({
     duplicateQuestion,
     hasUnsavedChanges
   } = useQuizEditor(initialQuiz)
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    const currentTimeout = timeoutRef.current
+    return () => {
+      if (currentTimeout) {
+        clearTimeout(currentTimeout)
+      }
+    }
+  }, [])
 
   const [validationResult, setValidationResult] = useState<{ isValid: boolean; errors: ValidationError[]; warnings: ValidationError[] }>({
     isValid: true,
@@ -71,6 +84,33 @@ export const QuizEditorStep: React.FC<QuizEditorStepProps> = ({
       onSave?.()
     }
   }
+
+  const handleCreateQuestion = useCallback((questionType: string) => {
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    
+    // Create a new question with the selected type
+    const newQuestion: Partial<QuizQuestion> = {
+      question_type: questionType as any,
+      question: '',
+      points: 1,
+      options: questionType === 'multiple_choice' ? ['', '', '', ''] : [],
+      correct_answer: questionType === 'true_false' ? 0 : (questionType === 'multiple_choice' ? 0 : undefined),
+      order_index: quiz.questions.length,
+      difficulty_level: 'medium'
+    }
+    
+    // Add the question and show it expanded
+    addQuestion()
+    
+    // Update the last question with the specific type and defaults
+    timeoutRef.current = setTimeout(() => {
+      updateQuestion(quiz.questions.length, newQuestion)
+      timeoutRef.current = null
+    }, 100)
+  }, [addQuestion, updateQuestion, quiz.questions.length])
 
   return (
     <div className="w-full max-w-6xl mx-auto space-y-6">
@@ -208,7 +248,7 @@ export const QuizEditorStep: React.FC<QuizEditorStepProps> = ({
               <span>Questions ({quiz.questions.length})</span>
             </CardTitle>
             <button
-              onClick={addQuestion}
+              onClick={() => setShowNewQuestionModal(true)}
               className="flex items-center space-x-2 bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2 rounded-lg transition-colors"
             >
               <Plus className="h-4 w-4" />
@@ -263,6 +303,13 @@ export const QuizEditorStep: React.FC<QuizEditorStepProps> = ({
           </button>
         </div>
       </div>
+
+      {/* New Question Modal */}
+      <NewQuestionModal
+        isOpen={showNewQuestionModal}
+        onClose={() => setShowNewQuestionModal(false)}
+        onCreateQuestion={handleCreateQuestion}
+      />
     </div>
   )
 }
@@ -334,6 +381,8 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
               <option value="true_false">True/False</option>
               <option value="fill_blank">Fill in the Blank</option>
               <option value="essay">Essay</option>
+              <option value="matching">Matching</option>
+              <option value="ordering">Ordering</option>
             </select>
           </div>
 
@@ -351,7 +400,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
           </div>
         </div>
 
-        {/* Question-type specific editors would go here */}
+        {/* Question-type specific editors */}
         {question.question_type === 'multiple_choice' && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -380,7 +429,88 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
                   />
                 </div>
               ))}
+              <button
+                onClick={() => {
+                  const newOptions = [...(question.options || []), '']
+                  onUpdate({ options: newOptions })
+                }}
+                className="text-primary hover:text-secondary text-sm font-medium"
+              >
+                + Add Option
+              </button>
             </div>
+          </div>
+        )}
+
+        {question.question_type === 'true_false' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Correct Answer
+            </label>
+            <div className="flex space-x-4">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name={`tf-${question.id}`}
+                  checked={question.correct_answer === 1}
+                  onChange={() => onUpdate({ correct_answer: 1 })}
+                  className="text-primary"
+                />
+                <span>True</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name={`tf-${question.id}`}
+                  checked={question.correct_answer === 0}
+                  onChange={() => onUpdate({ correct_answer: 0 })}
+                  className="text-primary"
+                />
+                <span>False</span>
+              </label>
+            </div>
+          </div>
+        )}
+
+        {question.question_type === 'fill_blank' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Correct Answer(s)
+            </label>
+            <input
+              type="text"
+              value={question.correct_answer_text || ''}
+              onChange={(e) => onUpdate({ correct_answer_text: e.target.value })}
+              placeholder="Enter the correct answer"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              For multiple acceptable answers, separate with commas
+            </p>
+          </div>
+        )}
+
+        {question.question_type === 'essay' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Grading Guidelines
+            </label>
+            <textarea
+              value={question.correct_answer_text || ''}
+              onChange={(e) => onUpdate({ correct_answer_text: e.target.value })}
+              placeholder="Enter grading guidelines for this essay question"
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+          </div>
+        )}
+
+        {(question.question_type === 'matching' || question.question_type === 'ordering') && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p className="text-yellow-800 text-sm">
+              📝 {question.question_type === 'matching' ? 'Matching' : 'Ordering'} questions are coming soon! 
+              Please use a different question type for now.
+            </p>
           </div>
         )}
 

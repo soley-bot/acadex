@@ -20,6 +20,8 @@ export function NavigationLoadingFix() {
               caches.delete(cacheName)
             }
           })
+        }).catch(() => {
+          // Silently handle cache clearing errors
         })
       }
 
@@ -30,7 +32,10 @@ export function NavigationLoadingFix() {
     // Delay to avoid clearing cache for the current page
     const timeoutId = setTimeout(clearStaleData, 100)
 
-    return () => clearTimeout(timeoutId)
+    // Proper cleanup
+    return () => {
+      clearTimeout(timeoutId)
+    }
   }, [pathname])
 
   return null

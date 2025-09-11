@@ -36,6 +36,12 @@ const LazyQuizPreviewStep = lazy(() =>
   }))
 )
 
+const LazyNewQuestionModal = lazy(() => 
+  import('./quiz-builder/NewQuestionModal').then(module => ({
+    default: module.NewQuestionModal
+  }))
+)
+
 interface QuizBuilderProps {
   quiz?: Quiz | null
   isOpen: boolean
@@ -51,8 +57,8 @@ interface QuizBuilderState {
   questions: QuizQuestion[]
   aiConfig: {
     enabled: boolean
-    language: string
-    difficulty: string
+    language: 'english' | 'khmer'
+    difficulty: 'beginner' | 'intermediate' | 'advanced'
     questionCount: number
     topics: string[]
     customPrompt: string
@@ -60,6 +66,7 @@ interface QuizBuilderState {
   isGenerating: boolean
   isSaving: boolean
   isPublishing: boolean
+  showNewQuestionModal: boolean
 }
 
 // Initial state
@@ -77,7 +84,8 @@ const initialState: QuizBuilderState = {
   },
   isGenerating: false,
   isSaving: false,
-  isPublishing: false
+  isPublishing: false,
+  showNewQuestionModal: false
 }
 
 // Simple step indicator component
@@ -272,6 +280,18 @@ const QuizQuestions = memo<{
   onDuplicate: (index: number) => void
   onRemove: (index: number) => void
 }>(({ questions, onUpdate, onAdd, onDuplicate, onRemove }) => {
+  // Debug logging
+  console.log('📝 QuizQuestions component render:', {
+    questionsCount: questions.length,
+    firstQuestion: questions[0] ? {
+      id: questions[0].id,
+      question: questions[0].question?.substring(0, 50) + '...',
+      question_type: questions[0].question_type,
+      hasOptions: !!(questions[0].options),
+      optionsCount: questions[0].options ? questions[0].options.length : 0
+    } : null
+  })
+
   const questionsWithValidation = useMemo(() => {
     return questions.map((question: QuizQuestion, index: number) => {
       const errors: string[] = []
@@ -459,6 +479,8 @@ QuizSummary.displayName = 'QuizSummary'
 export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSuccess, prefilledData }) => {
   const [state, setState] = React.useState<QuizBuilderState>(() => ({
     ...initialState,
+    // If editing existing quiz, start on quiz-editing step
+    currentStep: quiz ? 'quiz-editing' : 'settings',
     quiz: quiz ? { 
       // Only copy valid quiz table fields, exclude 'questions' and other non-table fields
       id: quiz.id,
@@ -489,38 +511,118 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
     logSlowRenders: process.env.NODE_ENV === 'development'
   })
 
+  // Track if we've fetched questions for this quiz to prevent duplicate fetches
+  const fetchedQuizRef = React.useRef<string | null>(null)
+
+  // Separate function to fetch questions (memoized to prevent unnecessary re-renders)
+  const fetchQuestionsForQuiz = React.useCallback(async (quizId: string) => {
+    console.log('🔍 QuizBuilder: Fetching questions for quiz', quizId)
+    
+    try {
+      setState(prev => ({ ...prev, isGenerating: true }))
+      
+      // Get session for authentication
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        console.error('❌ QuizBuilder: No session for fetching questions')
+        setState(prev => ({ ...prev, isGenerating: false }))
+        return
+      }
+
+      // Fetch quiz with questions using the edit API endpoint
+      const response = await fetch(`/api/admin/quizzes/${quizId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('❌ QuizBuilder: Error fetching questions:', errorData)
+        setState(prev => ({ ...prev, isGenerating: false }))
+        return
+      }
+
+      const result = await response.json()
+      console.log('✅ QuizBuilder: Fetched questions:', {
+        questionsCount: result.questions?.length || 0,
+        firstQuestion: result.questions?.[0] ? {
+          id: result.questions[0].id,
+          question_type: result.questions[0].question_type,
+          question: result.questions[0].question?.substring(0, 50) + '...'
+        } : null
+      })
+
+      // Update state with fetched questions
+      setState(prev => ({
+        ...prev,
+        questions: result.questions || [],
+        isGenerating: false
+      }))
+
+    } catch (error) {
+      console.error('❌ QuizBuilder: Error fetching questions:', error)
+      setState(prev => ({ ...prev, isGenerating: false }))
+    }
+  }, [])
+
   // Update state when quiz prop changes (for async loading)
   React.useEffect(() => {
     if (quiz) {
-      console.log('QuizBuilder: Updating from quiz prop', {
+      console.log('🔄 QuizBuilder useEffect: Updating from quiz prop', {
         quizId: quiz.id,
-        hasQuestions: !!(quiz as any).questions
+        title: quiz.title,
+        hasQuestions: !!(quiz as any).questions,
+        questionsCount: (quiz as any).questions ? (quiz as any).questions.length : 0,
+        questionsData: (quiz as any).questions ? (quiz as any).questions.slice(0, 1) : []
       })
-      setState(prev => ({
-        ...prev,
-        quiz: {
-          // Only copy valid quiz table fields, exclude 'questions' and other non-table fields
-          id: quiz.id,
-          title: quiz.title,
-          description: quiz.description,
-          category: quiz.category,
-          difficulty: quiz.difficulty || 'intermediate',
-          duration_minutes: quiz.duration_minutes ?? 10,
-          total_questions: quiz.total_questions || 0,
-          course_id: quiz.course_id,
-          lesson_id: quiz.lesson_id,
-          passing_score: quiz.passing_score || 70,
-          max_attempts: quiz.max_attempts || 3,
-          time_limit_minutes: quiz.time_limit_minutes,
-          image_url: quiz.image_url,
-          is_published: quiz.is_published || false,
-          created_at: quiz.created_at,
-          updated_at: quiz.updated_at
-        },
-        questions: (quiz as any).questions ? (quiz as any).questions : prev.questions
-      }))
+      
+      setState(prev => {
+        const newState = {
+          ...prev,
+          // Set to quiz-editing step when editing existing quiz
+          currentStep: 'quiz-editing' as const,
+          quiz: {
+            // Only copy valid quiz table fields, exclude 'questions' and other non-table fields
+            id: quiz.id,
+            title: quiz.title,
+            description: quiz.description,
+            category: quiz.category,
+            difficulty: quiz.difficulty || 'intermediate',
+            duration_minutes: quiz.duration_minutes ?? 10,
+            total_questions: quiz.total_questions || 0,
+            course_id: quiz.course_id,
+            lesson_id: quiz.lesson_id,
+            passing_score: quiz.passing_score || 70,
+            max_attempts: quiz.max_attempts || 3,
+            time_limit_minutes: quiz.time_limit_minutes,
+            image_url: quiz.image_url,
+            is_published: quiz.is_published || false,
+            created_at: quiz.created_at,
+            updated_at: quiz.updated_at
+          },
+          questions: (quiz as any).questions ? (quiz as any).questions : prev.questions
+        }
+        
+        console.log('🎯 QuizBuilder state update:', {
+          currentStep: newState.currentStep,
+          questionsLength: newState.questions.length,
+          hasQuizId: !!newState.quiz.id
+        })
+        
+        return newState
+      })
+
+      // Fetch questions if needed (only once per quiz)
+      if (quiz.id && !(quiz as any).questions && fetchedQuizRef.current !== quiz.id) {
+        fetchedQuizRef.current = quiz.id
+        fetchQuestionsForQuiz(quiz.id)
+      }
     }
-  }, [quiz])
+  }, [quiz, fetchQuestionsForQuiz])
 
   // Handlers
   const handleStepChange = useCallback((step: string) => {
@@ -543,20 +645,32 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
   }, [])
 
   const handleAddQuestion = useCallback(() => {
+    setState(prev => ({ ...prev, showNewQuestionModal: true }))
+  }, [])
+
+  const handleQuestionTypeSelect = useCallback((questionType: string) => {
     const newQuestion: QuizQuestion = {
       id: `temp-${Date.now()}`,
       quiz_id: 'temp',
       question: '',
-      question_type: 'multiple_choice',
-      options: ['', ''],
-      correct_answer: 0,
+      question_type: questionType as any,
+      options: questionType === 'multiple_choice' || questionType === 'single_choice' ? ['', ''] : [],
+      correct_answer: 0, // Always use 0 as default for all question types
       explanation: '',
       order_index: state.questions.length,
       points: 1,
       difficulty_level: 'medium'
     }
-    setState(prev => ({ ...prev, questions: [...prev.questions, newQuestion] }))
+    setState(prev => ({ 
+      ...prev, 
+      questions: [...prev.questions, newQuestion],
+      showNewQuestionModal: false 
+    }))
   }, [state.questions.length])
+
+  const handleCloseNewQuestionModal = useCallback(() => {
+    setState(prev => ({ ...prev, showNewQuestionModal: false }))
+  }, [])
 
   const handleDuplicateQuestion = useCallback((index: number) => {
     const questionToDuplicate = state.questions[index]
@@ -977,6 +1091,17 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
           </div>
         </div>
       </div>
+
+      {/* New Question Modal */}
+      {state.showNewQuestionModal && (
+        <Suspense fallback={<div>Loading...</div>}>
+          <LazyNewQuestionModal
+            isOpen={state.showNewQuestionModal}
+            onClose={handleCloseNewQuestionModal}
+            onCreateQuestion={handleQuestionTypeSelect}
+          />
+        </Suspense>
+      )}
     </QuizBuilderErrorBoundary>
   )
 })

@@ -17,49 +17,64 @@ export default function EditQuizPage() {
 
   useEffect(() => {
     const fetchQuiz = async () => {
-      if (!params.id) return
-
       try {
-        // For admin access, we need to make an API call instead of direct Supabase
-        // to bypass RLS policies properly
+        setLoading(true)
+        setError(null)
+
+        // Get the current session to include Authorization header
         const { data: { session } } = await supabase.auth.getSession()
-        if (!session) {
-          setError('Authentication required')
-          return
+        
+        // Prepare headers
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json'
+        }
+        
+        // Add Authorization header if we have a session
+        if (session?.access_token) {
+          headers['Authorization'] = `Bearer ${session.access_token}`
         }
 
-        // Use API route for proper admin authentication
+        console.log('Fetching quiz with ID:', params.id)
+        console.log('Using headers:', headers)
+
         const response = await fetch(`/api/admin/quizzes/${params.id}`, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`
-          },
-          credentials: 'include'
+          credentials: 'include', // Include cookies as fallback
+          headers
         })
-
+        
+        console.log('API Response status:', response.status)
+        console.log('API Response headers:', Object.fromEntries(response.headers.entries()))
+        
         if (!response.ok) {
-          const errorData = await response.text()
-          throw new Error(`Failed to fetch quiz: ${response.status} - ${errorData}`)
+          const errorText = await response.text()
+          console.error('API Error response:', errorText)
+          throw new Error(`Failed to fetch quiz: ${response.statusText}`)
         }
-
+        
         const data = await response.json()
         
-        if (!data) {
-          throw new Error('Quiz not found')
-        }
+        console.log('✅ Successfully fetched quiz:', {
+          id: data.id,
+          title: data.title,
+          hasQuestions: !!(data.questions),
+          questionsCount: data.questions ? data.questions.length : 0,
+          questionsData: data.questions ? data.questions.slice(0, 2) : [], // First 2 questions for debugging
+          allKeys: Object.keys(data)
+        })
         
-        console.log('Fetched quiz with questions:', data)
         setQuiz(data)
       } catch (err: any) {
-        console.error('Error fetching quiz:', err)
+        console.error('❌ Error fetching quiz:', err)
         setError(err?.message || 'Failed to load quiz')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchQuiz()
+    if (params.id) {
+      fetchQuiz()
+    }
   }, [params.id])
 
   const handleSuccess = () => {

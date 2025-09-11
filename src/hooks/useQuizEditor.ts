@@ -47,9 +47,35 @@ export const useQuizEditor = (initialQuiz: QuizWithQuestions): UseQuizEditorRetu
   const [quiz, setQuiz] = useState<QuizWithQuestions>(initialQuiz)
   const [originalQuiz] = useState<QuizWithQuestions>(initialQuiz)
 
-  // Check for unsaved changes
+  // Optimized change detection - avoid expensive JSON operations
   const hasUnsavedChanges = useMemo(() => {
-    return JSON.stringify(quiz) !== JSON.stringify(originalQuiz)
+    // Quick reference equality check first
+    if (quiz === originalQuiz) return false
+    
+    // Check key fields only, not deep comparison
+    if (quiz.title !== originalQuiz.title || 
+        quiz.description !== originalQuiz.description ||
+        quiz.duration_minutes !== originalQuiz.duration_minutes ||
+        quiz.is_published !== originalQuiz.is_published ||
+        quiz.questions.length !== originalQuiz.questions.length) {
+      return true
+    }
+    
+    // Quick question comparison - check IDs and content
+    for (let i = 0; i < quiz.questions.length; i++) {
+      const current = quiz.questions[i]
+      const original = originalQuiz.questions[i]
+      
+      if (!original || 
+          !current ||
+          current.question !== original.question ||
+          current.question_type !== original.question_type ||
+          current.points !== original.points) {
+        return true
+      }
+    }
+    
+    return false
   }, [quiz, originalQuiz])
 
   const updateQuiz = useCallback((updates: Partial<QuizWithQuestions>) => {

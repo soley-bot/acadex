@@ -3,8 +3,10 @@
 
 import React, { memo, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Settings, FileText, Clock, Target, Globe } from 'lucide-react'
+import { Settings, FileText, Clock, Target, Globe, Camera } from 'lucide-react'
 import { usePerformanceMonitor } from '@/hooks/usePerformanceOptimization'
+import { ImageUpload } from '@/components/ui/ImageUpload'
+import { uploadImage } from '@/lib/imageUpload'
 import type { Quiz } from '@/lib/supabase'
 
 interface QuizSettingsStepProps {
@@ -30,6 +32,14 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
   const handleFieldChange = useCallback((field: keyof Quiz, value: any) => {
     onQuizUpdate({ [field]: value })
   }, [onQuizUpdate])
+
+  const handleImageUpload = useCallback(async (file: File): Promise<string> => {
+    const result = await uploadImage(file, 'quiz-images', 'quizzes')
+    if (result.success && result.url) {
+      return result.url
+    }
+    throw new Error(result.error || 'Failed to upload image')
+  }, [])
 
   const categories = [
     'English Grammar',
@@ -101,6 +111,23 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             />
+          </div>
+
+          {/* Quiz Image */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Quiz Cover Image
+            </label>
+            <ImageUpload
+              value={quiz.image_url || null}
+              onChange={(url) => handleFieldChange('image_url', url)}
+              onFileUpload={handleImageUpload}
+              placeholder="Upload quiz cover image or enter image URL"
+              className="w-full"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Optional cover image for your quiz. Recommended size: 800x400px
+            </p>
           </div>
 
           {/* Category and Difficulty */}
@@ -279,12 +306,28 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
     </div>
   )
 }, (prevProps, nextProps) => {
-  // Custom comparison for optimal re-rendering
-  return (
-    prevProps.quiz === nextProps.quiz &&
-    prevProps.isValid === nextProps.isValid &&
-    JSON.stringify(prevProps.errors) === JSON.stringify(nextProps.errors)
-  )
+  // Optimized comparison for better performance
+  if (prevProps.quiz !== nextProps.quiz || prevProps.isValid !== nextProps.isValid) {
+    return false
+  }
+  
+  // Handle undefined errors arrays safely
+  const prevErrors = prevProps.errors || []
+  const nextErrors = nextProps.errors || []
+  
+  // Simple array comparison for errors
+  if (prevErrors.length !== nextErrors.length) {
+    return false
+  }
+  
+  // Only compare error messages if arrays have same length
+  for (let i = 0; i < prevErrors.length; i++) {
+    if (prevErrors[i] !== nextErrors[i]) {
+      return false
+    }
+  }
+  
+  return true
 })
 
 QuizSettingsStep.displayName = 'QuizSettingsStep'
