@@ -40,6 +40,10 @@ next-env.d.ts
 # Development instructions (not needed in production)
 .github/copilot-instructions.md
 
+# Documentation files (except README)
+*.md
+!README.md
+
 # OS
 Thumbs.db
 
