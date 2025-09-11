@@ -37,6 +37,9 @@ next-env.d.ts
 .vscode/
 .idea/
 
+# Development instructions (not needed in production)
+.github/copilot-instructions.md
+
 # OS
 Thumbs.db
 
