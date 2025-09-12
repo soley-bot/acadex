@@ -1,8 +1,7 @@
-import React, { memo, useCallback, useMemo, Suspense, lazy, useState } from 'react'
+import React, { memo, useCallback, useMemo, Suspense, lazy, useState, useEffect, useRef } from 'react'
 import { X, AlertTriangle, CheckCircle, Target, Plus, ChevronDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
-import { usePerformanceMonitor } from '@/hooks/usePerformanceOptimization'
 import {
   LazyComponentWrapper,
   LazyComponentErrorBoundary,
@@ -249,7 +248,6 @@ const QuizSettings = memo<{
 
   const handleDurationChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newDuration = parseInt(e.target.value) || 10
-    console.log('Duration changed:', newDuration)
     onUpdate({ duration_minutes: newDuration })
   }, [onUpdate])
 
@@ -343,18 +341,6 @@ const QuizQuestions = memo<{
   onDuplicate: (index: number) => void
   onRemove: (index: number) => void
 }>(({ questions, onUpdate, onAdd, onDuplicate, onRemove }) => {
-  // Debug logging
-  console.log('📝 QuizQuestions component render:', {
-    questionsCount: questions.length,
-    firstQuestion: questions[0] ? {
-      id: questions[0].id,
-      question: questions[0].question?.substring(0, 50) + '...',
-      question_type: questions[0].question_type,
-      hasOptions: !!(questions[0].options),
-      optionsCount: questions[0].options ? questions[0].options.length : 0
-    } : null
-  })
-
   const questionsWithValidation = useMemo(() => {
     return questions.map((question: QuizQuestion, index: number) => {
       const errors: string[] = []
@@ -589,27 +575,100 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
     questions: quiz && (quiz as any).questions ? (quiz as any).questions : []
   }))
 
-  // Performance monitoring
-  const { metrics } = usePerformanceMonitor({
-    componentName: 'QuizBuilder',
-    threshold: 32,
-    logSlowRenders: process.env.NODE_ENV === 'development'
-  })
+  // Auto-save functionality with debouncing
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout>()
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [isDirty, setIsDirty] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  // Debounced auto-save function
+  const debouncedSave = useCallback(async (stateToSave: QuizBuilderState) => {
+    if (!stateToSave.quiz.id || stateToSave.questions.length === 0) {
+      return
+    }
+
+    // Get current session for authentication
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.access_token) {
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      const questionsData = stateToSave.questions.map((q, index) => ({
+        id: q.id,
+        quiz_id: stateToSave.quiz.id,
+        question: q.question,
+        question_type: q.question_type,
+        options: q.options || [],
+        correct_answer: q.correct_answer,
+        correct_answer_text: q.correct_answer_text,
+        explanation: q.explanation,
+        order_index: index,
+        points: q.points || 1,
+        difficulty_level: q.difficulty_level || 'medium'
+      }))
+
+      const response = await fetch(`/api/admin/quizzes/${stateToSave.quiz.id}/questions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        credentials: 'include',
+        body: JSON.stringify({ questions: questionsData })
+      })
+
+      if (response.ok) {
+        setLastSaved(new Date())
+        setIsDirty(false)
+      }
+    } catch (error) {
+      console.error('Auto-save failed:', error)
+    } finally {
+      setIsSaving(false)
+    }
+  }, [])
+
+  // Auto-save effect when questions change
+  useEffect(() => {
+    if (!isDirty) return
+
+    // Clear existing timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current)
+    }
+
+    // Set new timeout for auto-save (2 seconds of inactivity)
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      debouncedSave(state)
+    }, 2000)
+
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current)
+      }
+    }
+  }, [state, isDirty, debouncedSave])
+
+  // Mark as dirty when state changes
+  useEffect(() => {
+    if (state.questions.length > 0 && state.quiz.id) {
+      setIsDirty(true)
+    }
+  }, [state.questions, state.quiz])
 
   // Track if we've fetched questions for this quiz to prevent duplicate fetches
   const fetchedQuizRef = React.useRef<string | null>(null)
 
   // Separate function to fetch questions (memoized to prevent unnecessary re-renders)
   const fetchQuestionsForQuiz = React.useCallback(async (quizId: string) => {
-    console.log('🔍 QuizBuilder: Fetching questions for quiz', quizId)
-    
     try {
       setState(prev => ({ ...prev, isGenerating: true }))
       
       // Get session for authentication
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
-        console.error('❌ QuizBuilder: No session for fetching questions')
         setState(prev => ({ ...prev, isGenerating: false }))
         return
       }
@@ -626,20 +685,11 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
 
       if (!response.ok) {
         const errorData = await response.json()
-        console.error('❌ QuizBuilder: Error fetching questions:', errorData)
         setState(prev => ({ ...prev, isGenerating: false }))
         return
       }
 
       const result = await response.json()
-      console.log('✅ QuizBuilder: Fetched questions:', {
-        questionsCount: result.questions?.length || 0,
-        firstQuestion: result.questions?.[0] ? {
-          id: result.questions[0].id,
-          question_type: result.questions[0].question_type,
-          question: result.questions[0].question?.substring(0, 50) + '...'
-        } : null
-      })
 
       // Update state with fetched questions
       setState(prev => ({
@@ -691,12 +741,6 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
           },
           questions: (quiz as any).questions ? (quiz as any).questions : prev.questions
         }
-        
-        console.log('🎯 QuizBuilder state update:', {
-          currentStep: newState.currentStep,
-          questionsLength: newState.questions.length,
-          hasQuizId: !!newState.quiz.id
-        })
         
         return newState
       })
@@ -946,7 +990,6 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
         }
 
         result = await response.json()
-        console.log('Quiz updated successfully:', result)
       } else {
         // Create new quiz
         response = await fetch('/api/admin/quizzes', {
@@ -965,13 +1008,11 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
         }
 
         result = await response.json()
-        console.log('Quiz created successfully:', result)
       }
 
       // Now save the questions
       const quizId = result.quiz?.id || quiz?.id
       if (quizId && state.questions.length > 0) {
-        console.log('Saving questions for quiz:', quizId)
         
         // Prepare questions data
         const questionsData = state.questions.map((q, index) => ({
@@ -1004,7 +1045,6 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
         }
 
         const questionsResult = await questionsResponse.json()
-        console.log('Questions saved successfully:', questionsResult)
       }
 
       // Call onSuccess to notify parent component
@@ -1138,11 +1178,6 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
                 <h2 className="text-xl font-semibold text-gray-900">Quiz Builder</h2>
                 <p className="text-sm text-gray-500 mt-0.5">Create and manage your quiz content</p>
               </div>
-              {process.env.NODE_ENV === 'development' && (
-                <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
-                  R: {metrics.renderCount} | Avg: {metrics.averageRenderTime.toFixed(2)}ms
-                </span>
-              )}
             </div>
             <button
               onClick={onClose}
@@ -1177,6 +1212,32 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
                 <span>
                   {state.questions.reduce((sum: number, q: QuizQuestion) => sum + (q.points || 1), 0)} total points
                 </span>
+                {/* Auto-save status */}
+                {state.quiz.id && (
+                  <span className="flex items-center gap-1">
+                    {isSaving ? (
+                      <>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                        <span className="text-blue-600">Saving...</span>
+                      </>
+                    ) : isDirty ? (
+                      <>
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <span className="text-yellow-600">Unsaved changes</span>
+                      </>
+                    ) : lastSaved ? (
+                      <>
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span className="text-green-600">
+                          Saved {new Intl.DateTimeFormat('en', { 
+                            hour: 'numeric', 
+                            minute: '2-digit' 
+                          }).format(lastSaved)}
+                        </span>
+                      </>
+                    ) : null}
+                  </span>
+                )}
               </div>
               
               <div className="flex space-x-2">

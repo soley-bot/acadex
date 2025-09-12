@@ -14,29 +14,20 @@ export default function Icon() {
     (
       <div
         style={{
-          background: 'linear-gradient(135deg, #dc2626 0%, #ea580c 100%)',
+          background: 'linear-gradient(135deg, #6D28D9 0%, #4F46E5 100%)', // Using brand primary colors
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: '6px',
+          fontSize: '24px',
+          fontWeight: '900',
+          fontFamily: 'Inter',
+          color: 'white',
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            color: 'white',
-            fontSize: '12px',
-            fontWeight: '900',
-            fontFamily: 'Inter',
-            letterSpacing: '-0.5px',
-          }}
-        >
-          <span style={{ color: 'white' }}>ACAD</span>
-          <span style={{ color: '#fbbf24' }}>E</span>
-          <span style={{ color: 'white' }}>X</span>
-        </div>
+        A
       </div>
     ),
     {

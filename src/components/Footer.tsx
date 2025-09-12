@@ -19,7 +19,6 @@ export function Footer() {
   const mounted = useHydrationSafe()
   
   // Always use same year to prevent hydration mismatch
-  // Update manually when year changes, or use mounted state for dynamic year
   const currentYear = 2025
 
   return (
@@ -35,14 +34,13 @@ export function Footer() {
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center space-x-3 mb-6 group">
               <span className="text-3xl font-black tracking-tight">
-                <span className="text-secondary">ACAD</span>
+                <span className="text-primary">ACAD</span>
                 <span className="text-[hsl(var(--primary))]">E</span>
-                <span className="text-secondary">X</span>
+                <span className="text-primary">X</span>
               </span>
             </Link>
             <p className="text-muted-foreground mb-6 leading-relaxed">
-              Built from scratch for Cambodian learners.
-              Simple lessons. Real skills. No pressure.
+              Targeted IELTS prep, built by an educator to help you master the skills you need for a high score.
             </p>
             <div className="mb-8">
               <p className="text-muted-foreground mb-2">
@@ -54,20 +52,20 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Courses */}
+          {/* Practice */}
           <div>
-            <h3 className="text-lg font-semibold text-secondary mb-6">Courses</h3>
+            <h3 className="text-lg font-semibold text-primary mb-6">Practice</h3>
             <ul className="space-y-4">
               {[
-                { name: "Browse All Courses", href: "/courses" },
-                { name: "English Grammar", href: "/courses?category=grammar" },
-                { name: "Conversation Practice", href: "/courses?category=speaking" },
-                { name: "Business English", href: "/courses?category=business" }
+                { name: "IELTS Writing Skill Pack", href: "/quizzes" },
+                { name: "Vocabulary Quizzes", href: "/quizzes?category=ielts-vocabulary" },
+                { name: "Grammar Drills", href: "/quizzes?category=ielts-grammar" },
+                { name: "Try a Free Quiz", href: "/quizzes/free-sample" }
               ].map((link) => (
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="text-muted-foreground hover:text-secondary transition-colors duration-200"
+                    className="text-muted-foreground hover:text-primary transition-colors duration-200"
                   >
                     {link.name}
                   </Link>
@@ -78,12 +76,12 @@ export function Footer() {
 
           {/* Support */}
           <div>
-            <h3 className="text-lg font-semibold text-secondary mb-6">Support</h3>
+            <h3 className="text-lg font-semibold text-primary mb-6">Support</h3>
             <ul className="space-y-4">
               {[
                 { name: "Help Center (coming soon)", href: "#" },
                 { name: "Contact Us", href: "/contact" },
-                { name: "Suggest a Course", href: "/contact?subject=course-suggestion" }
+                { name: "Suggest a Feature", href: "/contact?subject=feature-suggestion" }
               ].map((link) => (
                 <li key={link.name}>
                   <Link 
@@ -99,7 +97,7 @@ export function Footer() {
 
           {/* Company */}
           <div>
-            <h3 className="text-lg font-semibold text-secondary mb-6">Company</h3>
+            <h3 className="text-lg font-semibold text-primary mb-6">Company</h3>
             <ul className="space-y-4">
               {[
                 { name: "About Acadex", href: "/about" },
@@ -124,9 +122,9 @@ export function Footer() {
       <div className="relative border-t border-gray-200">
         <Container size="xl" className="py-12">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-secondary mb-4">Join Our Learning Community</h2>
+            <h2 className="text-3xl font-bold text-secondary mb-4">Get an Edge on the Exam</h2>
             <p className="text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              Get tips, mini-lessons, and new course updates — sent right to your inbox.
+              Get IELTS tips, mini-lessons, and updates on new Skill Packs — sent right to your inbox.
             </p>
             <NewsletterSignup />
           </div>

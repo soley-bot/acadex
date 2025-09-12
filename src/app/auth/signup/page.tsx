@@ -419,7 +419,7 @@ function EnhancedSignupForm() {
                 <button
                   type="submit"
                   disabled={loading || (step === 1 && !canProceedToStep2()) || (step === 2 && !canSubmit())}
-                  className="w-full bg-primary hover:bg-secondary text-white hover:text-black py-3 px-4 rounded-xl font-medium shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
+                  className="w-full bg-primary hover:bg-secondary text-white py-3 px-4 rounded-xl font-medium shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
                 >
                   {loading ? (
                     <div className="flex items-center justify-center gap-2">

@@ -4,7 +4,7 @@ import { logger } from '@/lib/logger'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Brain, Loader2, Filter, RefreshCcw } from 'lucide-react'
+import { Brain, Loader2, Filter, RefreshCcw, BookCheck } from 'lucide-react'
 import { Pagination } from '@/components/ui/Pagination'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -97,37 +97,58 @@ export default function QuizzesPageWithReactQuery() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section - Mobile First */}
-      <section className="relative py-12 md:py-16 lg:py-20 bg-gradient-to-br from-primary/5 via-white to-secondary/5">
-        <div className="absolute inset-0 bg-grid-primary/[0.02] bg-[size:30px_30px] md:bg-[size:50px_50px]" />
-        <div className="container mx-auto px-2 sm:px-4 relative z-10">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium mb-4 md:mb-6">
-              <Brain className="w-3 h-3 md:w-4 md:h-4" />
-              Test Your Knowledge
+      {/* Hero Section - IELTS Focused */}
+      <section className="bg-gradient-to-br from-blue-50 via-white to-slate-50 relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]"></div>
+        
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20 lg:py-24 relative">
+          <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
+            {/* Content */}
+            <div className="text-center lg:text-left space-y-6 md:space-y-8">
+              <div className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full text-sm font-semibold shadow-lg">
+                <BookCheck className="w-4 h-4" />
+                Expert-Verified Practice
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900">
+                Master the IELTS Skills That Matter,
+                <span className="block text-primary font-extrabold mt-2">One Quiz at a Time.</span>
+              </h1>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                Stop practicing your mistakes. Our targeted quizzes help you isolate and fix the common errors in grammar and vocabulary that are holding back your score. 
+                <span className="font-medium text-gray-900"> Start learning smarter, not just harder.</span>
+              </p>
             </div>
-            <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
-              Practice English Quizzes
-            </h1>
-            <p className="text-base md:text-xl text-gray-600 mb-6 md:mb-8 leading-relaxed px-2">
-              Challenge yourself with our comprehensive collection of English language quizzes. 
-              From grammar basics to advanced comprehension, find the perfect quiz for your level.
-            </p>
-            
-            {/* Quick Stats - Mobile Optimized */}
-            <div className="grid grid-cols-3 md:grid-cols-3 gap-3 md:gap-6 max-w-sm md:max-w-2xl mx-auto mb-6 md:mb-8">
-              <Card variant="glass" className="p-3 md:p-4">
-                <div className="text-lg md:text-2xl font-bold text-primary">{totalQuizzes}</div>
-                <div className="text-xs md:text-sm text-gray-600">Available Quizzes</div>
-              </Card>
-              <Card variant="glass" className="p-3 md:p-4">
-                <div className="text-lg md:text-2xl font-bold text-primary">{categories.length}</div>
-                <div className="text-xs md:text-sm text-gray-600">Categories</div>
-              </Card>
-              <Card variant="glass" className="p-3 md:p-4">
-                <div className="text-lg md:text-2xl font-bold text-primary">Free</div>
-                <div className="text-xs md:text-sm text-gray-600">Practice Tests</div>
-              </Card>
+
+            {/* Hero Image */}
+            <div className="relative order-first lg:order-last">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white p-2">
+                <Image
+                  src="/images/hero/online-learning.jpg"
+                  alt="A student focused on IELTS preparation using the Acadex platform"
+                  width={600}
+                  height={400}
+                  className="object-cover w-full h-[400px] rounded-xl"
+                  priority
+                  quality={90}
+                />
+                {/* Image Overlay with Quiz Stats */}
+                <div className="absolute bottom-4 left-4 right-4">
+                  <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <span className="font-medium text-gray-900">IELTS Skill Practice</span>
+                      </div>
+                      <span className="font-bold text-secondary">Boost Your Score</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Floating elements for visual interest */}
+              <div className="absolute -top-4 -left-4 w-24 h-24 bg-primary/10 rounded-full blur-xl"></div>
+              <div className="absolute -bottom-6 -right-6 w-16 h-16 bg-secondary/10 rounded-full blur-xl"></div>
             </div>
           </div>
         </div>
@@ -141,7 +162,7 @@ export default function QuizzesPageWithReactQuery() {
             {/* Search Bar - Full width on mobile */}
             <div className="w-full">
               <TextInput
-                placeholder="Search quizzes..."
+                placeholder="Search IELTS topics (e.g. Environment, Grammar)..."
                 value={searchTerm}
                 onChange={handleSearchChange}
                 className="w-full text-base md:text-sm"
@@ -183,7 +204,7 @@ export default function QuizzesPageWithReactQuery() {
                     variant="ghost"
                     size="sm"
                     onClick={clearFilters}
-                    className="text-gray-600 hover:text-gray-900 text-sm"
+                    className="text-sm"
                   >
                     <span className="hidden sm:inline">Clear</span>
                     <span className="sm:hidden">✕</span>
@@ -347,3 +368,4 @@ export default function QuizzesPageWithReactQuery() {
     </div>
   )
 }
+

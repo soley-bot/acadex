@@ -1,35 +1,35 @@
 import { Card, CardContent } from '@/components/ui/card'
-import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
+import { Container, Section } from '@/components/ui/Layout'
 import { BlobBackground } from '@/components/ui/BlobBackground'
-import { Clock, Video, Users, Puzzle, ArrowRight } from 'lucide-react'
+import { CheckCircle, Zap, Crosshair, BarChart, ArrowRight } from 'lucide-react'
 
 export default function Features() {
   const features = [
     {
-      icon: Clock,
-      title: "Short, simple lessons",
-      description: "Easy to follow. No long lectures. Just what you need to know."
+      icon: Crosshair,
+      title: "Targeted Micro-Quizzes",
+      description: "Stop wasting hours on generic lessons. Fix a specific weakness, like 'Complex Sentences' or 'Environment Vocabulary,' in just 15 minutes."
     },
     {
-      icon: Video,
-      title: "Helpful illustration videos",
-      description: "We use visuals to explain concepts clearly — even if English isn't your strength."
+      icon: CheckCircle,
+      title: "Expert-Verified Content",
+      description: "Every question is AI-assisted for variety and human-verified for quality by an experienced educator. This isn't just English; it's the English that impresses examiners."
     },
     {
-      icon: Users,
-      title: "Community learning support",
-      description: "Connect with fellow learners and get help when you need it most."
+      icon: Zap,
+      title: "Instant, Detailed Feedback",
+      description: "Understand the 'why' behind every answer. Our clear, detailed explanations in Khmer help you learn from your mistakes so you don't repeat them on exam day."
     },
     {
-      icon: Puzzle,
-      title: "Interactive practice exercises",
-      description: "Learn by doing with hands-on activities that make concepts stick."
+      icon: BarChart,
+      title: "Build Real Mastery",
+      description: "Don't just memorize word lists. Our interactive quizzes force you to apply your knowledge in context, building the deep understanding needed for a high score."
     }
   ]
 
   return (
     <Section 
-      className="relative overflow-hidden py-16 md:py-20 lg:py-24"
+      className="relative overflow-hidden py-12 md:py-16 lg:py-20"
       background="gradient"
     >
       {/* Standardized Animated Background */}
@@ -37,56 +37,43 @@ export default function Features() {
 
       <Container size="xl" className="relative">
         {/* Section Header - Professional Typography */}
-        <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full shadow-lg mb-8">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2 rounded-full shadow-lg mb-6">
             <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-            <span className="font-medium">Why Learn with Acadex</span>
+            <span className="font-medium">A Smarter Way to Prepare</span>
           </div>
           
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-8 tracking-tight">
-            What You&apos;ll Learn
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 tracking-tight">
+            Focus on What Truly Matters for Your Score
           </h2>
           
           <div className="max-w-4xl mx-auto leading-relaxed text-gray-600">
-            <div className="space-y-2 text-lg">
-              <div>• Everyday English for work and life</div>
-              <div>• Communication skills for school, interviews, and more</div>
-              <div>• How to study better and stay focused</div>
-              <div>• Career preparation and confidence building</div>
-            </div>
-            <div className="mt-6 text-sm">
-              New topics are coming — we&apos;re starting small but growing.
-            </div>
+            <p className="space-y-2 text-lg">
+              Getting a high score in IELTS is not about knowing everything. It is about mastering the foundational skills that examiners look for. We help you isolate and fix the common errors in vocabulary and grammar that are preventing you from reaching your goal.
+            </p>
           </div>
         </div>
 
         {/* Features Grid - Professional Card System */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto">
           {features.map((feature, index) => {
             const IconComponent = feature.icon;
             return (
               <div key={index} className="group">
-                <Card variant="glass" className="p-8 h-full hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                <Card variant="glass" className="p-6 h-full hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
                   <CardContent className="p-0">
                     {/* Icon Container */}
-                    <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center mb-8 group-hover:bg-secondary transition-all duration-300 shadow-lg text-white">
-                      <IconComponent size={36} />
+                    <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-6 group-hover:bg-secondary transition-all duration-300 shadow-lg text-white">
+                      <IconComponent size={30} />
                     </div>
                     
-                    <h3 className="text-xl font-semibold text-gray-900 mb-4 group-hover:text-primary transition-colors">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary transition-colors">
                       {feature.title}
                     </h3>
                     
                     <p className="text-gray-600 leading-relaxed">
                       {feature.description}
                     </p>
-                    
-                    {/* Hover Arrow */}
-                    <div className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 mt-8">
-                      <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center shadow-lg">
-                        <ArrowRight size={20} className="text-white" />
-                      </div>
-                    </div>
                   </CardContent>
                 </Card>
               </div>

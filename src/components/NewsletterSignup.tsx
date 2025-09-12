@@ -30,7 +30,7 @@ export function NewsletterSignup() {
           />
           <button 
             type="submit"
-            className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="bg-primary hover:bg-secondary text-white hover:text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             disabled={!mounted}
           >
             {mounted ? 'Subscribe' : 'Loading...'}

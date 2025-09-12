@@ -16,22 +16,31 @@ const queryClient = new QueryClient({
       
       // Retry configuration
       retry: (failureCount, error: any) => {
-        // Don't retry on 4xx errors
+        // Don't retry on 4xx errors (client errors)
         if (error?.status >= 400 && error?.status < 500) {
           return false
         }
-        // Retry up to 3 times for other errors
-        return failureCount < 3
+        // Retry up to 2 times for other errors (reduced from 3)
+        return failureCount < 2
       },
       
-      // Refetch configuration
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: true,
-      refetchOnMount: true,
+      // Refetch configuration - optimized for performance
+      refetchOnWindowFocus: false,  // Don't refetch when window regains focus
+      refetchOnReconnect: true,     // Refetch when network reconnects
+      refetchOnMount: false,        // Only refetch if data is stale
+      refetchInterval: false,       // Disable automatic polling
+      
+      // Network mode optimization
+      networkMode: 'online',        // Only fetch when online
+      
+      // Error retry delay with exponential backoff
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     },
     mutations: {
-      // Retry mutations once
+      // Retry mutations only once for better UX
       retry: 1,
+      // Network mode for mutations
+      networkMode: 'online',
     },
   },
 })

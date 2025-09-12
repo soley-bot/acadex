@@ -16,28 +16,20 @@ export default function AppleIcon() {
     (
       <div
         style={{
-          background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+          background: 'linear-gradient(135deg, #6D28D9 0%, #4F46E5 100%)', // Using brand primary colors
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          borderRadius: '36px',
+          borderRadius: '36px', // Rounded corners for iOS
+          fontSize: '96px', // Larger font for the bigger icon size
+          fontWeight: '900',
+          fontFamily: 'Inter',
+          color: 'white',
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            color: 'white',
-            fontSize: '64px',
-            fontWeight: '900',
-            fontFamily: 'Inter',
-            letterSpacing: '-3px',
-          }}
-        >
-          <span style={{ color: 'white' }}>A</span>
-          <span style={{ color: '#ef4444' }}>E</span>
-        </div>
+        A
       </div>
     ),
     {

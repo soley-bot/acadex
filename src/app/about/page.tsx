@@ -1,8 +1,9 @@
-import { Typography, DisplayLG, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
-import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import Icon from '@/components/ui/Icon'
+import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
+import { Button } from '@/components/ui/button'
+import { Heart, BookOpen, BrainCircuit, Users } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -14,284 +15,115 @@ export const metadata: Metadata = {
     'cambodian education',
     'online learning story',
     'self-directed learning',
-    'education revolution cambodia'
+    'ielts preparation cambodia'
   ],
 }
 
-export default function About() {
+export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-destructive/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-warning/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-secondary/40 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-secondary/5">
       {/* Hero Section */}
-      <Section className="relative" background="transparent" spacing="lg">
-        <Container size="lg" className="relative">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/90 text-white px-6 py-3 rounded-full text-sm lg:text-base font-medium mb-8 shadow-lg">
-              <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-              Our Story
-            </div>
-            
-            <DisplayLG className="mb-6">
-              About Acadex
-            </DisplayLG>
-            
-            <H2 className="text-primary mb-8">
-              Built from Scratch. Built with Heart.
-            </H2>
+      <Section className="relative pt-20 pb-12 md:pt-24 md:pb-16 text-center">
+        <Container size="md">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6">
+            <Heart className="w-4 h-4" />
+            Our Story
           </div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+            Built from Scratch.
+            <br />
+            <span className="text-primary">Built with Heart.</span>
+          </h1>
+          <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
+            Acadex wasn&apos;t built by a big company. It was built line-by-line by an educator who believed there was a better way to help students master the skills they need to succeed.
+          </p>
         </Container>
       </Section>
 
-      {/* Main Story */}
-      <Section background="transparent" spacing="lg">
-        <Container size="lg" className="relative">
-          <div className="max-w-4xl mx-auto">
-            
-            {/* Opening Statement */}
-            <Card variant="glass" className="mb-12">
-              <CardContent className="p-8 lg:p-12">
-                <BodyLG className="text-muted-foreground leading-relaxed text-center">
-                  Acadex is not backed by a big company.
-                  <br />
-                  It was built from zero — line by line — by someone who had no tech background but cared deeply about learning.
-                </BodyLG>
-              </CardContent>
-            </Card>
+      {/* Main Content Section */}
+      <Section className="py-16 md:py-20 lg:py-24">
+        <Container size="md" className="space-y-12 md:space-y-16">
 
-            {/* Founder Introduction */}
-            <Card variant="elevated" className="mb-12">
-              <CardContent className="p-8 lg:p-12">
-                <Flex align="center" gap="lg" className="flex-col md:flex-row">
-                  <div className="w-32 h-32 bg-gradient-to-r from-primary to-primary/90 rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
-                    <Icon name="user" size={64} color="white" />
-                  </div>
-                  <div className="text-center md:text-left">
-                    <H2 className="mb-4">Hi, I&apos;m Soley Heng</H2>
-                    <BodyLG className="text-muted-foreground leading-relaxed">
-                      I spent months learning how to build this platform on my own. No team. No investor. 
-                      Just a dream and many sleepless nights.
-                      <br /><br />
-                      <strong>Why? Because I wanted to share something real.</strong>
-                    </BodyLG>
-                  </div>
-                </Flex>
-              </CardContent>
-            </Card>
-
-            {/* Why I Started Section */}
-            <Card variant="glass" className="mb-12">
-              <CardHeader>
-                <CardTitle>
-                  <H2 className="text-center">Why I Started Acadex</H2>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-8 lg:p-12">
-                <BodyLG className="text-muted-foreground leading-relaxed mb-6">
-                  I&apos;ve worked in education for years. And I saw the same pattern again and again:
-                </BodyLG>
-                
-                <div className="space-y-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-muted-foreground text-lg">•</span>
-                    </div>
-                    <BodyMD className="text-muted-foreground">
-                      Students who thought they weren&apos;t smart — just because school didn&apos;t work for them
-                    </BodyMD>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-muted-foreground text-lg">•</span>
-                    </div>
-                    <BodyMD className="text-muted-foreground">
-                      Young people who felt left behind because they couldn&apos;t afford extra classes or didn&apos;t pass the right tests
-                    </BodyMD>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-muted-foreground text-lg">•</span>
-                    </div>
-                    <BodyMD className="text-muted-foreground">
-                      A system that rewarded memorization, not understanding
-                    </BodyMD>
-                  </div>
+          {/* Founder Introduction */}
+          <Card className="overflow-hidden">
+            <div className="md:grid md:grid-cols-3 items-center">
+              <div className="md:col-span-1 p-6 md:p-8">
+                <div className="rounded-xl overflow-hidden">
+                  <Image
+                    src="/images/hero/founder.jpg" // Placeholder for founder image
+                    alt="Soley Heng, founder of Acadex"
+                    width={800}
+                    height={800}
+                    className="object-cover w-full h-full"
+                  />
                 </div>
-                
-                <BodyLG className="text-foreground leading-relaxed mt-8 text-center font-medium">
-                  I wanted to challenge that.
-                </BodyLG>
-              </CardContent>
-            </Card>
-
-            {/* Beliefs Section */}
-            <Card variant="elevated" className="mb-12">
-              <CardHeader>
-                <CardTitle>
-                  <H2 className="text-center text-secondary">A Different Belief About Learning</H2>
-                </CardTitle>
-                <CardDescription className="text-center">
-                  <BodyLG className="text-muted-foreground leading-relaxed">
-                    At Acadex, we believe this:
-                  </BodyLG>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-8 lg:p-12">
-                <div className="space-y-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <Icon name="check" size={16} color="white" />
-                    </div>
-                    <BodyMD className="text-foreground">
-                      You don&apos;t need a classroom to learn.
-                    </BodyMD>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <Icon name="check" size={16} color="white" />
-                    </div>
-                    <BodyMD className="text-foreground">
-                      You don&apos;t need a degree to grow.
-                    </BodyMD>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <Icon name="check" size={16} color="white" />
-                    </div>
-                    <BodyMD className="text-foreground">
-                      And you don&apos;t need someone else&apos;s permission to improve.
-                    </BodyMD>
-                  </div>
-                </div>
-                
-                <Card variant="glass" className="mt-8">
-                  <CardContent className="p-6">
-                    <BodyLG className="text-foreground leading-relaxed">
-                      <strong>Self-study is powerful.</strong>
-                      <br />
-                      When the content is clear, when you&apos;re motivated, and when you&apos;re given the right tools — 
-                      you can learn just as much (or even more) than in a traditional classroom.
-                      <br /><br />
-                      Acadex is here to support that kind of learning.
-                    </BodyLG>
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </Card>
-
-            {/* What We Offer */}
-            <Card variant="glass" className="mb-12">
-              <CardHeader>
-                <CardTitle>
-                  <H2 className="text-center">What We Offer</H2>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-8 lg:p-12">
-                <Grid cols={1} className="md:grid-cols-2 gap-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary/90 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-                      <Icon name="book" size={24} color="white" />
-                    </div>
-                    <div>
-                      <H3 className="mb-2">Clear, simple lessons</H3>
-                      <BodyMD className="text-muted-foreground">Made for real people</BodyMD>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary/90 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-                      <Icon name="video" size={24} color="white" />
-                    </div>
-                    <div>
-                      <H3 className="mb-2">Friendly visuals</H3>
-                      <BodyMD className="text-muted-foreground">And short videos</BodyMD>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary/90 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-                      <Icon name="heart" size={24} color="white" />
-                    </div>
-                    <div>
-                      <H3 className="mb-2">No pressure, no grades</H3>
-                      <BodyMD className="text-muted-foreground">No judgment</BodyMD>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary/90 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-                      <Icon name="user" size={24} color="white" />
-                    </div>
-                    <div>
-                      <H3 className="mb-2">Just you</H3>
-                      <BodyMD className="text-muted-foreground">And your own pace</BodyMD>
-                    </div>
-                  </div>
-                </Grid>
-              </CardContent>
-            </Card>
-
-            {/* Current State */}
-            <Card variant="base" className="mb-12 bg-warning/5 border-warning/20">
-              <CardHeader>
-                <CardTitle>
-                  <H2 className="text-center">Still Small, Still Growing</H2>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <BodyLG className="text-muted-foreground leading-relaxed">
-                  This platform is still in its early stage.
-                  <br />
-                  We don&apos;t have a huge course library — yet.
-                  <br />
-                  But we have something real. And that&apos;s enough to start.
-                </BodyLG>
-              </CardContent>
-            </Card>
-
-            {/* Personal Message */}
-            <Card variant="glass" className="mb-12">
-              <CardContent className="p-8 lg:p-12 text-center">
-                <BodyLG className="text-muted-foreground leading-relaxed mb-8">
-                  If you&apos;ve ever felt lost in school…
-                  <br />
-                  If you&apos;ve ever thought &quot;maybe I&apos;m just not good at learning&quot;…
-                  <br />
-                  <strong className="text-primary">Acadex is here to prove otherwise.</strong>
-                </BodyLG>
-                
-                <H2 className="mb-6">Let&apos;s build this together.</H2>
-                <BodyLG className="text-muted-foreground font-medium">– Soley</BodyLG>
-              </CardContent>
-            </Card>
-
-            {/* CTA Section */}
-            <div className="text-center">
-              <Flex direction="col" gap="md" className="sm:flex-row justify-center">
-                <Link href="/courses">
-                  <button className="bg-primary hover:bg-secondary text-white hover:text-black px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 min-w-[200px]">
-                    Start Learning
-                    <span className="ml-3">→</span>
-                  </button>
-                </Link>
-                <Link href="/">
-                  <button className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 min-w-[200px]">
-                    Back to Home
-                  </button>
-                </Link>
-              </Flex>
+              </div>
+              <div className="md:col-span-2 p-8 md:p-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">Hi, I&apos;m Soley Heng</h2>
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  I&apos;ve spent years in educational sector. I saw the same pattern again and again: bright students feeling stuck, practicing their mistakes, and losing confidence because they hadn&apos;t mastered the small, foundational details.
+                  <br /><br />
+                  I built Acadex to fix that. With no tech background, I spent months learning to code, driven by one belief: that with the right tools, any student can achieve their goals.
+                </p>
+              </div>
             </div>
+          </Card>
 
+          {/* Beliefs Section */}
+          <div className="text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">A Different Belief About Learning</h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed mb-12">
+              At Acadex, we believe self-study is powerful. When you&apos;re given clear, focused content and the right interactive tools, you can learn more effectively than in a traditional classroom. Our mission is to support that journey.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center">
+                    <BookOpen className="w-8 h-8 text-primary" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Targeted Content</h3>
+                <p className="text-gray-600">No long lectures. Just focused practice on the skills that have the biggest impact on your score.</p>
+              </div>
+              <div className="text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center">
+                    <BrainCircuit className="w-8 h-8 text-primary" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Learn by Doing</h3>
+                <p className="text-gray-600">Master concepts through interactive quizzes that provide instant, clear feedback.</p>
+              </div>
+              <div className="text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center">
+                    <Users className="w-8 h-8 text-primary" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Student-Focused</h3>
+                <p className="text-gray-600">We&apos;re still growing, but our commitment is to build what you actually need to succeed.</p>
+              </div>
+            </div>
           </div>
+
+          {/* CTA Section */}
+          <div className="text-center pt-12">
+            <Card variant="glass" className="max-w-2xl mx-auto p-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Let&apos;s Build This Together</h2>
+              <p className="text-lg text-gray-600 mb-8">
+                If you&apos;ve ever felt like you weren&apos;t good at learning, Acadex is here to prove you wrong. Start with a free quiz and feel the difference an educator-led approach can make.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button asChild size="lg" className="w-full sm:w-auto">
+                  <Link href="/quizzes">Explore IELTS Quizzes</Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
+                  <Link href="/">Back to Home</Link>
+                </Button>
+              </div>
+            </Card>
+          </div>
+
         </Container>
       </Section>
     </div>

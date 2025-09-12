@@ -187,7 +187,7 @@ export function QuizListCard({ quiz, showProgress = true }: QuizListCardProps) {
           <Button
             onClick={handleQuickStart}
             disabled={actionLoading}
-            className="w-full bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2.5 text-sm font-medium mt-auto"
+            className="w-full bg-primary hover:bg-secondary text-white px-4 py-2.5 text-sm font-medium mt-auto"
           >
             <span className="flex items-center justify-center gap-2">
               {actionLoading ? (

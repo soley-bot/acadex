@@ -147,7 +147,7 @@ function ResetPasswordForm() {
             <div className="space-y-3">
               <Link
                 href="/auth/forgot-password"
-                className="block w-full bg-primary hover:bg-secondary text-white hover:text-black py-3 px-4 rounded-xl font-medium text-center transition-all duration-200"
+                className="block w-full bg-primary hover:bg-secondary text-white py-3 px-4 rounded-xl font-medium text-center transition-all duration-200"
               >
                 Request New Reset Link
               </Link>
@@ -188,7 +188,7 @@ function ResetPasswordForm() {
 
             <Link
               href="/auth/login"
-              className="block w-full bg-primary hover:bg-secondary text-white hover:text-black py-3 px-4 rounded-xl font-medium text-center transition-all duration-200"
+              className="block w-full bg-primary hover:bg-secondary text-white py-3 px-4 rounded-xl font-medium text-center transition-all duration-200"
             >
               Continue to Sign In
             </Link>
@@ -282,7 +282,7 @@ function ResetPasswordForm() {
             <button
               type="submit"
               disabled={loading || !canSubmit()}
-              className="w-full bg-primary hover:bg-secondary text-white hover:text-black py-3 px-4 rounded-xl font-medium text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
+              className="w-full bg-primary hover:bg-secondary text-white py-3 px-4 rounded-xl font-medium text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">

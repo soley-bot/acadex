@@ -106,7 +106,7 @@ export default function QuizResultsPage() {
             <div className="flex gap-4 justify-center">
               <Link 
                 href="/quizzes"
-                className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 rounded-xl font-semibold transition-all duration-300"
+                className="bg-primary hover:bg-secondary text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300"
               >
                 Back to Quizzes
               </Link>
@@ -278,13 +278,13 @@ export default function QuizResultsPage() {
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-6 sm:mt-8">
             <Link
               href="/courses"
-              className="bg-primary hover:bg-secondary text-white hover:text-black px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 transform hover:scale-105 text-center touch-manipulation min-h-[44px] flex items-center justify-center"
+              className="bg-primary hover:bg-secondary text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 transform hover:scale-105 text-center touch-manipulation min-h-[44px] flex items-center justify-center"
             >
               Browse Courses
             </Link>
             <Link
               href="/quizzes"
-              className="bg-secondary hover:bg-primary text-black hover:text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 transform hover:scale-105 text-center touch-manipulation min-h-[44px] flex items-center justify-center"
+              className="bg-secondary hover:bg-primary text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 transform hover:scale-105 text-center touch-manipulation min-h-[44px] flex items-center justify-center"
             >
               More Quizzes
             </Link>

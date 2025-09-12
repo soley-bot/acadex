@@ -214,10 +214,13 @@ export function useQuizzes(filters: QuizFilters = {}) {
   return useQuery({
     queryKey: ['quizzes', filters],
     queryFn: () => fetchQuizzesWithStats(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000,   // 10 minutes (formerly cacheTime)
-    refetchOnWindowFocus: false,
-    retry: 2
+    staleTime: 10 * 60 * 1000, // 10 minutes - increased for better caching
+    gcTime: 15 * 60 * 1000,    // 15 minutes - increased garbage collection time
+    refetchOnWindowFocus: false, // Prevent unnecessary refetches
+    refetchOnMount: false,       // Only refetch if data is stale
+    retry: 1,                    // Reduced retry attempts
+    retryDelay: 1000,           // 1 second retry delay
+    networkMode: 'online'        // Only fetch when online
   })
 }
 
@@ -226,9 +229,13 @@ export function useQuiz(quizId: string | undefined) {
     queryKey: ['quiz', quizId],
     queryFn: () => quizId ? fetchQuizWithQuestions(quizId) : null,
     enabled: !!quizId,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 5 * 60 * 1000,    // 5 minutes
-    refetchOnWindowFocus: false
+    staleTime: 5 * 60 * 1000,   // 5 minutes - increased for quiz details
+    gcTime: 10 * 60 * 1000,     // 10 minutes 
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: 1,
+    retryDelay: 1000,
+    networkMode: 'online'
   })
 }
 

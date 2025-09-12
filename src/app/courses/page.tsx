@@ -154,7 +154,7 @@ export default function CoursesPage() {
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
                 Start Small.
-                <span className="block text-secondary font-extrabold mt-2">Learn What Matters.</span>
+                <span className="block text-primary font-extrabold mt-2">Learn What Matters.</span>
               </h1>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 Acadex is still growing — but we&apos;ve created a few courses to help you build real skills in English, communication, and study habits.

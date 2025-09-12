@@ -28,27 +28,52 @@ export const POST = withAdminAuth(async (
     // Create admin service client
     const supabase = createServiceClient()
 
-    // First, delete existing questions for this quiz
-    const { error: deleteError } = await supabase
+    // Use efficient upsert pattern instead of DELETE + INSERT
+    // First, get existing questions to identify what to remove
+    const { data: existingQuestions } = await supabase
       .from('quiz_questions')
-      .delete()
+      .select('id')
       .eq('quiz_id', quizId)
 
-    if (deleteError) {
-      logger.error('Failed to delete existing questions', { deleteError, quizId })
-      return NextResponse.json({
-        error: 'Failed to delete existing questions'
-      }, { status: 500 })
+    const existingIds = existingQuestions?.map(q => q.id) || []
+    const incomingIds = questions
+      .filter((q: any) => q.id)
+      .map((q: any) => q.id)
+
+    // Delete questions that are no longer in the incoming data
+    const toDelete = existingIds.filter(id => !incomingIds.includes(id))
+    if (toDelete.length > 0) {
+      const { error: deleteError } = await supabase
+        .from('quiz_questions')
+        .delete()
+        .in('id', toDelete)
+
+      if (deleteError) {
+        logger.error('Failed to delete removed questions', { deleteError, quizId, toDelete })
+        return NextResponse.json({
+          error: 'Failed to delete removed questions'
+        }, { status: 500 })
+      }
     }
 
-    // Insert new questions
-    const { data: insertedQuestions, error: insertError } = await supabase
+    // Upsert questions (insert new, update existing)
+    const questionsWithIds = questions.map((q: any, index: number) => ({
+      ...q,
+      id: q.id || crypto.randomUUID(), // Generate ID if not present
+      quiz_id: quizId,
+      order_index: index
+    }))
+
+    const { data: upsertedQuestions, error: upsertError } = await supabase
       .from('quiz_questions')
-      .insert(questions)
+      .upsert(questionsWithIds, { 
+        onConflict: 'id',
+        ignoreDuplicates: false 
+      })
       .select()
 
-    if (insertError) {
-      logger.error('Failed to insert questions', { insertError, quizId, questionsCount: questions.length })
+    if (upsertError) {
+      logger.error('Failed to upsert questions', { upsertError, quizId, questionsCount: questions.length })
       return NextResponse.json({
         error: 'Failed to save questions'
       }, { status: 500 })
@@ -67,12 +92,13 @@ export const POST = withAdminAuth(async (
     logger.info('Questions saved successfully', { 
       quizId, 
       questionsCount: questions.length,
-      insertedCount: insertedQuestions?.length 
+      upsertedCount: upsertedQuestions?.length,
+      deletedCount: toDelete.length || 0
     })
 
     return NextResponse.json({
       success: true,
-      questions: insertedQuestions,
+      questions: upsertedQuestions,
       message: `${questions.length} questions saved successfully`
     })
 
