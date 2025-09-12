@@ -41,6 +41,155 @@
     animation-delay: 6s;
   }
 
+  /* Enhanced Landing Page Animations */
+  @keyframes gentleFloat {
+    0%, 100% { 
+      transform: translateY(0px) rotate(0deg); 
+    }
+    50% { 
+      transform: translateY(-10px) rotate(1deg); 
+    }
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+    }
+  }
+
+  @keyframes slideInFromBottom {
+    0% {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Fast CSS-based initial animations for immediate feedback */
+  @keyframes fastFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes fastSlideUp {
+    from { 
+      opacity: 0; 
+      transform: translateY(20px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+
+  @keyframes staggerFadeIn {
+    from { 
+      opacity: 0; 
+      transform: translateY(15px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+
+  /* Performance-optimized animation classes */
+  .animate-fast-fade {
+    animation: fastFadeIn 0.4s ease-out;
+  }
+
+  .animate-fast-slide-up {
+    animation: fastSlideUp 0.5s ease-out;
+  }
+
+  .animate-stagger-1 {
+    animation: staggerFadeIn 0.4s ease-out 0.1s both;
+  }
+
+  .animate-stagger-2 {
+    animation: staggerFadeIn 0.4s ease-out 0.2s both;
+  }
+
+  .animate-stagger-3 {
+    animation: staggerFadeIn 0.4s ease-out 0.3s both;
+  }
+
+  .animate-stagger-4 {
+    animation: staggerFadeIn 0.4s ease-out 0.4s both;
+  }
+
+  .animate-gentle-float {
+    animation: gentleFloat 6s ease-in-out infinite;
+  }
+  
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+  
+  .animate-slide-in-bottom {
+    animation: slideInFromBottom 0.6s ease-out;
+  }
+
+  /* Hover effects for interactive elements */
+  .hover-lift {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    transition: box-shadow 0.3s ease;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fast-fade,
+    .animate-fast-slide-up,
+    .animate-stagger-1,
+    .animate-stagger-2,
+    .animate-stagger-3,
+    .animate-stagger-4,
+    .animate-gentle-float,
+    .animate-shimmer,
+    .animate-pulse-glow,
+    .animate-slide-in-bottom {
+      animation: none;
+    }
+    
+    .hover-lift {
+      transform: none;
+    }
+    
+    .hover-lift:hover {
+      transform: none;
+    }
+  }
+
   /* Enhanced Design System - Consistent Components and Utilities */
   
   /* Consistent button variants */

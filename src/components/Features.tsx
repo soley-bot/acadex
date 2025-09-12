@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Container, Section } from '@/components/ui/Layout'
 import { BlobBackground } from '@/components/ui/BlobBackground'
 import { CheckCircle, Zap, Crosshair, BarChart, ArrowRight } from 'lucide-react'
+import { AnimatedDiv, StaggerContainer, StaggerItem, HoverScale } from '@/components/ui/AnimatedComponents'
 
 export default function Features() {
   const features = [
@@ -37,11 +38,13 @@ export default function Features() {
 
       <Container size="xl" className="relative">
         {/* Section Header - Professional Typography */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2 rounded-full shadow-lg mb-6">
-            <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-            <span className="font-medium">A Smarter Way to Prepare</span>
-          </div>
+        <AnimatedDiv variant="fadeInUp" className="text-center mb-12">
+          <AnimatedDiv variant="scaleIn" delay={0.2}>
+            <div className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2 rounded-full shadow-lg mb-6">
+              <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+              <span className="font-medium">A Smarter Way to Prepare</span>
+            </div>
+          </AnimatedDiv>
           
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 tracking-tight">
             Focus on What Truly Matters for Your Score
@@ -52,34 +55,36 @@ export default function Features() {
               Getting a high score in IELTS is not about knowing everything. It is about mastering the foundational skills that examiners look for. We help you isolate and fix the common errors in vocabulary and grammar that are preventing you from reaching your goal.
             </p>
           </div>
-        </div>
+        </AnimatedDiv>
 
         {/* Features Grid - Professional Card System */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto">
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto">
           {features.map((feature, index) => {
             const IconComponent = feature.icon;
             return (
-              <div key={index} className="group">
-                <Card variant="glass" className="p-6 h-full hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                  <CardContent className="p-0">
-                    {/* Icon Container */}
-                    <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-6 group-hover:bg-secondary transition-all duration-300 shadow-lg text-white">
-                      <IconComponent size={30} />
-                    </div>
-                    
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary transition-colors">
-                      {feature.title}
-                    </h3>
-                    
-                    <p className="text-gray-600 leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
+              <StaggerItem key={index}>
+                <HoverScale scale={1.03} className="group h-full">
+                  <Card variant="glass" className="p-6 h-full hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                    <CardContent className="p-0">
+                      {/* Icon Container */}
+                      <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-6 group-hover:bg-secondary transition-all duration-300 shadow-lg text-white">
+                        <IconComponent size={30} />
+                      </div>
+                      
+                      <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary transition-colors">
+                        {feature.title}
+                      </h3>
+                      
+                      <p className="text-gray-600 leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </HoverScale>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerContainer>
       </Container>
     </Section>
   )

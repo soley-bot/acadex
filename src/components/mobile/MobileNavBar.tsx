@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Home, ChevronLeft, Brain, BookOpen, LayoutDashboard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useCallback } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface MobileNavBarProps {
   /**
@@ -120,11 +121,21 @@ export function MobileBottomNavBar({
   className?: string
 }) {
   const router = useRouter()
+  const { user } = useAuth()
 
   // Use browser back for intuitive navigation
   const handleBack = useCallback(() => {
     router.back()
   }, [router])
+
+  // Handle dashboard navigation with auth check
+  const handleDashboard = useCallback(() => {
+    if (user) {
+      router.push('/dashboard')
+    } else {
+      router.push('/auth/login?redirectTo=/dashboard')
+    }
+  }, [router, user])
 
   return (
     <>
@@ -150,15 +161,14 @@ export function MobileBottomNavBar({
             <span className="text-xs font-medium">Home</span>
           </Link>
 
-          {/* Dashboard Button - Main app hub */}
-          <Link 
-            href="/dashboard" 
-            prefetch={true}
+          {/* Dashboard Button - Main app hub with auth check */}
+          <button
+            onClick={handleDashboard}
             className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground p-2 h-auto transition-colors duration-150 active:scale-95 touch-manipulation"
           >
             <LayoutDashboard className="h-5 w-5" />
             <span className="text-xs font-medium">Dashboard</span>
-          </Link>
+          </button>
         </div>
       </div>
 
