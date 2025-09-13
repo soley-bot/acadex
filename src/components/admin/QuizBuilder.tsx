@@ -581,6 +581,18 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
   const [isDirty, setIsDirty] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsDirty(false)
+      setLastSaved(null)
+      setIsSaving(false)
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current)
+      }
+    }
+  }, [isOpen])
+
   // Debounced auto-save function
   const debouncedSave = useCallback(async (stateToSave: QuizBuilderState) => {
     if (!stateToSave.quiz.id || stateToSave.questions.length === 0) {
@@ -622,6 +634,9 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
       if (response.ok) {
         setLastSaved(new Date())
         setIsDirty(false)
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Auto-save failed:', errorData)
       }
     } catch (error) {
       console.error('Auto-save failed:', error)
@@ -651,12 +666,21 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
     }
   }, [state, isDirty, debouncedSave])
 
-  // Mark as dirty when state changes
+  // Mark as dirty when state changes (only after user interactions)
   useEffect(() => {
-    if (state.questions.length > 0 && state.quiz.id) {
-      setIsDirty(true)
+    // Only mark dirty if:
+    // 1. We have an existing quiz ID (not creating new)
+    // 2. We have questions 
+    // 3. The modal has been open for a bit (to avoid immediate auto-save on load)
+    if (state.questions.length > 0 && state.quiz.id && isOpen) {
+      // Add a small delay to avoid marking dirty immediately on load
+      const timeoutId = setTimeout(() => {
+        setIsDirty(true)
+      }, 1000) // 1 second delay before marking as dirty
+
+      return () => clearTimeout(timeoutId)
     }
-  }, [state.questions, state.quiz])
+  }, [state.questions, state.quiz, isOpen])
 
   // Track if we've fetched questions for this quiz to prevent duplicate fetches
   const fetchedQuizRef = React.useRef<string | null>(null)
@@ -1041,7 +1065,12 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
 
         if (!questionsResponse.ok) {
           const errorData = await questionsResponse.json()
-          throw new Error(errorData.error || 'Failed to save questions')
+          console.error('Quiz questions save failed:', errorData)
+          throw new Error(
+            errorData.details 
+              ? `Failed to save questions: ${errorData.details}` 
+              : errorData.error || 'Failed to save questions'
+          )
         }
 
         const questionsResult = await questionsResponse.json()

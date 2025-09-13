@@ -15,6 +15,7 @@ import { AdminQuizCard } from '@/components/admin/AdminQuizCard'
 import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
 import { useAdminDashboardData, useDeleteQuiz, usePrefetchQuiz, type AdminDashboardData } from '@/hooks/useOptimizedAPI'
 import { supabase, type Quiz as BaseQuiz } from '@/lib/supabase'
+import { authenticatedPut } from '@/lib/auth-api'
 
 // Extended Quiz interface with calculated statistics
 interface Quiz extends BaseQuiz {
@@ -206,9 +207,36 @@ export default function AdminQuizzesPage() {
   }, [])
 
   const handleTogglePublish = useCallback(async (quiz: Quiz) => {
-    // TODO: Implement toggle publish functionality with React Query mutation
-    logger.info('Toggle publish for quiz:', quiz.id)
-  }, [])
+    try {
+      const newPublishedState = !quiz.is_published
+      
+      logger.info(`${newPublishedState ? 'Publishing' : 'Unpublishing'} quiz:`, {
+        quizId: quiz.id,
+        title: quiz.title,
+        newState: newPublishedState
+      })
+
+      // Use authenticated API call with proper headers
+      const response = await authenticatedPut(`/api/admin/quizzes/${quiz.id}`, {
+        is_published: newPublishedState,
+        updated_at: new Date().toISOString()
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to toggle publish state')
+      }
+
+      // Refetch to ensure consistency
+      refetch()
+      
+      logger.info(`Successfully ${newPublishedState ? 'published' : 'unpublished'} quiz:`, quiz.id)
+    } catch (error) {
+      logger.error('Failed to toggle quiz publication:', error)
+      // Refetch to restore correct state
+      refetch()
+    }
+  }, [refetch])
 
   // Simplified delete function (React Query handles the API call)
   const deleteQuiz = useCallback(async (quiz: any) => {
