@@ -47,15 +47,15 @@ export function EnhancedAIStep({
 }: EnhancedAIStepProps) {
   const [generating, setGenerating] = useState(false)
   const [topic, setTopic] = useState('')
-  const [subject, setSubject] = useState('General Knowledge')
-  const [questionCount, setQuestionCount] = useState(aiConfig.questionCount || 5)
+  const [subject, setSubject] = useState('')
+  const [questionCount, setQuestionCount] = useState(aiConfig.questionCount || 10)
   const [difficulty, setDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>(
     (aiConfig.difficulty as 'beginner' | 'intermediate' | 'advanced') || 'intermediate'
   )
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<QuestionType[]>(['multiple_choice', 'true_false'])
   const [language, setLanguage] = useState(aiConfig.language || 'english')
   const [explanationLanguage, setExplanationLanguage] = useState(aiConfig.language || 'english')
-  const [customPrompt, setCustomPrompt] = useState(aiConfig.customPrompt || '')
+  const [additionalPrompt, setAdditionalPrompt] = useState(aiConfig.customPrompt || '')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -65,27 +65,37 @@ export function EnhancedAIStep({
       return
     }
 
+    if (!subject.trim()) {
+      setError('Please enter a subject category')
+      return
+    }
+
     setGenerating(true)
     setError('')
     setSuccess('')
 
     try {
-      const response = await fetch('/api/simple-ai-generation', {
+      const response = await fetch('/api/admin/generate-quiz', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          topic: topic.trim(),
+          topic,
           subject,
-          questionCount,
+          question_count: questionCount, // Map to API expected format
           difficulty,
           questionTypes: selectedQuestionTypes,
           language,
           explanationLanguage,
-          customPrompt: customPrompt.trim() || undefined // Only send if not empty
+          additionalPrompt: additionalPrompt.trim() || undefined // Send as additional instructions
         })
       })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`HTTP ${response.status}: ${errorText || 'Unknown error'}`)
+      }
 
       const result = await response.json()
 
@@ -143,19 +153,19 @@ export function EnhancedAIStep({
           {/* Custom Prompt Override */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
-              Custom Prompt (Optional)
+              Additional Instructions (Optional)
             </label>
             <div className="space-y-1">
               <textarea
-                value={customPrompt}
-                onChange={(e) => setCustomPrompt(e.target.value)}
-                placeholder="Override the automatic prompt with your custom instructions for AI generation..."
-                rows={4}
+                value={additionalPrompt}
+                onChange={(e) => setAdditionalPrompt(e.target.value)}
+                placeholder="Add specific instructions or requirements for the AI generation..."
+                rows={3}
                 className="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-background resize-vertical"
               />
               <p className="text-xs text-muted-foreground">
-                If provided, this will override the automatic prompt generation based on your settings above. 
-                Leave empty to use the standard AI configuration.
+                Additional instructions that will be added to the AI prompt to customize the quiz generation. 
+                These will supplement the standard prompt.
               </p>
             </div>
           </div>
@@ -163,20 +173,18 @@ export function EnhancedAIStep({
           {/* Subject Category */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
-              Subject Category
+              Subject Category *
             </label>
-            <select
+            <input
+              type="text"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
+              placeholder="e.g., English Language, Business English, Mathematics, Science..."
               className="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-background"
-            >
-              <option value="English Language">English Language</option>
-              <option value="Business English">Business English</option>
-              <option value="Academic English">Academic English</option>
-              <option value="General Knowledge">General Knowledge</option>
-              <option value="Test Preparation">Test Preparation</option>
-              <option value="Conversation">Conversation</option>
-            </select>
+            />
+            <p className="text-xs text-muted-foreground">
+              Enter any subject area - this helps the AI understand the context and style of questions to generate.
+            </p>
           </div>
 
           {/* Settings Grid */}
@@ -186,14 +194,20 @@ export function EnhancedAIStep({
               <label className="text-sm font-medium text-foreground">
                 Number of Questions
               </label>
-              <input
-                type="number"
-                min="1"
-                max="50"
+              <select
                 value={questionCount}
                 onChange={(e) => setQuestionCount(parseInt(e.target.value))}
                 className="w-full px-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-background"
-              />
+              >
+                <option value={10}>10 questions</option>
+                <option value={12}>12 questions</option>
+                <option value={15}>15 questions</option>
+                <option value={18}>18 questions</option>
+                <option value={20}>20 questions</option>
+              </select>
+              <p className="text-xs text-muted-foreground">
+                Optimal range for quality quiz generation
+              </p>
             </div>
 
             {/* Difficulty */}
@@ -314,7 +328,7 @@ export function EnhancedAIStep({
             
             <button
               onClick={handleGenerate}
-              disabled={generating || !topic.trim() || selectedQuestionTypes.length === 0}
+              disabled={generating || !topic.trim() || !subject.trim() || selectedQuestionTypes.length === 0}
               className="bg-primary hover:bg-secondary text-white hover:text-black px-8 py-3 rounded-xl flex items-center gap-3 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed ml-auto"
             >
               {generating ? (

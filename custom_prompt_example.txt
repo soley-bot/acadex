@@ -1,0 +1,87 @@
+Create a batch of 6 quiz questions on IELTS Academic vocabulary for the theme of **Environment**. The target audience is Cambodian students aiming for a Band 7+ score.
+
+**IMPORTANT**: You MUST return the response as a valid JSON object with this EXACT structure:
+
+{
+  "title": "IELTS Environment Vocabulary Quiz - Mixed Types",
+  "description": "Test your IELTS Academic vocabulary knowledge on environmental topics with various question formats",
+  "category": "IELTS Vocabulary",
+  "difficulty": "advanced",
+  "duration_minutes": 12,
+  "questions": [
+    {
+      "question": "The sentence with a blank to be filled ____.",
+      "question_type": "multiple_choice",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correct_answer": 0,
+      "explanation": "Detailed explanation for multiple choice question."
+    },
+    {
+      "question": "Global warming is primarily caused by human activities.",
+      "question_type": "true_false",
+      "options": ["True", "False"],
+      "correct_answer": 0,
+      "explanation": "Detailed explanation for true/false question."
+    },
+    {
+      "question": "The process of converting waste materials into reusable materials is called ____.",
+      "question_type": "fill_blank",
+      "options": [],
+      "correct_answer": 0,
+      "correct_answer_text": "recycling",
+      "explanation": "Detailed explanation for fill in the blank question."
+    },
+    {
+      "question": "Discuss the major environmental challenges facing developing countries and propose three practical solutions.",
+      "question_type": "essay",
+      "options": [],
+      "correct_answer": 0,
+      "correct_answer_text": "Sample essay response covering deforestation, pollution, and resource management with practical solutions including policy changes, technology adoption, and community engagement programs.",
+      "explanation": "Sample answer guidance for essay question."
+    }
+  ]
+}
+
+REQUIREMENTS FOR DIFFERENT QUESTION TYPES:
+
+**Multiple Choice Questions:**
+- Complete sentence with blank to be filled using advanced environmental vocabulary
+- Provide 4 options with clear distinctions
+- correct_answer must be INDEX (0, 1, 2, or 3) of the correct option
+- question_type: "multiple_choice"
+
+**True/False Questions:**
+- Statement about environmental facts or concepts
+- options: ["True", "False"] exactly
+- correct_answer: 0 for True, 1 for False
+- question_type: "true_false"
+
+**Fill in the Blank Questions:**
+- Sentence with one key environmental term missing
+- options: [] (empty array)
+- correct_answer: 0 (always)
+- correct_answer_text: "the correct word or phrase"
+- question_type: "fill_blank"
+
+**Essay Questions:**
+- Open-ended question requiring detailed response
+- options: [] (empty array)
+- correct_answer: 0 (always)
+- correct_answer_text: "comprehensive sample answer"
+- question_type: "essay"
+
+CONTENT REQUIREMENTS:
+- Focus on IELTS Band 7+ environmental vocabulary (sustainability, biodiversity, mitigation, etc.)
+- Include terms like: renewable, fossil fuels, ecosystem, conservation, emissions, deforestation
+- Target Cambodian students preparing for IELTS Academic
+- Explanations should define vocabulary and explain context
+- Mix question difficulty within advanced level
+- Ensure cultural relevance where possible
+
+GENERATE EXACTLY:
+- 2 multiple_choice questions
+- 2 true_false questions  
+- 1 fill_blank question
+- 1 essay question
+
+Return ONLY valid JSON, no markdown, no additional text.

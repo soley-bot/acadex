@@ -98,7 +98,7 @@ export const useQuizValidation = () => {
           })
         }
         
-        // Check if correct_answer_json is properly set
+        // Enhanced validation for matching pairs structure
         if (!question.correct_answer_json || 
             (Array.isArray(question.correct_answer_json) && question.correct_answer_json.length === 0) ||
             (typeof question.correct_answer_json === 'object' && Object.keys(question.correct_answer_json).length === 0)) {
@@ -107,6 +107,44 @@ export const useQuizValidation = () => {
             message: 'Please set the correct matching pairs',
             severity: 'error'
           })
+        } else if (Array.isArray(question.options) && question.options.length > 0) {
+          // Validate that options are in the correct format for matching
+          const hasValidMatchingFormat = question.options.every(option => 
+            typeof option === 'object' && 
+            option !== null &&
+            'left' in option && 
+            'right' in option &&
+            typeof option.left === 'string' &&
+            typeof option.right === 'string'
+          )
+          
+          if (!hasValidMatchingFormat) {
+            errors.push({
+              field: 'options',
+              message: 'Matching pairs must have "left" and "right" properties',
+              severity: 'error'
+            })
+          }
+          
+          // Validate correct_answer_json format for matching
+          if (Array.isArray(question.correct_answer_json)) {
+            const hasValidAnswerFormat = question.correct_answer_json.every(answer =>
+              typeof answer === 'object' &&
+              answer !== null &&
+              'leftIndex' in answer &&
+              'rightIndex' in answer &&
+              typeof answer.leftIndex === 'number' &&
+              typeof answer.rightIndex === 'number'
+            )
+            
+            if (!hasValidAnswerFormat) {
+              errors.push({
+                field: 'correct_answer_json',
+                message: 'Matching answers must have leftIndex and rightIndex properties',
+                severity: 'error'
+              })
+            }
+          }
         }
         break
 

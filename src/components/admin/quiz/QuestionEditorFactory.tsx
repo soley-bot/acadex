@@ -2,8 +2,9 @@
 
 import React, { Suspense, useState } from 'react'
 import { Loader2, ChevronDown, ChevronRight, CheckCircle, AlertTriangle, Trash2 } from 'lucide-react'
-import { QuestionData, QuestionEditorProps, MultipleChoiceData } from '@/types/question-types'
+import { QuestionData, QuestionEditorProps, MultipleChoiceData, TrueFalseData, FillBlankData, EssayData, MatchingData, OrderingData } from '@/types/question-types'
 import type { QuizQuestion } from '@/lib/supabase'
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
 
 // Helper function to convert QuizQuestion to QuestionData
 function convertQuizQuestionToQuestionData(quizQuestion: QuizQuestion): QuestionData {
@@ -148,7 +149,8 @@ function convertQuestionDataToQuizQuestion(updates: any): Partial<QuizQuestion> 
     case 'true_false':
       if (updates.correct_answer !== undefined) {
         // Convert boolean to number for database storage
-        result.correct_answer = updates.correct_answer ? 1 : 0
+        // Database mapping: True = 0, False = 1 (matching AI prompt specification)
+        result.correct_answer = updates.correct_answer ? 0 : 1
       }
       break
       
@@ -214,7 +216,7 @@ const LoadingFallback = () => (
   </div>
 )
 
-export function QuestionEditorFactory({ question: rawQuestion, onChange, onRemove, isValid, ...props }: QuestionEditorFactoryProps) {
+export const QuestionEditorFactory = React.memo(function QuestionEditorFactory({ question: rawQuestion, onChange, onRemove, isValid, ...props }: QuestionEditorFactoryProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   
   // Convert QuizQuestion to QuestionData if needed
@@ -264,28 +266,30 @@ export function QuestionEditorFactory({ question: rawQuestion, onChange, onRemov
   const renderEditor = () => {
     const editorProps = { ...props, errors, onChange: wrappedOnChange, isValid, onRemove }
     
-    switch (question.question_type) {
+    // Normalize question type - single_choice is treated as multiple_choice
+    const normalizedQuestionType = question.question_type === 'single_choice' ? 'multiple_choice' : question.question_type
+    const normalizedQuestion = question.question_type === 'single_choice' 
+      ? { ...question, question_type: 'multiple_choice' as const, allow_multiple: false }
+      : question
+    
+    switch (normalizedQuestionType) {
       case 'multiple_choice':
-        return <MultipleChoiceEditor question={question} {...editorProps} />
+        return <MultipleChoiceEditor question={normalizedQuestion as MultipleChoiceData} {...editorProps} />
       
       case 'true_false':
-        return <TrueFalseEditor question={question} {...editorProps} />
-      
-      case 'single_choice':
-        // Single choice works the same as multiple choice but with allow_multiple: false
-        return <MultipleChoiceEditor question={{...question, question_type: 'multiple_choice', allow_multiple: false} as unknown as MultipleChoiceData} {...editorProps} />
+        return <TrueFalseEditor question={question as TrueFalseData} {...editorProps} />
       
       case 'fill_blank':
-        return <FillBlankEditor question={question} {...editorProps} />
+        return <FillBlankEditor question={question as FillBlankData} {...editorProps} />
       
       case 'essay':
-        return <EssayEditor question={question} {...editorProps} />
+        return <EssayEditor question={question as EssayData} {...editorProps} />
       
       case 'matching':
-        return <MatchingEditor question={question} {...editorProps} />
+        return <MatchingEditor question={question as MatchingData} {...editorProps} />
       
       case 'ordering':
-        return <OrderingEditor question={question} {...editorProps} />
+        return <OrderingEditor question={question as OrderingData} {...editorProps} />
       
       default:
         return (
@@ -352,9 +356,24 @@ export function QuestionEditorFactory({ question: rawQuestion, onChange, onRemov
       {/* Question Editor Content */}
       {!isCollapsed && (
         <div className="p-4">
-          <Suspense fallback={<LoadingFallback />}>
-            {renderEditor()}
-          </Suspense>
+          <ErrorBoundary
+            fallback={
+              <div className="p-6 border-2 border-dashed border-red-300 rounded-lg bg-red-50">
+                <div className="flex items-center gap-2 text-red-600 mb-3">
+                  <AlertTriangle className="h-5 w-5" />
+                  <span className="font-medium">Question Editor Error</span>
+                </div>
+                <p className="text-red-700 text-sm mb-3">
+                  Failed to load question editor. Please try refreshing the page.
+                </p>
+              </div>
+            }
+            onError={(error) => console.error('Question editor error:', error)}
+          >
+            <Suspense fallback={<LoadingFallback />}>
+              {renderEditor()}
+            </Suspense>
+          </ErrorBoundary>
           
           {/* Error Display */}
           {!isValid && Object.keys(errors).length > 0 && (
@@ -374,4 +393,4 @@ export function QuestionEditorFactory({ question: rawQuestion, onChange, onRemov
       )}
     </div>
   )
-}
+})

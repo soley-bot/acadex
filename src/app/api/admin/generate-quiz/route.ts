@@ -55,9 +55,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!requestData.question_count || requestData.question_count < 3 || requestData.question_count > 20) {
+    if (!requestData.subject || !requestData.subject.trim()) {
       return NextResponse.json(
-        { error: 'Question count must be between 3 and 20' },
+        { error: 'Subject category is required' },
+        { status: 400 }
+      )
+    }
+
+    if (!requestData.question_count || requestData.question_count < 10 || requestData.question_count > 20) {
+      return NextResponse.json(
+        { error: 'Question count must be between 10 and 20' },
         { status: 400 }
       )
     }
@@ -82,9 +89,10 @@ export async function POST(request: NextRequest) {
       topic: requestData.topic,
       questionCount: requestData.question_count,
       difficulty: requestData.difficulty,
-      questionTypes: ['multiple_choice', 'true_false', 'ordering', 'matching'],
+      questionTypes: requestData.questionTypes || ['multiple_choice', 'true_false', 'ordering', 'matching'],
       subject: requestData.subject,
-      language: requestData.language
+      language: requestData.language,
+      additionalInstructions: requestData.additionalPrompt // Handle additional prompt
     })
 
     if (!result.success) {

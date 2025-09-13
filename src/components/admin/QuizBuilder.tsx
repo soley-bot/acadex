@@ -59,6 +59,7 @@ interface QuizBuilderState {
   isGenerating: boolean
   isSaving: boolean
   isPublishing: boolean
+  error: string | null
 }
 
 // Initial state
@@ -76,7 +77,8 @@ const initialState: QuizBuilderState = {
   },
   isGenerating: false,
   isSaving: false,
-  isPublishing: false
+  isPublishing: false,
+  error: null
 }
 
 // Simple question type dropdown - replaces modal
@@ -546,6 +548,15 @@ const QuizSummary = memo<{
 
 QuizSummary.displayName = 'QuizSummary'
 
+// Type guard functions for safe casting
+const isValidQuestionType = (type: any): type is 'multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay' | 'matching' | 'ordering' => {
+  return ['multiple_choice', 'single_choice', 'true_false', 'fill_blank', 'essay', 'matching', 'ordering'].includes(type)
+}
+
+const isValidDifficultyLevel = (level: any): level is 'easy' | 'medium' | 'hard' => {
+  return ['easy', 'medium', 'hard'].includes(level)
+}
+
 // Main QuizBuilder Component
 export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSuccess, prefilledData }) => {
   const [state, setState] = React.useState<QuizBuilderState>(() => ({
@@ -565,7 +576,7 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
       lesson_id: quiz.lesson_id,
       passing_score: quiz.passing_score || 70,
       max_attempts: quiz.max_attempts || 3,
-      time_limit_minutes: quiz.time_limit_minutes,
+      time_limit_minutes: quiz.time_limit_minutes ?? null, // Consistent null handling
       image_url: quiz.image_url,
       is_published: quiz.is_published || false,
       created_at: quiz.created_at,
@@ -577,6 +588,7 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
 
   // Auto-save functionality with debouncing
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout>()
+  const saveLockRef = useRef<Promise<any> | null>(null) // Prevent concurrent saves
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [isDirty, setIsDirty] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -593,10 +605,15 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
     }
   }, [isOpen])
 
-  // Debounced auto-save function
+  // Debounced auto-save function with save conflict protection
   const debouncedSave = useCallback(async (stateToSave: QuizBuilderState) => {
     if (!stateToSave.quiz.id || stateToSave.questions.length === 0) {
       return
+    }
+
+    // Wait for any existing save operation to complete
+    if (saveLockRef.current) {
+      await saveLockRef.current
     }
 
     // Get current session for authentication
@@ -605,8 +622,27 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
       return
     }
 
+    // Create save promise and store it
+    const savePromise = performSave(stateToSave)
+    saveLockRef.current = savePromise
+    
+    try {
+      await savePromise
+    } finally {
+      saveLockRef.current = null
+    }
+  }, [])
+
+  // Extracted save logic to avoid duplication
+  const performSave = async (stateToSave: QuizBuilderState) => {
     setIsSaving(true)
     try {
+      // Get session inside the function
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        throw new Error('No authentication session')
+      }
+
       const questionsData = stateToSave.questions.map((q, index) => ({
         id: q.id,
         quiz_id: stateToSave.quiz.id,
@@ -616,7 +652,7 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
         correct_answer: q.correct_answer,
         correct_answer_text: q.correct_answer_text,
         explanation: q.explanation,
-        order_index: index,
+        order_index: q.order_index !== undefined ? q.order_index : index, // Preserve existing order
         points: q.points || 1,
         difficulty_level: q.difficulty_level || 'medium'
       }))
@@ -643,7 +679,7 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
     } finally {
       setIsSaving(false)
     }
-  }, [])
+  }
 
   // Auto-save effect when questions change
   useEffect(() => {
@@ -912,13 +948,20 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
         }))
       } else {
         console.error('AI generation failed:', result.error)
-        setState(prev => ({ ...prev, isGenerating: false }))
-        // You could add error notification here
+        setState(prev => ({ 
+          ...prev, 
+          isGenerating: false,
+          error: result.error || 'AI generation failed. Please try again.'
+        }))
       }
     } catch (error) {
       console.error('AI generation error:', error)
-      setState(prev => ({ ...prev, isGenerating: false }))
-      // You could add error notification here
+      const errorMessage = error instanceof Error ? error.message : 'AI generation failed. Please try again.'
+      setState(prev => ({ 
+        ...prev, 
+        isGenerating: false,
+        error: errorMessage
+      }))
     }
   }, [state.aiConfig, state.quiz])
 
@@ -939,24 +982,29 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
           max_attempts: generatedQuiz.max_attempts
         },
         questions: generatedQuiz.questions.map((q, index) => ({
-          id: q.id || `generated_${Date.now()}_${index}`,
+          id: q.id || `generated_${crypto.randomUUID()}`,
           quiz_id: prev.quiz.id || 'temp_quiz_id', // Temporary ID for new quizzes
           question: q.question,
-          question_type: q.question_type as 'multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay' | 'matching' | 'ordering',
+          question_type: isValidQuestionType(q.question_type) ? q.question_type : 'multiple_choice',
           options: q.options || [],
           correct_answer: typeof q.correct_answer === 'number' ? q.correct_answer : 0,
           correct_answer_text: q.correct_answer_text,
           explanation: q.explanation,
           points: q.points || 1,
           order_index: q.order_index || index,
-          difficulty_level: (q.difficulty_level as 'easy' | 'medium' | 'hard') || 'medium'
+          difficulty_level: isValidDifficultyLevel(q.difficulty_level) ? q.difficulty_level : 'medium'
         })),
         currentStep: 'quiz-editing', // Move to editing step
         isGenerating: false
       }))
     } catch (error) {
       console.error('Error processing AI generated quiz:', error)
-      setState(prev => ({ ...prev, isGenerating: false }))
+      const errorMessage = error instanceof Error ? error.message : 'Failed to process AI generated quiz. Please try again.'
+      setState(prev => ({ 
+        ...prev, 
+        isGenerating: false,
+        error: errorMessage
+      }))
     }
   }, [])
 
@@ -1047,7 +1095,7 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
           correct_answer: q.correct_answer,
           correct_answer_text: q.correct_answer_text,
           explanation: q.explanation,
-          order_index: index,
+          order_index: q.order_index !== undefined ? q.order_index : index, // Preserve existing order
           points: q.points || 1,
           difficulty_level: q.difficulty_level || 'medium'
         }))
@@ -1223,6 +1271,25 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
               onStepClick={handleStepChange}
             />
           </div>
+
+          {/* Error Display */}
+          {state.error && (
+            <div className="px-6 py-3 bg-red-50 border-b border-red-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-red-800">
+                  <X className="h-4 w-4" />
+                  <span className="text-sm font-medium">Error:</span>
+                  <span className="text-sm">{state.error}</span>
+                </div>
+                <button
+                  onClick={() => setState(prev => ({ ...prev, error: null }))}
+                  className="text-red-600 hover:text-red-800 p-1"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Main Content - Optimized spacing */}
           <div className="flex-1 overflow-auto">

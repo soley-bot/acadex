@@ -78,24 +78,44 @@ export class SimpleAIQuizGenerator {
       
       logger.info('Sending request to AI service', { promptLength: prompt.length })
 
-      // Make AI request with retry logic
+      // Make AI request with retry logic and progressive token increases
       let attempts = 0
-      const maxAttempts = 2
+      const maxAttempts = 3
       let response: any = null
+      
+      // Progressive token limits to handle different content complexities
+      const tokenLimits = [6000, 8000, 10000] // Increase on retry
 
       while (attempts < maxAttempts && (!response || !response.success || !response.content)) {
         attempts++
-        logger.info(`AI generation attempt ${attempts}/${maxAttempts}`)
+        const maxTokens = tokenLimits[attempts - 1] || 5000
+        
+        logger.info(`AI generation attempt ${attempts}/${maxAttempts}`, {
+          maxTokens,
+          temperature: attempts > 1 ? 0.5 : 0.7
+        })
         
         response = await this.aiService.generateContent({
           prompt,
           systemPrompt: this.buildSimpleSystemPrompt(request),
-          maxTokens: 3000,
-          temperature: attempts > 1 ? 0.5 : 0.7 // Lower temperature on retry
+          maxTokens: maxTokens,
+          temperature: attempts > 1 ? 0.5 : 0.7 // Lower temperature on retry for more consistent output
         })
 
+        // Check if response was truncated (finish reason MAX_TOKENS)
         if (response.success && response.content) {
-          break // Success, exit loop
+          // Try to parse to see if it's complete
+          const testQuiz = this.parseAIResponse(response.content, request)
+          if (testQuiz) {
+            logger.info('Valid quiz parsed successfully', { attempt: attempts })
+            break // Success, exit loop
+          } else if (attempts < maxAttempts) {
+            logger.warn(`Attempt ${attempts} generated unparseable content, likely truncated - retrying with higher token limit`, {
+              contentLength: response.content.length,
+              nextMaxTokens: tokenLimits[attempts] || 5000
+            })
+            response = null // Force retry
+          }
         }
 
         if (attempts < maxAttempts) {
@@ -350,15 +370,62 @@ CRITICAL REQUIREMENTS:
       
       // Remove any text before the first { and after the last }
       const firstBrace = cleanContent.indexOf('{')
-      const lastBrace = cleanContent.lastIndexOf('}')
+      let lastBrace = cleanContent.lastIndexOf('}')
       
-      if (firstBrace === -1 || lastBrace === -1 || firstBrace >= lastBrace) {
-        logger.error('No valid JSON structure found in response', {
-          firstBrace,
-          lastBrace,
+      if (firstBrace === -1) {
+        logger.error('No valid JSON structure found in response - no opening brace', {
           contentPreview: cleanContent.substring(0, 500)
         })
         return null
+      }
+      
+      // Handle truncated JSON responses (common when hitting MAX_TOKENS)
+      if (lastBrace === -1 || lastBrace <= firstBrace) {
+        logger.warn('Response appears to be truncated (no closing brace found)', {
+          contentLength: cleanContent.length,
+          firstBrace,
+          lastBrace
+        })
+        
+        // Try to find where the JSON structure is likely incomplete
+        // Look for incomplete questions array or objects
+        const questionsIndex = cleanContent.indexOf('"questions"')
+        if (questionsIndex > -1) {
+          // Try to find the end of the last complete question
+          let searchFrom = questionsIndex
+          let lastCompleteObjectEnd = -1
+          
+          // Look for complete question objects (ending with }")
+          const questionEndPattern = /}\s*,?\s*(?=\{|$)/g
+          let match
+          while ((match = questionEndPattern.exec(cleanContent.substring(searchFrom))) !== null) {
+            lastCompleteObjectEnd = searchFrom + match.index + match[0].indexOf('}') + 1
+          }
+          
+          if (lastCompleteObjectEnd > -1) {
+            // Try to construct valid JSON by closing the questions array and main object
+            const beforeQuestions = cleanContent.substring(0, questionsIndex)
+            const questionsContent = cleanContent.substring(questionsIndex, lastCompleteObjectEnd + 1)
+            
+            // Find if we need to close the questions array
+            if (questionsContent.includes('[')) {
+              cleanContent = beforeQuestions + questionsContent.replace(/,\s*$/, '') + ']}'
+              logger.info('Attempted to repair truncated JSON', {
+                repairLength: cleanContent.length,
+                lastCompleteObjectEnd
+              })
+            }
+          }
+        }
+        
+        // If still no closing brace, can't parse
+        lastBrace = cleanContent.lastIndexOf('}')
+        if (lastBrace === -1 || lastBrace <= firstBrace) {
+          logger.error('Cannot repair truncated JSON response', {
+            contentPreview: cleanContent.substring(0, 500) + '...'
+          })
+          return null
+        }
       }
       
       cleanContent = cleanContent.substring(firstBrace, lastBrace + 1)
@@ -502,20 +569,56 @@ CRITICAL REQUIREMENTS:
 
   private fixCommonJSONIssues(jsonString: string): string {
     try {
+      let fixed = jsonString
+      
       // Fix trailing commas in arrays and objects
-      jsonString = jsonString.replace(/,(\s*[}\]])/g, '$1')
+      fixed = fixed.replace(/,(\s*[}\]])/g, '$1')
       
       // Fix missing commas between array elements/objects
-      jsonString = jsonString.replace(/}(\s*){/g, '},$1{')
-      jsonString = jsonString.replace(/](\s*)\[/g, '],$1[')
+      fixed = fixed.replace(/}(\s*){/g, '},$1{')
+      fixed = fixed.replace(/](\s*)\[/g, '],$1[')
       
-      // Fix missing commas after quoted strings
-      jsonString = jsonString.replace(/"(\s*)\n(\s*)"([^"]*?)"/g, '"$1,\n$2"$3"')
+      // Fix missing commas after quoted strings followed by quotes
+      fixed = fixed.replace(/"(\s*)\n(\s*)"([^"]*?)"/g, '"$1,\n$2"$3"')
       
       // Fix missing quotes around property names (basic fix)
-      jsonString = jsonString.replace(/(\n\s*)(\w+)(\s*:\s*)/g, '$1"$2"$3')
+      fixed = fixed.replace(/(\n\s*)(\w+)(\s*:\s*)/g, '$1"$2"$3')
       
-      return jsonString
+      // Fix incomplete string values at end (often from truncation)
+      // Look for strings that start with quote but don't end properly
+      const incompleteStringMatch = fixed.match(/"[^"]*$/m)
+      if (incompleteStringMatch) {
+        const lastIncomplete = fixed.lastIndexOf(incompleteStringMatch[0])
+        // Only fix if it's near the end (likely truncated)
+        if (lastIncomplete > fixed.length - 200) {
+          fixed = fixed.substring(0, lastIncomplete) + '""'
+          logger.warn('Fixed incomplete string at end of JSON', {
+            removedText: incompleteStringMatch[0]
+          })
+        }
+      }
+      
+      // Fix incomplete objects or arrays at the end
+      const openBraces = (fixed.match(/\{/g) || []).length
+      const closeBraces = (fixed.match(/\}/g) || []).length
+      const openBrackets = (fixed.match(/\[/g) || []).length
+      const closeBrackets = (fixed.match(/\]/g) || []).length
+      
+      // Add missing closing braces
+      if (openBraces > closeBraces) {
+        const missing = openBraces - closeBraces
+        logger.warn('Adding missing closing braces', { missing })
+        fixed += '}'.repeat(missing)
+      }
+      
+      // Add missing closing brackets
+      if (openBrackets > closeBrackets) {
+        const missing = openBrackets - closeBrackets
+        logger.warn('Adding missing closing brackets', { missing })
+        fixed += ']'.repeat(missing)
+      }
+      
+      return fixed
     } catch (error) {
       logger.warn('Error fixing JSON issues', { error })
       return jsonString
@@ -535,11 +638,14 @@ CRITICAL REQUIREMENTS:
       passing_score: 70, // Default passing score
       max_attempts: 0, // 0 = unlimited attempts
       questions: aiQuiz.questions.map((q: any, index: number) => {
+        // Normalize question type - single_choice should be treated as multiple_choice
+        const normalizedQuestionType = q.question_type === 'single_choice' ? 'multiple_choice' : q.question_type
+        
         // Handle different answer formats based on question type
         let correctAnswer: number | string | number[] | string[]
         let correctAnswerText: string | null = null
         
-        switch (q.question_type) {
+        switch (normalizedQuestionType) {
           case 'multiple_choice':
           case 'true_false':
             correctAnswer = typeof q.correct_answer === 'number' ? q.correct_answer : 0
@@ -558,9 +664,9 @@ CRITICAL REQUIREMENTS:
         }
         
         return {
-          id: `temp_${Date.now()}_${index}`, // Temporary ID for frontend
+          id: `temp_${crypto.randomUUID()}`, // Use crypto.randomUUID() to prevent collisions
           question: q.question,
-          question_type: q.question_type,
+          question_type: normalizedQuestionType as QuestionType,
           options: q.options || [],
           correct_answer: correctAnswer,
           correct_answer_text: correctAnswerText,

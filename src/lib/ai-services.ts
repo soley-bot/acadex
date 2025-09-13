@@ -23,6 +23,7 @@ export interface AIGenerationResponse {
   success: boolean
   content?: string
   error?: string
+  finishReason?: string // For handling MAX_TOKENS, STOP, etc.
   usage?: {
     promptTokens: number
     completionTokens: number
@@ -92,19 +93,21 @@ export class GeminiAIService extends BaseAIService {
       const response = await result.response
       
       // Check for content filtering or other issues
+      const finishReason = result.response.candidates?.[0]?.finishReason
+      const safetyRatings = result.response.candidates?.[0]?.safetyRatings
+      
       logger.info('Gemini response details', {
         candidates: result.response.candidates?.length || 0,
-        finishReason: result.response.candidates?.[0]?.finishReason,
-        safetyRatings: result.response.candidates?.[0]?.safetyRatings,
-        hasText: !!response.text
+        finishReason: finishReason,
+        hasText: !!response.text()
       })
 
       const content = response.text()
 
       if (!content || content.trim().length === 0) {
         logger.error('Gemini returned empty content', {
-          finishReason: result.response.candidates?.[0]?.finishReason,
-          safetyRatings: result.response.candidates?.[0]?.safetyRatings
+          finishReason,
+          safetyRatings
         })
         
         return {
@@ -113,9 +116,19 @@ export class GeminiAIService extends BaseAIService {
         }
       }
 
+      // Log if response was truncated due to token limits
+      if (finishReason === 'MAX_TOKENS') {
+        logger.warn('Gemini response was truncated due to MAX_TOKENS limit', {
+          contentLength: content.length,
+          maxTokens: request.maxTokens || 2048,
+          finishReason
+        })
+      }
+
       return {
         success: true,
         content,
+        finishReason, // Include finish reason for caller to handle
         usage: {
           promptTokens: 0, // Gemini doesn't provide token counts
           completionTokens: 0,
@@ -196,6 +209,7 @@ export interface QuizGenerationRequest {
   questionTypes?: ('multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay' | 'matching' | 'ordering')[]
   subject?: string // Subject category (Math, Science, History, etc.)
   language?: string // Content language
+  additionalInstructions?: string // Additional prompt instructions
 }
 
 export interface GeneratedQuizQuestion {
@@ -234,6 +248,12 @@ Ensure questions are clear, accurate, and appropriate for the specified difficul
 Always provide helpful explanations for correct answers.
 Generate content in ${language} language.
 
+CRITICAL CONSTRAINTS:
+- Generate EXACTLY the requested number of questions - never more, never less
+- Stay strictly within the specified topic - do not add general knowledge questions
+- Use only the specified question types
+- All questions must be directly related to the topic provided
+
 CRITICAL: Follow exact JSON format requirements for each question type:
 - multiple_choice/single_choice: use "correct_answer" as number (0-3 index)
 - true_false: use "correct_answer" as number (0 for True, 1 for False)  
@@ -241,15 +261,19 @@ CRITICAL: Follow exact JSON format requirements for each question type:
 - ordering: use "correct_answer_json" as object mapping original indices to positions
 - matching: use "correct_answer_json" as object mapping left indices to right indices`
 
-    const prompt = `Generate a ${request.difficulty} level ${subject} quiz about "${request.topic}" with ${request.questionCount} questions.
+    const prompt = `Generate EXACTLY ${request.questionCount} questions for a ${request.difficulty} level ${subject} quiz about "${request.topic}".
 Content should be in ${language} language.
 
-Requirements:
-- Mix of question types: ${questionTypes.join(', ')}
-- Questions should be clear and educational for ${subject}
+STRICT REQUIREMENTS:
+- Generate EXACTLY ${request.questionCount} questions - no more, no less
+- ALL questions MUST be about "${request.topic}" only - do not add general knowledge questions
+- ONLY use these question types: ${questionTypes.join(', ')}
+- ALL questions should be clear and educational for ${subject}
 - Include brief explanations for correct answers
 - Return valid JSON only
-- Use correct answer format for each question type
+- Use correct answer format for each question type${request.additionalInstructions ? `\n- ${request.additionalInstructions}` : ''}
+
+CRITICAL: Do not exceed ${request.questionCount} questions. Do not mix in general knowledge. Stick to the topic "${request.topic}" exclusively.
 
 JSON format examples:
 
@@ -310,15 +334,43 @@ Generate quiz with this structure:
 }`
 
     try {
+      // Calculate appropriate token limit based on question count
+      // Each question needs roughly 300-400 tokens (question + options + explanation)
+      const baseTokens = 1000 // For quiz metadata and structure
+      const tokensPerQuestion = 400
+      const calculatedTokens = baseTokens + (request.questionCount * tokensPerQuestion)
+      const maxTokens = Math.min(20000, Math.max(4096, calculatedTokens)) // Min 4096, max 20000
+      
+      logger.info('Quiz generation token calculation', {
+        questionCount: request.questionCount,
+        calculatedTokens,
+        maxTokens
+      })
+
       const response = await this.aiService.generateContent({
         prompt,
         systemPrompt,
-        maxTokens: 2048,
+        maxTokens,
         temperature: 0.7
       })
 
       if (!response.success) {
         return { success: false, error: response.error }
+      }
+
+      // Check if response was truncated
+      if (response.finishReason === 'MAX_TOKENS') {
+        logger.warn('AI response was truncated due to token limit', {
+          contentLength: response.content?.length,
+          maxTokens,
+          questionCount: request.questionCount
+        })
+        
+        // Try with increased token limit for retry
+        return { 
+          success: false, 
+          error: `Quiz generation was truncated. Try reducing the number of questions to ${Math.max(10, request.questionCount - 5)} or simplify the requirements.` 
+        }
       }
 
       // Clean and parse JSON response
@@ -330,6 +382,16 @@ Generate quiz with this structure:
         // Validate the generated quiz
         if (!quiz.questions || quiz.questions.length === 0) {
           throw new Error('Generated quiz has no questions')
+        }
+
+        // Validate question count matches request
+        if (quiz.questions.length !== request.questionCount) {
+          logger.warn('AI generated incorrect number of questions', {
+            requested: request.questionCount,
+            generated: quiz.questions.length,
+            topic: request.topic
+          })
+          throw new Error(`AI generated ${quiz.questions.length} questions instead of the requested ${request.questionCount}`)
         }
 
         // Validate each question based on its type
@@ -390,10 +452,27 @@ Generate quiz with this structure:
 
         return { success: true, quiz }
       } catch (parseError: any) {
-        logger.error('Failed to parse generated quiz JSON:', parseError)
+        logger.error('Failed to parse generated quiz JSON:', {
+          error: parseError.message,
+          contentPreview: cleanedContent.substring(0, 500) + '...',
+          contentLength: cleanedContent.length,
+          questionCount: request.questionCount
+        })
+        
+        // Check if content was likely truncated
+        const lastChar = cleanedContent.trim().slice(-1)
+        const isTruncated = !cleanedContent.trim().endsWith('}') && !cleanedContent.trim().endsWith('"]')
+        
+        if (isTruncated) {
+          return { 
+            success: false, 
+            error: `Quiz generation was incomplete. Try reducing questions to ${Math.max(10, request.questionCount - 3)} or simplifying requirements.` 
+          }
+        }
+        
         return { 
           success: false, 
-          error: 'Failed to parse AI response. Please try again.' 
+          error: 'AI generated invalid format. Please try again with simpler requirements or fewer questions.' 
         }
       }
     } catch (error: any) {

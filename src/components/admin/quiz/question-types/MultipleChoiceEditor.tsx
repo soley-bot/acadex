@@ -39,10 +39,14 @@ export const MultipleChoiceEditor = memo<MultipleChoiceEditorProps>(({
     
     // Adjust correct answer if needed
     if (question.correct_answer >= newOptions.length) {
-      updateQuestion('correct_answer', 0)
+      // If correct answer is beyond new range, select the last option
+      updateQuestion('correct_answer', newOptions.length - 1)
     } else if (question.correct_answer === index) {
-      updateQuestion('correct_answer', 0)
+      // If we removed the correct answer, try to select the next best option
+      const newCorrectAnswer = Math.min(index, newOptions.length - 1)
+      updateQuestion('correct_answer', newCorrectAnswer)
     } else if (question.correct_answer > index) {
+      // Shift correct answer index down if it's after the removed option
       updateQuestion('correct_answer', question.correct_answer - 1)
     }
   }, [question.options, question.correct_answer, updateQuestion])

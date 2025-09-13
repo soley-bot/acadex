@@ -42,15 +42,15 @@ export const QuizEditorStep: React.FC<QuizEditorStepProps> = ({
     hasUnsavedChanges
   } = useQuizEditor(initialQuiz)
 
-  // Cleanup timeout on unmount
+  // Cleanup timeout on unmount and dependency changes
   useEffect(() => {
-    const currentTimeout = timeoutRef.current
     return () => {
-      if (currentTimeout) {
-        clearTimeout(currentTimeout)
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
       }
     }
-  }, [])
+  }, [quiz.questions.length]) // Add dependency that could trigger timeout changes
 
   const [validationResult, setValidationResult] = useState<{ isValid: boolean; errors: ValidationError[]; warnings: ValidationError[] }>({
     isValid: true,
