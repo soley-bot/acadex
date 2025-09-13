@@ -24,12 +24,12 @@ export const GET = withAdminAuth(async (request: NextRequest) => {
     }
     
     // Filter for image files only
-    const imageFiles = files?.filter(file => 
+    const imageFiles = files?.filter((file: any) => 
       file.name.toLowerCase().match(/\.(jpg|jpeg|png|webp|gif)$/)
     ) || []
     
     // Get public URLs for each image
-    const imagesWithUrls = imageFiles.map(file => {
+    const imagesWithUrls = imageFiles.map((file: any) => {
       const { data } = supabase.storage.from(bucket).getPublicUrl(file.name)
       return {
         id: file.id,
