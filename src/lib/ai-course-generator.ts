@@ -1,87 +1,16 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
+// Import consolidated types
+import type { 
+  CourseGenerationRequest,
+  GeneratedCourse,
+  GeneratedModule,
+  GeneratedLesson,
+  GeneratedQuiz,
+  GeneratedQuizQuestion
+} from '@/types/consolidated-api'
+
 export type AIProvider = 'gemini' | 'claude'
-
-export interface CourseGenerationRequest {
-  title: string
-  description: string
-  level: 'beginner' | 'intermediate' | 'advanced'
-  duration: string
-  topics: string[]
-  learning_objectives: string[]
-  module_count: number
-  lessons_per_module: number
-  course_format: 'text' | 'mixed' | 'interactive'
-  custom_prompt?: string
-  // Enhanced generation options
-  subject_area?: string
-  content_depth?: 'basic' | 'detailed' | 'comprehensive'
-  content_style?: 'academic' | 'practical' | 'conversational'
-  include_examples?: boolean
-  include_exercises?: boolean
-  rich_text_format?: boolean
-  content_length?: 'short' | 'medium' | 'long'
-  language_focus?: 'general' | 'business' | 'academic' | 'conversational'
-  language?: string // Content language for the course
-  ai_provider?: AIProvider  // Choose which AI to use
-  // Quiz generation options
-  include_lesson_quizzes?: boolean
-  quiz_questions_per_lesson?: number
-  quiz_difficulty?: 'easy' | 'medium' | 'hard'
-}
-
-export interface GeneratedModule {
-  title: string
-  description: string
-  order_index: number
-  lessons: GeneratedLesson[]
-}
-
-export interface GeneratedLesson {
-  title: string
-  content: string
-  order_index: number
-  duration_minutes: number
-  lesson_type: string
-  learning_objectives: string[]
-  is_published: boolean
-  quiz?: GeneratedQuiz  // Optional quiz for the lesson
-}
-
-export interface GeneratedQuiz {
-  title: string
-  description: string
-  duration_minutes: number
-  passing_score: number
-  questions: GeneratedQuizQuestion[]
-}
-
-export interface GeneratedQuizQuestion {
-  question: string
-  options: string[]
-  correct_answer: number
-  explanation: string
-  order_index: number
-}
-
-export interface GeneratedCourseData {
-  title: string
-  description: string
-  level: 'beginner' | 'intermediate' | 'advanced'
-  duration: string
-  price: number
-  is_published: boolean
-  learning_objectives: string[]
-  prerequisites: string[]
-  what_you_will_learn: string[]
-  course_includes: string[]
-  target_audience: string[]
-}
-
-export interface GeneratedCourse {
-  course: GeneratedCourseData
-  modules: GeneratedModule[]
-}
 
 export class AICourseGenerator {
   private genAI: GoogleGenerativeAI
@@ -284,6 +213,7 @@ IMPORTANT: Respond only with the JSON object. No additional text or explanations
             description: request.description,
             level: request.level,
             duration: request.duration,
+            category: request.subject_area || 'General',
             price: 0,
             is_published: false,
             learning_objectives: [
@@ -552,6 +482,7 @@ function generateMockQuiz(moduleIndex: number, lessonIndex: number, topics: stri
   const questionPool = [
     {
       question: `What is the main focus of ${lessonTitle}?`,
+      question_type: 'multiple_choice' as const,
       options: [
         `Understanding ${topic} in everyday situations`,
         'Memorizing grammar rules',
@@ -559,10 +490,12 @@ function generateMockQuiz(moduleIndex: number, lessonIndex: number, topics: stri
         'Academic writing skills'
       ],
       correct_answer: 0,
-      explanation: `The lesson focuses on practical application of ${topic} in real-world contexts to build confidence and fluency.`
+      explanation: `The lesson focuses on practical application of ${topic} in real-world contexts to build confidence and fluency.`,
+      order_index: 0
     },
     {
       question: `Which approach is most effective for learning ${topic}?`,
+      question_type: 'multiple_choice' as const,
       options: [
         'Reading textbooks only',
         'Combining theory with practical exercises',
@@ -570,10 +503,12 @@ function generateMockQuiz(moduleIndex: number, lessonIndex: number, topics: stri
         'Memorizing vocabulary lists'
       ],
       correct_answer: 1,
-      explanation: 'Combining theoretical knowledge with hands-on practice helps reinforce learning and builds practical skills.'
+      explanation: 'Combining theoretical knowledge with hands-on practice helps reinforce learning and builds practical skills.',
+      order_index: 1
     },
     {
       question: `What is the best way to practice ${topic} skills?`,
+      question_type: 'multiple_choice' as const,
       options: [
         'Avoiding mistakes at all costs',
         'Practicing only in formal settings',
@@ -581,10 +516,12 @@ function generateMockQuiz(moduleIndex: number, lessonIndex: number, topics: stri
         'Studying grammar rules extensively'
       ],
       correct_answer: 2,
-      explanation: 'Regular practice in real-world contexts helps build confidence and natural language use.'
+      explanation: 'Regular practice in real-world contexts helps build confidence and natural language use.',
+      order_index: 2
     },
     {
       question: `When learning ${topic}, what should you focus on?`,
+      question_type: 'multiple_choice' as const,
       options: [
         'Perfect grammar from day one',
         'Building vocabulary and confidence gradually',
@@ -592,10 +529,12 @@ function generateMockQuiz(moduleIndex: number, lessonIndex: number, topics: stri
         'Formal academic language only'
       ],
       correct_answer: 1,
-      explanation: 'Gradual building of vocabulary and confidence creates a solid foundation for language learning.'
+      explanation: 'Gradual building of vocabulary and confidence creates a solid foundation for language learning.',
+      order_index: 3
     },
     {
       question: `What role does cultural context play in ${topic}?`,
+      question_type: 'multiple_choice' as const,
       options: [
         'It is not important',
         'Only relevant for advanced learners',
@@ -603,7 +542,8 @@ function generateMockQuiz(moduleIndex: number, lessonIndex: number, topics: stri
         'Only matters in formal situations'
       ],
       correct_answer: 2,
-      explanation: 'Understanding cultural context is crucial for effective communication and helps avoid misunderstandings.'
+      explanation: 'Understanding cultural context is crucial for effective communication and helps avoid misunderstandings.',
+      order_index: 4
     }
   ]
 
@@ -619,6 +559,8 @@ function generateMockQuiz(moduleIndex: number, lessonIndex: number, topics: stri
   return {
     title: `${lessonTitle} - Knowledge Check`,
     description: `Test your understanding of the key concepts covered in ${lessonTitle}`,
+    category: 'Language Learning',
+    difficulty: 'beginner',
     duration_minutes: Math.max(2, questionCount * 2), // 2 minutes per question minimum
     passing_score: 70,
     questions: selectedQuestions

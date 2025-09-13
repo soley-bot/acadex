@@ -2,7 +2,18 @@
 // This module consolidates AI logic from API routes into reusable services
 
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { logger } from './logger'
+
+// Optimized imports
+import { logger } from '@/lib'
+import type { 
+  QuizGenerationRequest,
+  CourseGenerationRequest, 
+  GeneratedQuiz,
+  GeneratedQuizQuestion,
+  GeneratedCourse,
+  GeneratedModule,
+  GeneratedLesson
+} from '@/types'
 
 // Base types for AI services
 export interface AIServiceConfig {
@@ -202,33 +213,6 @@ export class AIServiceFactory {
 // Specialized AI Services for different use cases
 
 // Quiz Generation Service
-export interface QuizGenerationRequest {
-  topic: string
-  questionCount: number
-  difficulty: 'beginner' | 'intermediate' | 'advanced'
-  questionTypes?: ('multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay' | 'matching' | 'ordering')[]
-  subject?: string // Subject category (Math, Science, History, etc.)
-  language?: string // Content language
-  additionalInstructions?: string // Additional prompt instructions
-}
-
-export interface GeneratedQuizQuestion {
-  question: string
-  question_type: 'multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay'
-  options?: string[]
-  correct_answer?: number  // For choice-based questions (0-3 index)
-  correct_answer_text?: string  // For text-based questions (fill_blank, essay)
-  explanation: string
-}
-
-export interface GeneratedQuiz {
-  title: string
-  description: string
-  category: string
-  difficulty: 'beginner' | 'intermediate' | 'advanced'
-  duration_minutes: number
-  questions: GeneratedQuizQuestion[]
-}
 
 export class QuizGenerationService {
   private aiService: BaseAIService
@@ -238,7 +222,7 @@ export class QuizGenerationService {
   }
 
   async generateQuiz(request: QuizGenerationRequest): Promise<{ success: boolean; quiz?: GeneratedQuiz; error?: string }> {
-    const questionTypes = request.questionTypes || ['multiple_choice', 'true_false']
+    const questionTypes = request.question_types || ['multiple_choice', 'true_false']
     const subject = request.subject || 'General Knowledge'
     const language = request.language || 'English'
     
@@ -261,19 +245,19 @@ CRITICAL: Follow exact JSON format requirements for each question type:
 - ordering: use "correct_answer_json" as object mapping original indices to positions
 - matching: use "correct_answer_json" as object mapping left indices to right indices`
 
-    const prompt = `Generate EXACTLY ${request.questionCount} questions for a ${request.difficulty} level ${subject} quiz about "${request.topic}".
+    const prompt = `Generate EXACTLY ${request.question_count} questions for a ${request.difficulty} level ${subject} quiz about "${request.topic}".
 Content should be in ${language} language.
 
 STRICT REQUIREMENTS:
-- Generate EXACTLY ${request.questionCount} questions - no more, no less
+- Generate EXACTLY ${request.question_count} questions - no more, no less
 - ALL questions MUST be about "${request.topic}" only - do not add general knowledge questions
 - ONLY use these question types: ${questionTypes.join(', ')}
 - ALL questions should be clear and educational for ${subject}
 - Include brief explanations for correct answers
 - Return valid JSON only
-- Use correct answer format for each question type${request.additionalInstructions ? `\n- ${request.additionalInstructions}` : ''}
+- Use correct answer format for each question type${request.additional_instructions ? `\n- ${request.additional_instructions}` : ''}
 
-CRITICAL: Do not exceed ${request.questionCount} questions. Do not mix in general knowledge. Stick to the topic "${request.topic}" exclusively.
+CRITICAL: Do not exceed ${request.question_count} questions. Do not mix in general knowledge. Stick to the topic "${request.topic}" exclusively.
 
 JSON format examples:
 
@@ -327,7 +311,7 @@ Generate quiz with this structure:
   "description": "Test your knowledge of ${request.topic}",
   "category": "${subject}",
   "difficulty": "${request.difficulty}",
-  "duration_minutes": ${Math.max(10, request.questionCount * 2)},
+  "duration_minutes": ${Math.max(10, request.question_count * 2)},
   "questions": [
     // Use appropriate format for each question type
   ]
@@ -338,11 +322,11 @@ Generate quiz with this structure:
       // Each question needs roughly 300-400 tokens (question + options + explanation)
       const baseTokens = 1000 // For quiz metadata and structure
       const tokensPerQuestion = 400
-      const calculatedTokens = baseTokens + (request.questionCount * tokensPerQuestion)
+      const calculatedTokens = baseTokens + (request.question_count * tokensPerQuestion)
       const maxTokens = Math.min(20000, Math.max(4096, calculatedTokens)) // Min 4096, max 20000
       
       logger.info('Quiz generation token calculation', {
-        questionCount: request.questionCount,
+        questionCount: request.question_count,
         calculatedTokens,
         maxTokens
       })
@@ -363,13 +347,13 @@ Generate quiz with this structure:
         logger.warn('AI response was truncated due to token limit', {
           contentLength: response.content?.length,
           maxTokens,
-          questionCount: request.questionCount
+          questionCount: request.question_count
         })
         
         // Try with increased token limit for retry
         return { 
           success: false, 
-          error: `Quiz generation was truncated. Try reducing the number of questions to ${Math.max(10, request.questionCount - 5)} or simplify the requirements.` 
+          error: `Quiz generation was truncated. Try reducing the number of questions to ${Math.max(10, request.question_count - 5)} or simplify the requirements.` 
         }
       }
 
@@ -385,13 +369,13 @@ Generate quiz with this structure:
         }
 
         // Validate question count matches request
-        if (quiz.questions.length !== request.questionCount) {
+        if (quiz.questions.length !== request.question_count) {
           logger.warn('AI generated incorrect number of questions', {
-            requested: request.questionCount,
+            requested: request.question_count,
             generated: quiz.questions.length,
             topic: request.topic
           })
-          throw new Error(`AI generated ${quiz.questions.length} questions instead of the requested ${request.questionCount}`)
+          throw new Error(`AI generated ${quiz.questions.length} questions instead of the requested ${request.question_count}`)
         }
 
         // Validate each question based on its type
@@ -456,7 +440,7 @@ Generate quiz with this structure:
           error: parseError.message,
           contentPreview: cleanedContent.substring(0, 500) + '...',
           contentLength: cleanedContent.length,
-          questionCount: request.questionCount
+          questionCount: request.question_count
         })
         
         // Check if content was likely truncated
@@ -466,7 +450,7 @@ Generate quiz with this structure:
         if (isTruncated) {
           return { 
             success: false, 
-            error: `Quiz generation was incomplete. Try reducing questions to ${Math.max(10, request.questionCount - 3)} or simplifying requirements.` 
+            error: `Quiz generation was incomplete. Try reducing questions to ${Math.max(10, request.question_count - 3)} or simplifying requirements.` 
           }
         }
         
@@ -486,38 +470,6 @@ Generate quiz with this structure:
 }
 
 // Course Generation Service
-export interface CourseGenerationRequest {
-  title: string
-  description: string
-  level: 'beginner' | 'intermediate' | 'advanced'
-  duration: string
-  topics: string[]
-  moduleCount: number
-  lessonsPerModule: number
-}
-
-export interface GeneratedModule {
-  title: string
-  description: string
-  order_index: number
-  lessons: GeneratedLesson[]
-}
-
-export interface GeneratedLesson {
-  title: string
-  content: string
-  order_index: number
-  duration_minutes: number
-  quiz?: GeneratedQuiz
-}
-
-export interface GeneratedCourse {
-  title: string
-  description: string
-  level: string
-  duration: string
-  modules: GeneratedModule[]
-}
 
 export class CourseGenerationService {
   private aiService: BaseAIService

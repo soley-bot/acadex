@@ -16,6 +16,33 @@ const nextConfig = {
     // Enable TypeScript checking during builds
     ignoreBuildErrors: false,
   },
+
+  // Phase 3: Performance optimizations
+  experimental: {
+    // Optimize package imports to reduce bundle size
+    optimizePackageImports: [
+      'lucide-react',
+      '@tanstack/react-query',
+      'react-hook-form'
+    ],
+  },
+
+  // Bundle size optimization
+  compiler: {
+    // Remove console.log in production
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn']
+    } : false,
+  },
+
+  // Image optimization
+  images: {
+    domains: ['images.unsplash.com', 'res.cloudinary.com'],
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
+
   // Webpack configuration for better cache handling
   webpack: (config, { dev, isServer }) => {
     if (dev) {
@@ -26,6 +53,34 @@ const nextConfig = {
           config: [__filename],
         },
         cacheDirectory: path.resolve(process.cwd(), '.next/cache/webpack'),
+      }
+    }
+
+    // Bundle splitting optimization
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: 10,
+            chunks: 'all',
+          },
+          admin: {
+            test: /[\\/]src[\\/](components|app)[\\/]admin[\\/]/,
+            name: 'admin',
+            priority: 20,
+            chunks: 'all',
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            priority: 5,
+            chunks: 'all',
+            reuseExistingChunk: true,
+          },
+        },
       }
     }
     return config

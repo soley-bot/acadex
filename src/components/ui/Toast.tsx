@@ -30,9 +30,11 @@ function ToastComponent({ toast, onClose }: ToastProps) {
       case 'success':
         return <CheckCircle className="h-5 w-5 text-green-600" />
       case 'error':
-        return <AlertCircle className="h-5 w-5 text-primary" />
+        return <AlertCircle className="h-5 w-5 text-red-600" />
       case 'info':
-        return <Info className="h-5 w-5 text-secondary" />
+        return <Info className="h-5 w-5 text-blue-600" />
+      default:
+        return <Info className="h-5 w-5 text-gray-600" />
     }
   }
 
@@ -41,14 +43,16 @@ function ToastComponent({ toast, onClose }: ToastProps) {
       case 'success':
         return 'bg-green-50 border-green-200'
       case 'error':
-        return 'bg-primary/5 border-destructive/30'
+        return 'bg-red-50 border-red-200'
       case 'info':
         return 'bg-blue-50 border-blue-200'
+      default:
+        return 'bg-white border-gray-200'
     }
   }
 
   return (
-    <div className={`border rounded-lg p-4 shadow-lg ${getBackgroundColor()} max-w-sm animate-slide-in`}>
+    <div className={`border rounded-lg p-4 shadow-lg backdrop-blur-sm ${getBackgroundColor()} max-w-sm animate-slide-in transition-all duration-200`}>
       <div className="flex items-start gap-3">
         {getIcon()}
         <div className="flex-1">
@@ -59,7 +63,7 @@ function ToastComponent({ toast, onClose }: ToastProps) {
         </div>
         <button
           onClick={() => onClose(toast.id)}
-          className="text-gray-400 hover:text-gray-600 transition-colors"
+          className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
         >
           <X className="h-4 w-4" />
         </button>
@@ -75,9 +79,11 @@ interface ToastContainerProps {
 
 export function ToastContainer({ toasts, onClose }: ToastContainerProps) {
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
+    <div className="fixed top-4 right-4 z-[9999] space-y-2 pointer-events-none">
       {toasts.map((toast) => (
-        <ToastComponent key={toast.id} toast={toast} onClose={onClose} />
+        <div key={toast.id} className="pointer-events-auto">
+          <ToastComponent toast={toast} onClose={onClose} />
+        </div>
       ))}
     </div>
   )

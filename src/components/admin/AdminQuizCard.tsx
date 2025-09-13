@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { Clock, Brain, Users, BarChart3, Edit, Trash2, Eye, EyeOff, Check, Timer } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Quiz } from '@/lib/supabase'
 
 // Extended Quiz interface with calculated statistics
@@ -21,6 +22,9 @@ interface AdminQuizCardProps {
   onView: (quiz: ExtendedQuiz) => void
   onTogglePublish: (quiz: ExtendedQuiz) => void
   compact?: boolean
+  isSelected?: boolean
+  onSelect?: (quizId: string) => void
+  showSelection?: boolean
 }
 
 export function AdminQuizCard({ 
@@ -29,7 +33,10 @@ export function AdminQuizCard({
   onDelete, 
   onView, 
   onTogglePublish,
-  compact = false 
+  compact = false,
+  isSelected = false,
+  onSelect,
+  showSelection = false
 }: AdminQuizCardProps) {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -56,9 +63,19 @@ export function AdminQuizCard({
 
   if (compact) {
     return (
-      <Card variant="elevated" className="hover:shadow-md transition-all duration-200">
+      <Card variant="elevated" className={`hover:shadow-md transition-all duration-200 ${isSelected ? 'ring-2 ring-primary' : ''}`}>
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
+            {/* Selection Checkbox */}
+            {showSelection && (
+              <div className="flex-shrink-0">
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={() => onSelect?.(quiz.id)}
+                />
+              </div>
+            )}
+
             {/* Quiz Image - Small */}
             <div className="relative w-16 h-12 bg-muted rounded-lg overflow-hidden flex-shrink-0">
               {quiz.image_url ? (
@@ -156,7 +173,18 @@ export function AdminQuizCard({
 
   // Full card view (existing design)
   return (
-    <Card variant="elevated" className="overflow-hidden group hover:shadow-lg transition-all duration-300 bg-white">
+    <Card variant="elevated" className={`overflow-hidden group hover:shadow-lg transition-all duration-300 bg-white ${isSelected ? 'ring-2 ring-primary' : ''}`}>
+      {/* Selection Checkbox - Absolute positioned for full cards */}
+      {showSelection && (
+        <div className="absolute top-3 right-3 z-10">
+          <Checkbox
+            checked={isSelected}
+            onCheckedChange={() => onSelect?.(quiz.id)}
+            className="bg-white/90 backdrop-blur-sm"
+          />
+        </div>
+      )}
+
       {/* Quiz Image */}
       <div className="relative h-40 bg-muted/40">
         {quiz.image_url ? (

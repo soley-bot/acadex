@@ -12,6 +12,16 @@ import Header from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { MatchingQuestion } from '@/components/student/quiz/MatchingQuestion'
 import { MobileNavBarMinimal } from '@/components/mobile/MobileNavBar'
+import { 
+  QuizStatusBar, 
+  ProgressRestoreNotification 
+} from '@/components/student/quiz/QuizStatusBar'
+import { 
+  useQuizAutoSave, 
+  useNetworkStatus, 
+  useQuizCache, 
+  useUserPreferences 
+} from '@/hooks/useClientStorage'
 import {
   DndContext,
   closestCenter,
@@ -109,6 +119,38 @@ export default function TakeQuizPage() {
   const [submitting, setSubmitting] = useState(false)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [quizAttemptId, setQuizAttemptId] = useState<string>('')
+  const [showProgressRestore, setShowProgressRestore] = useState(false)
+  const [savedProgress, setSavedProgress] = useState<any>(null)
+
+  // Client-side features
+  const { isOnline, isReconnecting } = useNetworkStatus()
+  const { preferences } = useUserPreferences()
+  const { cachedData, cacheQuizData } = useQuizCache(params.id as string)
+  
+  // Auto-save functionality - now button-based instead of interval-based
+  const {
+    updateProgress,
+    saveNow,
+    restoreProgress,
+    clearProgress,
+    isAutoSaving,
+    lastSaved,
+    hasUnsavedChanges
+  } = useQuizAutoSave({
+    quizId: params.id as string,
+    userId: user?.id || '',
+    enabled: !!(preferences.autoSave && quizStarted && user),
+    intervalSeconds: 0, // Disable interval-based saving, use button-based saving instead
+    onSave: (progress) => {
+      console.log('Quiz progress saved on navigation/answer:', progress)
+    },
+    onRestore: (progress) => {
+      console.log('Quiz progress restored:', progress)
+    },
+    onError: (error) => {
+      console.error('Auto-save error:', error)
+    }
+  })
 
   // Generate unique quiz attempt ID when quiz starts
   useEffect(() => {
@@ -136,25 +178,83 @@ export default function TakeQuizPage() {
     })
   )
 
-  // ✅ MISSING FUNCTION: Handle answer changes for all question types
+  // ✅ MODIFIED: Handle answer changes - now only saves on answer change, not continuously
   const handleAnswerChange = useCallback((questionId: string, answer: any) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: answer
-    }))
-  }, [])
+    setAnswers(prev => {
+      const newAnswers = {
+        ...prev,
+        [questionId]: answer
+      }
+      
+      // Save progress immediately when answer changes
+      updateProgress({
+        answers: newAnswers,
+        currentQuestionIndex,
+        attemptId: quizAttemptId,
+        startTime: startTime?.toISOString(),
+        timeLeft
+      })
+      
+      return newAnswers
+    })
+  }, [updateProgress, currentQuestionIndex, quizAttemptId, startTime, timeLeft])
 
   // ✅ MISSING FUNCTION: Handle answer selection for multiple choice/true-false
   const handleAnswerSelect = useCallback((questionId: string, selectedIndex: number) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: selectedIndex
-    }))
-  }, [])
+    setAnswers(prev => {
+      const newAnswers = {
+        ...prev,
+        [questionId]: selectedIndex
+      }
+      
+      // Update auto-save progress
+      updateProgress({
+        answers: newAnswers,
+        currentQuestionIndex,
+        attemptId: quizAttemptId,
+        startTime: startTime?.toISOString(),
+        timeLeft
+      })
+      
+      return newAnswers
+    })
+  }, [updateProgress, currentQuestionIndex, quizAttemptId, startTime, timeLeft])
+
+  // ✅ NAVIGATION HANDLERS: Navigation with auto-save
+  const handleNextQuestion = useCallback(async () => {
+    // Save progress before moving to next question
+    try {
+      await saveNow()
+    } catch (error) {
+      console.warn('Failed to save progress before next question:', error)
+    }
+    setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))
+  }, [saveNow, questions.length])
+
+  const handlePreviousQuestion = useCallback(async () => {
+    // Save progress before moving to previous question
+    try {
+      await saveNow()
+    } catch (error) {
+      console.warn('Failed to save progress before previous question:', error)
+    }
+    setCurrentQuestionIndex(prev => Math.max(0, prev - 1))
+  }, [saveNow])
+
+  const handleQuestionNavigation = useCallback(async (index: number) => {
+    // Save progress before navigating to specific question
+    try {
+      await saveNow()
+    } catch (error) {
+      console.warn('Failed to save progress before question navigation:', error)
+    }
+    setCurrentQuestionIndex(index)
+  }, [saveNow])
 
   // ✅ MISSING HELPER: Get current question (must be declared before functions that use it)
   const currentQuestion = questions[currentQuestionIndex]
 
+  // Fetch quiz questions (only run once per quiz ID)
   useEffect(() => {
     if (!user) {
       router.push('/auth/login')
@@ -163,10 +263,15 @@ export default function TakeQuizPage() {
 
     if (!params.id) return
 
+    let isMounted = true
+
     const fetchQuizQuestions = async () => {
       try {
-        setLoading(true)
+        if (isMounted) setLoading(true)
+        
         const { data, error: fetchError } = await getQuizQuestions(params.id as string)
+        
+        if (!isMounted) return // Component unmounted
         
         if (fetchError) {
           setError('Failed to load quiz questions')
@@ -175,54 +280,150 @@ export default function TakeQuizPage() {
           setQuestions(data.questions || [])
           setQuiz(data.quiz)
           setTimeLeft(data.quiz.duration_minutes * 60) // Convert to seconds
+          
+          // Cache the quiz data for offline use
+          cacheQuizData(data.quiz, data.questions || [], 60) // Cache for 1 hour
         }
       } catch (err) {
+        if (!isMounted) return
         logger.error('Error fetching quiz questions:', err)
         setError('Failed to load quiz questions')
       } finally {
-        setLoading(false)
+        if (isMounted) setLoading(false)
       }
     }
 
     fetchQuizQuestions()
-  }, [params.id, user, router])
+
+    return () => {
+      isMounted = false
+    }
+  }, [params.id, user, router, cacheQuizData])
+
+  // Check for saved progress after quiz loads (separate effect)
+  useEffect(() => {
+    if (quiz && !quizStarted && !showProgressRestore) {
+      const savedProgress = restoreProgress()
+      if (savedProgress) {
+        setSavedProgress(savedProgress)
+        setShowProgressRestore(true)
+      }
+    }
+  }, [quiz, quizStarted, showProgressRestore, restoreProgress])
+
+  // Progress restore handlers
+  const handleRestoreProgress = useCallback(() => {
+    if (savedProgress) {
+      setAnswers(savedProgress.answers || {})
+      setCurrentQuestionIndex(savedProgress.currentQuestionIndex || 0)
+      setTimeLeft(savedProgress.timeLeft || (quiz?.duration_minutes ? quiz.duration_minutes * 60 : 0))
+      setQuizStarted(true)
+      setStartTime(savedProgress.startTime ? new Date(savedProgress.startTime) : new Date())
+      setQuizAttemptId(savedProgress.attemptId || `attempt_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`)
+      setShowProgressRestore(false)
+    }
+  }, [savedProgress, quiz])
+
+  const handleDiscardProgress = useCallback(() => {
+    clearProgress()
+    setShowProgressRestore(false)
+    setSavedProgress(null)
+  }, [clearProgress])
 
   const handleSubmitQuiz = useCallback(async () => {
     if (submitting) return
 
     try {
       setSubmitting(true)
+      setError(null) // Clear any previous errors
+      
+      // Save progress one final time before submission with timeout
+      try {
+        await Promise.race([
+          saveNow(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Save timeout')), 5000))
+        ])
+      } catch (saveError) {
+        console.warn('Save before submit failed, continuing with submission:', saveError)
+      }
+      
       // Calculate time taken in seconds
       const endTime = new Date()
       const timeTakenSeconds = startTime ? Math.round((endTime.getTime() - startTime.getTime()) / 1000) : 0
-      const { data, error: submitError } = await submitQuizAttempt({
-        quiz_id: params.id as string,
-        user_id: user!.id,
-        answers,
-        time_taken_seconds: timeTakenSeconds
-      })
-      if (submitError) {
-        setError('Failed to submit quiz')
-        logger.error('Error submitting quiz:', submitError)
-      } else {
+      
+      // Retry submission up to 3 times
+      let submitResult = null
+      let lastError = null
+      
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          console.log(`Quiz submission attempt ${attempt}/3`)
+          submitResult = await submitQuizAttempt({
+            quiz_id: params.id as string,
+            user_id: user!.id,
+            answers,
+            time_taken_seconds: timeTakenSeconds
+          })
+          
+          if (submitResult.error) {
+            lastError = submitResult.error
+            if (attempt < 3) {
+              console.log(`Submission attempt ${attempt} failed, retrying:`, submitResult.error)
+              // Wait before retry (exponential backoff)
+              await new Promise(resolve => setTimeout(resolve, attempt * 1000))
+              continue
+            }
+          } else {
+            // Successful submission
+            break
+          }
+        } catch (err) {
+          lastError = err
+          if (attempt < 3) {
+            console.log(`Submission attempt ${attempt} failed with exception, retrying:`, err)
+            await new Promise(resolve => setTimeout(resolve, attempt * 1000))
+            continue
+          }
+        }
+      }
+      
+      if (submitResult?.error || lastError) {
+        const errorMessage = submitResult?.error?.message || 
+                            (lastError instanceof Error ? lastError.message : 'Unknown error')
+        setError(`Failed to submit quiz: ${errorMessage}. Please try again.`)
+        logger.error('Error submitting quiz after retries:', lastError || submitResult?.error)
+        return
+      }
+      
+      if (submitResult?.data) {
+        // Clear saved progress after successful submission
+        try {
+          clearProgress()
+        } catch (clearError) {
+          console.warn('Failed to clear progress after submission:', clearError)
+        }
+        
         // Redirect to results page
-        router.push(`/quizzes/${params.id}/results/${data.id}`)
+        router.push(`/quizzes/${params.id}/results/${submitResult.data.id}`)
+      } else {
+        setError('Submission failed: No data returned. Please try again.')
       }
     } catch (err) {
-      logger.error('Error submitting quiz:', err)
-      setError('Failed to submit quiz')
+      logger.error('Unexpected error during quiz submission:', err)
+      setError('An unexpected error occurred. Please try again.')
     } finally {
       setSubmitting(false)
     }
-  }, [submitting, params.id, user, answers, router, startTime])
+  }, [submitting, params.id, user, answers, router, startTime, saveNow, clearProgress])
 
   // Timer effect
   useEffect(() => {
-    if (!quizStarted || timeLeft <= 0) return
+    if (!quizStarted || timeLeft <= 0 || submitting) return
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) {
+        if (prev <= 1 && !submitting) {
+          console.log('Time expired, auto-submitting quiz')
           handleSubmitQuiz()
           return 0
         }
@@ -231,7 +432,7 @@ export default function TakeQuizPage() {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [quizStarted, timeLeft, handleSubmitQuiz])
+  }, [quizStarted, timeLeft, handleSubmitQuiz, submitting])
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
@@ -256,14 +457,15 @@ export default function TakeQuizPage() {
     return (answeredQuestions / questions.length) * 100
   }
 
-  if (loading) {
+  // Loading state - simplified condition to reduce flickering
+  if (loading && !quiz) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <main className="pt-4">
           <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
-            <Card variant="glass" className="max-w-md w-full">
-              <div className="p-8 text-center">
+            <Card variant="glass" className="max-w-lg w-full overflow-hidden">
+              <div className="bg-card border-b border-border p-6 text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
@@ -332,6 +534,31 @@ export default function TakeQuizPage() {
       <div className="min-h-screen bg-background">
         <Header />
         <main className="pt-4">
+          {/* Progress Restore Notification */}
+          {showProgressRestore && savedProgress && (
+            <div className="container mx-auto px-4 max-w-4xl mb-4">
+              <ProgressRestoreNotification
+                onRestore={handleRestoreProgress}
+                onDiscard={handleDiscardProgress}
+                lastSaved={new Date(savedProgress.lastSaved)}
+              />
+            </div>
+          )}
+
+          {/* Quiz Status Bar - Only show when quiz is started */}
+          {quizStarted && (
+            <QuizStatusBar
+              isAutoSaving={isAutoSaving}
+              lastSaved={lastSaved}
+              hasUnsavedChanges={hasUnsavedChanges}
+              isOnline={isOnline}
+              isReconnecting={isReconnecting}
+              currentQuestion={currentQuestionIndex + 1}
+              totalQuestions={questions.length}
+              timeLeft={timeLeft}
+            />
+          )}
+
           <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
             <Card variant="glass" className="max-w-lg w-full overflow-hidden">
           {/* Header with Icon and Title */}
@@ -419,6 +646,25 @@ export default function TakeQuizPage() {
       />
 
       <div className="max-w-3xl mx-auto px-4 py-3 relative">
+        {/* Submission Error Banner */}
+        {error && (
+          <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-medium text-destructive mb-1">Submission Failed</h4>
+                <p className="text-sm text-destructive/80">{error}</p>
+                <button
+                  onClick={() => setError(null)}
+                  className="mt-2 text-xs text-destructive/60 hover:text-destructive underline"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Desktop Back Navigation - Hidden on mobile */}
         <div className="mb-3 hidden md:block">
           <button
@@ -506,7 +752,7 @@ export default function TakeQuizPage() {
                           name={`question-${currentQuestion?.id ?? ''}`}
                           value={index}
                           checked={answers[currentQuestion?.id ?? ''] === index}
-                          onChange={() => currentQuestion && handleAnswerSelect(currentQuestion.id, index)}
+                          onChange={() => currentQuestion && handleAnswerChange(currentQuestion.id, index)}
                           className="sr-only"
                         />
                         <span className="text-base text-gray-800 flex-1">
@@ -543,7 +789,7 @@ export default function TakeQuizPage() {
                           name={`question-${currentQuestion?.id ?? ''}`}
                           value={index}
                           checked={answers[currentQuestion?.id ?? ''] === index}
-                          onChange={() => currentQuestion && handleAnswerSelect(currentQuestion.id, index)}
+                          onChange={() => currentQuestion && handleAnswerChange(currentQuestion.id, index)}
                           className="sr-only"
                         />
                         <span className="text-base text-gray-800 flex-1 font-medium">
@@ -870,7 +1116,7 @@ export default function TakeQuizPage() {
               <div className="flex items-center justify-between gap-2 sm:gap-3 pt-3 border-t border-gray-200">
                 {/* Previous Button */}
                 <button
-                  onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
+                  onClick={handlePreviousQuestion}
                   disabled={currentQuestionIndex === 0}
                   className="px-2 sm:px-4 py-2 bg-muted/40 text-gray-700 rounded-lg font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted/60"
                 >
@@ -890,7 +1136,7 @@ export default function TakeQuizPage() {
                       return (
                         <button
                           key={actualIndex}
-                          onClick={() => setCurrentQuestionIndex(actualIndex)}
+                          onClick={() => handleQuestionNavigation(actualIndex)}
                           className={`w-6 h-6 rounded-full text-xs font-medium transition-all flex-shrink-0 ${
                             actualIndex === currentQuestionIndex
                               ? 'bg-primary text-white'
@@ -914,7 +1160,7 @@ export default function TakeQuizPage() {
                     {questions.map((_, index) => (
                       <button
                         key={index}
-                        onClick={() => setCurrentQuestionIndex(index)}
+                        onClick={() => handleQuestionNavigation(index)}
                         className={`w-6 h-6 rounded-full text-xs font-medium transition-all flex-shrink-0 ${
                           index === currentQuestionIndex
                             ? 'bg-primary text-white'
@@ -934,24 +1180,26 @@ export default function TakeQuizPage() {
                   <button
                     onClick={handleSubmitQuiz}
                     disabled={submitting}
-                    className="px-2 sm:px-4 py-2 bg-primary hover:bg-secondary text-white rounded-lg font-medium text-sm transition-all disabled:opacity-50 flex items-center gap-1 sm:gap-2"
+                    className="px-2 sm:px-4 py-2 bg-primary hover:bg-secondary text-white rounded-lg font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 sm:gap-2"
+                    title={submitting ? 'Submitting quiz...' : 'Submit quiz'}
                   >
                     {submitting ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         <span className="hidden sm:inline">Submitting...</span>
+                        <span className="sm:hidden">...</span>
                       </>
                     ) : (
                       <>
                         <Check className="w-4 h-4 text-white" />
-                        <span className="hidden sm:inline">Submit</span>
+                        <span className="hidden sm:inline">Submit Quiz</span>
                         <span className="sm:hidden">Submit</span>
                       </>
                     )}
                   </button>
                 ) : (
                   <button
-                    onClick={() => setCurrentQuestionIndex(prev => Math.min(questions.length - 1, prev + 1))}
+                    onClick={handleNextQuestion}
                     className="px-2 sm:px-4 py-2 bg-primary hover:bg-secondary text-white rounded-lg font-medium text-sm transition-all"
                   >
                     <span className="hidden sm:inline">Next →</span>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, memo, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -16,16 +16,23 @@ interface EnhancedCourseCardProps {
   showProgress?: boolean
 }
 
-export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCourseCardProps) {
+export const EnhancedCourseCard = memo<EnhancedCourseCardProps>(({ course, showProgress = true }) => {
   const { user } = useAuth()
   const router = useRouter()
   const { isEnrolled, getCourseProgress, quickActions } = useUserProgress()
   const [actionLoading, setActionLoading] = useState(false)
   
-  const enrolled = isEnrolled(course.id)
-  const progress = getCourseProgress(course.id)
+  // Memoized computed values
+  const enrolled = useMemo(() => isEnrolled(course.id), [isEnrolled, course.id])
+  const progress = useMemo(() => getCourseProgress(course.id), [getCourseProgress, course.id])
+  const courseImage = useMemo(() => getCourseImage({
+    category: course.category,
+    title: course.title,
+    image_url: course.image_url
+  }), [course.category, course.title, course.image_url])
+  const optimizedImageProps = useMemo(() => getOptimizedImageProps(courseImage, 'card'), [courseImage])
 
-  const handleQuickAction = async () => {
+  const handleQuickAction = useCallback(async () => {
     if (!user) {
       router.push('/auth/login')
       return
@@ -58,9 +65,9 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
     } finally {
       setActionLoading(false)
     }
-  }
+  }, [user, router, course.id, enrolled, quickActions])
 
-  const getActionButtonText = () => {
+  const getActionButtonText = useCallback(() => {
     if (actionLoading) return 'Loading...'
     if (!user) return 'Start Learning'
     
@@ -75,31 +82,24 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
       return 'Start Studying'
     }
     return course.price > 0 ? `Enroll - $${course.price}` : 'Enroll Free'
-  }
+  }, [actionLoading, user, enrolled, progress, course.price])
 
-  const getActionButtonStyle = () => {
+  const getActionButtonStyle = useCallback(() => {
     if (!user) return 'bg-primary text-white'
     if (enrolled) {
       if (progress?.completed_at) return 'bg-success hover:bg-success/90 text-white'
       return 'bg-primary text-white'
     }
     return 'bg-primary text-white'
-  }
-
-  // Get appropriate image for this course
-  const courseImage = getCourseImage({
-    category: course.category,
-    title: course.title,
-    image_url: course.image_url
-  })
+  }, [user, enrolled, progress])
 
   return (
     <UnifiedCard variant="interactive" size="sm" className="group overflow-hidden">
       {/* Course Image */}
       <div className="relative h-48 overflow-hidden bg-gradient-to-br from-muted/20 to-muted/40">
         <Image
-          src={courseImage.src}
-          alt={courseImage.alt}
+          src={optimizedImageProps.src}
+          alt={optimizedImageProps.alt || course.title}
           width={400}
           height={250}
           className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
@@ -208,4 +208,6 @@ export function EnhancedCourseCard({ course, showProgress = true }: EnhancedCour
       </div>
     </UnifiedCard>
   )
-}
+})
+
+EnhancedCourseCard.displayName = 'EnhancedCourseCard'

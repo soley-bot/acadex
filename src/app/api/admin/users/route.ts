@@ -17,7 +17,15 @@ export const GET = withAdminAuth(async (request: NextRequest, user) => {
       return data
     })
 
-    return NextResponse.json({ users })
+    return NextResponse.json({ 
+      data: users,
+      pagination: {
+        total: users.length,
+        page: 1,
+        limit: users.length,
+        totalPages: 1
+      }
+    })
   } catch (error: any) {
     logger.error('Users fetch failed', { 
       adminUserId: user.id, 

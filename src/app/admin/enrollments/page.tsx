@@ -1,13 +1,23 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Users, BookOpen, Calendar, Clock, Search, Filter, UserMinus, Eye, MoreHorizontal, TrendingUp, Award, Plus } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { useAdminEnrollments } from '@/hooks/useOptimizedAPI'
 import type { Enrollment, Course, User } from '@/lib/supabase'
 import { ManualEnrollmentModal } from '@/components/admin/ManualEnrollmentModal'
 
-interface EnrollmentWithDetails extends Enrollment {
+// Use AdminEnrollment from the hook instead of local interface
+type EnrollmentWithDetails = {
+  id: string
+  user_id: string
+  course_id: string
+  enrolled_at: string
+  status: 'active' | 'completed' | 'suspended'
+  progress_percentage: number
+  last_accessed?: string
+  completed_at?: string
+  total_watch_time_minutes?: number
   courses: {
     title: string
     instructor_name: string
@@ -29,85 +39,28 @@ interface EnrollmentStats {
 
 export default function AdminEnrollmentsPage() {
   const router = useRouter()
-  const [enrollments, setEnrollments] = useState<EnrollmentWithDetails[]>([])
-  const [stats, setStats] = useState<EnrollmentStats>({
-    totalEnrollments: 0,
-    activeEnrollments: 0,
-    completedEnrollments: 0,
-    totalRevenue: 0
-  })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'completed'>('all')
   const [selectedEnrollment, setSelectedEnrollment] = useState<EnrollmentWithDetails | null>(null)
   const [showEnrollmentModal, setShowEnrollmentModal] = useState(false)
   const [showManualEnrollmentModal, setShowManualEnrollmentModal] = useState(false)
 
-  useEffect(() => {
-    fetchEnrollments()
-  }, [])
+  // React Query hook for enrollments
+  const { 
+    data: enrollmentsData, 
+    isLoading: loading, 
+    error: enrollmentsError,
+    refetch: refetchEnrollments
+  } = useAdminEnrollments(1, 50, searchTerm, statusFilter)
 
-  const fetchEnrollments = async () => {
-    try {
-      setLoading(true)
-      setError('') // Clear any previous errors
-      
-      // Get the current session to include Authorization header
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      // Prepare headers
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json'
-      }
-      
-      // Add Authorization header if we have a session
-      if (session?.access_token) {
-        headers['Authorization'] = `Bearer ${session.access_token}`
-      }
-      
-      // Use API route instead of direct Supabase call
-      const response = await fetch('/api/admin/enrollments', {
-        method: 'GET',
-        credentials: 'include', // Still include cookies as fallback
-        headers
-      })
-
-      if (!response.ok) {
-        // Get more details about the error
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-        console.error('Enrollment fetch error:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData
-        })
-        throw new Error(`HTTP error! status: ${response.status} - ${errorData.error || response.statusText}`)
-      }
-
-      const data = await response.json()
-      const enrollmentsWithDetails = (data.enrollments || []) as EnrollmentWithDetails[]
-      setEnrollments(enrollmentsWithDetails)
-
-      // Calculate stats
-      const totalEnrollments = enrollmentsWithDetails.length
-      const completedEnrollments = enrollmentsWithDetails.filter(e => e.completed_at).length
-      const activeEnrollments = totalEnrollments - completedEnrollments
-      const totalRevenue = enrollmentsWithDetails.reduce((sum, e) => sum + (e.courses?.price || 0), 0)
-
-      setStats({
-        totalEnrollments,
-        activeEnrollments,
-        completedEnrollments,
-        totalRevenue
-      })
-    } catch (error) {
-      console.error('Error fetching enrollments:', error)
-      // Set a user-friendly error message
-      setError('Failed to load enrollments. Please make sure you are logged in as an admin.')
-    } finally {
-      setLoading(false)
-    }
+  const enrollments = enrollmentsData?.data || []
+  const stats = enrollmentsData?.stats || {
+    totalEnrollments: 0,
+    activeEnrollments: 0,
+    completedEnrollments: 0,
+    totalRevenue: 0
   }
+  const error = enrollmentsError ? 'Failed to fetch enrollments' : ''
 
   const handleUnenrollStudent = async (enrollmentId: string) => {
     if (!confirm('Are you sure you want to unenroll this student? This action cannot be undone.')) {
@@ -125,7 +78,7 @@ export default function AdminEnrollmentsPage() {
       }
 
       // Refresh the enrollments list
-      fetchEnrollments()
+      refetchEnrollments()
     } catch (error) {
       console.error('Error unenrolling student:', error)
       alert('Failed to unenroll student. Please try again.')
@@ -170,7 +123,7 @@ export default function AdminEnrollmentsPage() {
       )
     }
     
-    if (enrollment.progress > 0) {
+    if (enrollment.progress_percentage > 0) {
       return (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary">
           <TrendingUp className="w-3 h-3 mr-1" />
@@ -383,12 +336,12 @@ export default function AdminEnrollmentsPage() {
                     <div className="flex items-center">
                       <div className="w-full bg-muted/60 rounded-full h-2 mr-2">
                         <div
-                          className={`h-2 rounded-full ${getProgressColor(enrollment.progress)}`}
-                          style={{ width: `${enrollment.progress}%` }}
+                          className={`h-2 rounded-full ${getProgressColor(enrollment.progress_percentage)}`}
+                          style={{ width: `${enrollment.progress_percentage}%` }}
                         ></div>
                       </div>
                       <span className="text-sm text-gray-900 min-w-[3rem]">
-                        {enrollment.progress}%
+                        {enrollment.progress_percentage}%
                       </span>
                     </div>
                   </td>
@@ -509,11 +462,11 @@ export default function AdminEnrollmentsPage() {
                     <div className="flex items-center space-x-2">
                       <div className="w-24 bg-muted/60 rounded-full h-2">
                         <div
-                          className={`h-2 rounded-full ${getProgressColor(selectedEnrollment.progress)}`}
-                          style={{ width: `${selectedEnrollment.progress}%` }}
+                          className={`h-2 rounded-full ${getProgressColor(selectedEnrollment.progress_percentage)}`}
+                          style={{ width: `${selectedEnrollment.progress_percentage}%` }}
                         ></div>
                       </div>
-                      <span className="font-medium">{selectedEnrollment.progress}%</span>
+                      <span className="font-medium">{selectedEnrollment.progress_percentage}%</span>
                     </div>
                   </div>
                   <div className="flex justify-between">
@@ -526,10 +479,10 @@ export default function AdminEnrollmentsPage() {
                       <span className="font-medium">{formatDate(selectedEnrollment.completed_at)}</span>
                     </div>
                   )}
-                  {selectedEnrollment.last_accessed_at && (
+                  {selectedEnrollment.last_accessed && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">Last Accessed:</span>
-                      <span className="font-medium">{formatDate(selectedEnrollment.last_accessed_at)}</span>
+                      <span className="font-medium">{formatDate(selectedEnrollment.last_accessed)}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
@@ -565,7 +518,7 @@ export default function AdminEnrollmentsPage() {
       <ManualEnrollmentModal
         isOpen={showManualEnrollmentModal}
         onClose={() => setShowManualEnrollmentModal(false)}
-        onEnrollmentCreated={fetchEnrollments}
+        onEnrollmentCreated={() => refetchEnrollments()}
       />
     </div>
   )

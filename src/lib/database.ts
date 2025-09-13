@@ -646,7 +646,7 @@ export const submitQuizAttempt = async (attemptData: {
     }
   })
 
-  const score = Math.round((correctAnswers / totalQuestions) * 100)
+  const percentageScore = Math.round((correctAnswers / totalQuestions) * 100)
 
   // Save the attempt
   const { data, error } = await supabase
@@ -654,8 +654,9 @@ export const submitQuizAttempt = async (attemptData: {
     .insert({
       quiz_id: attemptData.quiz_id,
       user_id: attemptData.user_id,
-      score,
+      score: correctAnswers, // Raw number of correct answers
       total_questions: totalQuestions,
+      percentage_score: percentageScore, // Percentage score
       time_taken_seconds: attemptData.time_taken_seconds || 0,
       answers: attemptData.answers,
       completed_at: new Date().toISOString()
@@ -1097,7 +1098,7 @@ export const getQuizResults = async (resultId: string) => {
   const formattedData = {
     id: attempt.id,
     quiz_title: attempt.quizzes.title,
-    score: attempt.score,
+    score: correctAnswersCount, // Use calculated correct answers count
     total_questions: questions.length,
     correct_answers: correctAnswersCount,
     time_taken_minutes: Math.round(attempt.time_taken_seconds / 60),

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, memo, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -29,16 +29,22 @@ interface QuizListCardProps {
   showProgress?: boolean
 }
 
-export function QuizListCard({ quiz, showProgress = true }: QuizListCardProps) {
+export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true }) => {
   const { user } = useAuth()
   const router = useRouter()
   const { hasAttempted, getQuizAttempt, quickActions } = useUserProgress()
   const [actionLoading, setActionLoading] = useState(false)
   
-  const attempted = hasAttempted(quiz.id)
-  const lastAttempt = getQuizAttempt(quiz.id)
+  // Memoized computed values
+  const attempted = useMemo(() => hasAttempted(quiz.id), [hasAttempted, quiz.id])
+  const lastAttempt = useMemo(() => getQuizAttempt(quiz.id), [getQuizAttempt, quiz.id])
+  const quizImage = useMemo(() => getQuizImage({
+    category: quiz.category,
+    title: quiz.title,
+    image_url: quiz.image_url
+  }), [quiz.category, quiz.title, quiz.image_url])
 
-  const handleQuickStart = async () => {
+  const handleQuickStart = useCallback(async () => {
     if (!user) {
       router.push('/auth/login')
       return
@@ -57,9 +63,9 @@ export function QuizListCard({ quiz, showProgress = true }: QuizListCardProps) {
     } finally {
       setActionLoading(false)
     }
-  }
+  }, [user, router, quiz.id, quickActions])
 
-  const getDifficultyColor = (difficulty: string) => {
+  const getDifficultyColor = useCallback((difficulty: string) => {
     switch (difficulty.toLowerCase()) {
       case 'beginner':
       case 'easy':
@@ -73,9 +79,9 @@ export function QuizListCard({ quiz, showProgress = true }: QuizListCardProps) {
       default:
         return 'bg-muted text-muted-foreground border-border'
     }
-  }
+  }, [])
 
-  const getActionButtonText = () => {
+  const getActionButtonText = useCallback(() => {
     if (actionLoading) return 'Starting...'
     if (!user) return 'Start Quiz'
     if (attempted) {
@@ -83,9 +89,9 @@ export function QuizListCard({ quiz, showProgress = true }: QuizListCardProps) {
       return 'Continue'
     }
     return 'Start Quiz'
-  }
+  }, [actionLoading, user, attempted, lastAttempt])
 
-  const getScoreDisplay = () => {
+  const getScoreDisplay = useCallback(() => {
     if (!lastAttempt?.completed_at || !lastAttempt?.score) return null
     
     const percentage = Math.round(lastAttempt.score)
@@ -97,33 +103,30 @@ export function QuizListCard({ quiz, showProgress = true }: QuizListCardProps) {
         {percentage}%
       </div>
     )
-  }
+  }, [lastAttempt])
 
   return (
-    <Card variant="elevated" className="hover:shadow-md transition-all duration-200 h-full overflow-hidden">
+    <Card className="hover:shadow-md transition-all duration-200 h-full overflow-hidden border border-subtle bg-surface-primary shadow-md hover:shadow-lg">
       <div className="h-full flex flex-col">
         {/* Quiz Image - Top Position for All Screens */}
         <div className="relative w-full h-40 sm:h-48 bg-muted overflow-hidden">
-          {(() => {
-            const quizImage = getQuizImage(quiz)
-            return quiz.image_url ? (
-              <Image
-                src={quiz.image_url}
-                alt={quiz.title}
-                fill
-                className="object-cover transition-transform duration-300 hover:scale-105"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-            ) : (
-              <Image
-                src={quizImage.src}
-                alt={quizImage.alt}
-                fill
-                className="object-cover transition-transform duration-300 hover:scale-105"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-            )
-          })()}
+          {quiz.image_url ? (
+            <Image
+              src={quiz.image_url}
+              alt={quiz.title}
+              fill
+              className="object-cover transition-transform duration-300 hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          ) : (
+            <Image
+              src={quizImage.src}
+              alt={quizImage.alt}
+              fill
+              className="object-cover transition-transform duration-300 hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          )}
         </div>
 
         {/* Card Content - Below Image */}
@@ -202,4 +205,6 @@ export function QuizListCard({ quiz, showProgress = true }: QuizListCardProps) {
       </div>
     </Card>
   )
-}
+})
+
+QuizListCard.displayName = 'QuizListCard'

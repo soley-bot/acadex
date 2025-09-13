@@ -2,6 +2,7 @@ import React, { memo, useCallback, useMemo, Suspense, lazy, useState, useEffect,
 import { X, AlertTriangle, CheckCircle, Target, Plus, ChevronDown } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
+import { useFeatureFlag } from '@/lib/featureFlags'
 import {
   LazyComponentWrapper,
   LazyComponentErrorBoundary,
@@ -30,6 +31,19 @@ const LazyQuizPreviewStep = lazy(() =>
     default: module.QuizPreviewStep
   }))
 )
+
+const LazyEnhancedQuestionCreation = lazy(() => 
+  import('./EnhancedQuestionCreation').then(module => ({
+    default: module.EnhancedQuestionCreation
+  }))
+)
+
+// Template functionality temporarily disabled
+// const LazyTemplateLibrary = lazy(() => 
+//   import('./TemplateLibrary').then(module => ({
+//     default: module.TemplateLibrary
+//   }))
+// )
 
 interface QuizBuilderProps {
   quiz?: Quiz | null
@@ -273,9 +287,12 @@ const initialState: QuizBuilderState = {
 
 // Simple question type dropdown - replaces modal
 const QuestionTypeDropdown = memo<{ 
-  onCreateQuestion: (type: string) => void 
+  onCreateQuestion: (type: string, templateData?: any) => void 
 }>(({ onCreateQuestion }) => {
   const [isOpen, setIsOpen] = useState(false)
+  // Template functionality temporarily disabled
+  // const [showTemplates, setShowTemplates] = useState(false)
+  const templatesEnabled = useFeatureFlag('QUESTION_TEMPLATES')
   
   const questionTypes = [
     { type: 'multiple_choice', label: 'Multiple Choice (Single Answer)', icon: '☑️' },
@@ -291,43 +308,157 @@ const QuestionTypeDropdown = memo<{
     setIsOpen(false)
   }
 
+  // Template handlers temporarily disabled
+  // const handleTemplateSelect = () => {
+  //   setShowTemplates(true)
+  //   setIsOpen(false)
+  // }
+
+  // const handleTemplateUse = (template: any) => {
+  //   onCreateQuestion(template.question_type, template.template_data)
+  //   setShowTemplates(false)
+  // }
+
   return (
-    <div className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
-      >
-        <Plus className="h-4 w-4" />
-        Add Question
-        <ChevronDown className="h-4 w-4" />
-      </button>
-      
-      {isOpen && (
-        <>
-          <div 
-            className="fixed inset-0 z-10" 
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="absolute top-full left-0 mt-1 w-72 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto">
-            <div className="py-1">
-              {questionTypes.map(({ type, label, icon }) => (
+    <>
+      <div className="relative">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          Add Question
+          <ChevronDown className="h-4 w-4" />
+        </button>
+        
+        {isOpen && (
+          <>
+            <div 
+              className="fixed inset-0 z-10" 
+              onClick={() => setIsOpen(false)}
+            />
+            <div className="absolute top-full left-0 mt-1 w-72 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto">
+              <div className="py-1">
+                {templatesEnabled && (
+                  <>
+                    {/* Template option temporarily disabled */}
+                    <div className="border-b border-gray-100 mb-1">
+                      <div className="px-4 py-2 text-xs text-gray-500 uppercase tracking-wide">
+                        Create Question
+                      </div>
+                    </div>
+                  </>
+                )}
+                {questionTypes.map(({ type, label, icon }) => (
+                  <button
+                    key={type}
+                    onClick={() => handleSelect(type)}
+                    className="w-full px-4 py-3 text-left flex items-center gap-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <span className="text-lg">{icon}</span>
+                    <span className="text-sm font-medium">{label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Template functionality temporarily disabled */}
+      {/* 
+      {showTemplates && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold">Select Template</h3>
+                  <p className="text-sm text-gray-600 mt-1">Pick a template to get started quickly</p>
+                </div>
                 <button
-                  key={type}
-                  onClick={() => handleSelect(type)}
-                  className="w-full px-4 py-3 text-left flex items-center gap-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                  onClick={() => setShowTemplates(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <span className="text-lg">{icon}</span>
-                  <span className="text-sm font-medium">{label}</span>
+                  <X className="h-5 w-5" />
                 </button>
-              ))}
+              </div>
+            </div>
+            <div className="p-6">
+              <Suspense fallback={<div className="text-center py-8">Loading templates...</div>}>
+                <LazyTemplateLibrary
+                  onSelectTemplate={handleTemplateUse}
+                  showCreateButton={false}
+                  compactView={true}
+                />
+              </Suspense>
             </div>
           </div>
-        </>
+        </div>
       )}
-    </div>
+      */}
+    </>
   )
 })
 QuestionTypeDropdown.displayName = 'QuestionTypeDropdown'
+
+// Enhanced question creation wrapper with feature flag
+const QuestionCreationInterface = memo<{
+  onCreateQuestion: (type: string, data?: any) => void
+  quizData?: Partial<Quiz>
+  existingQuestions: QuizQuestion[]
+}>(({ onCreateQuestion, quizData, existingQuestions }) => {
+  const [showEnhancedCreation, setShowEnhancedCreation] = useState(false)
+  const enhancedQuestionCreationEnabled = useFeatureFlag('ENHANCED_QUESTION_CREATION')
+
+  const handleCreateQuestion = useCallback((type: string, data?: any) => {
+    if (data) {
+      // Enhanced creation with additional data
+      onCreateQuestion(type, data)
+    } else {
+      // Standard creation
+      onCreateQuestion(type)
+    }
+    setShowEnhancedCreation(false)
+  }, [onCreateQuestion])
+
+  // Use enhanced creation if feature flag is enabled
+  if (enhancedQuestionCreationEnabled) {
+    return (
+      <>
+        <button
+          onClick={() => setShowEnhancedCreation(true)}
+          className="bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          Create Question
+          <ChevronDown className="h-4 w-4" />
+        </button>
+
+        {showEnhancedCreation && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-auto">
+              <Suspense fallback={<StepLoadingFallback step="quiz-editing" />}>
+                <LazyEnhancedQuestionCreation
+                  topic={quizData?.title || ''}
+                  category={quizData?.category || ''}
+                  difficulty={quizData?.difficulty as any || 'intermediate'}
+                  existingQuestions={existingQuestions}
+                  onCreateQuestion={handleCreateQuestion}
+                  onClose={() => setShowEnhancedCreation(false)}
+                />
+              </Suspense>
+            </div>
+          </div>
+        )}
+      </>
+    )
+  }
+
+  // Fallback to original dropdown
+  return <QuestionTypeDropdown onCreateQuestion={onCreateQuestion} />
+})
+QuestionCreationInterface.displayName = 'QuestionCreationInterface'
 
 // Modern step indicator component
 const SimpleStepIndicator = memo<{
@@ -536,7 +667,8 @@ const QuizQuestions = memo<{
   isGenerating?: boolean
   aiConfig?: any
   onAIConfigChange?: (config: any) => void
-}>(({ questions, onUpdate, onAdd, onDuplicate, onRemove, onGenerateAI, isGenerating, aiConfig, onAIConfigChange }) => {
+  quizData?: Partial<Quiz>
+}>(({ questions, onUpdate, onAdd, onDuplicate, onRemove, onGenerateAI, isGenerating, aiConfig, onAIConfigChange, quizData }) => {
   const questionsWithValidation = useMemo(() => {
     return questions.map((question: QuizQuestion, index: number) => {
       const errors: string[] = []
@@ -616,7 +748,11 @@ const QuizQuestions = memo<{
               )}
             </button>
           )}
-          <QuestionTypeDropdown onCreateQuestion={onAdd} />
+          <QuestionCreationInterface 
+            onCreateQuestion={onAdd} 
+            quizData={quizData}
+            existingQuestions={questions}
+          />
         </div>
       </div>
 
@@ -760,7 +896,11 @@ const QuizQuestions = memo<{
             <p className="text-gray-600 mb-4">
               Start building your quiz by adding your first question
             </p>
-            <QuestionTypeDropdown onCreateQuestion={onAdd} />
+            <QuestionCreationInterface 
+              onCreateQuestion={onAdd} 
+              quizData={quizData}
+              existingQuestions={questions}
+            />
           </CardContent>
         </Card>
       ) : (
@@ -1184,19 +1324,19 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
     }))
   }, [])
 
-  const handleAddQuestion = useCallback((questionType: string) => {
+  const handleAddQuestion = useCallback((questionType: string, enhancedData?: any) => {
     const newQuestion: QuizQuestion = {
       id: `temp-${Date.now()}`,
       quiz_id: quiz?.id || '',
-      question: '',
+      question: enhancedData?.question || '',
       question_type: questionType as any,
-      options: questionType === 'multiple_choice' ? ['', ''] : undefined,
-      correct_answer: (questionType === 'multiple_choice' ? 0 : 
+      options: enhancedData?.options || (questionType === 'multiple_choice' ? ['', ''] : undefined),
+      correct_answer: enhancedData?.correct_answer ?? (questionType === 'multiple_choice' ? 0 : 
                      questionType === 'true_false' ? true : '') as any,
-      explanation: '',
+      explanation: enhancedData?.explanation || '',
       order_index: state.questions.length,
       points: 1,
-      difficulty_level: 'medium',
+      difficulty_level: enhancedData?.difficulty_level || 'medium',
       image_url: null,
       audio_url: null,
       video_url: null
@@ -1552,6 +1692,7 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
                   onAdd={handleAddQuestion}
                   onDuplicate={handleDuplicateQuestion}
                   onRemove={handleRemoveQuestion}
+                  quizData={state.quiz}
                 />
               </Suspense>
             </LazyComponentErrorBoundary>

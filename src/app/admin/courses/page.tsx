@@ -1,34 +1,44 @@
 'use client'
 
-import { logger } from '@/lib/logger'
-
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Pagination } from '@/components/ui/Pagination'
-import { Course } from '@/lib/supabase'
 import { DeleteCourseModal } from '@/components/admin/DeleteCourseModal'
 import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
 import { CourseViewModal } from '@/components/admin/CourseViewModal'
 import { CategoryManagement } from '@/components/admin/CategoryManagement'
 import Icon from '@/components/ui/Icon'
 import { useAuth } from '@/contexts/AuthContext'
-import { authenticatedGet, authenticatedPost } from '@/lib/auth-api'
+import { useAdminCourses } from '@/hooks/useOptimizedAPI'
+
+// Optimized lib imports
+import { logger, authenticatedPost, type Course } from '@/lib'
 
 export default function CoursesPage() {
   const router = useRouter()
   const { user } = useAuth()
-  const [courses, setCourses] = useState<Course[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  
+  // React Query state
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 50,
-    total: 0,
-    totalPages: 0
-  })
+  const [currentPage, setCurrentPage] = useState(1)
+  
+  // Use React Query hook for data fetching
+  const { 
+    data: coursesData, 
+    isLoading: loading, 
+    error, 
+    refetch 
+  } = useAdminCourses(
+    currentPage,
+    50, // limit
+    searchTerm,
+    selectedCategory === 'all' ? 'all' : selectedCategory
+  )
+  
+  const courses = coursesData?.courses || []
+  const pagination = coursesData?.pagination || { page: 1, limit: 50, total: 0, totalPages: 0 }
   
   // Modal states  
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -38,63 +48,21 @@ export default function CoursesPage() {
   const [viewingCourse, setViewingCourse] = useState<Course | null>(null)
   const [showCategoryManagement, setShowCategoryManagement] = useState(false)
 
-  // Fetch courses using API route with server-side filtering and pagination
-  const fetchCourses = useCallback(async (page = 1, search = '', category = 'all') => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: '50', // Show more courses for admin view
-        search,
-        category
-      })
-      
-      const response = await authenticatedGet(`/api/admin/courses?${params}`)
-      const result = await response.json()
-      
-      if (result.success) {
-        setCourses(result.data || [])
-        setPagination(result.pagination || { page: 1, limit: 50, total: 0, totalPages: 0 })
-      } else {
-        setError(result.error || 'Failed to fetch courses')
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch courses')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  // Debounced search to avoid too many API calls
-  const debouncedSearchTerm = useMemo(() => {
-    const timer = setTimeout(() => {
-      return searchTerm
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [searchTerm])
-
-  useEffect(() => {
-    fetchCourses(1, searchTerm, selectedCategory)
-  }, [fetchCourses, searchTerm, selectedCategory])
-
   // Handle search input change
   const handleSearchChange = (value: string) => {
     setSearchTerm(value)
-    setPagination(prev => ({ ...prev, page: 1 })) // Reset to first page when searching
+    setCurrentPage(1) // Reset to first page when searching
   }
 
   // Handle category change
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category)
-    setPagination(prev => ({ ...prev, page: 1 })) // Reset to first page when filtering
+    setCurrentPage(1) // Reset to first page when filtering
   }
 
   // Handle pagination
   const handlePageChange = (newPage: number) => {
-    setPagination(prev => ({ ...prev, page: newPage }))
-    fetchCourses(newPage, searchTerm, selectedCategory)
+    setCurrentPage(newPage)
   }
 
   // Remove client-side filtering since we now do server-side filtering
@@ -136,7 +104,7 @@ export default function CoursesPage() {
   }
 
   const handleDeleteSuccess = () => {
-    fetchCourses(pagination.page, searchTerm, selectedCategory) // Refresh courses after successful deletion
+    refetch() // Refresh courses after successful deletion
     setShowDeleteModal(false)
     setShowEnhancedDeleteModal(false)
     setDeletingCourse(null)
@@ -159,17 +127,11 @@ export default function CoursesPage() {
         throw new Error(result.error || 'Failed to update course')
       }
 
-      // Update local state
-      setCourses(prevCourses => 
-        prevCourses.map(c => 
-          c.id === course.id 
-            ? { ...c, is_published: !c.is_published }
-            : c
-        )
-      )
+      // Refetch data to ensure consistency
+      refetch()
     } catch (err: any) {
       logger.error('Error toggling publish status:', err)
-      setError(err.message || 'Failed to update course status. Please try again.')
+      // Note: No setError needed as React Query will handle error state
     }
   }
 
@@ -227,9 +189,9 @@ export default function CoursesPage() {
               <Icon name="warning" size={24} color="error" />
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-3">Failed to load courses</h2>
-            <p className="text-primary mb-6 font-medium">{error}</p>
+            <p className="text-primary mb-6 font-medium">{error?.message || 'An error occurred while loading courses'}</p>
             <button 
-              onClick={() => fetchCourses()}
+              onClick={() => refetch()}
               className="bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-lg transition-colors font-semibold w-full flex items-center justify-center gap-2"
             >
               <Icon name="refresh" size={16} color="white" />
@@ -336,14 +298,14 @@ export default function CoursesPage() {
                 placeholder="Search courses by title or instructor..."
                 className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors text-base"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
               />
             </div>
             <div className="w-full sm:w-64">
               <select
                 className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors text-base font-medium"
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={(e) => handleCategoryChange(e.target.value)}
               >
                 {categories.map(category => (
                   <option key={category} value={category}>
@@ -558,7 +520,7 @@ export default function CoursesPage() {
         onClose={() => setShowCategoryManagement(false)}
         onCategoryCreated={() => {
           // Refresh courses when new categories are created
-          fetchCourses()
+          refetch()
         }}
       />
     </div>

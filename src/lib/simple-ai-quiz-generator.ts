@@ -1,7 +1,17 @@
 import { logger } from './logger'
 import { AIServiceFactory, BaseAIService } from './ai-services'
 
-// Simplified quiz generation interface
+// Import consolidated types
+import type { 
+  QuizGenerationRequest,
+  GeneratedQuiz,
+  GeneratedQuizQuestion
+} from '@/types/consolidated-api'
+
+// Enhanced question types matching QuizForm exactly
+export type QuestionType = 'multiple_choice' | 'true_false' | 'fill_blank' | 'essay' | 'matching' | 'ordering'
+
+// Legacy interface for backward compatibility - will be deprecated
 export interface SimpleQuizRequest {
   topic: string
   subject: string
@@ -12,9 +22,6 @@ export interface SimpleQuizRequest {
   explanationLanguage?: string
   customPrompt?: string // Optional custom prompt to override default generation
 }
-
-// Enhanced question types matching QuizForm exactly
-export type QuestionType = 'multiple_choice' | 'true_false' | 'fill_blank' | 'essay' | 'matching' | 'ordering'
 
 // Frontend-compatible quiz format that matches our form structure
 export interface FrontendQuizData {

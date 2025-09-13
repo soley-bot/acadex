@@ -117,31 +117,32 @@ export default function QuizResultsPage() {
     )
   }
 
-  const scoreMessage = getScoreMessage(results.score)
+  const scoreMessage = getScoreMessage(Math.round((results.correct_answers / results.total_questions) * 100))
+  const percentageScore = Math.round((results.correct_answers / results.total_questions) * 100)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
-      <div className="max-w-6xl mx-auto px-4 pt-20 pb-12">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 pt-16 sm:pt-20 pb-8 sm:pb-12">
 
-        {/* Results Header */}
-        <Card variant="glass" className="text-center p-8 mb-8">
-          <div className="w-16 h-16 bg-success rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-8 h-8 text-white" />
+        {/* Results Header - Mobile Optimized */}
+        <Card variant="glass" className="text-center p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-success rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
+            <CheckCircle className="w-6 w-6 sm:w-8 sm:h-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-foreground mb-3">Quiz Complete!</h1>
-          <h3 className="text-2xl font-medium text-muted-foreground mb-8">{results.quiz_title}</h3>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3">Quiz Complete!</h1>
+          <h3 className="text-lg sm:text-xl md:text-2xl font-medium text-muted-foreground mb-6 sm:mb-8 px-2">{results.quiz_title}</h3>
           
-          <div className={`text-6xl font-bold mb-4 ${getScoreColor(results.score)}`}>
-            {results.score}%
+          <div className={`text-4xl sm:text-5xl md:text-6xl font-bold mb-3 sm:mb-4 ${getScoreColor(percentageScore)}`}>
+            {percentageScore}%
           </div>
-          <p className="text-lg text-muted-foreground mb-8">{scoreMessage.message}</p>
+          <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8 px-2">{scoreMessage.message}</p>
           
           {/* Mobile-Optimized Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
-            <Card variant="base" className="text-center p-3 sm:p-4">
-              <div className="flex items-center justify-center mb-2">
-                <Target className="w-5 h-5 sm:w-6 sm:h-6 text-success mr-2" />
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-success">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 max-w-4xl mx-auto">
+            <Card variant="base" className="text-center p-3 sm:p-4 md:p-6">
+              <div className="flex flex-col items-center mb-2">
+                <Target className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-success mb-1" />
+                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-success">
                   {results.correct_answers}
                 </div>
               </div>
@@ -150,10 +151,10 @@ export default function QuizResultsPage() {
               </div>
             </Card>
             
-            <Card variant="base" className="text-center p-3 sm:p-4">
-              <div className="flex items-center justify-center mb-2">
-                <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 mr-2" />
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+            <Card variant="base" className="text-center p-3 sm:p-4 md:p-6">
+              <div className="flex flex-col items-center mb-2">
+                <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gray-700 mb-1" />
+                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">
                   {results.total_questions}
                 </div>
               </div>
@@ -162,10 +163,10 @@ export default function QuizResultsPage() {
               </div>
             </Card>
             
-            <Card variant="base" className="text-center p-3 sm:p-4">
-              <div className="flex items-center justify-center mb-2">
-                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-primary mr-2" />
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary">
+            <Card variant="base" className="text-center p-3 sm:p-4 md:p-6">
+              <div className="flex flex-col items-center mb-2">
+                <Clock className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-primary mb-1" />
+                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-primary">
                   {results.time_taken_minutes}
                 </div>
               </div>
@@ -174,11 +175,11 @@ export default function QuizResultsPage() {
               </div>
             </Card>
             
-            <Card variant="base" className="text-center p-3 sm:p-4">
-              <div className="flex items-center justify-center mb-2">
-                <Award className="w-5 h-5 sm:w-6 sm:h-6 text-secondary mr-2" />
-                <div className={`text-xl sm:text-2xl lg:text-3xl font-bold ${getScoreColor(results.score)}`}>
-                  {results.score}%
+            <Card variant="base" className="text-center p-3 sm:p-4 md:p-6">
+              <div className="flex flex-col items-center mb-2">
+                <Award className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-secondary mb-1" />
+                <div className={`text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold ${getScoreColor(percentageScore)}`}>
+                  {percentageScore}%
                 </div>
               </div>
               <div className="text-xs sm:text-sm text-gray-600 font-medium uppercase tracking-wide">
@@ -189,15 +190,15 @@ export default function QuizResultsPage() {
         </Card>
 
         {/* Mobile-Optimized Detailed Results */}
-        <Card variant="glass" className="mb-8">
-          <CardHeader className="bg-secondary/10 p-4 sm:p-6">
-            <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
-              <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" />
+        <Card variant="glass" className="mb-6 sm:mb-8">
+          <CardHeader className="bg-secondary/10 p-3 sm:p-4 md:p-6">
+            <CardTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-lg md:text-xl">
+              <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
               <span>Question by Question Review</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6">
-            <div className="space-y-3 sm:space-y-4">
+          <CardContent className="p-3 sm:p-4 md:p-6">
+            <div className="space-y-2 sm:space-y-3 md:space-y-4">
               {results.answers.map((answer, index) => (
                 <CollapsibleSection
                   key={index}

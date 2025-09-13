@@ -44,9 +44,9 @@ const DEFAULT_FLAGS: FeatureFlags = {
   QUICK_EDIT_MODE: false,
   
   // Phase 4: Advanced Features (Power user features)
-  BULK_OPERATIONS: false,
-  ENHANCED_QUESTION_CREATION: false,
-  QUESTION_TEMPLATES: false,
+  BULK_OPERATIONS: true,
+  ENHANCED_QUESTION_CREATION: false, // Disabled - users prefer direct approach
+  QUESTION_TEMPLATES: false, // Disabled - not needed right now
   
   // Phase 5: Polish & Optimization (Performance features)
   VIRTUALIZED_LISTS: false,

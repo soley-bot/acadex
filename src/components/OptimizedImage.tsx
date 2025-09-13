@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect, memo } from 'react'
 import Image from 'next/image'
 import { getOptimizedImageUrl } from '@/lib/storage'
 
@@ -12,6 +12,8 @@ interface OptimizedImageProps {
   className?: string
   fallbackType?: 'course' | 'quiz' | 'user' | 'generic'
   quality?: number
+  priority?: boolean // For above-the-fold images
+  lazy?: boolean // Enable lazy loading (default: true)
 }
 
 const FALLBACK_IMAGES = {
@@ -21,52 +23,91 @@ const FALLBACK_IMAGES = {
   generic: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=300&fit=crop&crop=center&auto=format&q=80'
 }
 
-export function OptimizedImage({
+export const OptimizedImage = memo<OptimizedImageProps>(({
   src,
   alt,
   width,
   height,
   className = '',
   fallbackType = 'generic',
-  quality = 80
-}: OptimizedImageProps) {
+  quality = 80,
+  priority = false,
+  lazy = true
+}) => {
   const [hasError, setHasError] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isInView, setIsInView] = useState(!lazy) // If not lazy, always in view
+  const imgRef = useRef<HTMLDivElement>(null)
+
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    if (!lazy || isInView) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        if (entry && entry.isIntersecting) {
+          setIsInView(true)
+          observer.disconnect()
+        }
+      },
+      { 
+        threshold: 0.1,
+        rootMargin: '50px' // Load images 50px before they enter viewport
+      }
+    )
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [lazy, isInView])
 
   const optimizedSrc = hasError 
     ? FALLBACK_IMAGES[fallbackType]
     : getOptimizedImageUrl(src, { width, height, quality })
 
   return (
-    <div className={`relative overflow-hidden ${className}`}>
-      {isLoading && (
+    <div 
+      ref={imgRef}
+      className={`relative overflow-hidden ${className}`}
+      style={{ minHeight: height }}
+    >
+      {isLoading && isInView && (
         <div 
-          className="absolute inset-0 bg-muted/60 animate-pulse rounded"
+          className="absolute inset-0 bg-gradient-to-br from-muted/40 to-muted/60 animate-pulse rounded"
           style={{ width, height }}
         />
       )}
-      <Image
-        src={optimizedSrc}
-        alt={alt}
-        width={width}
-        height={height}
-        className={`transition-opacity duration-300 ${
-          isLoading ? 'opacity-0' : 'opacity-100'
-        }`}
-        onLoad={() => setIsLoading(false)}
-        onError={() => {
-          setHasError(true)
-          setIsLoading(false)
-        }}
-        style={{
-          objectFit: 'cover',
-          width: '100%',
-          height: '100%'
-        }}
-      />
+      {isInView && (
+        <Image
+          src={optimizedSrc}
+          alt={alt}
+          width={width}
+          height={height}
+          priority={priority}
+          loading={priority ? "eager" : "lazy"}
+          className={`transition-opacity duration-300 ${
+            isLoading ? 'opacity-0' : 'opacity-100'
+          }`}
+          onLoad={() => setIsLoading(false)}
+          onError={() => {
+            setHasError(true)
+            setIsLoading(false)
+          }}
+          style={{
+            objectFit: 'cover',
+            width: '100%',
+            height: '100%'
+          }}
+        />
+      )}
     </div>
   )
-}
+})
+
+OptimizedImage.displayName = 'OptimizedImage'
 
 // Specialized components for different use cases
 export function CourseImage({ 

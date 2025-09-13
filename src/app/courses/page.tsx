@@ -1,16 +1,14 @@
 "use client"
 
-import { logger } from '@/lib/logger'
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { supabase, Course } from '@/lib/supabase'
-import { courseAPI } from '@/lib/database'
+import { Course } from '@/lib/supabase'
+import { usePublicCourses, usePublicCategories } from '@/hooks/useOptimizedAPI'
 import { Pagination } from '@/components/ui/Pagination'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { EnhancedCourseCard } from '@/components/cards/EnhancedCourseCard'
-import { getHeroImage } from '@/lib/imageMapping'
 import { 
   BookOpen, 
   Filter, 
@@ -21,72 +19,41 @@ import {
   MessageCircle
 } from 'lucide-react'
 
-interface PaginationData {
-  page: number
-  limit: number
-  total: number
-  totalPages: number
-  hasMore: boolean
-}
-
 export default function CoursesPage() {
-  const [courses, setCourses] = useState<Course[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedLevel, setSelectedLevel] = useState<string>('all')
-  const [categories, setCategories] = useState<string[]>([])
-  const [pagination, setPagination] = useState<PaginationData>({
+
+  // React Query hooks
+  const { 
+    data: coursesData, 
+    isLoading: coursesLoading, 
+    error: coursesError,
+    refetch: refetchCourses 
+  } = usePublicCourses({
+    page: currentPage,
+    limit: 9,
+    ...(selectedCategory !== 'all' && { category: selectedCategory }),
+    ...(selectedLevel !== 'all' && { level: selectedLevel })
+  })
+
+  const { 
+    data: categories = [], 
+    isLoading: categoriesLoading 
+  } = usePublicCategories()
+
+  // Extract data from React Query response
+  const courses = coursesData?.data || []
+  const pagination = coursesData?.pagination || {
     page: 1,
     limit: 9,
     total: 0,
     totalPages: 0,
     hasMore: false
-  })
+  }
 
-  const fetchCourses = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      setError(null)
-      
-      const filters = {
-        page: currentPage,
-        limit: 9,
-        ...(selectedCategory !== 'all' && { category: selectedCategory }),
-        ...(selectedLevel !== 'all' && { level: selectedLevel })
-      }
-
-      const { data, error: dbError, pagination: paginationData } = await courseAPI.getCourses(filters)
-      
-      if (dbError) {
-        throw dbError
-      }
-
-      setCourses(data || [])
-      setPagination(paginationData)
-      
-      // Extract unique categories from all courses (for filter)
-      if (currentPage === 1) {
-        const { data: allCourses } = await courseAPI.getCourses({ limit: 1000 })
-        const categories = allCourses
-          ?.map((course: Course) => course.category)
-          ?.filter((category: string | null): category is string => Boolean(category)) || []
-        const uniqueCategories = Array.from(new Set(categories)) as string[]
-        setCategories(uniqueCategories)
-      }
-      
-    } catch (err) {
-      logger.error('Error fetching courses:', err)
-      setError('Failed to load courses')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [currentPage, selectedCategory, selectedLevel])
-
-  useEffect(() => {
-    fetchCourses()
-  }, [fetchCourses])
+  const isLoading = coursesLoading
+  const error = coursesError ? 'Failed to load courses' : null
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
@@ -101,19 +68,6 @@ export default function CoursesPage() {
   const handleLevelChange = (level: string) => {
     setSelectedLevel(level)
     setCurrentPage(1)
-  }
-
-  const getLevelBadgeColor = (level: string) => {
-    switch (level?.toLowerCase()) {
-      case 'beginner': return 'bg-success/10 text-success'
-      case 'intermediate': return 'bg-warning/10 text-warning'
-      case 'advanced': return 'bg-destructive/10 text-destructive'
-      default: return 'bg-muted/10 text-muted-foreground'
-    }
-  }
-
-  const formatLevel = (level: string) => {
-    return level.charAt(0).toUpperCase() + level.slice(1)
   }
 
   if (isLoading) {
@@ -273,7 +227,7 @@ export default function CoursesPage() {
               <p className="text-sm text-muted-foreground mb-4">{error}</p>
               <Button 
                 variant="outline"
-                onClick={fetchCourses}
+                onClick={() => refetchCourses()}
                 className="text-sm"
               >
                 Try again

@@ -13,7 +13,8 @@ import { CategoryManagement } from '@/components/admin/CategoryManagement'
 import { QuizAnalytics } from '@/components/admin/QuizAnalytics'
 import { AdminQuizCard } from '@/components/admin/AdminQuizCard'
 import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
-import { useAdminDashboardData, useDeleteQuiz, usePrefetchQuiz, type AdminDashboardData } from '@/hooks/useOptimizedAPI'
+import { BulkOperations } from '@/components/admin/BulkOperations'
+import { useAdminDashboardData, useDeleteQuiz, usePrefetchQuiz, useBulkQuizOperations, type AdminDashboardData } from '@/hooks/useOptimizedAPI'
 import { supabase, type Quiz as BaseQuiz } from '@/lib/supabase'
 import { authenticatedPut } from '@/lib/auth-api'
 
@@ -73,8 +74,15 @@ export default function AdminQuizzesPage() {
   const [showAnalytics, setShowAnalytics] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'compact'>('grid')
 
+  // Bulk operations state
+  const [selectedQuizIds, setSelectedQuizIds] = useState<string[]>([])
+  const [showBulkOperations, setShowBulkOperations] = useState(false)
+
   // Refs for click outside
   const categoryDropdownRef = useRef<HTMLDivElement>(null)
+
+  // Bulk operations mutation
+  const bulkQuizOperations = useBulkQuizOperations()
 
   // ===== DERIVED STATE & MEMOIZED VALUES =====
     // Update pagination when data changes
@@ -271,6 +279,20 @@ export default function AdminQuizzesPage() {
       day: 'numeric'
     })
   }
+
+  // ===== BULK OPERATIONS HANDLERS =====
+  const handleSelectQuiz = useCallback((quizId: string) => {
+    setSelectedQuizIds(prev => 
+      prev.includes(quizId) 
+        ? prev.filter(id => id !== quizId)
+        : [...prev, quizId]
+    )
+  }, [])
+
+  // Show bulk operations when items are selected
+  useEffect(() => {
+    setShowBulkOperations(selectedQuizIds.length > 0)
+  }, [selectedQuizIds])
 
   // ===== LOADING & ERROR STATES =====
   if (isLoading) {
@@ -729,6 +751,49 @@ export default function AdminQuizzesPage() {
           </button>
         </div>
       </div>
+
+      {/* Bulk Operations */}
+      {showBulkOperations && (
+        <BulkOperations
+          items={filteredQuizzes}
+          selectedItems={new Set(selectedQuizIds)}
+          onSelectionChange={(newSelection) => setSelectedQuizIds([...newSelection])}
+          onBulkDelete={async (itemIds) => {
+            await bulkQuizOperations.mutateAsync({
+              action: 'delete',
+              itemIds,
+            })
+          }}
+          onBulkPublish={async (itemIds, isPublished) => {
+            await bulkQuizOperations.mutateAsync({
+              action: isPublished ? 'publish' : 'unpublish',
+              itemIds,
+            })
+          }}
+          onBulkArchive={async (itemIds) => {
+            await bulkQuizOperations.mutateAsync({
+              action: 'archive',
+              itemIds,
+            })
+          }}
+          onBulkDuplicate={async (itemIds) => {
+            await bulkQuizOperations.mutateAsync({
+              action: 'duplicate',
+              itemIds,
+            })
+          }}
+          onBulkExport={async (itemIds) => {
+            await bulkQuizOperations.mutateAsync({
+              action: 'export',
+              itemIds,
+            })
+          }}
+          getItemId={(quiz) => quiz.id}
+          getItemTitle={(quiz) => quiz.title}
+          getItemStatus={(quiz) => quiz.is_published ? 'published' : 'draft'}
+          itemType="quiz"
+        />
+      )}
   
       {/* Enhanced Quizzes Display */}
       {viewMode === 'grid' ? (
@@ -742,6 +807,9 @@ export default function AdminQuizzesPage() {
               onView={handleViewQuiz}
               onTogglePublish={handleTogglePublish}
               compact={false}
+              isSelected={selectedQuizIds.includes(quiz.id)}
+              onSelect={handleSelectQuiz}
+              showSelection={true}
             />
           ))}
         </div>
@@ -756,6 +824,9 @@ export default function AdminQuizzesPage() {
               onView={handleViewQuiz}
               onTogglePublish={handleTogglePublish}
               compact={true}
+              isSelected={selectedQuizIds.includes(quiz.id)}
+              onSelect={handleSelectQuiz}
+              showSelection={true}
             />
           ))}
         </div>
@@ -770,6 +841,9 @@ export default function AdminQuizzesPage() {
               onView={handleViewQuiz}
               onTogglePublish={handleTogglePublish}
               compact={true}
+              isSelected={selectedQuizIds.includes(quiz.id)}
+              onSelect={handleSelectQuiz}
+              showSelection={true}
             />
           ))}
         </div>

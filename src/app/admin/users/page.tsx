@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { supabase } from '@/lib/supabase'
+import { useAdminUsers } from '@/hooks/useOptimizedAPI'
 import type { User } from '@/lib/supabase'
 import AddUserModal from '@/components/admin/AddUserModal'
 import EditUserModal from '@/components/admin/EditUserModal'
@@ -10,35 +10,22 @@ import DeleteUserModal from '@/components/admin/DeleteUserModal'
 import Icon from '@/components/ui/Icon'
 
 export default function AdminUsers() {
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('all')
   const [showAddUser, setShowAddUser] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [deletingUser, setDeletingUser] = useState<User | null>(null)
 
-  useEffect(() => {
-    fetchUsers()
-  }, [])
+  // React Query hook for users
+  const { 
+    data: usersData, 
+    isLoading: loading, 
+    error: usersError,
+    refetch: refetchUsers
+  } = useAdminUsers(1, 50, searchTerm, roleFilter)
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true)
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setUsers(data || [])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch users')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const users = usersData?.data || []
+  const error = usersError ? 'Failed to fetch users' : null
 
   const handleEditUser = (user: User) => {
     setEditingUser(user)
@@ -97,7 +84,7 @@ export default function AdminUsers() {
         <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-md">
           <p className="text-red-700 font-bold">Error loading users: {error}</p>
           <button 
-            onClick={fetchUsers}
+            onClick={() => refetchUsers()}
             className="mt-3 text-primary hover:text-primary/80 underline font-bold bg-primary/5 hover:bg-destructive/20 px-3 py-2 rounded-lg transition-colors"
           >
             Try again
@@ -315,7 +302,7 @@ export default function AdminUsers() {
           setShowAddUser(false)
         }}
         onUserAdded={() => {
-          fetchUsers()
+          refetchUsers()
         }}
       />
 
@@ -326,7 +313,7 @@ export default function AdminUsers() {
           setEditingUser(null)
         }}
         onUserUpdated={() => {
-          fetchUsers()
+          refetchUsers()
         }}
         user={editingUser}
       />
@@ -338,7 +325,7 @@ export default function AdminUsers() {
           setDeletingUser(null)
         }}
         onUserDeleted={() => {
-          fetchUsers()
+          refetchUsers()
         }}
         user={deletingUser}
       />
