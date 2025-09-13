@@ -61,7 +61,8 @@ function convertQuizQuestionToQuestionData(quizQuestion: QuizQuestion): Question
         ...base,
         question_type: 'fill_blank',
         text_with_blanks: quizQuestion.question || '',
-        correct_answers: Array.isArray(quizQuestion.options) ? quizQuestion.options : [],
+        correct_answers: quizQuestion.correct_answer_text ? [quizQuestion.correct_answer_text] : 
+                        (Array.isArray(quizQuestion.options) && quizQuestion.options.length > 0 ? quizQuestion.options : ['']),
         case_sensitive: false,
         allow_partial_credit: true,
       }
@@ -155,7 +156,12 @@ function convertQuestionDataToQuizQuestion(updates: any): Partial<QuizQuestion> 
       break
       
     case 'fill_blank':
-      if (updates.correct_answers !== undefined) result.options = updates.correct_answers
+      if (updates.correct_answers !== undefined) {
+        result.options = updates.correct_answers
+        // Also set correct_answer_text to the first answer for compatibility
+        result.correct_answer_text = Array.isArray(updates.correct_answers) && updates.correct_answers.length > 0 ? 
+                                    updates.correct_answers[0] : null
+      }
       if (updates.text_with_blanks !== undefined) result.question = updates.text_with_blanks
       break
       

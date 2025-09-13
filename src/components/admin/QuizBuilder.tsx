@@ -17,11 +17,7 @@ const LazyQuizSettingsStep = lazy(() =>
   }))
 )
 
-const LazyEnhancedAIStep = lazy(() => 
-  import('./quiz-builder/EnhancedAIStep').then(module => ({
-    default: module.EnhancedAIStep
-  }))
-)
+
 
 const LazyQuestionEditorFactory = lazy(() => 
   import('./quiz/QuestionEditorFactory').then(module => ({
@@ -53,7 +49,9 @@ interface QuizBuilderState {
     language: 'english' | 'khmer'
     difficulty: 'beginner' | 'intermediate' | 'advanced'
     questionCount: number
-    topics: string[]
+    questionTypes: string[] // Add question types to interface
+    topic: string // Add topic field
+    subject: string // Add subject field
     customPrompt: string
   }
   isGenerating: boolean
@@ -61,6 +59,196 @@ interface QuizBuilderState {
   isPublishing: boolean
   error: string | null
 }
+
+// AI Configuration Step Component
+const AIConfigurationStep = React.memo<{
+  aiConfig: QuizBuilderState['aiConfig']
+  onConfigUpdate: (updates: Partial<QuizBuilderState['aiConfig']>) => void
+  onGenerateQuestions: () => void
+  isGenerating: boolean
+}>(({ aiConfig, onConfigUpdate, onGenerateQuestions, isGenerating }) => {
+  return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">AI Configuration</h2>
+        <p className="text-gray-600">Configure your AI quiz generation settings</p>
+      </div>
+
+      <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold text-purple-900 flex items-center gap-2">
+            🤖 AI Generation Settings
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Topic */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Topic *
+              </label>
+              <input
+                type="text"
+                value={aiConfig.topic}
+                onChange={(e) => onConfigUpdate({ topic: e.target.value })}
+                placeholder="e.g., Business English, Grammar, Reading Comprehension"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+              />
+            </div>
+
+            {/* Subject */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Subject
+              </label>
+              <input
+                type="text"
+                value={aiConfig.subject}
+                onChange={(e) => onConfigUpdate({ subject: e.target.value })}
+                placeholder="e.g., English, Mathematics, Science"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+              />
+            </div>
+
+            {/* Question Count */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Question Count
+              </label>
+              <select
+                value={aiConfig.questionCount}
+                onChange={(e) => onConfigUpdate({ questionCount: parseInt(e.target.value) })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+              >
+                <option value={3}>3 questions</option>
+                <option value={5}>5 questions</option>
+                <option value={8}>8 questions</option>
+                <option value={10}>10 questions</option>
+                <option value={15}>15 questions</option>
+              </select>
+            </div>
+
+            {/* Difficulty */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Difficulty
+              </label>
+              <select
+                value={aiConfig.difficulty}
+                onChange={(e) => onConfigUpdate({ difficulty: e.target.value as 'beginner' | 'intermediate' | 'advanced' })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+              >
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+            </div>
+
+            {/* Language */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Language
+              </label>
+              <select
+                value={aiConfig.language}
+                onChange={(e) => onConfigUpdate({ language: e.target.value as 'english' | 'khmer' })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+              >
+                <option value="english">English</option>
+                <option value="khmer">Khmer</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Question Types */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Question Types to Generate
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { type: 'multiple_choice', label: 'Multiple Choice', icon: '☑️' },
+                { type: 'true_false', label: 'True/False', icon: '✓' },
+                { type: 'fill_blank', label: 'Fill in Blank', icon: '📝' },
+                { type: 'essay', label: 'Essay', icon: '📄' }
+              ].map(({ type, label, icon }) => (
+                <button
+                  key={type}
+                  onClick={() => {
+                    const currentTypes = aiConfig.questionTypes || ['multiple_choice']
+                    const newTypes = currentTypes.includes(type)
+                      ? currentTypes.filter((t: string) => t !== type)
+                      : [...currentTypes, type]
+                    onConfigUpdate({ questionTypes: newTypes })
+                  }}
+                  className={`px-3 py-2 text-sm rounded-lg border transition-colors flex items-center gap-2 ${
+                    aiConfig.questionTypes.includes(type)
+                      ? 'bg-purple-600 text-white border-purple-600 shadow-md'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-purple-400 hover:bg-purple-50'
+                  }`}
+                >
+                  <span>{icon}</span>
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Select one or more question types. At least one type must be selected.
+            </p>
+          </div>
+
+          {/* Custom Instructions */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Custom Instructions (Optional)
+            </label>
+            <textarea
+              value={aiConfig.customPrompt}
+              onChange={(e) => onConfigUpdate({ customPrompt: e.target.value })}
+              placeholder="e.g., Focus on business scenarios, include academic vocabulary, test specific skills..."
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
+            />
+          </div>
+
+          {/* Generate Button */}
+          <div className="flex justify-center pt-4">
+            <button
+              onClick={() => {
+                const validTypes = aiConfig.questionTypes.filter((type: string) => type.trim())
+                if (validTypes.length === 0) {
+                  alert('Please select at least one question type before generating.')
+                  return
+                }
+                if (!aiConfig.topic.trim()) {
+                  alert('Please enter a topic before generating questions.')
+                  return
+                }
+                onGenerateQuestions()
+              }}
+              disabled={isGenerating}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                  Generating Questions...
+                </>
+              ) : (
+                <>
+                  <span>🚀</span>
+                  Generate AI Questions
+                </>
+              )}
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+})
+
+AIConfigurationStep.displayName = 'AIConfigurationStep'
 
 // Initial state
 const initialState: QuizBuilderState = {
@@ -72,7 +260,9 @@ const initialState: QuizBuilderState = {
     language: 'english',
     difficulty: 'intermediate',
     questionCount: 5,
-    topics: [],
+    questionTypes: ['multiple_choice'], // Default to only multiple choice
+    topic: '',
+    subject: '',
     customPrompt: ''
   },
   isGenerating: false,
@@ -342,7 +532,11 @@ const QuizQuestions = memo<{
   onAdd: (questionType: string) => void
   onDuplicate: (index: number) => void
   onRemove: (index: number) => void
-}>(({ questions, onUpdate, onAdd, onDuplicate, onRemove }) => {
+  onGenerateAI?: () => void
+  isGenerating?: boolean
+  aiConfig?: any
+  onAIConfigChange?: (config: any) => void
+}>(({ questions, onUpdate, onAdd, onDuplicate, onRemove, onGenerateAI, isGenerating, aiConfig, onAIConfigChange }) => {
   const questionsWithValidation = useMemo(() => {
     return questions.map((question: QuizQuestion, index: number) => {
       const errors: string[] = []
@@ -369,7 +563,7 @@ const QuizQuestions = memo<{
           break
           
         case 'fill_blank':
-          if (!question.correct_answer || question.correct_answer.toString().trim() === '') {
+          if (!question.correct_answer_text || question.correct_answer_text.toString().trim() === '') {
             errors.push('Correct answer is required for fill in the blank')
           }
           break
@@ -396,8 +590,165 @@ const QuizQuestions = memo<{
         <h3 className="text-lg font-medium text-gray-900">
           Quiz Questions ({questions.length})
         </h3>
-        <QuestionTypeDropdown onCreateQuestion={onAdd} />
+        <div className="flex items-center gap-3">
+          {onGenerateAI && (
+            <button
+              onClick={() => {
+                const validTypes = (aiConfig?.questionTypes || ['multiple_choice']).filter((type: string) => type.trim())
+                if (validTypes.length === 0) {
+                  alert('Please select at least one question type before generating.')
+                  return
+                }
+                onGenerateAI()
+              }}
+              disabled={isGenerating}
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  🚀 Generate with AI
+                </>
+              )}
+            </button>
+          )}
+          <QuestionTypeDropdown onCreateQuestion={onAdd} />
+        </div>
       </div>
+
+      {/* AI Configuration Panel - Always Visible */}
+      {onGenerateAI && (
+        <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-semibold text-purple-900 flex items-center gap-2">
+              🤖 AI Generation Settings
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Question Count */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Question Count
+                </label>
+                <select
+                  value={aiConfig?.questionCount || 5}
+                  onChange={(e) => onAIConfigChange?.({ ...aiConfig, questionCount: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                >
+                  <option value={3}>3 questions</option>
+                  <option value={5}>5 questions</option>
+                  <option value={8}>8 questions</option>
+                  <option value={10}>10 questions</option>
+                  <option value={15}>15 questions</option>
+                </select>
+              </div>
+
+              {/* Difficulty */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Difficulty
+                </label>
+                <select
+                  value={aiConfig?.difficulty || 'intermediate'}
+                  onChange={(e) => onAIConfigChange?.({ ...aiConfig, difficulty: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                >
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
+
+              {/* Language */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Language
+                </label>
+                <select
+                  value={aiConfig?.language || 'english'}
+                  onChange={(e) => onAIConfigChange?.({ ...aiConfig, language: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                >
+                  <option value="english">English</option>
+                  <option value="khmer">Khmer</option>
+                  <option value="french">French</option>
+                  <option value="spanish">Spanish</option>
+                </select>
+              </div>
+
+              {/* Subject */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Subject Area
+                </label>
+                <input
+                  type="text"
+                  value={aiConfig?.subject || ''}
+                  onChange={(e) => onAIConfigChange?.({ ...aiConfig, subject: e.target.value })}
+                  placeholder="e.g., Business English, Mathematics"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Question Types */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Question Types to Generate
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { type: 'multiple_choice', label: 'Multiple Choice', icon: '☑️' },
+                  { type: 'true_false', label: 'True/False', icon: '✓' },
+                  { type: 'fill_blank', label: 'Fill in Blank', icon: '📝' },
+                  { type: 'essay', label: 'Essay', icon: '📄' }
+                ].map(({ type, label, icon }) => (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      const currentTypes = aiConfig?.questionTypes || ['multiple_choice']
+                      const newTypes = currentTypes.includes(type)
+                        ? currentTypes.filter((t: string) => t !== type)
+                        : [...currentTypes, type]
+                      onAIConfigChange?.({ ...aiConfig, questionTypes: newTypes })
+                    }}
+                    className={`px-3 py-2 text-sm rounded-lg border transition-colors flex items-center gap-2 ${
+                      (aiConfig?.questionTypes || ['multiple_choice']).includes(type)
+                        ? 'bg-purple-600 text-white border-purple-600 shadow-md'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-purple-400 hover:bg-purple-50'
+                    }`}
+                  >
+                    <span>{icon}</span>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Select one or more question types. At least one type must be selected.
+              </p>
+            </div>
+
+            {/* Custom Instructions */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Custom Instructions (Optional)
+              </label>
+              <textarea
+                value={aiConfig?.customPrompt || ''}
+                onChange={(e) => onAIConfigChange?.({ ...aiConfig, customPrompt: e.target.value })}
+                placeholder="e.g., Focus on IELTS task 1 topics, include business scenarios, use academic vocabulary..."
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {questionsWithValidation.length === 0 ? (
         <Card>
@@ -911,13 +1262,14 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          topic: state.aiConfig.customPrompt || state.quiz.title || 'General Knowledge',
-          subject: state.quiz.category || 'General Knowledge',
+          topic: state.aiConfig.topic || 'General Knowledge',
+          subject: state.aiConfig.subject || 'General Knowledge', 
           questionCount: state.aiConfig.questionCount || 5,
           difficulty: state.aiConfig.difficulty || 'intermediate',
-          questionTypes: ['multiple_choice', 'true_false', 'fill_blank'], // Default question types
+          questionTypes: state.aiConfig.questionTypes || ['multiple_choice'],
           language: state.aiConfig.language || 'english',
-          explanationLanguage: state.aiConfig.language || 'english'
+          explanationLanguage: state.aiConfig.language || 'english',
+          customPrompt: state.aiConfig.customPrompt
         })
       })
 
@@ -940,11 +1292,21 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
           tags: q.tags || []
         }))
 
-        // Add generated questions to the quiz
+        // Add generated questions to the quiz and move to next step
         setState(prev => ({
           ...prev,
           questions: [...prev.questions, ...generatedQuestions],
-          isGenerating: false
+          isGenerating: false,
+          currentStep: 'quiz-editing', // Auto-advance to quiz editing
+          // Auto-fill quiz settings based on AI config
+          quiz: {
+            ...prev.quiz,
+            title: prev.quiz.title || `${state.aiConfig.topic} Quiz`,
+            description: prev.quiz.description || `A ${state.aiConfig.difficulty} level quiz about ${state.aiConfig.topic}${state.aiConfig.subject ? ` in ${state.aiConfig.subject}` : ''}.`,
+            category: prev.quiz.category || state.aiConfig.subject || 'General',
+            difficulty: state.aiConfig.difficulty,
+            duration_minutes: Math.max(generatedQuestions.length * 2, 10), // 2 minutes per question, minimum 10
+          }
         }))
       } else {
         console.error('AI generation failed:', result.error)
@@ -963,7 +1325,7 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
         error: errorMessage
       }))
     }
-  }, [state.aiConfig, state.quiz])
+  }, [state.aiConfig])
 
   // Handle full quiz generation from enhanced AI system
   const handleAIQuizGenerated = useCallback((generatedQuiz: FrontendQuizData) => {
@@ -1166,12 +1528,14 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
         return (
           <LazyComponentErrorBoundary step="ai-configuration">
             <Suspense fallback={<StepLoadingFallback step="ai-configuration" />}>
-              <LazyEnhancedAIStep
-                isGenerating={state.isGenerating}
+              <AIConfigurationStep
                 aiConfig={state.aiConfig}
-                onConfigChange={handleAIConfigUpdate}
-                onGenerate={handleGenerateQuestions}
-                onAIQuizGenerated={handleAIQuizGenerated}
+                onConfigUpdate={(updates) => setState(prev => ({
+                  ...prev,
+                  aiConfig: { ...prev.aiConfig, ...updates }
+                }))}
+                onGenerateQuestions={handleGenerateQuestions}
+                isGenerating={state.isGenerating}
               />
             </Suspense>
           </LazyComponentErrorBoundary>
@@ -1179,17 +1543,19 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
 
       case 'quiz-editing':
         return (
-          <LazyComponentErrorBoundary step="quiz-editing">
-            <Suspense fallback={<StepLoadingFallback step="quiz-editing" />}>
-              <QuizQuestions
-                questions={state.questions}
-                onUpdate={handleQuestionUpdate}
-                onAdd={handleAddQuestion}
-                onDuplicate={handleDuplicateQuestion}
-                onRemove={handleRemoveQuestion}
-              />
-            </Suspense>
-          </LazyComponentErrorBoundary>
+          <div className="space-y-6">
+            <LazyComponentErrorBoundary step="quiz-editing">
+              <Suspense fallback={<StepLoadingFallback step="quiz-editing" />}>
+                <QuizQuestions
+                  questions={state.questions}
+                  onUpdate={handleQuestionUpdate}
+                  onAdd={handleAddQuestion}
+                  onDuplicate={handleDuplicateQuestion}
+                  onRemove={handleRemoveQuestion}
+                />
+              </Suspense>
+            </LazyComponentErrorBoundary>
+          </div>
         )
 
       case 'review':
@@ -1224,22 +1590,21 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
     }
   }, [
     state.currentStep,
-    state.isGenerating,
     state.aiConfig,
     state.questions,
     state.quiz,
     state.isSaving,
     state.isPublishing,
-    handleAIConfigUpdate,
-    handleGenerateQuestions,
-    handleAIQuizGenerated,
+    state.isGenerating,
     handleQuestionUpdate,
     handleAddQuestion,
     handleDuplicateQuestion,
     handleRemoveQuestion,
+    handleGenerateQuestions,
     handleSave,
     handlePublish,
-    handleQuizUpdate
+    handleQuizUpdate,
+    setState
   ])
 
   if (!isOpen) return null

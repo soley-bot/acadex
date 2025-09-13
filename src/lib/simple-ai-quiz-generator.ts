@@ -84,7 +84,7 @@ export class SimpleAIQuizGenerator {
       let response: any = null
       
       // Progressive token limits to handle different content complexities
-      const tokenLimits = [6000, 8000, 10000] // Increase on retry
+      const tokenLimits = [15000, 20000, 25000] // Increase on retry - much higher limits
 
       while (attempts < maxAttempts && (!response || !response.success || !response.content)) {
         attempts++
@@ -440,11 +440,73 @@ CRITICAL REQUIREMENTS:
       cleanContent = this.fixCommonJSONIssues(cleanContent)
       
       // Parse JSON
-      const quiz = JSON.parse(cleanContent)
+      const rawQuiz = JSON.parse(cleanContent)
       
+      // Normalize different AI response formats to a consistent structure
+      let quiz: any = {}
+      
+      if (rawQuiz.quiz_title && rawQuiz.questions) {
+        // Format: { "quiz_title": "...", "quiz_description": "...", "questions": [...] }
+        quiz = {
+          title: rawQuiz.quiz_title,
+          description: rawQuiz.quiz_description || '',
+          questions: rawQuiz.questions
+        }
+      } else if (rawQuiz.quiz && Array.isArray(rawQuiz.quiz)) {
+        // Format: { "quiz": [...] } (questions array)
+        quiz = {
+          title: request.topic || 'Generated Quiz',
+          description: `A ${request.difficulty} level quiz about ${request.topic}`,
+          questions: rawQuiz.quiz
+        }
+      } else if (rawQuiz.title && rawQuiz.questions) {
+        // Format: { "title": "...", "questions": [...] }
+        quiz = rawQuiz
+      } else if (rawQuiz.questions) {
+        // Format: { "questions": [...] }
+        quiz = {
+          title: request.topic || 'Generated Quiz',
+          description: `A ${request.difficulty} level quiz about ${request.topic}`,
+          questions: rawQuiz.questions
+        }
+      } else if (Array.isArray(rawQuiz)) {
+        // Format: [...] (just questions array)
+        quiz = {
+          title: request.topic || 'Generated Quiz',
+          description: `A ${request.difficulty} level quiz about ${request.topic}`,
+          questions: rawQuiz
+        }
+      } else {
+        logger.error('Invalid quiz structure - cannot determine format', { 
+          availableKeys: Object.keys(rawQuiz),
+          rawQuiz: rawQuiz 
+        })
+        return null
+      }
+      
+      // Normalize question field names
+      if (quiz.questions) {
+        quiz.questions = quiz.questions.map((q: any) => ({
+          ...q,
+          // Normalize question text field
+          question: q.question || q.question_text || q.text,
+          // Ensure we have the correct field names
+          question_type: q.question_type,
+          options: q.options || [],
+          correct_answer: q.correct_answer,
+          correct_answer_text: q.correct_answer_text,
+          explanation: q.explanation
+        }))
+      }
+
       // Basic validation
       if (!quiz.title || !quiz.questions || !Array.isArray(quiz.questions)) {
-        logger.error('Invalid quiz structure', { quiz: quiz })
+        logger.error('Invalid quiz structure after normalization', { 
+          hasTitle: !!quiz.title,
+          hasQuestions: !!quiz.questions,
+          questionsIsArray: Array.isArray(quiz.questions),
+          quiz: quiz 
+        })
         return null
       }
       

@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react'
+import { Upload, X, Image as ImageIcon, Loader2, ImagePlay } from 'lucide-react'
 import Image from 'next/image'
 import { logger } from '@/lib/logger'
+import { ImageBrowser } from './ImageBrowser'
 
 interface ImageUploadProps {
   value?: string | null
@@ -26,6 +27,7 @@ export function ImageUpload({
   const [dragActive, setDragActive] = useState(false)
   const [urlInput, setUrlInput] = useState(value || '')
   const [inputMode, setInputMode] = useState<'upload' | 'url'>('upload')
+  const [showImageBrowser, setShowImageBrowser] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Update urlInput when value prop changes to keep it in sync
@@ -95,28 +97,36 @@ export function ImageUpload({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Mode Toggle */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex gap-2 mb-4">
         <button
           type="button"
           onClick={() => setInputMode('upload')}
-          className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+          className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
             inputMode === 'upload'
               ? 'bg-secondary text-white'
-              : 'bg-muted/40 text-gray-700 hover:bg-muted/60'
+              : 'bg-muted/40 text-gray-600 hover:bg-muted/60'
           }`}
         >
-          Upload File
+          Upload
         </button>
         <button
           type="button"
           onClick={() => setInputMode('url')}
-          className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+          className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
             inputMode === 'url'
               ? 'bg-secondary text-white'
-              : 'bg-muted/40 text-gray-700 hover:bg-muted/60'
+              : 'bg-muted/40 text-gray-600 hover:bg-muted/60'
           }`}
         >
-          Enter URL
+          URL
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowImageBrowser(true)}
+          className="px-3 py-1.5 text-sm rounded-lg transition-colors bg-primary text-white hover:bg-primary/90 flex items-center gap-1"
+        >
+          <ImagePlay className="h-3 w-3" />
+          Browse
         </button>
       </div>
 
@@ -218,6 +228,17 @@ export function ImageUpload({
           </div>
         </div>
       )}
+
+      {/* Image Browser Modal */}
+      <ImageBrowser
+        isOpen={showImageBrowser}
+        onClose={() => setShowImageBrowser(false)}
+        onSelect={(url) => {
+          onChange(url)
+          setUrlInput(url)
+        }}
+        selectedUrl={value}
+      />
     </div>
   )
 }

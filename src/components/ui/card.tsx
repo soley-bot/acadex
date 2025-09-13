@@ -10,13 +10,13 @@ const Card = React.forwardRef<
   }
 >(({ className, variant = 'legacy', size = 'lg', ...props }, ref) => {
   
-  // Legacy behavior by default - maintains existing glass morphism
+  // Legacy behavior by default - maintains existing glass morphism (removed distracting hover effects)
   if (variant === 'legacy') {
     return (
       <div
         ref={ref}
         className={cn(
-          "rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105",
+          "rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl transition-all duration-300",
           className
         )}
         {...props}
