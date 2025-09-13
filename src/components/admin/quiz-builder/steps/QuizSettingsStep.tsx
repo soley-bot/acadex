@@ -4,7 +4,7 @@
 import React, { memo, useCallback, useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Settings, FileText, Clock, Target, Globe, Camera } from 'lucide-react'
-import { usePerformanceMonitor } from '@/hooks/usePerformanceOptimization'
+import { useQuizBuilderPerformance } from '@/lib/adminPerformanceSystem'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import { uploadImage } from '@/lib/imageUpload'
 import { supabase } from '@/lib/supabase'
@@ -27,11 +27,7 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
   const [loadingCategories, setLoadingCategories] = useState(true)
 
   // Performance monitoring
-  const { metrics } = usePerformanceMonitor({
-    componentName: 'QuizSettingsStep',
-    threshold: 16,
-    logSlowRenders: process.env.NODE_ENV === 'development'
-  })
+  const performanceMetrics = useQuizBuilderPerformance()
 
   // Load categories from database
   useEffect(() => {
@@ -100,7 +96,7 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
             <p className="text-gray-600">Configure basic quiz information and settings</p>
             {process.env.NODE_ENV === 'development' && (
               <div className="text-xs text-gray-400 mt-2 bg-gray-50 px-3 py-1 rounded">
-                QuizSettingsStep - {metrics.renderCount} renders | Avg: {metrics.averageRenderTime.toFixed(2)}ms
+                QuizSettingsStep - {performanceMetrics.metrics?.renderCount || 0} renders | Avg: {performanceMetrics.metrics?.averageRenderTime.toFixed(2) || 0}ms
               </div>
             )}
           </div>

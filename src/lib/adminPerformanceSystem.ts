@@ -207,9 +207,6 @@ export const useQuizBuilderPerformance = () =>
 export const useCourseFormPerformance = () => 
   useAdminPerformanceMonitor('CourseForm', 'CourseForm')
 
-export const useEnhancedCourseFormPerformance = () => 
-  useAdminPerformanceMonitor('EnhancedAPICourseForm', 'EnhancedAPICourseForm')
-
 export const useUserManagementPerformance = () => 
   useAdminPerformanceMonitor('UserManagement', 'UserManagement')
 
@@ -249,7 +246,6 @@ export function trackBundleSize(componentName: string, size: number) {
 // Preloading strategies for admin components
 export const preloadAdminComponents = () => {
   const componentsToPreload = [
-    () => import('@/components/admin/EnhancedAPICourseForm'),
     () => import('@/components/admin/CourseForm'),
     () => import('@/components/admin/CategoryManagement')
   ]

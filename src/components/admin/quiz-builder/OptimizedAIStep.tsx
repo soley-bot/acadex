@@ -1,7 +1,7 @@
 import React, { memo, useMemo, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2, Brain, Wand2, CheckCircle, AlertCircle, X } from 'lucide-react'
-import { usePerformanceMonitor } from '@/hooks/usePerformanceOptimization'
+import { useQuizBuilderPerformance } from '@/lib/adminPerformanceSystem'
 
 interface OptimizedAIStepProps {
   isGenerating: boolean
@@ -213,11 +213,7 @@ export const OptimizedAIStep = memo<OptimizedAIStepProps>(({
   generationProgress
 }) => {
   // Performance monitoring
-  const { metrics } = usePerformanceMonitor({
-    componentName: 'AIConfigurationStep',
-    threshold: 16,
-    logSlowRenders: process.env.NODE_ENV === 'development'
-  })
+  const performanceMetrics = useQuizBuilderPerformance()
 
   // Memoized configuration handlers
   const handleConfigChange = useCallback((field: string, value: any) => {
@@ -268,7 +264,7 @@ export const OptimizedAIStep = memo<OptimizedAIStepProps>(({
     <div className="space-y-6">
       {process.env.NODE_ENV === 'development' && (
         <div className="text-xs text-gray-500">
-          AI Step - {metrics.renderCount} renders
+          AI Step - {performanceMetrics.metrics?.renderCount || 0} renders
         </div>
       )}
 

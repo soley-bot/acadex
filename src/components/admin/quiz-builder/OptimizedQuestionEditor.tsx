@@ -2,7 +2,7 @@ import React, { memo, useMemo, useCallback } from 'react'
 import { Copy, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { QuizQuestion } from '@/lib/supabase'
-import { usePerformanceMonitor } from '@/hooks/usePerformanceOptimization'
+import { useQuizBuilderPerformance } from '@/lib/adminPerformanceSystem'
 
 interface OptimizedQuestionEditorProps {
   question: QuizQuestion
@@ -99,11 +99,7 @@ export const OptimizedQuestionEditor = memo<OptimizedQuestionEditorProps>(({
   validationErrors = []
 }) => {
   // Performance monitoring
-  const { metrics } = usePerformanceMonitor({
-    componentName: `QuestionEditor-${index}`,
-    threshold: 16,
-    logSlowRenders: process.env.NODE_ENV === 'development'
-  })
+  const performanceMetrics = useQuizBuilderPerformance()
 
   // Memoized validation state
   const hasErrors = useMemo(() => validationErrors.length > 0, [validationErrors.length])
@@ -282,7 +278,7 @@ export const OptimizedQuestionEditor = memo<OptimizedQuestionEditorProps>(({
             )}
             {process.env.NODE_ENV === 'development' && (
               <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
-                {metrics.renderCount} renders
+                {performanceMetrics.metrics?.renderCount || 0} renders
               </span>
             )}
           </div>

@@ -4,7 +4,7 @@
 import React, { memo, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Eye, CheckCircle, AlertTriangle, Clock, Target, Users, BarChart3 } from 'lucide-react'
-import { usePerformanceMonitor } from '@/hooks/usePerformanceOptimization'
+import { useQuizBuilderPerformance } from '@/lib/adminPerformanceSystem'
 import type { Quiz, QuizQuestion } from '@/lib/supabase'
 
 interface QuizPreviewStepProps {
@@ -25,11 +25,7 @@ export const QuizPreviewStep = memo<QuizPreviewStepProps>(({
   isPublishing = false
 }) => {
   // Performance monitoring
-  const { metrics } = usePerformanceMonitor({
-    componentName: 'QuizPreviewStep',
-    threshold: 16,
-    logSlowRenders: process.env.NODE_ENV === 'development'
-  })
+  const performanceMetrics = useQuizBuilderPerformance()
 
   // Calculate quiz statistics
   const quizStats = useMemo(() => {
@@ -123,7 +119,7 @@ export const QuizPreviewStep = memo<QuizPreviewStepProps>(({
           <p className="text-gray-600">Review your quiz and publish when ready</p>
           {process.env.NODE_ENV === 'development' && (
             <div className="text-xs text-gray-500">
-              QuizPreviewStep - {metrics.renderCount} renders | Avg: {metrics.averageRenderTime.toFixed(2)}ms
+              QuizPreviewStep - {performanceMetrics.metrics?.renderCount || 0} renders | Avg: {performanceMetrics.metrics?.averageRenderTime.toFixed(2) || 0}ms
             </div>
           )}
         </CardHeader>

@@ -1,42 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { withAdminAuth, createServiceClient } from '@/lib/api-auth'
 
-// Helper function to create admin client
-function createAdminClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!supabaseUrl) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
-  }
-
-  if (!supabaseServiceKey) {
-    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable')
-  }
-
-  return createClient(
-    supabaseUrl,
-    supabaseServiceKey,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      },
-      db: {
-        schema: 'public'
-      }
-    }
-  )
-}
-
-// DELETE - Remove an enrollment (unenroll student)
-export async function DELETE(
+export const DELETE = withAdminAuth(async (
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+  user: any
+) => {
   try {
-    const supabase = createAdminClient()
-    const { id: enrollmentId } = await params
+    const supabase = createServiceClient()
+    
+    // Extract enrollment ID from URL path
+    const url = new URL(request.url)
+    const pathParts = url.pathname.split('/')
+    const enrollmentId = pathParts[pathParts.length - 1]
+    
+    if (!enrollmentId) {
+      return NextResponse.json(
+        { error: 'Enrollment ID is required' },
+        { status: 400 }
+      )
+    }
+    
     console.log('Attempting to delete enrollment:', enrollmentId)
 
     // First, check if enrollment exists
@@ -73,22 +56,34 @@ export async function DELETE(
     console.log('Enrollment deleted successfully')
     return NextResponse.json({ 
       success: true, 
-      message: 'Student successfully unenrolled' 
+      message: 'Student successfully unenrolled',
+      deletedBy: { id: user.id, email: user.email, role: user.role }
     }, { status: 200 })
   } catch (error) {
     console.error('API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-}
+})
 
-// PATCH - Update enrollment (e.g., progress, status)
-export async function PATCH(
+export const PATCH = withAdminAuth(async (
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+  user: any
+) => {
   try {
-    const supabase = createAdminClient()
-    const { id: enrollmentId } = await params
+    const supabase = createServiceClient()
+    
+    // Extract enrollment ID from URL path
+    const url = new URL(request.url)
+    const pathParts = url.pathname.split('/')
+    const enrollmentId = pathParts[pathParts.length - 1]
+    
+    if (!enrollmentId) {
+      return NextResponse.json(
+        { error: 'Enrollment ID is required' },
+        { status: 400 }
+      )
+    }
+    
     const updates = await request.json()
 
     // Validate allowed fields
@@ -118,9 +113,12 @@ export async function PATCH(
       return NextResponse.json({ error: 'Failed to update enrollment' }, { status: 500 })
     }
 
-    return NextResponse.json({ enrollment })
+    return NextResponse.json({ 
+      enrollment,
+      updatedBy: { id: user.id, email: user.email, role: user.role }
+    })
   } catch (error) {
     console.error('API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-}
+})

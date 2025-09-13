@@ -1,40 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
+import { withAdminAuth, createServiceClient } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
 
-// Helper function to create admin client
-function createAdminClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!supabaseUrl) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
-  }
-
-  if (!supabaseServiceKey) {
-    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable')
-  }
-
-  return createClient(
-    supabaseUrl,
-    supabaseServiceKey,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    }
-  )
-}
-
-export async function PUT(
+export const PUT = withAdminAuth(async (
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+  user: any
+) => {
   try {
-    const supabaseAdmin = createAdminClient()
-    const { id } = await params
+    const supabase = createServiceClient()
+    
+    // Extract user ID from URL path
+    const url = new URL(request.url)
+    const pathParts = url.pathname.split('/')
+    const userId = pathParts[pathParts.length - 1]
+    
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID is required' },
+        { status: 400 }
+      )
+    }
+    
     const body = await request.json()
     const { name, email, role } = body
 
@@ -61,10 +47,10 @@ export async function PUT(
     }
 
     // Check if user exists
-    const { data: existingUser, error: fetchError } = await supabaseAdmin
+    const { data: existingUser, error: fetchError } = await supabase
       .from('users')
       .select('id, email')
-      .eq('id', id)
+      .eq('id', userId)
       .single()
 
     if (fetchError || !existingUser) {
@@ -76,11 +62,11 @@ export async function PUT(
 
     // Check if email is being changed and if it's already taken by another user
     if (email.toLowerCase() !== existingUser.email.toLowerCase()) {
-      const { data: emailCheck } = await supabaseAdmin
+      const { data: emailCheck } = await supabase
         .from('users')
         .select('id')
         .eq('email', email.toLowerCase())
-        .neq('id', id)
+        .neq('id', userId)
         .single()
 
       if (emailCheck) {
@@ -92,7 +78,7 @@ export async function PUT(
     }
 
     // Update user in our users table
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('users')
       .update({
         name: name.trim(),
@@ -100,7 +86,7 @@ export async function PUT(
         role: role,
         updated_at: new Date().toISOString()
       })
-      .eq('id', id)
+      .eq('id', userId)
       .select()
       .single()
 
@@ -114,8 +100,8 @@ export async function PUT(
 
     // If email changed, also update in Supabase Auth
     if (email.toLowerCase() !== existingUser.email.toLowerCase()) {
-      const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(
-        id,
+      const { error: authError } = await supabase.auth.admin.updateUserById(
+        userId,
         {
           email: email.toLowerCase(),
           user_metadata: {
@@ -128,12 +114,11 @@ export async function PUT(
       if (authError) {
         logger.error('Auth update error:', authError)
         // Don't fail the request if auth update fails, just log it
-        // The database update was successful
       }
     } else {
       // Just update metadata if email didn't change
-      const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(
-        id,
+      const { error: authError } = await supabase.auth.admin.updateUserById(
+        userId,
         {
           user_metadata: {
             name: name.trim(),
@@ -150,7 +135,8 @@ export async function PUT(
 
     return NextResponse.json({
       message: 'User updated successfully',
-      user: data
+      user: data,
+      updatedBy: { id: user.id, email: user.email, role: user.role }
     })
 
   } catch (error) {
@@ -160,21 +146,32 @@ export async function PUT(
       { status: 500 }
     )
   }
-}
+})
 
-export async function DELETE(
+export const DELETE = withAdminAuth(async (
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+  user: any
+) => {
   try {
-    const supabaseAdmin = createAdminClient()
-    const { id } = await params
+    const supabase = createServiceClient()
+    
+    // Extract user ID from URL path
+    const url = new URL(request.url)
+    const pathParts = url.pathname.split('/')
+    const userId = pathParts[pathParts.length - 1]
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID is required' },
+        { status: 400 }
+      )
+    }
 
     // Check if user exists
-    const { data: existingUser, error: fetchError } = await supabaseAdmin
+    const { data: existingUser, error: fetchError } = await supabase
       .from('users')
       .select('id, email, role')
-      .eq('id', id)
+      .eq('id', userId)
       .single()
 
     if (fetchError || !existingUser) {
@@ -186,7 +183,7 @@ export async function DELETE(
 
     // Prevent deleting the last admin user
     if (existingUser.role === 'admin') {
-      const { data: adminCount } = await supabaseAdmin
+      const { data: adminCount } = await supabase
         .from('users')
         .select('id', { count: 'exact' })
         .eq('role', 'admin')
@@ -200,10 +197,10 @@ export async function DELETE(
     }
 
     // Delete user from our users table (this will cascade delete related records)
-    const { error: deleteError } = await supabaseAdmin
+    const { error: deleteError } = await supabase
       .from('users')
       .delete()
-      .eq('id', id)
+      .eq('id', userId)
 
     if (deleteError) {
       logger.error('Database delete error:', deleteError)
@@ -214,7 +211,7 @@ export async function DELETE(
     }
 
     // Delete user from Supabase Auth
-    const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(id)
+    const { error: authDeleteError } = await supabase.auth.admin.deleteUser(userId)
 
     if (authDeleteError) {
       logger.error('Auth delete error:', authDeleteError)
@@ -223,7 +220,8 @@ export async function DELETE(
     }
 
     return NextResponse.json({
-      message: 'User deleted successfully'
+      message: 'User deleted successfully',
+      deletedBy: { id: user.id, email: user.email, role: user.role }
     })
 
   } catch (error) {
@@ -233,4 +231,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-}
+})
