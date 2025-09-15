@@ -23,9 +23,9 @@ export function Footer() {
 
   return (
     <footer className="relative bg-white overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"></div>
+      {/* Simplified Background Elements - Less intensive */}
+      <div className="absolute top-0 left-1/4 w-64 h-64 bg-primary/3 rounded-full opacity-60"></div>
+      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-secondary/3 rounded-full opacity-60"></div>
       
       {/* Main Footer */}
       <Container size="xl" className="relative py-16">
@@ -54,7 +54,7 @@ export function Footer() {
 
           {/* Practice */}
           <div>
-            <h3 className="text-lg font-semibold text-primary mb-6">Practice</h3>
+            <h3 className="text-base md:text-lg font-semibold text-primary mb-6">Practice</h3>
             <ul className="space-y-4">
               {[
                 { name: "IELTS Writing Skill Pack", href: "/quizzes" },
@@ -76,7 +76,7 @@ export function Footer() {
 
           {/* Support */}
           <div>
-            <h3 className="text-lg font-semibold text-primary mb-6">Support</h3>
+            <h3 className="text-base md:text-lg font-semibold text-primary mb-6">Support</h3>
             <ul className="space-y-4">
               {[
                 { name: "Help Center (coming soon)", href: "#" },
@@ -97,7 +97,7 @@ export function Footer() {
 
           {/* Company */}
           <div>
-            <h3 className="text-lg font-semibold text-primary mb-6">Company</h3>
+            <h3 className="text-base md:text-lg font-semibold text-primary mb-6">Company</h3>
             <ul className="space-y-4">
               {[
                 { name: "About Acadex", href: "/about" },
@@ -122,8 +122,8 @@ export function Footer() {
       <div className="relative border-t border-gray-200">
         <Container size="xl" className="py-12">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-secondary mb-4">Get an Edge on the Exam</h2>
-            <p className="text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-secondary mb-4">Get an Edge on the Exam</h2>
+            <p className="text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed text-sm md:text-base lg:text-lg">
               Get IELTS tips, mini-lessons, and updates on new Skill Packs — sent right to your inbox.
             </p>
             <NewsletterSignup />

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { enrollmentAPI } from '@/lib/database'
+import type { EnrolledCourse } from '@/types/dashboard'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -17,23 +18,6 @@ import {
   ExternalLink,
   Search
 } from 'lucide-react'
-
-interface EnrolledCourse {
-  id: string
-  title: string
-  description: string
-  category: string
-  difficulty: string
-  duration: string
-  progress: number
-  lastAccessed: string
-  totalLessons: number
-  completedLessons: number
-  nextLesson?: {
-    id: string
-    title: string
-  }
-}
 
 export default function MyCoursesPage() {
   const { user } = useAuth()
@@ -56,23 +40,26 @@ export default function MyCoursesPage() {
       const { data, error } = await enrollmentAPI.getUserEnrollments(user.id)
       
       if (error) {
-        console.error('Error fetching enrolled courses:', error)
+        // Error fetching enrolled courses
         return
       }
 
       // Transform the data to match our interface
       const transformedCourses: EnrolledCourse[] = data?.map((enrollment: any) => ({
         id: enrollment.course_id,
+        course_id: enrollment.course_id,
         title: enrollment.courses.title,
         description: enrollment.courses.description || '',
         category: enrollment.courses.category || 'General',
         difficulty: enrollment.courses.level || 'Beginner',
         duration: enrollment.courses.duration || '4 weeks',
-        progress: enrollment.progress || 0,
-        lastAccessed: new Date(enrollment.last_accessed || enrollment.enrolled_at).toLocaleDateString(),
-        totalLessons: 20, // This would need to come from course modules/lessons
-        completedLessons: Math.round((enrollment.progress || 0) / 100 * 20),
-        nextLesson: enrollment.progress < 100 ? {
+        progress_percentage: enrollment.progress || 0,
+        last_accessed: new Date(enrollment.last_accessed || enrollment.enrolled_at).toLocaleDateString(),
+        enrolled_at: enrollment.enrolled_at,
+        created_at: enrollment.enrolled_at,
+        total_lessons: 20, // This would need to come from course modules/lessons
+        completed_lessons: Math.round((enrollment.progress || 0) / 100 * 20),
+        next_lesson: enrollment.progress < 100 ? {
           id: 'next-lesson',
           title: 'Continue Learning'
         } : undefined
@@ -80,7 +67,7 @@ export default function MyCoursesPage() {
 
       setEnrolledCourses(transformedCourses)
     } catch (error) {
-      console.error('Error fetching enrolled courses:', error)
+      // Error fetching enrolled courses
     } finally {
       setLoading(false)
     }
@@ -204,10 +191,10 @@ export default function MyCoursesPage() {
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-sm font-medium text-gray-600">Progress</span>
                               <span className="text-sm font-semibold text-gray-900">
-                                {course.progress}% ({course.completedLessons}/{course.totalLessons} lessons)
+                                {course.progress_percentage}% ({course.completed_lessons}/{course.total_lessons} lessons)
                               </span>
                             </div>
-                            <Progress value={course.progress} className="h-2" />
+                            <Progress value={course.progress_percentage} className="h-2" />
                           </div>
                         </div>
 
@@ -219,16 +206,16 @@ export default function MyCoursesPage() {
                           </div>
                           <div className="flex items-center gap-1">
                             <BookOpen className="h-4 w-4" />
-                            <span>{course.totalLessons} lessons</span>
+                            <span>{course.total_lessons} lessons</span>
                           </div>
-                          <span>Last accessed: {course.lastAccessed}</span>
+                          <span>Last accessed: {course.last_accessed}</span>
                         </div>
 
                         {/* Next Lesson */}
-                        {course.nextLesson && (
+                        {course.next_lesson && (
                           <div className="bg-gray-50 rounded-lg p-4 mb-4">
                             <p className="text-sm font-medium text-gray-900 mb-1">Next Lesson:</p>
-                            <p className="text-sm text-gray-600">{course.nextLesson.title}</p>
+                            <p className="text-sm text-gray-600">{course.next_lesson.title}</p>
                           </div>
                         )}
                       </div>
@@ -251,7 +238,7 @@ export default function MyCoursesPage() {
                         </Link>
                       </Button>
 
-                      {course.progress === 100 && (
+                      {course.progress_percentage === 100 && (
                         <Badge className="bg-green-100 text-green-800 flex items-center justify-center gap-1 sm:self-start">
                           <Trophy className="h-3 w-3" />
                           Completed

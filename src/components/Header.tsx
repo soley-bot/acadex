@@ -18,18 +18,22 @@ import {
   Mail, 
   Rocket 
 } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const { user, signOut, loading } = useAuth()
-  const userMenuRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
 
   const handleSignOut = async () => {
     await signOut()
     setIsMenuOpen(false)
-    setIsUserMenuOpen(false)
   }
 
   const handleMobileNavClick = () => {
@@ -39,52 +43,10 @@ export default function Header() {
   // Close mobile menu when route changes
   useEffect(() => {
     setIsMenuOpen(false)
-    setIsUserMenuOpen(false)
   }, [pathname])
 
-  // Close user menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-        setIsUserMenuOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
-
-    // Handle click outside to close mobile menu
-  useEffect(() => {
-    const handleClickOutside = (event: Event) => {
-      const target = event.target as Node
-      const mobileMenu = document.querySelector('.mobile-menu')
-      const mobileMenuButton = document.querySelector('[aria-label="Toggle mobile menu"]')
-      
-      if (isMenuOpen && 
-          mobileMenu && 
-          !mobileMenu.contains(target) && 
-          mobileMenuButton && 
-          !mobileMenuButton.contains(target)) {
-        setIsMenuOpen(false)
-      }
-    }
-
-    if (isMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      document.addEventListener('touchstart', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('touchstart', handleClickOutside)
-    }
-  }, [isMenuOpen])
-
   return (
-    <header className="fixed top-0 w-full backdrop-blur-lg bg-white/80 border-b border-white/20 z-50 shadow-2xl">
+    <header className="fixed top-0 w-full bg-white/90 border-b border-gray-200/50 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -99,16 +61,16 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             <div className="flex items-center gap-8">
-              <Link href="/courses" className="text-foreground hover:text-primary font-bold transition-colors duration-200 text-lg">
+              <Link href="/courses" className="text-foreground hover:text-primary font-bold transition-colors duration-200 text-sm md:text-base lg:text-lg">
                 Courses
               </Link>
-              <Link href="/quizzes" className="text-foreground hover:text-primary font-bold transition-colors duration-200 text-lg">
+              <Link href="/quizzes" className="text-foreground hover:text-primary font-bold transition-colors duration-200 text-sm md:text-base lg:text-lg">
                 Quizzes
               </Link>
-              <Link href="/about" className="text-foreground hover:text-primary font-bold transition-colors duration-200 text-lg">
+              <Link href="/about" className="text-foreground hover:text-primary font-bold transition-colors duration-200 text-sm md:text-base lg:text-lg">
                 About
               </Link>
-              <Link href="/contact" className="text-foreground hover:text-primary font-bold transition-colors duration-200 text-lg">
+              <Link href="/contact" className="text-foreground hover:text-primary font-bold transition-colors duration-200 text-sm md:text-base lg:text-lg">
                 Contact
               </Link>
             </div>
@@ -119,53 +81,51 @@ export default function Header() {
             {loading ? (
               <div className="w-24 h-10 bg-muted/60 animate-pulse rounded-lg"></div>
             ) : user ? (
-              <div className="relative" ref={userMenuRef}>
-                <button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-3 backdrop-blur-lg bg-white/60 border border-white/30 rounded-xl px-4 py-2 hover:bg-white/80 transition-all duration-300 shadow-lg hover:shadow-xl"
-                >
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-sm">
-                    <span className="text-white font-bold text-sm">{user.name?.charAt(0).toUpperCase()}</span>
-                  </div>
-                  <span className="text-foreground font-bold">Welcome, {user.name}</span>
-                  <div className={`transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`}>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center space-x-3 bg-white/80 border border-gray-200 rounded-xl px-4 py-2 hover:bg-white transition-all duration-200 shadow-sm hover:shadow-md">
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">{user.name?.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <span className="text-foreground font-bold">Welcome, {user.name}</span>
                     <ChevronDown size={16} className="text-muted-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl p-2">
+                  <div className="px-2 py-1 mb-2">
+                    <p className="text-sm font-semibold text-foreground truncate">
+                      {user.name || 'User'}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {user.email}
+                    </p>
                   </div>
-                </button>
-
-                {/* User Dropdown Menu */}
-                {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 backdrop-blur-lg bg-background/90 border border-border rounded-2xl shadow-2xl py-2 z-50">
-                    <Link
-                      href="/dashboard"
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition-colors text-foreground font-medium"
-                      onClick={() => setIsUserMenuOpen(false)}
-                    >
-                      <Home size={16} />
-                      Dashboard
+                  <DropdownMenuSeparator className="mb-2" />
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg hover:bg-primary/10 hover:text-primary transition-colors duration-200">
+                      <Home size={18} />
+                      <span className="font-medium">Dashboard</span>
                     </Link>
-                    <Link
-                      href="/profile"
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition-colors text-foreground font-medium"
-                      onClick={() => setIsUserMenuOpen(false)}
-                    >
-                      <User size={16} />
-                      Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg hover:bg-primary/10 hover:text-primary transition-colors duration-200">
+                      <User size={18} />
+                      <span className="font-medium">Profile</span>
                     </Link>
-                    <div className="border-t border-border my-1"></div>
-                    <button
-                      onClick={handleSignOut}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition-colors w-full text-left text-muted-foreground hover:text-primary font-medium"
-                    >
-                      <ArrowRight size={16} />
-                      Sign Out
-                    </button>
-                  </div>
-                )}
-              </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="my-2" />
+                  <DropdownMenuItem 
+                    onClick={handleSignOut} 
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors duration-200 cursor-pointer"
+                  >
+                    <ArrowRight size={18} />
+                    <span className="font-medium">Sign Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
-                <Link href="/auth/login" className="text-foreground hover:text-primary font-bold transition-colors duration-200 px-4 py-2 text-lg">
+                <Link href="/auth/login" className="text-foreground hover:text-primary font-bold transition-colors duration-200 px-4 py-2 text-sm md:text-base lg:text-lg">
                   Sign In
                 </Link>
                 <Link href="/auth/signup" className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-2 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
@@ -175,126 +135,121 @@ export default function Header() {
             )}
           </div>
 
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-xl hover:bg-white/60 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary backdrop-blur-sm bg-white/40 border border-white/30"
-            aria-label="Toggle mobile menu"
-          >
-            <div className={`transition-transform duration-300 ${isMenuOpen ? 'rotate-90' : ''}`}>
-              {isMenuOpen ? <X size={24} className="text-primary" /> : <Menu size={24} className="text-primary" />}
-            </div>
-          </button>
+          {/* Mobile menu button - Bedimcode pattern */}
+          <div className="md:hidden relative">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className={`nav-toggle relative w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary ${isMenuOpen ? 'show-icon' : ''}`}
+              aria-label="Toggle mobile menu"
+            >
+              <Menu size={20} className="nav-burger absolute inset-0 m-auto text-primary transition-all duration-300" />
+              <X size={20} className="nav-close absolute inset-0 m-auto text-primary transition-all duration-300 opacity-0" />
+            </button>
+          </div>
         </div>
 
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <>
-            {/* Backdrop Overlay */}
-            <div 
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
-              onClick={() => setIsMenuOpen(false)}
-            />
+        {/* Mobile Navigation - Bedimcode inspired with better CSS */}
+        <div 
+          className={`nav-menu fixed left-0 top-16 w-full h-[calc(100vh-4rem)] bg-white shadow-2xl z-40 overflow-auto transition-all duration-300 md:hidden ${isMenuOpen ? 'show-menu' : ''}`}
+        >
+          <div className="nav-list bg-white">
+            {/* Main Navigation */}
+            <div className="p-1"></div>
+                            <Link 
+              href="/courses" 
+              className="nav-link flex items-center gap-3 px-6 py-4 text-gray-700 hover:bg-primary/5 hover:text-primary transition-all duration-200 font-medium border-b border-gray-100"
+              onClick={handleMobileNavClick}
+            >
+              <Book size={20} />
+              <span>Courses</span>
+            </Link>
+            <Link 
+              href="/quizzes" 
+              className="nav-link flex items-center gap-3 px-6 py-4 text-gray-700 hover:bg-primary/5 hover:text-primary transition-all duration-200 font-medium border-b border-gray-100"
+              onClick={handleMobileNavClick}
+            >
+              <Lightbulb size={20} />
+              <span>Quizzes</span>
+            </Link>
+            <Link 
+              href="/about" 
+              className="nav-link flex items-center gap-3 px-6 py-4 text-gray-700 hover:bg-primary/5 hover:text-primary transition-all duration-200 font-medium border-b border-gray-100"
+              onClick={handleMobileNavClick}
+            >
+              <Info size={20} />
+              <span>About</span>
+            </Link>
+            <Link 
+              href="/contact" 
+              className="nav-link flex items-center gap-3 px-6 py-4 text-gray-700 hover:bg-primary/5 hover:text-primary transition-all duration-200 font-medium border-b border-gray-100"
+              onClick={handleMobileNavClick}
+            >
+              <Mail size={20} />
+              <span>Contact</span>
+            </Link>
             
-            {/* Mobile Menu */}
-            <div className="mobile-menu fixed top-16 left-0 w-full backdrop-blur-lg bg-white/95 border-b border-white/30 shadow-2xl z-50 md:hidden">
-              <div className="max-w-7xl mx-auto px-4 py-4">
-                <div className="flex flex-col space-y-1">
-                  <Link 
-                    href="/courses" 
-                    className="text-foreground hover:text-primary hover:bg-primary/5 py-4 px-6 rounded-xl font-bold transition-all duration-300 text-lg flex items-center gap-3"
-                    onClick={handleMobileNavClick}
-                  >
-                    <Book size={20} />
-                    Courses
-                  </Link>
-                  <Link 
-                    href="/quizzes" 
-                    className="text-foreground hover:text-primary hover:bg-primary/5 py-4 px-6 rounded-xl font-bold transition-all duration-300 text-lg flex items-center gap-3"
-                    onClick={handleMobileNavClick}
-                  >
-                    <Lightbulb size={20} />
-                    Quizzes
-                  </Link>
-                  <Link 
-                    href="/about" 
-                    className="text-foreground hover:text-primary hover:bg-primary/5 py-4 px-6 rounded-xl font-bold transition-all duration-300 text-lg flex items-center gap-3"
-                    onClick={handleMobileNavClick}
-                  >
-                    <Info size={20} />
-                    About
-                  </Link>
-                  <Link 
-                    href="/contact" 
-                    className="text-foreground hover:text-primary hover:bg-primary/5 py-4 px-6 rounded-xl font-bold transition-all duration-300 text-lg flex items-center gap-3"
-                    onClick={handleMobileNavClick}
-                  >
-                    <Mail size={20} />
-                    Contact
-                  </Link>
-                  
-                  {/* Mobile User Section */}
-                  <div className="flex flex-col space-y-2 pt-4 mt-4 border-t border-border">
-                    {loading ? (
-                      <div className="w-full h-14 bg-muted/60 animate-pulse rounded-xl"></div>
-                    ) : user ? (
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-3 backdrop-blur-sm bg-background/80 border border-border rounded-xl px-4 py-3 shadow-lg">
-                          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-sm">
-                            <span className="text-white font-bold text-sm">{user.name?.charAt(0).toUpperCase()}</span>
-                          </div>
-                          <span className="text-foreground font-bold text-lg">Welcome, {user.name}</span>
-                        </div>
-                        <Link 
-                          href="/dashboard" 
-                          className="text-foreground hover:text-primary hover:bg-primary/5 py-4 px-6 rounded-xl font-bold transition-all duration-300 w-full text-left block text-lg flex items-center gap-3" 
-                          onClick={handleMobileNavClick}
-                        >
-                          <Home size={20} />
-                          Dashboard
-                        </Link>
-                        <Link 
-                          href="/profile" 
-                          className="text-foreground hover:text-primary hover:bg-primary/5 py-4 px-6 rounded-xl font-bold transition-all duration-300 w-full text-left block text-lg flex items-center gap-3" 
-                          onClick={handleMobileNavClick}
-                        >
-                          <User size={20} />
-                          Profile
-                        </Link>
-                        <button
-                          onClick={handleSignOut}
-                          className="backdrop-blur-sm bg-white/80 text-foreground hover:bg-primary/5 hover:text-primary px-6 py-4 rounded-xl font-bold transition-all duration-300 w-full border border-white/40 text-lg flex items-center gap-3"
-                        >
-                          <ArrowRight size={20} />
-                          Sign Out
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <Link 
-                          href="/auth/login" 
-                          className="border-2 border-primary bg-white/90 hover:bg-primary/5 text-primary px-6 py-4 rounded-xl font-bold transition-all duration-300 w-full text-center block text-lg flex items-center justify-center gap-3"
-                          onClick={handleMobileNavClick}
-                        >
-                          <User size={20} />
-                          Sign In
-                        </Link>
-                        <Link
-                          href="/auth/signup"
-                          className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-4 rounded-xl font-bold transition-all duration-300 w-full text-center block shadow-lg text-lg flex items-center justify-center gap-3"
-                          onClick={handleMobileNavClick}
-                        >
-                          <Rocket size={20} />
-                          Get Started
-                        </Link>
-                      </div>
-                    )}
+            {/* User Section */}
+            {user ? (
+              <>
+                <div className="border-t-4 border-primary/10 my-2"></div>
+                <div className="px-4 py-3 bg-gray-50">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">{user.name?.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-sm">Welcome back!</p>
+                      <p className="text-xs text-gray-600">{user.name}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </>
-        )}
+                <Link 
+                  href="/dashboard" 
+                  className="nav-link flex items-center gap-3 px-6 py-4 text-gray-700 hover:bg-primary/5 hover:text-primary transition-all duration-200 font-medium border-b border-gray-100"
+                  onClick={handleMobileNavClick}
+                >
+                  <Home size={20} />
+                  <span>Dashboard</span>
+                </Link>
+                <Link 
+                  href="/profile" 
+                  className="nav-link flex items-center gap-3 px-6 py-4 text-gray-700 hover:bg-primary/5 hover:text-primary transition-all duration-200 font-medium border-b border-gray-100"
+                  onClick={handleMobileNavClick}
+                >
+                  <User size={20} />
+                  <span>Profile</span>
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="nav-link w-full flex items-center gap-3 px-6 py-4 text-red-600 hover:bg-red-50 transition-all duration-200 font-medium border-b border-gray-100"
+                >
+                  <ArrowRight size={20} />
+                  <span>Sign Out</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="border-t-4 border-primary/10 my-2"></div>
+                <Link
+                  href="/auth/login"
+                  className="nav-link flex items-center gap-3 px-6 py-4 text-primary hover:bg-primary/5 transition-all duration-200 font-semibold border-b border-gray-100"
+                  onClick={handleMobileNavClick}
+                >
+                  <User size={20} />
+                  <span>Sign In</span>
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="nav-link flex items-center gap-3 px-6 py-4 bg-primary text-white hover:bg-primary/90 transition-all duration-200 font-semibold"
+                  onClick={handleMobileNavClick}
+                >
+                  <Rocket size={20} />
+                  <span>Get Started</span>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </header>
   )

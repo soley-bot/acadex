@@ -45,6 +45,16 @@ const nextConfig = {
 
   // Webpack configuration for better cache handling
   webpack: (config, { dev, isServer }) => {
+    // Ignore external project folders
+    config.watchOptions = {
+      ignored: [
+        '**/node_modules/**',
+        '**/student-dashboard/**',
+        '**/.git/**',
+        '**/.next/**'
+      ]
+    }
+
     if (dev) {
       // Improve cache reliability in development
       config.cache = {

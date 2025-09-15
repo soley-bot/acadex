@@ -16,12 +16,28 @@ export const cardVariants = {
   glass: "backdrop-blur-lg bg-white/80 border border-white/20 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
 }
 
-// Consistent size system
+// Responsive size system - mobile-first approach
 export const cardSizes = {
-  sm: "p-4",      // Small cards like stats
-  md: "p-6",      // Standard cards like course listings  
-  lg: "p-8",      // Large cards like course details
-  xl: "p-10"      // Hero cards
+  xs: "p-2 sm:p-3",           // Minimal containers
+  sm: "p-3 sm:p-4",           // Small stats, compact content
+  md: "p-4 sm:p-6",           // Standard cards like course listings  
+  lg: "p-5 sm:p-6 md:p-8",    // Large cards like course details
+  xl: "p-6 sm:p-8 md:p-10"    // Hero cards, featured content
+}
+
+// Content container variants (lightweight alternatives to cards)
+export const containerVariants = {
+  // Minimal - for simple stats and data display
+  minimal: "bg-gray-50/80 dark:bg-gray-800/40 rounded-lg border border-gray-100/60 dark:border-gray-700/60",
+  
+  // Subtle - for grouped content that needs slight separation
+  subtle: "bg-white/60 dark:bg-gray-800/60 rounded-lg border border-gray-200/40 dark:border-gray-700/40 shadow-sm",
+  
+  // Outlined - for content that needs definition without weight
+  outlined: "border border-gray-200 dark:border-gray-700 rounded-lg bg-transparent hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors",
+  
+  // Surface - for content areas that need background separation
+  surface: "bg-white dark:bg-gray-800 rounded-lg"
 }
 
 // New unified card component - doesn't replace existing Card
@@ -42,6 +58,37 @@ export function UnifiedCard({
   return (
     <div 
       className={cn(cardVariants[variant], cardSizes[size], className)}
+      onClick={onClick}
+      {...props}
+    >
+      {children}
+    </div>
+  )
+}
+
+// Content Container - lightweight alternative to cards for simple content
+export function ContentContainer({
+  children,
+  variant = 'minimal',
+  size = 'sm',
+  className = '',
+  onClick,
+  ...props
+}: {
+  children: ReactNode
+  variant?: keyof typeof containerVariants
+  size?: keyof typeof cardSizes
+  className?: string
+  onClick?: () => void
+} & React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={cn(
+        containerVariants[variant],
+        cardSizes[size],
+        onClick && "cursor-pointer hover:scale-[1.02] transition-transform",
+        className
+      )}
       onClick={onClick}
       {...props}
     >

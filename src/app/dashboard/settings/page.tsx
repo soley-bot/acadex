@@ -79,7 +79,7 @@ export default function SettingsPage() {
           .single()
 
         if (userError) {
-          console.error('Error fetching user data:', userError)
+          // Error fetching user data - using default settings
         } else if (userData) {
           // Update settings with real data, using defaults if data is missing
           setSettings(prev => ({
@@ -104,7 +104,7 @@ export default function SettingsPage() {
           }))
         }
       } catch (error) {
-        console.error('Error fetching user settings:', error)
+        // Error fetching user settings - using defaults
       } finally {
         setLoading(false)
       }
@@ -165,14 +165,12 @@ export default function SettingsPage() {
         .eq('id', user.id)
 
       if (error) {
-        console.error('Error saving settings:', error)
-        // You could add a toast notification here for error
+        // Error saving settings - could add toast notification
       } else {
-        console.log('Settings saved successfully')
-        // You could add a toast notification here for success
+        // Settings saved successfully - could add toast notification
       }
     } catch (error) {
-      console.error('Error saving settings:', error)
+      // Error saving settings - could add toast notification
     }
   }
 

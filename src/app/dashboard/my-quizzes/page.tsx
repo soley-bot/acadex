@@ -19,20 +19,9 @@ import {
   Search,
   Calendar
 } from 'lucide-react'
+import type { QuizAttempt, QuizSummary } from '@/types/dashboard'
 
-interface QuizAttempt {
-  id: string
-  quizId: string
-  quizTitle: string
-  category: string
-  score: number
-  totalQuestions: number
-  percentage: number
-  completedAt: string
-  timeSpent: string
-  difficulty: string
-}
-
+// Keep AvailableQuiz as local interface since it's UI-specific
 interface AvailableQuiz {
   id: string
   title: string
@@ -75,12 +64,6 @@ export default function MyQuizzesPage() {
       let transformedAttempts: QuizAttempt[] = []
       
       if (attemptsResponse.error) {
-        console.error('Error fetching quiz attempts:', {
-          error: attemptsResponse.error,
-          message: attemptsResponse.error?.message,
-          code: attemptsResponse.error?.code,
-          details: attemptsResponse.error?.details
-        })
         setError('Failed to load quiz attempts. Please try again.')
       } else {
         // Transform the data to match our interface - using real database values
@@ -100,15 +83,18 @@ export default function MyQuizzesPage() {
           
           return {
             id: attempt.id,
-            quizId: attempt.quiz_id || 'unknown',
-            quizTitle: attempt.quiz_title,
+            quiz_id: attempt.quiz_id || 'unknown',
+            user_id: attempt.user_id || user.id,
+            quiz_title: attempt.quiz_title,
             category: attempt.category || 'General',
+            difficulty: attempt.difficulty || 'Intermediate',
             score: attempt.score || 0,
-            totalQuestions: attempt.total_questions || 0,
+            total_questions: attempt.total_questions || 0,
             percentage: calculatedPercentage,
-            completedAt: new Date(attempt.completed_at).toLocaleDateString(),
-            timeSpent: `${attempt.time_taken_minutes || 15} min`,
-            difficulty: attempt.difficulty || 'Intermediate'
+            completed_at: attempt.completed_at,
+            time_taken_minutes: attempt.time_taken_minutes || 15,
+            created_at: attempt.completed_at,
+            timeSpent: `${attempt.time_taken_minutes || 15} min`
           }
         }) || []
 
@@ -121,17 +107,12 @@ export default function MyQuizzesPage() {
       })
       
       if (quizzesResponse.error) {
-        console.error('Error fetching available quizzes:', {
-          error: quizzesResponse.error,
-          message: quizzesResponse.error?.message,
-          code: quizzesResponse.error?.code
-        })
         setError('Failed to load available quizzes. Please try again.')
       } else {
         // Transform the data to match our interface
         const transformedQuizzes: AvailableQuiz[] = quizzesResponse.data?.data?.map((quiz: any) => {
           // Check if user has attempted this quiz
-          const userAttempts = transformedAttempts.filter(attempt => attempt.quizId === quiz.id)
+          const userAttempts = transformedAttempts.filter(attempt => attempt.quiz_id === quiz.id)
           const bestScore = userAttempts.length > 0 
             ? Math.max(...userAttempts.map(a => a.percentage))
             : undefined
@@ -153,7 +134,6 @@ export default function MyQuizzesPage() {
       }
 
     } catch (error) {
-      console.error('Error fetching quiz data:', error)
       setError('Failed to load quiz data. Please check your connection and try again.')
     } finally {
       setLoading(false)
@@ -325,7 +305,7 @@ export default function MyQuizzesPage() {
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-2">
-                            <h3 className="text-base md:text-lg font-semibold text-gray-900">{attempt.quizTitle}</h3>
+                            <h3 className="text-base md:text-lg font-semibold text-gray-900">{attempt.quiz_title}</h3>
                             <Badge className={getDifficultyColor(attempt.difficulty)}>
                               {attempt.difficulty}
                             </Badge>
@@ -335,7 +315,7 @@ export default function MyQuizzesPage() {
                           <div className="flex flex-wrap items-center gap-3 md:gap-6 text-xs md:text-sm text-gray-600 mb-3">
                             <div className="flex items-center gap-1">
                               <Target className="h-3 md:h-4 w-3 md:w-4" />
-                              <span>{attempt.score}/{attempt.totalQuestions} correct</span>
+                              <span>{attempt.score}/{attempt.total_questions} correct</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Clock className="h-3 md:h-4 w-3 md:w-4" />
@@ -343,7 +323,7 @@ export default function MyQuizzesPage() {
                             </div>
                             <div className="flex items-center gap-1">
                               <Calendar className="h-3 md:h-4 w-3 md:w-4" />
-                              <span>{attempt.completedAt}</span>
+                              <span>{attempt.completed_at ? new Date(attempt.completed_at).toLocaleDateString() : 'In Progress'}</span>
                             </div>
                           </div>
                         </div>
@@ -353,13 +333,13 @@ export default function MyQuizzesPage() {
                             {attempt.percentage}%
                           </Badge>
                           <Button variant="outline" size="sm" asChild>
-                            <Link href={`/quizzes/${attempt.quizId}/results/${attempt.id}`} className="flex items-center justify-center">
+                            <Link href={`/quizzes/${attempt.quiz_id}/results/${attempt.id}`} className="flex items-center justify-center">
                               <span className="hidden sm:inline">View Details</span>
                               <span className="sm:hidden">Details</span>
                             </Link>
                           </Button>
                           <Button variant="default" size="sm" asChild>
-                            <Link href={`/quizzes/${attempt.quizId}/take`} className="flex items-center justify-center">
+                            <Link href={`/quizzes/${attempt.quiz_id}/take`} className="flex items-center justify-center">
                               Retake
                             </Link>
                           </Button>
