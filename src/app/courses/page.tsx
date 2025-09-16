@@ -4,11 +4,11 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Course } from '@/lib/supabase'
-import { usePublicCourses, usePublicCategories } from '@/hooks/useOptimizedAPI'
+import { useOptimizedCourses, useOptimizedCategories } from '@/hooks/useCourseQueries'
 import { Pagination } from '@/components/ui/Pagination'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { EnhancedCourseCard } from '@/components/cards/EnhancedCourseCard'
+import { OptimizedCourseCard } from '@/components/cards/OptimizedCourseCard'
 import { 
   BookOpen, 
   Filter, 
@@ -30,7 +30,7 @@ export default function CoursesPage() {
     isLoading: coursesLoading, 
     error: coursesError,
     refetch: refetchCourses 
-  } = usePublicCourses({
+  } = useOptimizedCourses({
     page: currentPage,
     limit: 9,
     ...(selectedCategory !== 'all' && { category: selectedCategory }),
@@ -40,7 +40,7 @@ export default function CoursesPage() {
   const { 
     data: categories = [], 
     isLoading: categoriesLoading 
-  } = usePublicCategories()
+  } = useOptimizedCategories()
 
   // Extract data from React Query response
   const courses = coursesData?.data || []
@@ -184,7 +184,7 @@ export default function CoursesPage() {
                     className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                   >
                     <option value="all">All Categories</option>
-                    {categories.map(category => (
+                    {categories.map((category: string) => (
                       <option key={category} value={category}>{category}</option>
                     ))}
                   </select>
@@ -275,8 +275,12 @@ export default function CoursesPage() {
                 </Card>
               ))
             ) : courses.length > 0 ? (
-              courses.map((course) => (
-                <EnhancedCourseCard key={course.id} course={course} showProgress={true} />
+              courses.map((course: Course) => (
+                <OptimizedCourseCard 
+                  key={course.id} 
+                  course={course} 
+                  priority={currentPage === 1} 
+                />
               ))
             ) : (
               <div className="col-span-full text-center py-20">
