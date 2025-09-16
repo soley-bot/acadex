@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { StudentSidebar } from '@/components/student/StudentSidebar'
+import { BodyLG, BodyMD } from '@/components/ui/Typography'
 import { 
   BookOpen, 
   GraduationCap, 
@@ -66,7 +67,7 @@ export default function StudentDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex">
         {/* Desktop Sidebar */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
           <StudentSidebar />
@@ -81,36 +82,12 @@ export default function StudentDashboard() {
           </div>
         )}
 
-        <div className="flex-1 lg:ml-64">
-          {/* Mobile header */}
-          <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <h1 className="text-base sm:text-lg font-semibold text-gray-900">Dashboard</h1>
-            <div className="w-10"></div>
-          </div>
-
-          <div className="p-6">
-            <div className="animate-pulse">
-              <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
-                ))}
-              </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {[...Array(2)].map((_, i) => (
-                  <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
-                ))}
-              </div>
-            </div>
-          </div>
+        <div className="flex-1 lg:ml-64 flex items-center justify-center">
+          <Card variant="glass" className="text-center p-12 max-w-md mx-auto">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary mx-auto mb-6"></div>
+            <BodyLG className="text-gray-700 font-medium">Loading dashboard...</BodyLG>
+            <BodyMD className="text-gray-500 mt-2">Gathering your learning progress</BodyMD>
+          </Card>
         </div>
       </div>
     )
@@ -119,7 +96,7 @@ export default function StudentDashboard() {
   // Error state with retry option
   if (dashboardError) {
     return (
-      <div className="min-h-screen bg-background flex">
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex">
         {/* Desktop Sidebar */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
           <StudentSidebar />
@@ -162,7 +139,7 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 flex">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex">
       {/* Desktop Sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
         <StudentSidebar />

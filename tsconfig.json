@@ -23,8 +23,20 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["node"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "open-saas-main", "student-dashboard/**/*", "**/*.test.ts", "**/*.test.tsx", "src/__tests__/**/*", "quizbuilder/**/*", "**/archive/**"]
+  "exclude": [
+    "node_modules", 
+    "open-saas-main", 
+    "student-dashboard/**/*", 
+    "**/*.test.ts", 
+    "**/*.test.tsx", 
+    "src/__tests__/**/*", 
+    "quizbuilder/**/*", 
+    "**/archive/**",
+    "jest.config.js",
+    "jest.setup.js"
+  ]
 }

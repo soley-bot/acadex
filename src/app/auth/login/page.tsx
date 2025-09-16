@@ -154,12 +154,12 @@ function EnhancedLoginForm() {
             <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
             {/* Global Error */}
             {error && (
-              <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-3 lg:p-4">
+              <div className="alert-error">
                 <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                  <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-destructive-foreground font-medium">Unable to sign in</h4>
-                    <p className="text-destructive text-sm mt-1">{error}</p>
+                    <h4 className="font-medium">Unable to sign in</h4>
+                    <p className="text-sm mt-1">{error}</p>
                   </div>
                 </div>
               </div>
@@ -203,7 +203,7 @@ function EnhancedLoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary hover:bg-secondary text-white py-3 px-4 rounded-xl font-medium text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
+              className="btn btn-default btn-lg w-full"
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">
@@ -234,7 +234,7 @@ function EnhancedLoginForm() {
               type="button"
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 border border-input rounded-xl bg-white text-foreground hover:bg-muted hover:border-input disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+              className="btn btn-outline w-full mt-4"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

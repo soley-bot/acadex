@@ -52,9 +52,9 @@ export default function AdminUsers() {
 
   const getRoleBadge = (role: string) => {
     const colors = {
-      admin: 'bg-destructive/20 text-red-800',
-      instructor: 'bg-destructive/20 text-red-800',
-      student: 'bg-destructive/20 text-red-800'
+      admin: 'badge-destructive',
+      instructor: 'badge-warning', 
+      student: 'badge-primary'
     }
     return colors[role as keyof typeof colors] || colors.student
   }
@@ -70,9 +70,9 @@ export default function AdminUsers() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="flex items-center gap-2 bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+        <div className="card-base flex items-center gap-2 p-8">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-          <span className="text-gray-700 font-medium">Loading users...</span>
+          <span className="text-foreground font-medium">Loading users...</span>
         </div>
       </div>
     )
@@ -81,11 +81,11 @@ export default function AdminUsers() {
   if (error) {
     return (
       <div className="min-h-screen">
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-md">
-          <p className="text-red-700 font-bold">Error loading users: {error}</p>
+        <div className="alert-error">
+          <p className="font-bold">Error loading users: {error}</p>
           <button 
             onClick={() => refetchUsers()}
-            className="mt-3 text-primary hover:text-primary/80 underline font-bold bg-primary/5 hover:bg-destructive/20 px-3 py-2 rounded-lg transition-colors"
+            className="btn btn-outline mt-3"
           >
             Try again
           </button>
@@ -99,12 +99,12 @@ export default function AdminUsers() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-            <p className="text-gray-600 mt-1">Manage and monitor all platform users</p>
+            <h1 className="text-3xl font-bold text-foreground">User Management</h1>
+            <p className="text-muted-foreground mt-1">Manage and monitor all platform users</p>
           </div>
           <button 
             onClick={() => setShowAddUser(true)}
-            className="bg-primary hover:bg-primary/90 text-secondary px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-bold shadow-md hover:shadow-lg"
+            className="btn btn-default flex items-center gap-2"
           >
             <Icon name="add" size={16} color="white" />
             Add User
@@ -120,8 +120,8 @@ export default function AdminUsers() {
             <Icon name="users" size={16} color="primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{userStats.total}</div>
-            <p className="text-xs text-gray-500">All registered users</p>
+            <div className="text-2xl font-bold text-foreground">{userStats.total}</div>
+            <p className="text-xs text-muted-foreground">All registered users</p>
           </CardContent>
         </Card>
         
@@ -131,7 +131,7 @@ export default function AdminUsers() {
             <Icon name="users" size={16} color="primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{userStats.students}</div>
+            <div className="text-2xl font-bold text-foreground">{userStats.students}</div>
             <p className="text-xs text-muted-foreground">Student accounts</p>
           </CardContent>
         </Card>
@@ -142,7 +142,7 @@ export default function AdminUsers() {
             <Icon name="briefcase" size={16} color="primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{userStats.instructors}</div>
+            <div className="text-2xl font-bold text-foreground">{userStats.instructors}</div>
             <p className="text-xs text-muted-foreground">Instructor accounts</p>
           </CardContent>
         </Card>

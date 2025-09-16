@@ -20,6 +20,8 @@ interface FormFieldProps {
     message?: string
   }
   autoComplete?: string
+  onFocus?: () => void
+  onBlur?: () => void
 }
 
 export function FormField({
@@ -35,23 +37,26 @@ export function FormField({
   showPassword,
   onTogglePassword,
   validation,
-  autoComplete
+  autoComplete,
+  onFocus,
+  onBlur
 }: FormFieldProps) {
   const [isFocused, setIsFocused] = useState(false)
   const [hasBeenTouched, setHasBeenTouched] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const showValidation = hasBeenTouched && validation && value.length > 0
-  const showError = hasBeenTouched && error && value.length > 0
+  // Only show validation/error states when not actively typing (user has stopped interacting)
+  const showValidation = hasBeenTouched && !isFocused && validation && value.length > 0
+  const showError = hasBeenTouched && !isFocused && error && value.length > 0
 
+  // Simplified border color logic - consistent neutral colors during focus/typing
   const borderColor = showError 
     ? 'border-destructive focus:border-destructive focus:ring-destructive/20' 
     : showValidation && validation.isValid
     ? 'border-success focus:border-success focus:ring-success/20'
-    : isFocused 
-    ? 'border-destructive focus:border-destructive focus:ring-destructive/20'
-    : 'border-border focus:border-destructive focus:ring-destructive/20'
+    : 'border-border focus:border-primary focus:ring-primary/20'
 
+  // Simplified icon color - no distracting color changes during typing
   const iconColor = showError 
     ? 'text-destructive' 
     : showValidation && validation.isValid
@@ -60,7 +65,7 @@ export function FormField({
 
   return (
     <div className="space-y-3">
-      <label htmlFor={name} className="block text-sm font-bold text-foreground">
+      <label htmlFor={name} className="form-label">
         {label}
         {required && <span className="text-destructive ml-1">*</span>}
       </label>
@@ -81,20 +86,22 @@ export function FormField({
           name={name}
           value={value}
           onChange={onChange}
-          onFocus={() => setIsFocused(true)}
+          onFocus={() => {
+            setIsFocused(true)
+            onFocus?.()
+          }}
           onBlur={() => {
             setIsFocused(false)
             setHasBeenTouched(true)
+            onBlur?.()
           }}
           required={required}
           autoComplete={autoComplete}
           className={`
-            w-full px-4 py-3 
+            input focus-ring
             ${icon ? 'pl-10' : ''} 
             ${type === 'password' && onTogglePassword ? 'pr-12' : 'pr-4'}
-            border-2 rounded-xl transition-all duration-300
-            backdrop-blur-sm bg-background/80 hover:bg-background/90 text-foreground placeholder-muted-foreground font-medium
-            focus:outline-none focus:ring-4 shadow-lg hover:shadow-xl
+            backdrop-blur-sm hover:bg-background/90 font-medium
             ${borderColor}
           `}
           placeholder={placeholder}
@@ -112,8 +119,8 @@ export function FormField({
           </button>
         )}
         
-        {/* Validation Icon */}
-        {showValidation && (
+        {/* Validation Icon - only show when not focused (not typing) */}
+        {showValidation && !isFocused && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
             {validation.isValid ? (
               <CheckCircle className="w-5 h-5 text-success" />
@@ -126,7 +133,7 @@ export function FormField({
       
       {/* Error Message */}
       {showError && (
-        <div className="flex items-start gap-2 text-destructive">
+        <div className="form-message-error">
           <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           <span className="text-sm">{error}</span>
         </div>
@@ -134,7 +141,7 @@ export function FormField({
       
       {/* Validation Message */}
       {showValidation && validation.message && (
-        <div className={`flex items-start gap-2 ${validation.isValid ? 'text-success' : 'text-destructive'}`}>
+        <div className={`form-message ${validation.isValid ? 'form-message-success' : 'form-message-error'}`}>
           {validation.isValid ? (
             <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
           ) : (

@@ -117,6 +117,7 @@ export default function TakeQuizPage() {
   const [startTime, setStartTime] = useState<Date | null>(null)
   const [timeLeft, setTimeLeft] = useState<number>(0)
   const [submitting, setSubmitting] = useState(false)
+  const [lastSubmitTime, setLastSubmitTime] = useState(0)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [quizAttemptId, setQuizAttemptId] = useState<string>('')
   const [showProgressRestore, setShowProgressRestore] = useState(false)
@@ -251,8 +252,25 @@ export default function TakeQuizPage() {
     setCurrentQuestionIndex(index)
   }, [saveNow])
 
-  // ✅ MISSING HELPER: Get current question (must be declared before functions that use it)
-  const currentQuestion = questions[currentQuestionIndex]
+  // ✅ OPTIMIZED: Memoized current question and progress calculations
+  const currentQuestion = useMemo(() => questions[currentQuestionIndex], [questions, currentQuestionIndex])
+  
+  const progressStats = useMemo(() => {
+    const answeredQuestions = Object.keys(answers).length
+    const progressPercentage = questions.length > 0 ? (answeredQuestions / questions.length) * 100 : 0
+    const currentProgress = questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0
+    
+    return {
+      answeredCount: answeredQuestions,
+      totalQuestions: questions.length,
+      progressPercentage,
+      currentProgress
+    }
+  }, [answers, questions.length, currentQuestionIndex])
+
+  const isQuizComplete = useMemo(() => {
+    return progressStats.answeredCount === questions.length && questions.length > 0
+  }, [progressStats.answeredCount, questions.length])
 
   // Fetch quiz questions (only run once per quiz ID)
   useEffect(() => {
@@ -331,7 +349,19 @@ export default function TakeQuizPage() {
   }, [clearProgress])
 
   const handleSubmitQuiz = useCallback(async () => {
-    if (submitting) return
+    // Prevent multiple submissions with multiple checks
+    if (submitting) {
+      console.log('Submit already in progress, ignoring duplicate click')
+      return
+    }
+
+    // Additional debounce protection
+    const now = Date.now()
+    if (now - lastSubmitTime < 1000) {
+      console.log('Submit attempt too soon, debouncing')
+      return
+    }
+    setLastSubmitTime(now)
 
     try {
       setSubmitting(true)
@@ -414,9 +444,9 @@ export default function TakeQuizPage() {
     } finally {
       setSubmitting(false)
     }
-  }, [submitting, params.id, user, answers, router, startTime, saveNow, clearProgress])
+  }, [submitting, lastSubmitTime, params.id, user, answers, router, startTime, saveNow, clearProgress])
 
-  // Timer effect
+  // Timer effect - Enhanced to prevent conflicts
   useEffect(() => {
     if (!quizStarted || timeLeft <= 0 || submitting) return
 
@@ -424,7 +454,12 @@ export default function TakeQuizPage() {
       setTimeLeft((prev) => {
         if (prev <= 1 && !submitting) {
           console.log('Time expired, auto-submitting quiz')
-          handleSubmitQuiz()
+          // Use a timeout to ensure state has updated
+          setTimeout(() => {
+            if (!submitting) {
+              handleSubmitQuiz()
+            }
+          }, 100)
           return 0
         }
         return prev - 1
@@ -452,10 +487,45 @@ export default function TakeQuizPage() {
     router.push('/quizzes')
   }
 
-  const getProgressPercentage = () => {
-    const answeredQuestions = Object.keys(answers).length
-    return (answeredQuestions / questions.length) * 100
-  }
+  // ✅ OPTIMIZATION: Keyboard navigation for power users
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Only handle keyboard shortcuts if not typing in input/textarea
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return
+      }
+
+      if (event.ctrlKey || event.metaKey) {
+        switch (event.key) {
+          case 'Enter':
+            event.preventDefault()
+            if (currentQuestionIndex === questions.length - 1) {
+              handleSubmitQuiz()
+            } else {
+              handleNextQuestion()
+            }
+            break
+          case 'ArrowLeft':
+            event.preventDefault()
+            if (currentQuestionIndex > 0) {
+              handlePreviousQuestion()
+            }
+            break
+          case 'ArrowRight':
+            event.preventDefault()
+            if (currentQuestionIndex < questions.length - 1) {
+              handleNextQuestion()
+            }
+            break
+        }
+      }
+    }
+
+    if (quizStarted && !submitting) {
+      window.addEventListener('keydown', handleKeyPress)
+      return () => window.removeEventListener('keydown', handleKeyPress)
+    }
+  }, [quizStarted, submitting, currentQuestionIndex, questions.length, handleSubmitQuiz, handleNextQuestion, handlePreviousQuestion])
 
   // Loading state - simplified condition to reduce flickering
   if (loading && !quiz) {
@@ -686,12 +756,37 @@ export default function TakeQuizPage() {
           )}
         </div>
 
-        {/* Progress Bar - Optimized Spacing */}
-        <div className="mb-6 bg-white/90 backdrop-blur-lg rounded-xl p-4 shadow-lg border border-white/20">
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-            <span className="font-semibold">Question {currentQuestionIndex + 1} of {questions.length}</span>
+        {/* Progress Bar - Mobile Enhanced & Optimized */}
+        <div className="mb-6 bg-white/90 backdrop-blur-lg rounded-xl p-3 sm:p-4 shadow-lg border border-white/20">
+          {/* Mobile: Compact single-line layout */}
+          <div className="flex sm:hidden items-center justify-between text-sm mb-2">
+            <span className="text-xs font-semibold text-gray-700">
+              {currentQuestionIndex + 1}/{progressStats.totalQuestions}
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-gray-600">{Math.round(progressStats.currentProgress)}%</span>
+              {timeLeft > 0 && (
+                <span className={`text-xs font-bold px-2 py-1 rounded-md border ${
+                  timeLeft <= 60 ? 'bg-destructive text-destructive-foreground border-destructive' : 
+                  timeLeft <= 300 ? 'bg-warning text-warning-foreground border-warning' : 
+                  'bg-muted text-muted-foreground border-border'
+                }`}>
+                  {formatTime(timeLeft)}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Desktop: Full two-line layout */}
+          <div className="hidden sm:flex items-center justify-between text-sm text-gray-600 mb-3">
+            <span className="font-semibold">Question {currentQuestionIndex + 1} of {progressStats.totalQuestions}</span>
             <div className="flex items-center gap-3">
-              <span className="font-medium">{Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}% Complete</span>
+              <span className="font-medium">{Math.round(progressStats.currentProgress)}% Complete</span>
+              {progressStats.answeredCount > 0 && (
+                <span className="text-xs text-green-600 font-medium">
+                  {progressStats.answeredCount} answered
+                </span>
+              )}
               {timeLeft > 0 && (
                 <span className={`font-bold px-2 py-1 rounded-md text-xs border ${
                   timeLeft <= 60 ? 'bg-destructive text-destructive-foreground border-destructive' : 
@@ -703,10 +798,12 @@ export default function TakeQuizPage() {
               )}
             </div>
           </div>
-          <div className="w-full bg-muted/60 rounded-full h-3 shadow-inner">
+
+          {/* Progress bar - consistent on all devices */}
+          <div className="w-full bg-muted/60 rounded-full h-2 sm:h-3 shadow-inner">
             <div 
-              className="bg-primary h-3 rounded-full transition-all duration-500 shadow-sm"
-              style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+              className="bg-primary h-2 sm:h-3 rounded-full transition-all duration-500 shadow-sm"
+              style={{ width: `${progressStats.currentProgress}%` }}
             ></div>
           </div>
         </div>
@@ -800,7 +897,7 @@ export default function TakeQuizPage() {
                   </>
                 )}
 
-                {/* Fill in the Blank */}
+                {/* Fill in the Blank - Mobile Enhanced */}
                 {currentQuestion.question_type === 'fill_blank' && (
                   <div className="space-y-3">
                     <input
@@ -808,22 +905,49 @@ export default function TakeQuizPage() {
                       placeholder="Type your answer here..."
                       value={answers[currentQuestion?.id ?? ''] || ''}
                       onChange={(e) => currentQuestion && handleAnswerChange(currentQuestion.id, e.target.value)}
-                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:outline-none transition-all text-base"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all text-base md:text-lg bg-white shadow-sm hover:shadow-md touch-manipulation"
+                      style={{ 
+                        minHeight: '48px', // Touch-friendly height
+                        fontSize: '16px', // Prevent zoom on iOS
+                        touchAction: 'manipulation'
+                      }}
+                      autoComplete="off"
+                      spellCheck="true"
+                      autoCapitalize="sentences"
                     />
+                    <div className="text-xs text-gray-500 flex items-center gap-1">
+                      💡 <span>Tip: Your answer will be auto-saved as you type</span>
+                    </div>
                   </div>
                 )}
 
-                {/* Essay */}
+                {/* Essay - Mobile Enhanced */}
                 {currentQuestion.question_type === 'essay' && (
                   <div className="space-y-3">
                     <textarea
                       placeholder="Write your essay answer here..."
                       value={answers[currentQuestion?.id ?? ''] || ''}
                       onChange={(e) => currentQuestion && handleAnswerChange(currentQuestion.id, e.target.value)}
-                      className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:outline-none transition-all text-base resize-vertical min-h-28"
-                      rows={3}
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all text-base md:text-lg resize-none bg-white shadow-sm hover:shadow-md touch-manipulation"
+                      rows={6}
+                      style={{ 
+                        minHeight: '120px', // Adequate space for writing
+                        fontSize: '16px', // Prevent zoom on iOS
+                        touchAction: 'manipulation',
+                        lineHeight: '1.5'
+                      }}
+                      autoComplete="off"
+                      spellCheck="true"
+                      autoCapitalize="sentences"
                     />
-                    <p className="text-xs text-gray-500">Take your time to provide a detailed answer.</p>
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <div className="flex items-center gap-1">
+                        💡 <span>Take your time to provide a detailed answer</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span>Words: {(answers[currentQuestion?.id ?? ''] || '').split(' ').filter((word: string) => word.length > 0).length}</span>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -1112,62 +1236,51 @@ export default function TakeQuizPage() {
                 )}
               </div>
 
-              {/* Navigation - Compact Design */}
-              <div className="flex items-center justify-between gap-2 sm:gap-3 pt-3 border-t border-gray-200">
-                {/* Previous Button */}
+              {/* Navigation - Enhanced Mobile Design */}
+              <div className="flex items-center justify-between gap-2 sm:gap-4 pt-4 border-t border-gray-200">
+                {/* Previous Button - Mobile optimized */}
                 <button
                   onClick={handlePreviousQuestion}
                   disabled={currentQuestionIndex === 0}
-                  className="px-2 sm:px-4 py-2 bg-muted/40 text-gray-700 rounded-lg font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted/60"
+                  className="px-3 sm:px-4 py-3 bg-muted/40 text-gray-700 rounded-xl font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted/60 active:scale-95 touch-manipulation min-h-[44px] flex-shrink-0"
+                  style={{ touchAction: 'manipulation' }}
                 >
                   <span className="hidden sm:inline">← Previous</span>
                   <span className="sm:hidden">←</span>
                 </button>
 
-                {/* Question Navigator Dots - Mobile: Show only nearby questions */}
-                <div className="flex items-center gap-1 overflow-hidden">
-                  {/* Mobile view: Show current +/- 2 questions */}
-                  <div className="flex sm:hidden items-center gap-1">
-                    {questions.slice(
-                      Math.max(0, currentQuestionIndex - 2),
-                      Math.min(questions.length, currentQuestionIndex + 3)
-                    ).map((_, relativeIndex) => {
-                      const actualIndex = Math.max(0, currentQuestionIndex - 2) + relativeIndex;
-                      return (
-                        <button
-                          key={actualIndex}
-                          onClick={() => handleQuestionNavigation(actualIndex)}
-                          className={`w-6 h-6 rounded-full text-xs font-medium transition-all flex-shrink-0 ${
-                            actualIndex === currentQuestionIndex
-                              ? 'bg-primary text-white'
-                              : answers[questions[actualIndex]?.id ?? ''] !== undefined
-                              ? 'bg-green-100 text-green-700 border border-green-300'
-                              : 'bg-muted/40 text-gray-600'
-                          }`}
-                        >
-                          {actualIndex + 1}
-                        </button>
-                      )
-                    })}
-                    {/* Show dots if there are more questions */}
-                    {currentQuestionIndex + 3 < questions.length && (
-                      <span className="text-gray-400 text-xs px-1">...</span>
-                    )}
+                {/* Question Navigator - Enhanced Mobile Experience */}
+                <div className="flex-1 flex items-center justify-center px-2">
+                  {/* Mobile: Compact progress indicator */}
+                  <div className="sm:hidden flex items-center gap-2">
+                    <div className="flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1">
+                      <span className="text-xs font-medium text-gray-700">
+                        {currentQuestionIndex + 1} / {questions.length}
+                      </span>
+                    </div>
+                    <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-primary transition-all duration-300 rounded-full"
+                        style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+                      />
+                    </div>
                   </div>
 
-                  {/* Desktop view: Show all questions */}
-                  <div className="hidden sm:flex items-center gap-1 overflow-x-auto max-w-xs">
+                  {/* Desktop: Full question dots */}
+                  <div className="hidden sm:flex items-center gap-1 max-w-md overflow-x-auto">
                     {questions.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => handleQuestionNavigation(index)}
-                        className={`w-6 h-6 rounded-full text-xs font-medium transition-all flex-shrink-0 ${
+                        className={`w-8 h-8 rounded-full text-xs font-medium transition-all duration-200 flex-shrink-0 hover:scale-110 active:scale-95 touch-manipulation ${
                           index === currentQuestionIndex
-                            ? 'bg-primary text-white'
+                            ? 'bg-primary text-white shadow-md'
                             : answers[questions[index]?.id ?? ''] !== undefined
-                            ? 'bg-green-100 text-green-700 border border-green-300'
-                            : 'bg-muted/40 text-gray-600 hover:bg-muted/60'
+                            ? 'bg-green-100 text-green-700 border-2 border-green-300 shadow-sm'
+                            : 'bg-muted/60 text-gray-600 hover:bg-muted/80'
                         }`}
+                        style={{ touchAction: 'manipulation' }}
+                        aria-label={`Go to question ${index + 1}`}
                       >
                         {index + 1}
                       </button>
@@ -1175,32 +1288,40 @@ export default function TakeQuizPage() {
                   </div>
                 </div>
 
-                {/* Next/Submit Button */}
+                {/* Submit Button - Enhanced Protection & Feedback */}
                 {currentQuestionIndex === questions.length - 1 ? (
                   <button
                     onClick={handleSubmitQuiz}
                     disabled={submitting}
-                    className="px-2 sm:px-4 py-2 bg-primary hover:bg-secondary text-white rounded-lg font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 sm:gap-2"
-                    title={submitting ? 'Submitting quiz...' : 'Submit quiz'}
+                    className={`px-4 sm:px-6 py-3 rounded-xl font-medium text-sm transition-all duration-200 min-h-[44px] flex-shrink-0 shadow-sm ${
+                      submitting 
+                        ? 'bg-gray-400 cursor-not-allowed opacity-75' 
+                        : 'bg-success hover:bg-success/90 hover:shadow-md active:scale-95 touch-manipulation'
+                    } text-white`}
+                    style={{ touchAction: 'manipulation' }}
+                    aria-label={submitting ? 'Submitting quiz, please wait' : 'Submit quiz'}
                   >
                     {submitting ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                         <span className="hidden sm:inline">Submitting...</span>
                         <span className="sm:hidden">...</span>
-                      </>
+                      </div>
                     ) : (
-                      <>
-                        <Check className="w-4 h-4 text-white" />
+                      <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                         <span className="hidden sm:inline">Submit Quiz</span>
                         <span className="sm:hidden">Submit</span>
-                      </>
+                      </div>
                     )}
                   </button>
                 ) : (
                   <button
                     onClick={handleNextQuestion}
-                    className="px-2 sm:px-4 py-2 bg-primary hover:bg-secondary text-white rounded-lg font-medium text-sm transition-all"
+                    className="px-3 sm:px-4 py-3 bg-primary hover:bg-secondary text-white rounded-xl font-medium text-sm transition-all duration-200 active:scale-95 touch-manipulation min-h-[44px] flex-shrink-0 shadow-sm hover:shadow-md"
+                    style={{ touchAction: 'manipulation' }}
                   >
                     <span className="hidden sm:inline">Next →</span>
                     <span className="sm:hidden">→</span>

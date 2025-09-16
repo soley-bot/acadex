@@ -10,6 +10,7 @@ import { H1, H2, H3, H4, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Container, Section } from '@/components/ui/Layout'
 import Icon from '@/components/ui/Icon'
 import { logger } from '@/lib/logger'
+import { ContextualBackButton } from '@/components/navigation/ContextualBackButton'
 
 interface UserProfile {
   name: string
@@ -113,11 +114,17 @@ export default function ProfilePage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10 relative overflow-hidden">
-      {/* Standardized Subtle Background for Functional Pages */}
-      <BlobBackground variant="subtle" />
-      
-      <div className="relative max-w-4xl mx-auto px-6 py-8 pt-28">
+    <Section className="min-h-screen relative overflow-hidden" background="gradient">
+      <Container className="py-8 pt-28">
+        
+        {/* Contextual Back Navigation */}
+        <div className="mb-6">
+          <ContextualBackButton
+            href="/dashboard"
+            label="Back to Dashboard"
+          />
+        </div>
+
         {/* Header */}
         <Card variant="glass" className="mb-12 text-center">
           <CardContent className="p-12">
@@ -332,7 +339,7 @@ export default function ProfilePage() {
             </CardContent>
           </form>
         </Card>
-      </div>
-    </div>
+      </Container>
+    </Section>
   )
 }

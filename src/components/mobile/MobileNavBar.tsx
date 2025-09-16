@@ -140,7 +140,18 @@ export function MobileBottomNavBar({
   return (
     <>
       {/* Mobile Bottom Navigation - Only visible on small screens */}
-      <div className={`md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-border shadow-lg ${className}`}>
+      <div 
+        className={`md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-border shadow-lg ${className}`}
+        style={{
+          position: 'fixed',
+          bottom: '0px',
+          left: '0px', 
+          right: '0px',
+          zIndex: 99999,
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(12px)'
+        }}
+      >
         <div className="flex items-center justify-around h-16 px-4">
           {/* Back Button - Uses browser history */}
           <button
@@ -173,7 +184,7 @@ export function MobileBottomNavBar({
       </div>
 
       {/* Spacer to prevent content from being hidden behind fixed bottom nav */}
-      <div className="md:hidden h-16" />
+      <div className="md:hidden h-16 w-full" />
     </>
   )
 }

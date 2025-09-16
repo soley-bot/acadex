@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertTriangle, CheckCircle, BarChart3, Lightbulb, Check, Edit, RefreshCw, BookOpen, Clock, Target, Award } from 'lucide-react'
 import { CollapsibleSection } from '@/components/quiz/CollapsibleSection'
+import { ContextualBackButton } from '@/components/navigation/ContextualBackButton'
 import { ResultsExplanation } from '@/components/quiz/ResultsExplanation'
 import { logger } from '@/lib/logger'
 
@@ -96,22 +97,25 @@ export default function QuizResultsPage() {
   if (error || !results) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
-        <div className="max-w-2xl mx-auto px-4 pt-32 text-center">
-          <Card variant="glass" className="text-center p-12">
-            <div className="w-16 h-16 bg-destructive rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <AlertTriangle className="w-8 h-8 text-white" />
-            </div>
-            <h2 className="text-3xl font-semibold text-foreground mb-6">Results Not Found</h2>
-            <p className="text-lg text-muted-foreground mb-8">{error || 'The quiz results could not be found.'}</p>
-            <div className="flex gap-4 justify-center">
-              <Link 
-                href="/quizzes"
-                className="bg-primary hover:bg-secondary text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300"
-              >
-                Back to Quizzes
-              </Link>
-            </div>
-          </Card>
+        <div className="max-w-2xl mx-auto px-4 pt-20 sm:pt-32">
+          
+          {/* Contextual Back Navigation for Error State */}
+          <div className="mb-4 sm:mb-6">
+            <ContextualBackButton
+              href="/quizzes"
+              label="Back to All Quizzes"
+            />
+          </div>
+
+          <div className="text-center">
+            <Card variant="glass" className="text-center p-12">
+              <div className="w-16 h-16 bg-destructive rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <AlertTriangle className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-3xl font-semibold text-foreground mb-6">Results Not Found</h2>
+              <p className="text-lg text-muted-foreground mb-8">{error || 'The quiz results could not be found.'}</p>
+            </Card>
+          </div>
         </div>
       </div>
     )
@@ -123,6 +127,14 @@ export default function QuizResultsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
       <div className="max-w-6xl mx-auto px-3 sm:px-4 pt-16 sm:pt-20 pb-8 sm:pb-12">
+        
+        {/* Contextual Back Navigation */}
+        <div className="mb-4 sm:mb-6">
+          <ContextualBackButton
+            href="/quizzes"
+            label="Back to All Quizzes"
+          />
+        </div>
 
         {/* Results Header - Mobile Optimized */}
         <Card variant="glass" className="text-center p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">

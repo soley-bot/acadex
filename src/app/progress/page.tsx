@@ -8,6 +8,7 @@ import { StudentSidebar } from '@/components/student/StudentSidebar'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { BookOpen, Target, Trophy, Clock, TrendingUp, Award } from 'lucide-react'
+import { ContextualBackButton } from '@/components/navigation/ContextualBackButton'
 
 interface CourseProgress {
   id: string
@@ -245,6 +246,15 @@ export default function ProgressPage() {
         </div>
 
         <div className="p-6">
+          
+          {/* Mobile Contextual Back Navigation */}
+          <div className="lg:hidden mb-4">
+            <ContextualBackButton
+              href="/dashboard"
+              label="Back to Dashboard"
+            />
+          </div>
+
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Learning Progress</h1>

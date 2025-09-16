@@ -22,13 +22,15 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-4">
-        {children}
-      </main>
-      <Footer />
+    <>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="pt-4">
+          {children}
+        </main>
+        <Footer />
+      </div>
       <GlobalMobileNav />
-    </div>
+    </>
   )
 }

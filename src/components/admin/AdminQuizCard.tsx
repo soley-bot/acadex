@@ -40,17 +40,17 @@ export function AdminQuizCard({
 }: AdminQuizCardProps) {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'beginner': return 'bg-success/20 text-success'
-      case 'intermediate': return 'bg-warning/20 text-warning'
-      case 'advanced': return 'bg-destructive/20 text-destructive'
-      default: return 'bg-muted/40 text-muted-foreground'
+      case 'beginner': return 'badge-success'
+      case 'intermediate': return 'badge-warning'
+      case 'advanced': return 'badge-destructive'
+      default: return 'badge-base'
     }
   }
 
   const getStatusBadge = (isPublished: boolean) => {
     return isPublished 
-      ? 'bg-success/20 text-success border border-success/30'
-      : 'bg-warning/20 text-warning border border-warning/30'
+      ? 'badge-success'
+      : 'badge-warning'
   }
 
   const formatDate = (dateString: string) => {

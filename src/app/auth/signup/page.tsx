@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { Loader2, ArrowRight, AlertTriangle, Sparkles, User, BadgeCheck, Crown, Star } from 'lucide-react'
-import { EmailField, PasswordField } from '@/components/auth/FormField'
+import { FormField, EmailField, PasswordField } from '@/components/auth/FormField'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BlobBackground } from '@/components/ui/BlobBackground'
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter'
@@ -24,6 +24,7 @@ function EnhancedSignupForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [passwordValid, setPasswordValid] = useState(false)
+  const [passwordFieldFocused, setPasswordFieldFocused] = useState(false)
   const [step, setStep] = useState(1) // Multi-step form
 
   const validateEmail = (email: string) => {
@@ -182,19 +183,19 @@ function EnhancedSignupForm() {
           <div className="space-y-4 lg:space-y-4">
             {/* Dynamic content based on form state */}
             {error && (
-              <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4 space-y-2">
-                <div className="flex items-center gap-2 text-destructive font-medium">
+              <div className="alert-error space-y-2">
+                <div className="flex items-center gap-2 font-medium">
                   <AlertTriangle className="w-5 h-5" />
                   Sign Up Error
                 </div>
-                <p className="text-destructive text-sm">{error}</p>
+                <p className="text-sm">{error}</p>
               </div>
             )}
 
             {/* Password validation feedback */}
             {step === 2 && formData.password && (
-              <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-3">
-                <div className="flex items-center gap-2 text-primary font-medium">
+              <div className="alert-info space-y-3">
+                <div className="flex items-center gap-2 font-medium">
                   <User className="w-5 h-5" />
                   Password Requirements
                 </div>
@@ -317,12 +318,12 @@ function EnhancedSignupForm() {
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {/* Global Error */}
               {error && (
-                <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4">
+                <div className="alert-error">
                   <div className="flex items-start gap-3">
-                    <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                    <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="text-destructive-foreground font-medium">Unable to create account</h4>
-                      <p className="text-destructive text-sm mt-1">{error}</p>
+                      <h4 className="font-medium">Unable to create account</h4>
+                      <p className="text-sm mt-1">{error}</p>
                     </div>
                   </div>
                 </div>
@@ -336,22 +337,16 @@ function EnhancedSignupForm() {
                   </div>
 
                   {/* Name Field */}
-                  {/* Name Field */}
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="Enter your full name"
-                      required
-                      className="w-full px-4 py-3 border border-input rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
-                    />
-                  </div>                  {/* Email Field */}
+                  <FormField
+                    label="Full Name"
+                    name="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Enter your full name"
+                    required
+                    icon={<User className="w-5 h-5" />}
+                  />                  {/* Email Field */}
                   <EmailField
                     label="Email Address"
                     name="email"
@@ -359,7 +354,6 @@ function EnhancedSignupForm() {
                     onChange={handleChange}
                     placeholder="your.email@example.com"
                     required
-                    validation={formData.email ? validateEmail(formData.email) : undefined}
                   />
                 </>
               )}
@@ -382,10 +376,13 @@ function EnhancedSignupForm() {
                       required
                       showPassword={showPassword}
                       onTogglePassword={() => setShowPassword(!showPassword)}
+                      onFocus={() => setPasswordFieldFocused(true)}
+                      onBlur={() => setPasswordFieldFocused(false)}
                     />
                     <PasswordStrengthMeter 
                       password={formData.password}
                       onValidationChange={setPasswordValid}
+                      isInputFocused={passwordFieldFocused}
                     />
                   </div>
 
@@ -399,7 +396,6 @@ function EnhancedSignupForm() {
                     required
                     showPassword={showConfirmPassword}
                     onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
-                    validation={formData.confirmPassword ? validatePasswordMatch(formData.password, formData.confirmPassword) : undefined}
                   />
                 </>
               )}
@@ -419,7 +415,7 @@ function EnhancedSignupForm() {
                 <button
                   type="submit"
                   disabled={loading || (step === 1 && !canProceedToStep2()) || (step === 2 && !canSubmit())}
-                  className="w-full bg-primary hover:bg-secondary text-white py-3 px-4 rounded-xl font-medium shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02]"
+                  className="btn btn-default btn-lg w-full"
                 >
                   {loading ? (
                     <div className="flex items-center justify-center gap-2">
@@ -456,7 +452,7 @@ function EnhancedSignupForm() {
                 type="button"
                 onClick={handleGoogleSignup}
                 disabled={loading}
-                className="mt-4 w-full flex items-center justify-center gap-3 px-4 py-3 border border-input rounded-xl bg-white text-foreground hover:bg-muted hover:border-input disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+                className="btn btn-outline w-full mt-4"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

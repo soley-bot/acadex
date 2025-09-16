@@ -123,16 +123,17 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/10 via-white to-secondary/10">
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center bg-white p-8 rounded-2xl shadow-xl border border-gray-200 max-w-md mx-auto">
+          <div className="alert-error text-center max-w-md mx-auto">
             <div className="w-16 h-16 bg-destructive/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <Icon name="warning" size={24} color="error" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Unable to Load Dashboard</h3>
-            <p className="text-primary mb-4 text-sm">{error}</p>
+            <h3 className="text-lg font-semibold mb-2">Unable to Load Dashboard</h3>
+            <p className="text-sm mb-4">{error}</p>
             <button 
               onClick={fetchDashboardStats}
-              className="bg-primary hover:bg-primary/90 text-secondary px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-md hover:shadow-lg"
+              className="btn btn-default"
             >
+              Try Again
             </button>
           </div>
         </div>
@@ -146,40 +147,40 @@ export default function AdminDashboard() {
       value: stats.totalUsers.toLocaleString(),
       description: 'Registered learners',
       icon: 'users',
-      color: 'text-secondary',
-      bgColor: 'bg-blue-50'
+      color: 'text-primary',
+      bgColor: 'bg-primary/10'
     },
     {
       title: 'Total Courses',
       value: stats.totalCourses.toLocaleString(),
       description: 'Educational content',
       icon: 'book',
-      color: 'text-green-600',
-      bgColor: 'bg-green-50'
+      color: 'text-success',
+      bgColor: 'bg-success/10'
     },
     {
       title: 'Published Courses',
       value: stats.publishedCourses.toLocaleString(),
       description: 'Active learning paths',
       icon: 'check-circle',
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-50'
+      color: 'text-success',
+      bgColor: 'bg-success/10'
     },
     {
       title: 'Total Quizzes',
       value: stats.totalQuizzes.toLocaleString(),
       description: 'Assessment tools',
       icon: 'help',
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50'
+      color: 'text-secondary',
+      bgColor: 'bg-secondary/10'
     },
     {
       title: 'Quiz Attempts',
       value: stats.totalAttempts.toLocaleString(),
       description: 'Learning assessments',
       icon: 'edit',
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50'
+      color: 'text-warning',
+      bgColor: 'bg-warning/10'
     },
     {
       title: 'Total Revenue',
@@ -187,7 +188,7 @@ export default function AdminDashboard() {
       description: 'Platform earnings',
       icon: 'dollar',
       color: 'text-primary',
-      bgColor: 'bg-primary/5'
+      bgColor: 'bg-primary/10'
     }
   ]
 
@@ -212,9 +213,9 @@ export default function AdminDashboard() {
               <div className={`inline-block p-3 ${stat.bgColor} rounded-xl mb-4`}>
                 <Icon name={stat.icon as any} size={24} className={stat.color} />
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
-              <BodyLG className="text-gray-700 mb-1">{stat.title}</BodyLG>
-              <BodyMD className="text-gray-500">{stat.description}</BodyMD>
+              <div className="text-3xl font-bold text-foreground mb-2">{stat.value}</div>
+              <BodyLG className="text-foreground mb-1">{stat.title}</BodyLG>
+              <BodyMD className="text-muted-foreground">{stat.description}</BodyMD>
             </Card>
           ))}
         </Grid>
@@ -234,22 +235,22 @@ export default function AdminDashboard() {
                 <div className="flex items-center p-3 rounded-lg bg-secondary/10">
                   <div className="w-3 h-3 bg-secondary rounded-full mr-4"></div>
                   <div className="flex-1">
-                    <BodyMD className="text-gray-900 font-semibold">New user registered</BodyMD>
-                    <BodyMD className="text-gray-500 text-xs">2 minutes ago</BodyMD>
+                    <BodyMD className="text-foreground font-semibold">New user registered</BodyMD>
+                    <BodyMD className="text-muted-foreground text-xs">2 minutes ago</BodyMD>
                   </div>
                 </div>
                 <div className="flex items-center p-3 rounded-lg bg-success/10">
                   <div className="w-3 h-3 bg-success rounded-full mr-4"></div>
                   <div className="flex-1">
-                    <BodyMD className="text-gray-900 font-semibold">Course published</BodyMD>
-                    <BodyMD className="text-gray-500 text-xs">1 hour ago</BodyMD>
+                    <BodyMD className="text-foreground font-semibold">Course published</BodyMD>
+                    <BodyMD className="text-muted-foreground text-xs">1 hour ago</BodyMD>
                   </div>
                 </div>
                 <div className="flex items-center p-3 rounded-lg bg-primary/10">
                   <div className="w-3 h-3 bg-primary rounded-full mr-4"></div>
                   <div className="flex-1">
-                    <BodyMD className="text-gray-900 font-semibold">Quiz completed</BodyMD>
-                    <BodyMD className="text-gray-500 text-xs">3 hours ago</BodyMD>
+                    <BodyMD className="text-foreground font-semibold">Quiz completed</BodyMD>
+                    <BodyMD className="text-muted-foreground text-xs">3 hours ago</BodyMD>
                   </div>
                 </div>
               </div>
@@ -268,45 +269,45 @@ export default function AdminDashboard() {
             <div className="space-y-3">
               <button 
                 onClick={() => router.push('/admin/users')}
-                className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:bg-primary/10 transition-all duration-200 group"
+                className="w-full text-left p-4 card-interactive"
               >
                 <div className="flex items-center">
                   <div className="bg-secondary/10 p-2 rounded-lg mr-3 group-hover:bg-primary/20 transition-colors">
                     <Icon name="user" size={20} color="current" className="text-secondary" />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">Manage Users</div>
-                    <div className="text-sm text-gray-500">View and manage user accounts</div>
+                    <div className="font-semibold text-foreground">Manage Users</div>
+                    <div className="text-sm text-muted-foreground">View and manage user accounts</div>
                   </div>
                 </div>
               </button>
               
               <button 
                 onClick={() => router.push('/admin/courses/create')}
-                className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200 group"
+                className="w-full text-left p-4 card-interactive"
               >
                 <div className="flex items-center">
-                  <div className="bg-green-100 p-2 rounded-lg mr-3 group-hover:bg-green-200 transition-colors">
-                    <Icon name="add" size={20} color="current" className="text-green-600" />
+                  <div className="bg-success/10 p-2 rounded-lg mr-3 group-hover:bg-success/20 transition-colors">
+                    <Icon name="add" size={20} color="current" className="text-success" />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">Create Course</div>
-                    <div className="text-sm text-gray-500">Add a new course to the platform</div>
+                    <div className="font-semibold text-foreground">Create Course</div>
+                    <div className="text-sm text-muted-foreground">Add a new course to the platform</div>
                   </div>
                 </div>
               </button>
               
               <button 
                 onClick={() => router.push('/admin/quizzes')}
-                className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all duration-200 group"
+                className="w-full text-left p-4 card-interactive"
               >
                 <div className="flex items-center">
-                  <div className="bg-purple-100 p-2 rounded-lg mr-3 group-hover:bg-purple-200 transition-colors">
-                    <Icon name="help" size={20} color="current" className="text-purple-600" />
+                  <div className="bg-secondary/10 p-2 rounded-lg mr-3 group-hover:bg-secondary/20 transition-colors">
+                    <Icon name="help" size={20} color="current" className="text-secondary" />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">Manage Quizzes</div>
-                    <div className="text-sm text-gray-500">Create and manage quiz assessments</div>
+                    <div className="font-semibold text-foreground">Manage Quizzes</div>
+                    <div className="text-sm text-muted-foreground">Create and manage quiz assessments</div>
                   </div>
                 </div>
               </button>

@@ -9,6 +9,7 @@ import { CourseHeader } from '@/components/course/CourseHeader'
 import { CourseSidebar } from '@/components/course/CourseSidebar'
 import { LessonContent } from '@/components/course/LessonContent'
 import { logger } from '@/lib/logger'
+import { ContextualBackButton } from '@/components/navigation/ContextualBackButton'
 
 interface ModuleWithContent extends CourseModule {
   course_lessons: (CourseLesson & {
@@ -467,7 +468,16 @@ export default function CourseStudyPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-screen flex flex-col bg-background relative">
+      
+      {/* Mobile-Only Contextual Back Navigation Overlay */}
+      <div className="lg:hidden absolute top-4 left-4 z-50">
+        <ContextualBackButton
+          href="/courses"
+          label="Back to Courses"
+        />
+      </div>
+
       {/* Course Header */}
       <CourseHeader
         course={course}

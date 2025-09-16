@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, Download, FileText, Play, CheckCircle, Clock, Users } from 'lucide-react'
 import { CourseLesson, CourseResource, LessonProgress } from '@/lib/supabase'
 import { YouTubePlayer } from './YouTubePlayer'
@@ -28,8 +28,74 @@ export function LessonContent({
   hasPrevious
 }: LessonContentProps) {
   const [showResources, setShowResources] = useState(false)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null)
   
   const isCompleted = lesson.progress?.is_completed || false
+
+  // Mobile swipe gesture handling
+  useEffect(() => {
+    const element = contentRef.current
+    if (!element) return
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return
+      const touch = e.touches[0]
+      if (!touch) return
+      touchStartRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        time: Date.now()
+      }
+    }
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!touchStartRef.current || e.changedTouches.length !== 1) return
+      
+      const touch = e.changedTouches[0]
+      if (!touch) return
+      const deltaX = touch.clientX - touchStartRef.current.x
+      const deltaY = touch.clientY - touchStartRef.current.y
+      const deltaTime = Date.now() - touchStartRef.current.time
+      
+      // Only process quick swipes (< 300ms) with significant horizontal movement
+      if (deltaTime < 300 && Math.abs(deltaX) > 50 && Math.abs(deltaY) < 100) {
+        if (deltaX > 0 && hasPrevious && onPrevious) {
+          // Swipe right = previous lesson
+          onPrevious()
+        } else if (deltaX < 0 && hasNext && onNext) {
+          // Swipe left = next lesson
+          onNext()
+        }
+      }
+      
+      touchStartRef.current = null
+    }
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!touchStartRef.current) return
+      
+      // Prevent default scrolling if horizontal swipe is detected
+      const touch = e.touches[0]
+      if (!touch) return
+      const deltaX = Math.abs(touch.clientX - touchStartRef.current.x)
+      const deltaY = Math.abs(touch.clientY - touchStartRef.current.y)
+      
+      if (deltaX > deltaY && deltaX > 30) {
+        e.preventDefault()
+      }
+    }
+
+    element.addEventListener('touchstart', handleTouchStart, { passive: true })
+    element.addEventListener('touchend', handleTouchEnd, { passive: true })
+    element.addEventListener('touchmove', handleTouchMove, { passive: false })
+
+    return () => {
+      element.removeEventListener('touchstart', handleTouchStart)
+      element.removeEventListener('touchend', handleTouchEnd)
+      element.removeEventListener('touchmove', handleTouchMove)
+    }
+  }, [hasNext, hasPrevious, onNext, onPrevious])
 
   const handleVideoEnd = () => {
     if (!isCompleted && onComplete) {
@@ -63,16 +129,38 @@ export function LessonContent({
         
         <h1 className="text-2xl font-bold text-foreground mb-2">{lesson.title}</h1>
         
-        {lesson.duration_minutes && (
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Clock size={16} />
-            <span>{lesson.duration_minutes} minutes</span>
+        <div className="flex items-center justify-between">
+          {lesson.duration_minutes && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Clock size={16} />
+              <span>{lesson.duration_minutes} minutes</span>
+            </div>
+          )}
+          
+          {/* Mobile: Swipe hint */}
+          <div className="lg:hidden flex items-center gap-4 text-xs text-muted-foreground">
+            {hasPrevious && (
+              <div className="flex items-center gap-1 opacity-60">
+                <ChevronLeft size={12} />
+                <span>Swipe</span>
+              </div>
+            )}
+            {hasNext && (
+              <div className="flex items-center gap-1 opacity-60">
+                <span>Swipe</span>
+                <ChevronRight size={12} />
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-8">
+      {/* Main Content - With mobile swipe support */}
+      <div 
+        ref={contentRef}
+        className="flex-1 overflow-y-auto p-6 space-y-8 touch-pan-y"
+        style={{ touchAction: 'pan-y' }} // Allow vertical scrolling, horizontal for swipe
+      >
         {/* Video Player */}
         {lesson.video_url && (
           <div className="max-w-4xl mx-auto">
@@ -189,44 +277,67 @@ export function LessonContent({
         )}
       </div>
 
-      {/* Navigation Footer */}
-      <div className="border-t border-border p-6">
-        <div className="flex items-center justify-between">
+      {/* Navigation Footer - Enhanced for mobile */}
+      <div className="border-t border-border p-4 lg:p-6">
+        <div className="flex items-center justify-between gap-4">
           <button
             onClick={onPrevious}
             disabled={!hasPrevious}
             className={`
-              flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors
+              flex items-center gap-2 px-4 py-3 lg:px-6 rounded-xl font-medium 
+              transition-all duration-200 touch-manipulation min-h-[48px] flex-1 max-w-[140px]
               ${hasPrevious 
-                ? 'bg-muted hover:bg-muted/80 text-foreground' 
-                : 'bg-muted/50 text-muted-foreground cursor-not-allowed'
+                ? 'bg-muted hover:bg-muted/80 text-foreground active:scale-95 shadow-sm hover:shadow-md' 
+                : 'bg-muted/50 text-muted-foreground cursor-not-allowed opacity-50'
               }
             `}
+            style={{ touchAction: 'manipulation' }}
           >
             <ChevronLeft size={16} />
-            Previous
+            <span className="hidden sm:inline">Previous</span>
+            <span className="sm:hidden">Prev</span>
           </button>
 
-          <div className="text-center">
+          {/* Center content - Mobile optimized */}
+          <div className="text-center flex-1 px-2">
             <p className="text-sm text-muted-foreground">
-              {isCompleted ? 'Lesson completed!' : 'Continue learning'}
+              {isCompleted ? '✅ Completed!' : 'Continue learning'}
             </p>
+            {!isCompleted && onComplete && (
+              <button
+                onClick={onComplete}
+                className="mt-1 text-xs text-primary hover:text-primary/80 underline touch-manipulation"
+                style={{ touchAction: 'manipulation' }}
+              >
+                Mark complete
+              </button>
+            )}
           </div>
 
           <button
             onClick={onNext}
             disabled={!hasNext}
             className={`
-              flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors
+              flex items-center gap-2 px-4 py-3 lg:px-6 rounded-xl font-medium 
+              transition-all duration-200 touch-manipulation min-h-[48px] flex-1 max-w-[140px]
               ${hasNext 
-                ? 'bg-primary hover:bg-secondary text-white hover:text-black' 
-                : 'bg-muted/50 text-muted-foreground cursor-not-allowed'
+                ? 'bg-primary hover:bg-secondary text-white hover:text-black active:scale-95 shadow-sm hover:shadow-md' 
+                : 'bg-muted/50 text-muted-foreground cursor-not-allowed opacity-50'
               }
             `}
+            style={{ touchAction: 'manipulation' }}
           >
-            Next
+            <span className="hidden sm:inline">Next</span>
+            <span className="sm:hidden">Next</span>
             <ChevronRight size={16} />
           </button>
+        </div>
+        
+        {/* Mobile: Navigation hint */}
+        <div className="lg:hidden mt-3 text-center">
+          <p className="text-xs text-muted-foreground/70">
+            💡 Tip: Swipe left/right to navigate between lessons
+          </p>
         </div>
       </div>
     </div>

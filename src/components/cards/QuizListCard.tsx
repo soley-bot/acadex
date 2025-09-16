@@ -130,7 +130,7 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
         </div>
 
         {/* Card Content - Below Image */}
-        <CardContent className="p-4 flex-1 flex flex-col">
+        <CardContent className="p-3.5 flex-1 flex flex-col">
           {/* Title and Status Row */}
           <div className="flex items-start justify-between gap-3 mb-2">
             <h3 className="font-semibold text-foreground text-lg sm:text-xl line-clamp-2 leading-tight flex-1">
@@ -153,13 +153,13 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
           </div>
 
           {/* Description */}
-          <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 mb-3 flex-1">
+          <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 mb-2.5 flex-1">
             {quiz.description}
           </p>
 
           {/* Quiz Meta - Stack on Mobile */}
-          <div className="mb-3">
-            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
+          <div className="mb-2.5">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-1.5">
               <div className="flex items-center gap-1">
                 <Brain className="w-4 h-4" />
                 <span>{quiz.total_questions}q</span>
@@ -181,7 +181,7 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
 
           {/* Score Display for Completed Quizzes */}
           {showProgress && user && getScoreDisplay() && (
-            <div className="mb-3">
+            <div className="mb-2">
               {getScoreDisplay()}
             </div>
           )}

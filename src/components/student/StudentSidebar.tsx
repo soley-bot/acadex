@@ -68,13 +68,13 @@ export function StudentSidebar({ onMobileClose }: { onMobileClose?: () => void }
   }
 
   return (
-    <div className="w-64 bg-sidebar text-white flex flex-col h-full shadow-xl">
+    <div className="w-64 glass flex flex-col h-full shadow-xl">
       {/* Mobile close button */}
       {onMobileClose && (
         <div className="lg:hidden flex justify-end p-4">
           <button
             onClick={onMobileClose}
-            className="p-2 rounded-md hover:bg-sidebar-accent text-white"
+            className="btn btn-ghost btn-sm"
             aria-label="Close menu"
           >
             <X className="w-6 h-6" />
@@ -83,14 +83,14 @@ export function StudentSidebar({ onMobileClose }: { onMobileClose?: () => void }
       )}
 
       {/* Header */}
-      <div className="p-6 border-b border-sidebar-accent">
-        <h1 className="text-xl lg:text-2xl font-bold text-white">Acadex</h1>
-        <p className="text-sm text-gray-300 mt-1">Learning Dashboard</p>
+      <div className="p-6 border-b border-border">
+        <h1 className="text-xl lg:text-2xl font-bold text-foreground">Acadex</h1>
+        <p className="text-sm text-muted-foreground mt-1">Learning Dashboard</p>
       </div>
 
       {/* User Info */}
       {user && (
-        <div className="px-6 py-4 border-b border-sidebar-accent bg-sidebar-accent/30">
+        <div className="px-6 py-4 border-b border-border bg-muted/30">
           <div className="flex items-center">
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
               {user.avatar_url ? (
@@ -108,8 +108,8 @@ export function StudentSidebar({ onMobileClose }: { onMobileClose?: () => void }
               )}
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-white">{user.name || 'User'}</p>
-              <p className="text-xs text-gray-300 capitalize">Student</p>
+              <p className="text-sm font-medium text-foreground">{user.name || 'User'}</p>
+              <p className="text-xs text-muted-foreground capitalize">Student</p>
             </div>
           </div>
         </div>
@@ -130,8 +130,8 @@ export function StudentSidebar({ onMobileClose }: { onMobileClose?: () => void }
                 className={cn(
                   'group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200',
                   isActive
-                    ? 'bg-primary text-white shadow-md'
-                    : 'text-gray-300 hover:bg-sidebar-accent hover:text-white'
+                    ? 'bg-primary text-primary-foreground shadow-md'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 )}
               >
                 <Icon className="w-5 h-5 mr-3" />
@@ -143,10 +143,10 @@ export function StudentSidebar({ onMobileClose }: { onMobileClose?: () => void }
       </nav>
 
       {/* Sign Out Button */}
-      <div className="p-4 border-t border-sidebar-accent">
+      <div className="p-4 border-t border-border">
         <button 
           onClick={handleSignOut}
-          className="w-full bg-primary hover:bg-secondary text-white hover:text-black px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 shadow-sm flex items-center justify-center"
+          className="btn btn-default w-full flex items-center justify-center"
         >
           Sign Out
         </button>

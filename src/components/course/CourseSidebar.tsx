@@ -56,21 +56,35 @@ export function CourseSidebar({
 
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* Mobile Overlay - Enhanced with touch feedback */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden" 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300" 
           onClick={onClose}
+          style={{ touchAction: 'none' }} // Prevent scrolling behind overlay
         />
       )}
       
-      {/* Sidebar */}
+      {/* Sidebar - Enhanced mobile experience */}
       <aside className={`
-        fixed lg:sticky top-0 left-0 h-screen w-80 bg-background border-r border-border z-50
+        fixed lg:sticky top-0 left-0 h-screen w-80 glass z-50
         transform transition-transform duration-300 ease-in-out lg:transform-none
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        flex flex-col
+        flex flex-col touch-manipulation
       `}>
+        {/* Mobile Close Handle - Swipe indicator */}
+        <div className="lg:hidden absolute top-4 right-4 z-10">
+          <button
+            onClick={onClose}
+            className="w-8 h-8 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-all active:scale-95"
+            aria-label="Close course navigation"
+          >
+            <svg className="w-4 h-4 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
         {/* Sidebar Header */}
         <div className="p-6 border-b border-border">
           <h2 className="text-lg font-semibold text-foreground mb-2">Course Content</h2>
@@ -87,7 +101,7 @@ export function CourseSidebar({
               const progress = calculateModuleProgress(module)
               
               return (
-                <div key={module.id} className="border border-border rounded-lg overflow-hidden">
+                <div key={module.id} className="card-base overflow-hidden">
                   {/* Module Header */}
                   <button
                     onClick={() => onToggleModule(module.id)}
@@ -147,14 +161,19 @@ export function CourseSidebar({
                             key={lesson.id}
                             onClick={() => onSelectLesson(lesson)}
                             className={`
-                              w-full p-4 text-left hover:bg-muted/30 transition-colors flex items-center gap-3
-                              ${isCurrentLesson ? 'bg-primary/10 border-l-4 border-l-primary' : ''}
+                              w-full p-4 text-left transition-all duration-200 flex items-center gap-3
+                              min-h-[56px] touch-manipulation
+                              hover:bg-muted/30 active:bg-muted/50 active:scale-[0.98]
+                              ${isCurrentLesson ? 'bg-primary/10 border-l-4 border-l-primary shadow-sm' : 'hover:shadow-sm'}
                             `}
+                            style={{ touchAction: 'manipulation' }} // Optimize for touch
                           >
-                            {getStatusIcon(status, lesson)}
+                            <div className="flex-shrink-0">
+                              {getStatusIcon(status, lesson)}
+                            </div>
                             
                             <div className="flex-1 min-w-0">
-                              <div className={`font-medium truncate ${
+                              <div className={`font-medium truncate leading-tight ${
                                 isCurrentLesson ? 'text-primary' : 'text-foreground'
                               }`}>
                                 {lessonIndex + 1}. {lesson.title}
@@ -174,8 +193,21 @@ export function CourseSidebar({
                                     <span>Video</span>
                                   </div>
                                 )}
+                                
+                                {status === 'completed' && (
+                                  <span className="text-xs bg-success/10 text-success px-2 py-0.5 rounded-full font-medium">
+                                    Complete
+                                  </span>
+                                )}
                               </div>
                             </div>
+                            
+                            {/* Mobile: Show arrow for current lesson */}
+                            {isCurrentLesson && (
+                              <div className="lg:hidden flex-shrink-0">
+                                <ChevronRight size={16} className="text-primary" />
+                              </div>
+                            )}
                           </button>
                         )
                       })}

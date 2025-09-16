@@ -280,10 +280,10 @@ export default function QuizzesPageWithReactQuery() {
 
       {/* Content Section - Mobile First */}
       <section className="py-6 md:py-12">
-        <div className="container mx-auto px-2 sm:px-4">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
           {/* Loading State - Wider Cards on Mobile */}
           {isLoading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
               {Array.from({ length: 6 }).map((_, i) => (
                 <Card key={i} className="p-4 md:p-6">
                   <div className="animate-pulse">
@@ -339,7 +339,7 @@ export default function QuizzesPageWithReactQuery() {
 
           {/* Quiz Grid - Wider Cards on Mobile */}
           {!isLoading && !error && quizzes.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
               {quizzes.map((quiz) => (
                 <QuizListCard
                   key={quiz.id}
