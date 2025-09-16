@@ -17,6 +17,9 @@ export const metadata: Metadata = {
     'self-directed learning',
     'ielts preparation cambodia'
   ],
+  alternates: {
+    canonical: 'https://acadex.academy/about',
+  },
 }
 
 export default function AboutPage() {

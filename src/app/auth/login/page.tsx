@@ -1,5 +1,6 @@
 'use client'
 
+import { Metadata } from 'next'
 import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'

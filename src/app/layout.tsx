@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   creator: 'Acadex',
   publisher: 'Acadex',
   metadataBase: new URL('https://acadex.academy'),
+  alternates: {
+    canonical: 'https://acadex.academy',
+  },
   icons: {
     icon: [
       { url: '/icon', sizes: '32x32', type: 'image/png' },

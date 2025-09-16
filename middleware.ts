@@ -46,6 +46,16 @@ export async function middleware(request: NextRequest) {
     response = withCORS(response, origin || undefined)
   }
 
+  // Skip auth checks for public routes and static files
+  if (pathname.startsWith('/auth/') || 
+      pathname.startsWith('/_next/') ||
+      pathname.includes('.') ||
+      pathname === '/favicon.ico' ||
+      pathname === '/robots.txt' ||
+      pathname === '/sitemap.xml') {
+    return response
+  }
+
   // UNIFIED AUTH CHECK - Handles both admin and protected routes
   const authResult = await getAuthResult(request, pathname)
   
@@ -237,6 +247,15 @@ if (typeof setInterval !== 'undefined') {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|public/|images/|svgicon/|Icons8/).*)',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico, robots.txt, sitemap.xml (SEO files)
+     * - public folder files
+     * - file extensions (images, fonts, etc.)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|icon|apple-icon|opengraph-image|.*\\.[a-zA-Z0-9]+$).*)',
   ],
 }

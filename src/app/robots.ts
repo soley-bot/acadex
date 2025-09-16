@@ -5,7 +5,19 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin/', '/api/', '/dashboard/'],
+      disallow: [
+        '/admin/',
+        '/api/',
+        '/dashboard/',
+        '/auth-check',
+        '/database-setup',
+        '/create-admin',
+        '/unauthorized',
+        '/test-*',
+        '/optimized-search',
+        '/profile',
+        '/progress',
+      ],
     },
     sitemap: 'https://acadex.academy/sitemap.xml',
   }

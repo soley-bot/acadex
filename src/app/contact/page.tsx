@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     'ielts quiz feedback',
     'contact soley heng'
   ],
+  alternates: {
+    canonical: 'https://acadex.academy/contact',
+  },
 }
 
 // Server Component - handles metadata and renders the client component
