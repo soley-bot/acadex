@@ -4,10 +4,11 @@ import { logger } from '@/lib/logger'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Brain, Loader2, Filter, RefreshCcw, BookCheck } from 'lucide-react'
+import { Brain, Loader2, Filter, RefreshCcw, BookCheck, Search } from 'lucide-react'
 import { Pagination } from '@/components/ui/Pagination'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { QuizListCard } from '@/components/cards/QuizListCard'
 import { getHeroImage } from '@/lib/imageMapping'
 import { quizDifficulties } from '@/lib/quizConstants'
@@ -153,30 +154,31 @@ export default function QuizzesPageWithReactQuery() {
         </div>
       </section>
 
-      {/* Filters Section - Mobile First */}
-      <section className="py-4 md:py-6 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-40 shadow-sm">
-        <div className="container mx-auto px-2 sm:px-4">
-          {/* Mobile-first search and filter toggle */}
-          <div className="space-y-4">
-            {/* Search Bar - Full width on mobile */}
-            <div className="w-full">
-              <TextInput
-                placeholder="Search IELTS topics (e.g. Environment, Grammar)..."
+      {/* Filters Section - Compact Layout */}
+      <section className="py-3 md:py-4 border-b bg-gradient-to-r from-background/95 via-background to-background/95 backdrop-blur-md sticky top-0 z-40 shadow-sm border-border/20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          {/* Search and Filter Controls - Compact Single Row */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            {/* Search Bar - More compact */}
+            <div className="relative flex-1 min-w-0 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search topics..."
                 value={searchTerm}
-                onChange={handleSearchChange}
-                className="w-full text-base md:text-sm"
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="w-full pl-10 h-9 text-sm border-border/40 focus:border-primary/60 focus:ring-1 focus:ring-primary/30 bg-background/80 backdrop-blur-sm"
               />
             </div>
 
-            {/* Filter Controls Row */}
-            <div className="flex items-center justify-between gap-3">
+            {/* Filter Controls - Compact */}
+            <div className="flex items-center gap-2 shrink-0">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                className="gap-2 text-sm"
+                className="gap-2 text-xs h-9 px-3"
               >
-                <Filter className="w-4 h-4" />
+                <Filter className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Filters</span>
                 {hasActiveFilters && (
                   <Badge variant="secondary" className="ml-1 px-1.5 py-0.5 text-xs">
@@ -185,39 +187,26 @@ export default function QuizzesPageWithReactQuery() {
                 )}
               </Button>
 
-              <div className="flex items-center gap-2">
-                {/* Refresh Button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => refetch()}
-                  disabled={isFetching}
-                  className="gap-2 text-sm"
-                >
-                  <RefreshCcw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
-                  <span className="hidden sm:inline">{isFetching ? 'Refreshing...' : 'Refresh'}</span>
-                </Button>
-
-                {hasActiveFilters && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearFilters}
-                    className="text-sm"
-                  >
-                    <span className="hidden sm:inline">Clear</span>
-                    <span className="sm:hidden">✕</span>
-                  </Button>
-                )}
-              </div>
+              {/* Compact Refresh Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetch()}
+                disabled={isFetching}
+                className="gap-2 text-xs h-9 px-3"
+              >
+                <RefreshCcw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">{isFetching ? 'Updating...' : 'Refresh'}</span>
+              </Button>
             </div>
+          </div>
 
-            {/* Advanced Filters - Mobile Optimized */}
-            {showAdvancedFilters && (
-              <div className="pt-4 border-t space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Advanced Filters - Compact */}
+          {showAdvancedFilters && (
+              <div className="pt-3 border-t space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
                       Category
                     </label>
                     <SelectInput
@@ -228,12 +217,12 @@ export default function QuizzesPageWithReactQuery() {
                         ...categories.map(cat => ({ value: cat, label: cat }))
                       ]}
                       placeholder="All Categories"
-                      className="w-full"
+                      className="w-full h-8 text-sm"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
                       Difficulty
                     </label>
                     <SelectInput
@@ -247,15 +236,15 @@ export default function QuizzesPageWithReactQuery() {
                         }))
                       ]}
                       placeholder="All Difficulties"
-                      className="w-full"
+                      className="w-full h-8 text-sm"
                     />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Results Count and Status - Mobile Friendly */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-600">
+            {/* Results Count - Compact */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-xs text-gray-600 pt-2">
               <div className="flex items-center gap-2">
                 <span>
                   {quizzes.length} of {totalQuizzes} quizzes
@@ -268,28 +257,27 @@ export default function QuizzesPageWithReactQuery() {
                 )}
               </div>
               {isFetching && (
-                <div className="flex items-center gap-2 text-primary">
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                <div className="flex items-center gap-1 text-primary">
+                  <Loader2 className="w-3 h-3 animate-spin" />
                   <span>Updating...</span>
                 </div>
               )}
             </div>
           </div>
-        </div>
       </section>
 
-      {/* Content Section - Mobile First */}
-      <section className="py-6 md:py-12">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
-          {/* Loading State - Wider Cards on Mobile */}
+      {/* Content Section - Compact Layout */}
+      <section className="py-4 md:py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          {/* Loading State - Compact Cards */}
           {isLoading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i} className="p-4 md:p-6">
+                <Card key={i} className="p-4">
                   <div className="animate-pulse">
-                    <div className="h-3 md:h-4 bg-gray-200 rounded w-3/4 mb-3 md:mb-4"></div>
-                    <div className="h-2 md:h-3 bg-gray-200 rounded w-full mb-2"></div>
-                    <div className="h-2 md:h-3 bg-gray-200 rounded w-2/3 mb-3 md:mb-4"></div>
+                    <div className="h-3 bg-gray-200 rounded w-3/4 mb-3"></div>
+                    <div className="h-2 bg-gray-200 rounded w-full mb-2"></div>
+                    <div className="h-2 bg-gray-200 rounded w-2/3 mb-3"></div>
                     <div className="flex gap-2 mb-3 md:mb-4">
                       <div className="h-5 md:h-6 bg-gray-200 rounded w-12 md:w-16"></div>
                       <div className="h-5 md:h-6 bg-gray-200 rounded w-16 md:w-20"></div>
@@ -337,9 +325,9 @@ export default function QuizzesPageWithReactQuery() {
             </Card>
           )}
 
-          {/* Quiz Grid - Wider Cards on Mobile */}
+          {/* Quiz Grid - Compact Layout */}
           {!isLoading && !error && quizzes.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {quizzes.map((quiz) => (
                 <QuizListCard
                   key={quiz.id}
@@ -349,9 +337,9 @@ export default function QuizzesPageWithReactQuery() {
             </div>
           )}
 
-          {/* Pagination - Mobile Friendly */}
+          {/* Pagination - Compact */}
           {!isLoading && !error && totalPages > 1 && (
-            <div className="mt-8 md:mt-12 px-4">
+            <div className="mt-6 md:mt-8">
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}

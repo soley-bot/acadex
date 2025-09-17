@@ -177,16 +177,22 @@ export default function CoursesPage() {
                     <Filter className="h-4 w-4 text-secondary" />
                     Category
                   </label>
-                  <select
+                  <select 
                     id="category"
-                    value={selectedCategory}
+                    value={selectedCategory} 
                     onChange={(e) => handleCategoryChange(e.target.value)}
-                    className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                    className="w-full px-4 py-3 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   >
                     <option value="all">All Categories</option>
-                    {categories.map((category: string) => (
-                      <option key={category} value={category}>{category}</option>
-                    ))}
+                    {categoriesLoading ? (
+                      <option disabled>Loading...</option>
+                    ) : (
+                      categories.map((category: string) => (
+                        <option key={category} value={category}>
+                          {category.charAt(0).toUpperCase() + category.slice(1)}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
 
@@ -195,11 +201,11 @@ export default function CoursesPage() {
                     <GraduationCap className="h-4 w-4 text-secondary" />
                     Level
                   </label>
-                  <select
+                  <select 
                     id="level"
-                    value={selectedLevel}
+                    value={selectedLevel} 
                     onChange={(e) => handleLevelChange(e.target.value)}
-                    className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                    className="w-full px-4 py-3 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   >
                     <option value="all">All Levels</option>
                     <option value="beginner">Beginner</option>

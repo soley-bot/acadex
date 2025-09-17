@@ -55,18 +55,18 @@ export function useOptimizedCourses(filters: CourseFilters = {}) {
           category,
           level,
           duration,
-          total_lessons,
           price,
-          discount_price,
           status,
           instructor_name,
-          instructor_avatar,
           rating,
-          total_students,
+          student_count,
+          is_published,
+          is_free,
+          original_price,
           created_at,
           updated_at
         `, { count: 'exact' })
-        .eq('status', 'published')
+        .eq('is_published', true)
 
       // Apply filters
       if (category && category !== 'all') {
@@ -126,7 +126,7 @@ export function useOptimizedCategories() {
       const { data, error } = await supabase
         .from('courses')
         .select('category')
-        .eq('status', 'published')
+        .eq('is_published', true)
         .not('category', 'is', null)
 
       if (error) {
@@ -158,7 +158,7 @@ export function useOptimizedCourse(id: string) {
         .from('courses')
         .select('*')
         .eq('id', id)
-        .eq('status', 'published')
+        .eq('is_published', true)
         .single()
 
       if (error) {
@@ -202,18 +202,18 @@ export function usePrefetchCourses() {
               category,
               level,
               duration,
-              total_lessons,
               price,
-              discount_price,
               status,
               instructor_name,
-              instructor_avatar,
               rating,
-              total_students,
+              student_count,
+              is_published,
+              is_free,
+              original_price,
               created_at,
               updated_at
             `, { count: 'exact' })
-            .eq('status', 'published')
+            .eq('is_published', true)
 
           // Apply same filters
           if (nextFilters.category && nextFilters.category !== 'all') {
@@ -260,7 +260,7 @@ export function usePrefetchCourses() {
             .from('courses')
             .select('*')
             .eq('id', courseId)
-            .eq('status', 'published')
+            .eq('is_published', true)
             .single()
 
           if (error) {

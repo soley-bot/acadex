@@ -83,8 +83,8 @@ export const OptimizedCourseCard = memo<OptimizedCourseCardProps>(({
         {/* Course Image */}
         <div className="relative overflow-hidden rounded-t-lg aspect-video">
           <Image
-            {...imageProps}
-            alt={course.title}
+            src={imageProps.src}
+            alt={imageProps.alt || course.title}
             fill
             priority={priority}
             className="object-cover transition-transform duration-300 group-hover:scale-105"
