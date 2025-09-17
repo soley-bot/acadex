@@ -14,7 +14,7 @@ import { getHeroImage } from '@/lib/imageMapping'
 import { quizDifficulties } from '@/lib/quizConstants'
 import { useQuizzes, useQuizCategories } from '@/hooks/useQuizQueries'
 import { Badge } from '@/components/ui/badge'
-import { TextInput, SelectInput } from '@/components/ui/FormInputs'
+import { TextInput } from '@/components/ui/FormInputs'
 
 interface PaginationData {
   page: number
@@ -209,35 +209,46 @@ export default function QuizzesPageWithReactQuery() {
                     <label className="block text-xs font-medium text-gray-700 mb-1">
                       Category
                     </label>
-                    <SelectInput
+                    <select
                       value={selectedCategory || 'all'}
-                      onChange={handleCategoryChange}
-                      options={[
-                        { value: 'all', label: 'All Categories' },
-                        ...categories.map(cat => ({ value: cat, label: cat }))
-                      ]}
-                      placeholder="All Categories"
-                      className="w-full h-8 text-sm"
-                    />
+                      onChange={(e) => handleCategoryChange(e.target.value)}
+                      className="w-full h-8 text-sm px-3 py-1 border border-border/40 rounded-md 
+                        focus:ring-2 focus:ring-primary/30 focus:border-primary/60 
+                        bg-background text-foreground
+                        hover:border-border/60
+                        transition-colors duration-200
+                        cursor-pointer"
+                    >
+                      <option value="all">All Categories</option>
+                      {categories.map(cat => (
+                        <option key={cat} value={cat} className="py-1">
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
                       Difficulty
                     </label>
-                    <SelectInput
+                    <select
                       value={selectedDifficulty || 'all'}
-                      onChange={handleDifficultyChange}
-                      options={[
-                        { value: 'all', label: 'All Difficulties' },
-                        ...quizDifficulties.map(diff => ({ 
-                          value: diff, 
-                          label: diff.charAt(0).toUpperCase() + diff.slice(1) 
-                        }))
-                      ]}
-                      placeholder="All Difficulties"
-                      className="w-full h-8 text-sm"
-                    />
+                      onChange={(e) => handleDifficultyChange(e.target.value)}
+                      className="w-full h-8 text-sm px-3 py-1 border border-border/40 rounded-md 
+                        focus:ring-2 focus:ring-primary/30 focus:border-primary/60 
+                        bg-background text-foreground
+                        hover:border-border/60
+                        transition-colors duration-200
+                        cursor-pointer"
+                    >
+                      <option value="all">All Difficulties</option>
+                      {quizDifficulties.map(diff => (
+                        <option key={diff} value={diff} className="py-1">
+                          {diff.charAt(0).toUpperCase() + diff.slice(1)}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
