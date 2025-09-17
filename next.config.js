@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const path = require('path')
 
+// Bundle analyzer setup
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+})
+
 const nextConfig = {
   // Force new build ID to invalidate static assets only
   generateBuildId: async () => {
@@ -128,4 +133,4 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+module.exports = withBundleAnalyzer(nextConfig)
