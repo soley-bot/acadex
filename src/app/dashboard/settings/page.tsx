@@ -351,7 +351,7 @@ export default function SettingsPage() {
                   <select
                     value={settings.preferences.language}
                     onChange={(e) => updatePreferenceSetting('language', e.target.value)}
-                    className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+                    className="border-2 border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="en">English</option>
                     <option value="es">Español</option>
@@ -446,7 +446,7 @@ export default function SettingsPage() {
                   <select
                     value={settings.privacy.profileVisibility}
                     onChange={(e) => updatePrivacySetting('profileVisibility', e.target.value as 'public' | 'private')}
-                    className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+                    className="border-2 border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="public">Public</option>
                     <option value="private">Private</option>

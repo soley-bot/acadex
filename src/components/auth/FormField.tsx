@@ -101,7 +101,7 @@ export function FormField({
             input focus-ring
             ${icon ? 'pl-10' : ''} 
             ${type === 'password' && onTogglePassword ? 'pr-12' : 'pr-4'}
-            backdrop-blur-sm hover:bg-background/90 font-medium
+            font-medium bg-white text-gray-900 border-2 border-gray-300 placeholder:text-gray-600
             ${borderColor}
           `}
           placeholder={placeholder}

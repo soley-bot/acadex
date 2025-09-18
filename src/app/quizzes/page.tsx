@@ -206,16 +206,16 @@ export default function QuizzesPageWithReactQuery() {
               <div className="pt-3 border-t space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-medium text-gray-900 mb-1">
                       Category
                     </label>
                     <select
                       value={selectedCategory || 'all'}
                       onChange={(e) => handleCategoryChange(e.target.value)}
-                      className="w-full h-8 text-sm px-3 py-1 border border-border/40 rounded-md 
+                      className="w-full h-8 text-sm px-3 py-1 border-2 border-gray-300 rounded-md 
                         focus:ring-2 focus:ring-primary/30 focus:border-primary/60 
-                        bg-background text-foreground
-                        hover:border-border/60
+                        bg-white text-gray-900
+                        hover:border-gray-400
                         transition-colors duration-200
                         cursor-pointer"
                     >
@@ -229,16 +229,16 @@ export default function QuizzesPageWithReactQuery() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-medium text-gray-900 mb-1">
                       Difficulty
                     </label>
                     <select
                       value={selectedDifficulty || 'all'}
                       onChange={(e) => handleDifficultyChange(e.target.value)}
-                      className="w-full h-8 text-sm px-3 py-1 border border-border/40 rounded-md 
+                      className="w-full h-8 text-sm px-3 py-1 border-2 border-gray-300 rounded-md 
                         focus:ring-2 focus:ring-primary/30 focus:border-primary/60 
-                        bg-background text-foreground
-                        hover:border-border/60
+                        bg-white text-gray-900
+                        hover:border-gray-400
                         transition-colors duration-200
                         cursor-pointer"
                     >

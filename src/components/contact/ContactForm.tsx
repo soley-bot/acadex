@@ -115,15 +115,15 @@ function ContactFormComponent() {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Form fields here, using standard input/select/textarea elements styled by globals.css */}
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-900 mb-2">Name</label>
                       <input type="text" id="name" name="name" value={formData.name} onChange={handleInputChange} required className="input" placeholder="Your full name" />
                     </div>
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">Email</label>
                       <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} required className="input" placeholder="your.email@example.com" />
                     </div>
                     <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                      <label htmlFor="subject" className="block text-sm font-medium text-gray-900 mb-2">Subject</label>
                       <select id="subject" name="subject" value={formData.subject} onChange={handleInputChange} required className="input">
                         <option value="">Select a topic</option>
                         <option value="IELTS Quiz Question">IELTS Quiz Question</option>
@@ -134,7 +134,7 @@ function ContactFormComponent() {
                       </select>
                     </div>
                     <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                      <label htmlFor="message" className="block text-sm font-medium text-gray-900 mb-2">Message</label>
                       <textarea id="message" name="message" value={formData.message} onChange={handleInputChange} required rows={5} className="input" placeholder="Tell us how we can help..."></textarea>
                     </div>
                     <Button type="submit" disabled={loading} size="lg" className="w-full">

@@ -13,7 +13,8 @@ import {
   Check, 
   ExternalLink,
   Folder,
-  Image as ImageIcon
+  Image as ImageIcon,
+  RefreshCw
 } from 'lucide-react'
 import Image from 'next/image'
 import { getOptimizedImageUrl } from '@/lib/storage'
@@ -23,6 +24,7 @@ interface ImageBrowserProps {
   onClose: () => void
   onSelect: (url: string) => void
   selectedUrl?: string | null
+  context?: 'quiz' | 'course' | 'lesson' | 'general'  // Add context prop
 }
 
 interface ImageItem {
@@ -103,76 +105,121 @@ const PUBLIC_IMAGES: ImageItem[] = [
   }
 ]
 
-export function ImageBrowser({ isOpen, onClose, onSelect, selectedUrl }: ImageBrowserProps) {
+export function ImageBrowser({ isOpen, onClose, onSelect, selectedUrl, context = 'general' }: ImageBrowserProps) {
   const [images, setImages] = useState<ImageItem[]>(PUBLIC_IMAGES)
   const [loading, setLoading] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'public' | 'storage'>('all')
-  const [selectedBucket, setSelectedBucket] = useState<'all' | 'course-images' | 'quiz-images' | 'user-avatars'>('all')
+  const [selectedBucket, setSelectedBucket] = useState<'all' | 'course-images' | 'quiz-images' | 'user-avatars' | 'lesson-resources'>('all')
+  const [lastLoaded, setLastLoaded] = useState<Date | null>(null)
 
-  // Load images from storage buckets
+  // Simple and reliable function to load images from storage based on context
   const loadStorageImages = useCallback(async () => {
     setLoading(true)
     try {
       let storageImages: ImageItem[] = []
       
-      const buckets = selectedBucket === 'all' 
-        ? ['course-images', 'quiz-images', 'user-avatars']
-        : [selectedBucket]
+      // Determine bucket and folder based on context
+      let bucket: string
+      let folders: string[]
       
-      for (const bucket of buckets) {
-        const { data: files, error } = await supabase.storage
-          .from(bucket)
-          .list('', { limit: 100, sortBy: { column: 'created_at', order: 'desc' } })
-        
-        if (files && !error) {
-          const bucketImages = files
-            .filter((file: any) => file.name.toLowerCase().match(/\.(jpg|jpeg|png|webp|gif)$/))
-            .map((file: any) => ({
-              id: `${bucket}-${file.name}`,
-              name: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
-              url: supabase.storage.from(bucket).getPublicUrl(file.name).data.publicUrl,
-              bucket,
-              size: file.metadata?.size,
-              lastModified: file.created_at,
-              type: 'storage' as const
-            }))
-          
-          storageImages.push(...bucketImages)
-        }
+      switch (context) {
+        case 'quiz':
+          bucket = 'quiz-images'
+          folders = ['', 'quizzes']
+          break
+        case 'course':
+          bucket = 'course-images'
+          folders = ['', 'courses']
+          break
+        case 'lesson':
+          bucket = 'lesson-resources'
+          folders = ['', 'lessons', 'resources']
+          break
+        default:
+          bucket = 'course-images'
+          folders = ['', 'courses']
       }
       
-      // Combine public images with storage images
-      setImages([...PUBLIC_IMAGES, ...storageImages])
+      try {
+        // Load images from the context-specific bucket and folders
+        for (const folder of folders) {
+          const path = folder || ''
+          const { data: files, error } = await supabase.storage
+            .from(bucket)
+            .list(path, { limit: 100, sortBy: { column: 'created_at', order: 'desc' } })
+          
+          if (files && !error) {
+            const folderImages = files
+              .filter((file: any) => file.name.toLowerCase().match(/\.(jpg|jpeg|png|webp|gif)$/))
+              .map((file: any) => ({
+                id: `${bucket}-${folder || 'root'}-${file.name}`,
+                name: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ').replace(/^\d+-\w+-/, ''),
+                url: supabase.storage.from(bucket).getPublicUrl(folder ? `${folder}/${file.name}` : file.name).data.publicUrl,
+                bucket,
+                folder: folder || 'root',
+                size: file.metadata?.size,
+                lastModified: file.created_at,
+                type: 'storage' as const
+              }))
+            
+            storageImages.push(...folderImages)
+          }
+        }
+      } catch (bucketErr) {
+        console.warn(`Error loading from bucket ${bucket}:`, bucketErr)
+      }
+      
+      // Sort by creation date (newest first)
+      storageImages.sort((a, b) => {
+        const dateA = new Date(a.lastModified || 0).getTime()
+        const dateB = new Date(b.lastModified || 0).getTime()
+        return dateB - dateA
+      })
+      
+      // Filter public images based on context and combine with storage images
+      const contextPublicImages = PUBLIC_IMAGES.filter(img => {
+        switch (context) {
+          case 'quiz':
+            return img.folder === 'hero' || img.folder === 'courses' // Include some general images for quizzes
+          case 'course':
+            return img.folder === 'courses'
+          case 'lesson':
+            return img.folder === 'courses' || img.folder === 'hero'
+          default:
+            return true
+        }
+      })
+      
+      setImages([...contextPublicImages, ...storageImages])
+      setLastLoaded(new Date())
       
     } catch (error) {
       console.error('Error loading storage images:', error)
+      // Fallback to just public images if storage fails
+      setImages(PUBLIC_IMAGES)
     } finally {
       setLoading(false)
     }
-  }, [selectedBucket])
+  }, [context])
 
   // Load images from storage buckets
   useEffect(() => {
     if (isOpen) {
       loadStorageImages()
     }
-  }, [isOpen, selectedBucket, loadStorageImages])
+  }, [isOpen, context, loadStorageImages])
 
   // Filter images based on search and filters
   const filteredImages = images.filter(image => {
     const matchesSearch = image.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         image.folder?.toLowerCase().includes(searchTerm.toLowerCase())
+                         image.folder?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         image.bucket?.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesTypeFilter = selectedFilter === 'all' || image.type === selectedFilter
     
-    const matchesBucketFilter = selectedBucket === 'all' || 
-                               image.bucket === selectedBucket ||
-                               (selectedBucket === 'course-images' && image.folder === 'courses') ||
-                               (selectedBucket === 'quiz-images' && image.folder === 'hero')
-    
-    return matchesSearch && matchesTypeFilter && matchesBucketFilter
+    return matchesSearch && matchesTypeFilter
   })
 
   const handleSelect = (image: ImageItem) => {
@@ -196,9 +243,27 @@ export function ImageBrowser({ isOpen, onClose, onSelect, selectedUrl }: ImageBr
         <div className="flex items-center justify-between p-6 border-b">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Browse Images</h2>
-            <p className="text-sm text-gray-600">Select an existing image to reuse</p>
+            <p className="text-sm text-gray-600">
+              Select from previously uploaded images or public images
+              {lastLoaded && (
+                <span className="ml-2 text-xs text-gray-500">
+                  • Last updated: {lastLoaded.toLocaleTimeString()}
+                </span>
+              )}
+            </p>
           </div>
-          <Button variant="outline" onClick={onClose}>Close</Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={loadStorageImages}
+              disabled={loading}
+            >
+              <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+            <Button variant="outline" onClick={onClose}>Close</Button>
+          </div>
         </div>
 
         {/* Controls */}
@@ -251,20 +316,8 @@ export function ImageBrowser({ isOpen, onClose, onSelect, selectedUrl }: ImageBr
             <option value="storage">Storage Images</option>
           </select>
 
-          {/* Bucket Filter */}
-          <select
-            value={selectedBucket}
-            onChange={(e) => setSelectedBucket(e.target.value as any)}
-            className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
-          >
-            <option value="all">All Categories</option>
-            <option value="course-images">Course Images</option>
-            <option value="quiz-images">Quiz Images</option>
-            <option value="user-avatars">User Avatars</option>
-          </select>
-
           <span className="text-sm text-gray-600">
-            {filteredImages.length} images found
+            {filteredImages.length} images found • {context} context
           </span>
         </div>
 
@@ -296,7 +349,7 @@ export function ImageBrowser({ isOpen, onClose, onSelect, selectedUrl }: ImageBr
                   onClick={() => handleSelect(image)}
                 >
                   <CardContent className="p-0">
-                    <div className="relative aspect-square">
+                    <div className="relative aspect-square" title={`${image.name}${image.folder && image.folder !== 'root' ? ` (${image.folder})` : ''}`}>
                       <Image
                         src={getOptimizedImageUrl(image.url, { width: 200, height: 200, quality: 80 })}
                         alt={image.name}
@@ -310,15 +363,35 @@ export function ImageBrowser({ isOpen, onClose, onSelect, selectedUrl }: ImageBr
                       )}
                       <div className="absolute top-2 left-2">
                         <Badge variant={image.type === 'public' ? 'default' : 'secondary'} className="text-xs">
-                          {image.type === 'public' ? 'Public' : image.bucket?.replace('-', ' ')}
+                          {image.type === 'public' ? 'Public' : (
+                            image.bucket === 'course-images' ? 'Course' :
+                            image.bucket === 'quiz-images' ? 'Quiz' :
+                            image.bucket === 'user-avatars' ? 'Avatar' :
+                            image.bucket === 'lesson-resources' ? 'Resource' :
+                            'Storage'
+                          )}
                         </Badge>
                       </div>
                     </div>
                     <div className="p-3">
-                      <h4 className="font-medium text-sm text-gray-900 truncate">{image.name}</h4>
-                      {image.size && (
-                        <p className="text-xs text-gray-500">{formatFileSize(image.size)}</p>
-                      )}
+                      <h4 className="font-medium text-sm text-gray-900 truncate" title={image.name}>
+                        {image.name}
+                      </h4>
+                      <div className="flex items-center justify-between mt-1">
+                        <div className="flex flex-col">
+                          {image.size && (
+                            <span className="text-xs text-gray-500">{formatFileSize(image.size)}</span>
+                          )}
+                          {image.folder && image.folder !== 'root' && (
+                            <span className="text-xs text-gray-400">/{image.folder}</span>
+                          )}
+                        </div>
+                        {image.lastModified && (
+                          <span className="text-xs text-gray-400">
+                            {new Date(image.lastModified).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -346,9 +419,17 @@ export function ImageBrowser({ isOpen, onClose, onSelect, selectedUrl }: ImageBr
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-medium text-gray-900 truncate">{image.name}</h4>
+                          <h4 className="font-medium text-gray-900 truncate" title={image.name}>
+                            {image.name}
+                          </h4>
                           <Badge variant={image.type === 'public' ? 'default' : 'secondary'} className="text-xs">
-                            {image.type === 'public' ? 'Public' : image.bucket?.replace('-', ' ')}
+                            {image.type === 'public' ? 'Public' : (
+                              image.bucket === 'course-images' ? 'Course' :
+                              image.bucket === 'quiz-images' ? 'Quiz' :
+                              image.bucket === 'user-avatars' ? 'Avatar' :
+                              image.bucket === 'lesson-resources' ? 'Resource' :
+                              'Storage'
+                            )}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-gray-500">

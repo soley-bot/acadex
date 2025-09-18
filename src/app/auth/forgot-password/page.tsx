@@ -67,7 +67,7 @@ export default function ForgotPasswordPage() {
             </div>
             
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Check your email</h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-900 mb-6">
               We&apos;ve sent a password reset link to <strong>{email}</strong>
             </p>
             
@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
                   setSent(false)
                   setEmail('')
                 }}
-                className="w-full bg-muted/40 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-muted/60 transition-colors"
+                className="w-full bg-muted/40 text-gray-900 py-3 px-4 rounded-xl font-medium hover:bg-muted/60 transition-colors"
               >
                 Send to different email
               </button>
@@ -124,7 +124,7 @@ export default function ForgotPasswordPage() {
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Forgot your password?
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-900 text-lg">
             No worries! Enter your email and we&apos;ll send you a reset link.
           </p>
         </div>

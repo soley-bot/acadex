@@ -1,13 +1,12 @@
 // Quiz Settings Step Component
 // Handles quiz basic configuration and metadata
 
-import React, { memo, useCallback, useState, useEffect } from 'react'
+import React, { memo, useCallback, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Settings, FileText, Clock, Target, Globe, Camera } from 'lucide-react'
 import { useQuizBuilderPerformance } from '@/lib/adminPerformanceSystem'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import { uploadImage } from '@/lib/imageUpload'
-import { supabase } from '@/lib/supabase'
 import type { Quiz } from '@/lib/supabase'
 
 interface QuizSettingsStepProps {
@@ -23,42 +22,23 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
   isValid = true,
   errors = []
 }) => {
-  const [categories, setCategories] = useState<string[]>([])
-  const [loadingCategories, setLoadingCategories] = useState(true)
+  const [categories] = useState<string[]>([
+    'English Grammar',
+    'English Language', 
+    'General English',
+    'IELTS Preparation',
+    'TOEFL Preparation',
+    'Business English',
+    'Academic Writing',
+    'Conversation Practice',
+    'Vocabulary Building',
+    'Reading Comprehension',
+    'Listening Skills'
+  ])
+  const [loadingCategories] = useState(false)
 
   // Performance monitoring
   const performanceMetrics = useQuizBuilderPerformance()
-
-  // Load categories from database
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('categories')
-          .select('name')
-          .eq('is_active', true)
-          .in('type', ['general', 'quiz'])
-          .order('name')
-        
-        if (error) throw error
-        setCategories(data?.map((cat: any) => cat.name) || [])
-      } catch (error) {
-        console.error('Error fetching categories:', error)
-        // Fallback categories
-        setCategories([
-          'English Grammar',
-          'English Language',
-          'General English',
-          'IELTS Preparation',
-          'TOEFL Preparation'
-        ])
-      } finally {
-        setLoadingCategories(false)
-      }
-    }
-
-    fetchCategories()
-  }, [])
 
   const handleFieldChange = useCallback((field: keyof Quiz, value: any) => {
     onQuizUpdate({ [field]: value })
@@ -95,7 +75,7 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
             <h3 className="text-xl font-semibold text-gray-900 mb-1">Quiz Settings</h3>
             <p className="text-gray-600">Configure basic quiz information and settings</p>
             {process.env.NODE_ENV === 'development' && (
-              <div className="text-xs text-gray-400 mt-2 bg-gray-50 px-3 py-1 rounded">
+              <div className="text-xs text-gray-700 mt-2 bg-gray-100 px-3 py-1 rounded border">
                 QuizSettingsStep - {performanceMetrics.metrics?.renderCount || 0} renders | Avg: {performanceMetrics.metrics?.averageRenderTime.toFixed(2) || 0}ms
               </div>
             )}
@@ -122,13 +102,13 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
               value={quiz.title || ''}
               onChange={(e) => handleFieldChange('title', e.target.value)}
               placeholder="Enter quiz title..."
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 bg-white placeholder:text-gray-600"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
               Description
             </label>
             <textarea
@@ -136,13 +116,13 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
               onChange={(e) => handleFieldChange('description', e.target.value)}
               placeholder="Describe what this quiz covers..."
               rows={3}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none text-gray-900 bg-white placeholder:text-gray-600"
             />
           </div>
 
           {/* Quiz Image */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
               Quiz Cover Image
             </label>
             <ImageUpload
@@ -151,8 +131,9 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
               onFileUpload={handleImageUpload}
               placeholder="Upload quiz cover image or enter image URL"
               className="w-full"
+              context="quiz"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-700 mt-1 font-medium">
               Optional cover image for your quiz. Recommended size: 800x400px
             </p>
           </div>
@@ -160,24 +141,24 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
           {/* Category and Difficulty */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 Category
               </label>
               <select
                 value={quiz.category || ''}
                 onChange={(e) => handleFieldChange('category', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 bg-white"
                 disabled={loadingCategories}
               >
-                <option value="">{loadingCategories ? 'Loading categories...' : 'Select category...'}</option>
+                <option value="" className="text-gray-700">{loadingCategories ? 'Loading categories...' : 'Select category...'}</option>
                 {categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
+                  <option key={category} value={category} className="text-gray-900">{category}</option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 Difficulty Level
               </label>
               <div className="flex space-x-2">
@@ -185,10 +166,10 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
                   <button
                     key={diff.value}
                     onClick={() => handleFieldChange('difficulty', diff.value)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                       quiz.difficulty === diff.value
-                        ? diff.color + ' ring-2 ring-offset-1 ring-current'
-                        : 'bg-gray-100 text-gray-600'
+                        ? diff.color + ' ring-2 ring-offset-1 ring-current shadow-sm'
+                        : 'bg-gray-50 text-gray-800 hover:bg-gray-100 border border-gray-200'
                     }`}
                   >
                     {diff.label}
@@ -212,7 +193,7 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Expected Duration */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 📝 Expected Duration (minutes) *
               </label>
               <input
@@ -222,16 +203,16 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
                 placeholder="10"
                 min="1"
                 max="300"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 bg-white placeholder:text-gray-600"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-700 mt-1 font-medium">
                 💡 <strong>Estimated time</strong> students need to complete this quiz
               </p>
             </div>
 
             {/* Time Limit */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 ⏰ Time Limit (minutes) - Optional
               </label>
               <input
@@ -241,9 +222,9 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
                 placeholder="Leave empty for no limit"
                 min="1"
                 max="180"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 bg-white placeholder:text-gray-600"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-700 mt-1 font-medium">
                 🚨 <strong>Hard deadline</strong> - Quiz auto-submits when time expires
               </p>
               {quiz.time_limit_minutes && quiz.duration_minutes && quiz.time_limit_minutes < quiz.duration_minutes && (
@@ -255,7 +236,7 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
 
             {/* Passing Score */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 Passing Score (%)
               </label>
               <input
@@ -265,13 +246,13 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
                 placeholder="70"
                 min="0"
                 max="100"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 bg-white placeholder:text-gray-600"
               />
             </div>
 
             {/* Max Attempts */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 Max Attempts
               </label>
               <input
@@ -281,7 +262,7 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
                 placeholder="0 (unlimited)"
                 min="0"
                 max="10"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 bg-white placeholder:text-gray-600"
               />
             </div>
           </div>
@@ -305,11 +286,11 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
               onChange={(e) => handleFieldChange('is_published', e.target.checked)}
               className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
             />
-            <label htmlFor="is_published" className="text-sm font-medium text-gray-700">
+            <label htmlFor="is_published" className="text-sm font-medium text-gray-900">
               Publish quiz immediately after creation
             </label>
           </div>
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-gray-700 mt-2 font-medium">
             Published quizzes will be visible to students immediately. You can change this later.
           </p>
         </CardContent>

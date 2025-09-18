@@ -15,8 +15,8 @@ const nextConfig = {
 
   // App Router is now stable in Next.js 15, no experimental flag needed
   eslint: {
-    // Skip ESLint during builds for speed - run separately in dev
-    ignoreDuringBuilds: true,
+    // Enable ESLint during builds for better code quality
+    ignoreDuringBuilds: false,
   },
   typescript: {
     // Enable TypeScript checking during builds but optimize

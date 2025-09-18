@@ -719,6 +719,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                   }
                 }}
                 placeholder="Upload course image or enter URL"
+                context="course"
               />
               {error && error.includes('Image upload') && (
                 <div className="mt-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
@@ -921,26 +922,26 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                                 <div key={lessonIndex} className="border border-gray-200 rounded-lg p-4 bg-white">
                                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
                                     <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                                      <label className="block text-sm font-medium text-gray-900 mb-1">
                                         Lesson Title *
                                       </label>
                                       <input
                                         type="text"
                                         value={lesson.title}
                                         onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'title', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm text-gray-900 bg-white placeholder:text-gray-600"
                                         placeholder="Enter lesson title"
                                       />
                                     </div>
                                     <div>
-                                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                                      <label className="block text-sm font-medium text-gray-900 mb-1">
                                         Duration (minutes)
                                       </label>
                                       <input
                                         type="number"
                                         value={lesson.duration_minutes || ''}
                                         onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'duration_minutes', e.target.value ? parseInt(e.target.value) : undefined)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm text-gray-900 bg-white placeholder:text-gray-600"
                                         placeholder="e.g., 15"
                                         min="1"
                                       />
@@ -948,13 +949,13 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                                   </div>
 
                                   <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">
                                       Description
                                     </label>
                                     <textarea
                                       value={lesson.description}
                                       onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'description', e.target.value)}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm text-gray-900 bg-white placeholder:text-gray-600"
                                       rows={2}
                                       placeholder="Brief lesson description"
                                     />
@@ -997,7 +998,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                                         type="text"
                                         value={lesson.video_url || ''}
                                         onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'video_url', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm text-gray-900 bg-white placeholder:text-gray-600"
                                         placeholder="https://www.youtube.com/watch?v=..."
                                       />
                                     )}
@@ -1013,17 +1014,17 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
 
                                   {/* Quiz Assignment */}
                                   <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
                                       Attach Quiz (Optional)
                                     </label>
                                     <select
                                       value={lesson.quiz_id || ''}
                                       onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'quiz_id', e.target.value || undefined)}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm text-gray-900 bg-white"
                                     >
-                                      <option value="">No quiz</option>
+                                      <option value="" className="text-gray-900">No quiz</option>
                                       {availableQuizzes.map((quiz) => (
-                                        <option key={quiz.id} value={quiz.id}>
+                                        <option key={quiz.id} value={quiz.id} className="text-gray-900">
                                           {quiz.title}
                                         </option>
                                       ))}
@@ -1032,13 +1033,13 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
 
                                   {/* Lesson Content */}
                                   <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">
                                       Lesson Content
                                     </label>
                                     <textarea
                                       value={lesson.content}
                                       onChange={(e) => updateLesson(moduleIndex, lessonIndex, 'content', e.target.value)}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm text-gray-900 bg-white placeholder:text-gray-600"
                                       rows={4}
                                       placeholder="Enter lesson content, instructions, or notes..."
                                     />

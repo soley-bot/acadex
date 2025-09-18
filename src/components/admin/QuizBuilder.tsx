@@ -98,7 +98,7 @@ const AIConfigurationStep = React.memo<{
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Topic */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 Topic *
               </label>
               <input
@@ -106,13 +106,13 @@ const AIConfigurationStep = React.memo<{
                 value={aiConfig.topic}
                 onChange={(e) => onConfigUpdate({ topic: e.target.value })}
                 placeholder="e.g., Business English, Grammar, Reading Comprehension"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900 bg-white placeholder:text-gray-600"
               />
             </div>
 
             {/* Subject */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 Subject
               </label>
               <input
@@ -120,63 +120,63 @@ const AIConfigurationStep = React.memo<{
                 value={aiConfig.subject}
                 onChange={(e) => onConfigUpdate({ subject: e.target.value })}
                 placeholder="e.g., English, Mathematics, Science"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900 bg-white placeholder:text-gray-600"
               />
             </div>
 
             {/* Question Count */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 Question Count
               </label>
               <select
                 value={aiConfig.questionCount}
                 onChange={(e) => onConfigUpdate({ questionCount: parseInt(e.target.value) })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900 bg-white"
               >
-                <option value={3}>3 questions</option>
-                <option value={5}>5 questions</option>
-                <option value={8}>8 questions</option>
-                <option value={10}>10 questions</option>
-                <option value={15}>15 questions</option>
+                <option value={3} className="text-gray-900">3 questions</option>
+                <option value={5} className="text-gray-900">5 questions</option>
+                <option value={8} className="text-gray-900">8 questions</option>
+                <option value={10} className="text-gray-900">10 questions</option>
+                <option value={15} className="text-gray-900">15 questions</option>
               </select>
             </div>
 
             {/* Difficulty */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 Difficulty
               </label>
               <select
                 value={aiConfig.difficulty}
                 onChange={(e) => onConfigUpdate({ difficulty: e.target.value as 'beginner' | 'intermediate' | 'advanced' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900 bg-white"
               >
-                <option value="beginner">Beginner</option>
-                <option value="intermediate">Intermediate</option>
-                <option value="advanced">Advanced</option>
+                <option value="beginner" className="text-gray-900">Beginner</option>
+                <option value="intermediate" className="text-gray-900">Intermediate</option>
+                <option value="advanced" className="text-gray-900">Advanced</option>
               </select>
             </div>
 
             {/* Language */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 Language
               </label>
               <select
                 value={aiConfig.language}
                 onChange={(e) => onConfigUpdate({ language: e.target.value as 'english' | 'khmer' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900 bg-white"
               >
-                <option value="english">English</option>
-                <option value="khmer">Khmer</option>
+                <option value="english" className="text-gray-900">English</option>
+                <option value="khmer" className="text-gray-900">Khmer</option>
               </select>
             </div>
           </div>
 
           {/* Question Types */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
               Question Types to Generate
             </label>
             <div className="flex flex-wrap gap-2">
@@ -206,14 +206,14 @@ const AIConfigurationStep = React.memo<{
                 </button>
               ))}
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-700 mt-1 font-medium">
               Select one or more question types. At least one type must be selected.
             </p>
           </div>
 
           {/* Custom Instructions */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-900 mb-1">
               Custom Instructions (Optional)
             </label>
             <textarea
@@ -221,7 +221,7 @@ const AIConfigurationStep = React.memo<{
               onChange={(e) => onConfigUpdate({ customPrompt: e.target.value })}
               placeholder="e.g., Focus on business scenarios, include academic vocabulary, test specific skills..."
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
+              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none text-gray-900 bg-white placeholder:text-gray-600"
             />
           </div>
 
@@ -584,7 +584,7 @@ const QuizSettings = memo<{
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-900 mb-2">
             Quiz Title *
           </label>
           <input
@@ -592,12 +592,12 @@ const QuizSettings = memo<{
             value={quiz.title || ''}
             onChange={handleTitleChange}
             placeholder="Enter quiz title"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 bg-white placeholder:text-gray-600"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-900 mb-2">
             Description
           </label>
           <textarea
@@ -605,12 +605,12 @@ const QuizSettings = memo<{
             onChange={handleDescriptionChange}
             placeholder="Enter quiz description"
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 bg-white placeholder:text-gray-600"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-900 mb-2">
             📝 Expected Duration (minutes) *
           </label>
           <input
@@ -620,7 +620,7 @@ const QuizSettings = memo<{
             value={quiz.duration_minutes || 10}
             onChange={handleDurationChange}
             placeholder="10"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 bg-white placeholder:text-gray-600"
           />
           <p className="text-xs text-gray-500 mt-1">
             💡 <strong>Estimated time</strong> students need to complete this quiz (shown to students before they start)
@@ -628,7 +628,7 @@ const QuizSettings = memo<{
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-900 mb-2">
             ⏰ Time Limit (minutes) - Optional
           </label>
           <input
@@ -638,7 +638,7 @@ const QuizSettings = memo<{
             value={quiz.time_limit_minutes || ''}
             onChange={handleTimeLimitChange}
             placeholder="Leave empty for no time limit"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 bg-white placeholder:text-gray-600"
           />
           <p className="text-xs text-gray-500 mt-1">
             🚨 <strong>Hard deadline</strong> - Quiz auto-submits when time expires. Leave empty for unlimited time.
@@ -768,58 +768,58 @@ const QuizQuestions = memo<{
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* Question Count */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-900 mb-1">
                   Question Count
                 </label>
                 <select
                   value={aiConfig?.questionCount || 5}
                   onChange={(e) => onAIConfigChange?.({ ...aiConfig, questionCount: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900 bg-white"
                 >
-                  <option value={3}>3 questions</option>
-                  <option value={5}>5 questions</option>
-                  <option value={8}>8 questions</option>
-                  <option value={10}>10 questions</option>
-                  <option value={15}>15 questions</option>
+                  <option value={3} className="text-gray-900">3 questions</option>
+                  <option value={5} className="text-gray-900">5 questions</option>
+                  <option value={8} className="text-gray-900">8 questions</option>
+                  <option value={10} className="text-gray-900">10 questions</option>
+                  <option value={15} className="text-gray-900">15 questions</option>
                 </select>
               </div>
 
               {/* Difficulty */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-900 mb-1">
                   Difficulty
                 </label>
                 <select
                   value={aiConfig?.difficulty || 'intermediate'}
                   onChange={(e) => onAIConfigChange?.({ ...aiConfig, difficulty: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900 bg-white"
                 >
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
+                  <option value="beginner" className="text-gray-900">Beginner</option>
+                  <option value="intermediate" className="text-gray-900">Intermediate</option>
+                  <option value="advanced" className="text-gray-900">Advanced</option>
                 </select>
               </div>
 
               {/* Language */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-900 mb-1">
                   Language
                 </label>
                 <select
                   value={aiConfig?.language || 'english'}
                   onChange={(e) => onAIConfigChange?.({ ...aiConfig, language: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900 bg-white"
                 >
-                  <option value="english">English</option>
-                  <option value="khmer">Khmer</option>
-                  <option value="french">French</option>
-                  <option value="spanish">Spanish</option>
+                  <option value="english" className="text-gray-900">English</option>
+                  <option value="khmer" className="text-gray-900">Khmer</option>
+                  <option value="french" className="text-gray-900">French</option>
+                  <option value="spanish" className="text-gray-900">Spanish</option>
                 </select>
               </div>
 
               {/* Subject */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-900 mb-1">
                   Subject Area
                 </label>
                 <input
@@ -827,14 +827,14 @@ const QuizQuestions = memo<{
                   value={aiConfig?.subject || ''}
                   onChange={(e) => onAIConfigChange?.({ ...aiConfig, subject: e.target.value })}
                   placeholder="e.g., Business English, Mathematics"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm text-gray-900 bg-white placeholder:text-gray-600"
                 />
               </div>
             </div>
 
             {/* Question Types */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 Question Types to Generate
               </label>
               <div className="flex flex-wrap gap-2">
@@ -871,7 +871,7 @@ const QuizQuestions = memo<{
 
             {/* Custom Instructions */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 Custom Instructions (Optional)
               </label>
               <textarea
@@ -879,7 +879,7 @@ const QuizQuestions = memo<{
                 onChange={(e) => onAIConfigChange?.({ ...aiConfig, customPrompt: e.target.value })}
                 placeholder="e.g., Focus on IELTS task 1 topics, include business scenarios, use academic vocabulary..."
                 rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none text-gray-900 bg-white placeholder:text-gray-600"
               />
             </div>
           </CardContent>

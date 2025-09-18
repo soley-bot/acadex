@@ -140,7 +140,7 @@ function ResetPasswordForm() {
             </div>
             
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Reset Link Invalid</h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-900 mb-6">
               {error || 'This password reset link has expired or is invalid.'}
             </p>
             
@@ -176,7 +176,7 @@ function ResetPasswordForm() {
             </div>
             
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Password Updated!</h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-900 mb-6">
               Your password has been successfully updated. You can now sign in with your new password.
             </p>
             
@@ -215,7 +215,7 @@ function ResetPasswordForm() {
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Reset Your Password
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-900 text-lg">
             Choose a new, secure password for your account.
           </p>
         </div>

@@ -238,7 +238,7 @@ function EnhancedSignupForm() {
 
           {/* Default benefits when no errors/validation */}
           {!error && (step === 1 || !formData.password) && benefits.map((benefit, index) => (
-            <div key={index} className="flex items-center gap-3 text-gray-700">
+            <div key={index} className="flex items-center gap-3 text-gray-900">
               <div className="text-green-600 flex-shrink-0">
                 {benefit.icon}
               </div>
@@ -483,7 +483,7 @@ function EnhancedSignupForm() {
 
             {/* Sign In Link */}
             <div className="mt-4 sm:mt-6">
-              <p className="text-center text-gray-600 text-sm sm:text-base">
+              <p className="text-center text-gray-900 text-sm sm:text-base">
                 Already have an account?{' '}
                 <Link 
                   href="/auth/login" 

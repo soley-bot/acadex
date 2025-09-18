@@ -13,6 +13,7 @@ interface ImageUploadProps {
   disabled?: boolean
   className?: string
   placeholder?: string
+  context?: 'quiz' | 'course' | 'lesson' | 'general'  // Add context prop
 }
 
 export function ImageUpload({
@@ -21,7 +22,8 @@ export function ImageUpload({
   onFileUpload,
   disabled = false,
   className = '',
-  placeholder = 'Upload an image or enter URL'
+  placeholder = 'Upload an image or enter URL',
+  context = 'general'
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
@@ -123,10 +125,11 @@ export function ImageUpload({
         <button
           type="button"
           onClick={() => setShowImageBrowser(true)}
-          className="px-3 py-1.5 text-sm rounded-lg transition-colors bg-primary text-white hover:bg-primary/90 flex items-center gap-1"
+          className="px-3 py-1.5 text-sm rounded-lg transition-colors bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-1"
+          title="Browse previously uploaded images"
         >
           <ImagePlay className="h-3 w-3" />
-          Browse
+          Browse Gallery
         </button>
       </div>
 
@@ -238,6 +241,7 @@ export function ImageUpload({
           setUrlInput(url)
         }}
         selectedUrl={value}
+        context={context}
       />
     </div>
   )

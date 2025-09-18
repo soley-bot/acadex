@@ -83,7 +83,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ className = '' }) 
           <ErrorIcon className={`h-5 w-5 ${errorConfig.color}`} />
           <div>
             <div className={`font-medium ${errorConfig.color}`}>{errorConfig.title}</div>
-            <div className="text-sm text-gray-600">{errorConfig.description}</div>
+            <div className="text-sm text-gray-800">{errorConfig.description}</div>
           </div>
         </div>
       </div>
@@ -107,10 +107,10 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ className = '' }) 
                   className={`
                     flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200
                     ${isActive 
-                      ? `${config.bgColor} ${config.color} ring-2 ring-offset-2 ring-blue-500` 
+                      ? `${config.bgColor} ${config.color} ring-2 ring-offset-2 ring-blue-500 shadow-md` 
                       : isCompleted 
-                        ? 'bg-green-100 text-green-600' 
-                        : 'bg-gray-100 text-gray-400'
+                        ? 'bg-green-100 text-green-700 shadow-sm' 
+                        : 'bg-gray-200 text-gray-700'
                     }
                   `}
                 >
@@ -123,14 +123,14 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ className = '' }) 
                       ${isActive 
                         ? config.color 
                         : isCompleted 
-                          ? 'text-green-600' 
-                          : 'text-gray-400'
+                          ? 'text-green-700' 
+                          : 'text-gray-700'
                       }
                     `}
                   >
                     {config.title}
                   </div>
-                  <div className="text-xs text-gray-500 max-w-20 mx-auto">
+                  <div className="text-xs text-gray-700 max-w-20 mx-auto font-medium">
                     {config.description}
                   </div>
                 </div>
@@ -141,7 +141,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ className = '' }) 
                   <div
                     className={`
                       h-0.5 w-full transition-all duration-200
-                      ${isCompleted ? 'bg-green-300' : 'bg-gray-200'}
+                      ${isCompleted ? 'bg-green-400' : 'bg-gray-300'}
                     `}
                   />
                 </div>

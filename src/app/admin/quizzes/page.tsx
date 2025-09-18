@@ -602,7 +602,7 @@ export default function AdminQuizzesPage() {
                 <input
                   type="text"
                   placeholder="Search quizzes by title, category, or description..."
-                  className="w-full pl-12 pr-4 py-4 border border-muted rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-background hover:bg-muted/20 transition-colors text-base font-medium"
+                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white hover:bg-gray-50 transition-colors text-base font-medium text-gray-900 placeholder:text-gray-600"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -668,7 +668,7 @@ export default function AdminQuizzesPage() {
                 </div>
 
                 <select
-                  className="px-6 py-4 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-background hover:bg-muted/20 transition-colors text-base font-medium min-w-40"
+                  className="px-6 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white hover:bg-gray-50 transition-colors text-base font-medium min-w-40 text-gray-900"
                   value={selectedDifficulty}
                   onChange={(e) => setSelectedDifficulty(e.target.value)}
                 >
