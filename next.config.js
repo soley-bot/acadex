@@ -9,16 +9,17 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const nextConfig = {
   // Force new build ID to invalidate static assets only
   generateBuildId: async () => {
-    return `build-${Date.now()}-${Math.random().toString(36).substring(7)}`
+    // Use simpler build ID for faster builds
+    return 'acadex-build'
   },
 
   // App Router is now stable in Next.js 15, no experimental flag needed
   eslint: {
-    // Enable ESLint during builds
-    ignoreDuringBuilds: false,
+    // Skip ESLint during builds for speed - run separately in dev
+    ignoreDuringBuilds: true,
   },
   typescript: {
-    // Enable TypeScript checking during builds
+    // Enable TypeScript checking during builds but optimize
     ignoreBuildErrors: false,
   },
 

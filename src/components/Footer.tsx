@@ -14,6 +14,7 @@ import {
 import { Container } from '@/components/ui/Layout'
 import { useHydrationSafe } from '@/hooks/useHydrationSafe'
 import { NewsletterSignup } from './NewsletterSignup'
+import { Logo } from './ui/Logo'
 
 export function Footer() {
   const mounted = useHydrationSafe()
@@ -32,11 +33,15 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center space-x-3 mb-6 group">
-              <span className="text-3xl font-black tracking-tight">
-                <span className="text-primary">ACAD</span>
+            <Link href="/" className="flex items-center gap-3 mb-6 group">
+              <Logo 
+                size="lg" 
+                className="group-hover:scale-105 transition-transform duration-200" 
+              />
+              <span className="text-3xl font-black tracking-tight group-hover:scale-105 transition-transform duration-200">
+                <span className="text-black">ACAD</span>
                 <span className="text-[hsl(var(--primary))]">E</span>
-                <span className="text-primary">X</span>
+                <span className="text-black">X</span>
               </span>
             </Link>
             <p className="text-muted-foreground mb-6 leading-relaxed">
@@ -137,7 +142,11 @@ export function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
             <div>
               <p className="text-muted-foreground font-medium text-center md:text-left">
-                © {currentYear} Acadex. All rights reserved.
+                © {currentYear} <span className="font-black tracking-tight">
+                  <span className="text-black">ACAD</span>
+                  <span className="text-[hsl(var(--primary))]">E</span>
+                  <span className="text-black">X</span>
+                </span>. All rights reserved.
                 <br className="sm:hidden" />
                 <span className="block sm:inline sm:ml-2">Made with <Heart size={16} className="inline text-red-500" /> in Cambodia. Powered by persistence.</span>
               </p>

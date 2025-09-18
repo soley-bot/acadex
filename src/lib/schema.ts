@@ -6,7 +6,7 @@ export function generateOrganizationSchema() {
       "name": "Acadex",
       "description": "Modern platform for English learning with expert-led courses and interactive quizzes",
       "url": "https://acadex.academy",
-      "logo": "https://acadex.academy/logo.png",
+      "logo": "https://acadex.academy/logo.svg",
       "sameAs": [
         // Add your social media URLs here when you create them
       ],

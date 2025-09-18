@@ -166,7 +166,7 @@ export type Permission = string
 export function hasPermission(role: UserRole, permission: Permission): boolean {
   const rolePermissions = SECURITY_CONFIG.roles[role]?.permissions || []
   
-  return rolePermissions.some(p => {
+  return rolePermissions.some((p: string) => {
     if (p === permission) return true
     if (p.endsWith('*')) {
       const prefix = p.slice(0, -1)

@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { Logo } from './ui/Logo'
 import { 
   ChevronDown, 
   Home, 
@@ -50,7 +51,11 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center group">
+          <Link href="/" className="flex items-center gap-3 group">
+            <Logo 
+              size="lg" 
+              className="group-hover:scale-105 transition-transform duration-200" 
+            />
             <span className="text-2xl md:text-3xl font-black tracking-tight group-hover:scale-105 transition-transform duration-200">
               <span className="text-black">ACAD</span>
               <span className="text-[hsl(var(--primary))]">E</span>
