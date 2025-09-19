@@ -124,6 +124,11 @@ export default function TakeQuizPage() {
   const [showProgressRestore, setShowProgressRestore] = useState(false)
   const [savedProgress, setSavedProgress] = useState<any>(null)
 
+  // Helper function to detect reading quiz
+  const isReadingQuiz = useMemo(() => {
+    return !!(quiz?.reading_passage?.trim())
+  }, [quiz?.reading_passage])
+
   // Client-side features
   const { isOnline, isReconnecting } = useNetworkStatus()
   const { preferences } = useUserPreferences()
