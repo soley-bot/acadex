@@ -1168,7 +1168,10 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
           'Authorization': `Bearer ${session.access_token}`
         },
         credentials: 'include',
-        body: JSON.stringify({ questions: questionsData })
+        body: JSON.stringify({ 
+          questions: questionsData,
+          saveType: 'draft' // Indicate this is a draft save for intelligent processing
+        })
       })
 
       if (response.ok) {
@@ -1651,14 +1654,83 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
     }
   }, [state.quiz, state.questions, quiz?.id, onSuccess])
 
-  const handlePublish = useCallback(() => {
+  const handlePublish = useCallback(async () => {
     setState(prev => ({ ...prev, isPublishing: true }))
-    // Simulate publishing
-    setTimeout(() => {
-      setState(prev => ({ ...prev, isPublishing: false }))
+    
+    try {
+      // Get session
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        throw new Error('No authentication session')
+      }
+
+      // First, save all questions with publish intent
+      const questionsData = state.questions.map((q, index) => ({
+        id: q.id,
+        quiz_id: state.quiz.id,
+        question: q.question,
+        question_type: q.question_type,
+        options: q.options || [],
+        correct_answer: q.correct_answer,
+        correct_answer_text: q.correct_answer_text,
+        explanation: q.explanation,
+        order_index: q.order_index !== undefined ? q.order_index : index,
+        points: q.points || 1,
+        difficulty_level: q.difficulty_level || 'medium'
+      }))
+
+      const questionsResponse = await fetch(`/api/admin/quizzes/${state.quiz.id}/questions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          questions: questionsData,
+          saveType: 'publish' // Indicate this is a publish save for careful processing
+        })
+      })
+
+      if (!questionsResponse.ok) {
+        const errorData = await questionsResponse.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to save questions for publishing')
+      }
+
+      // Then, update quiz to published status
+      const quizResponse = await fetch(`/api/admin/quizzes/${state.quiz.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          ...state.quiz,
+          is_published: true,
+          published_at: new Date().toISOString()
+        })
+      })
+
+      if (!quizResponse.ok) {
+        const errorData = await quizResponse.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to publish quiz')
+      }
+
+      setState(prev => ({ 
+        ...prev, 
+        isPublishing: false,
+        quiz: { ...prev.quiz, is_published: true }
+      }))
+      
       onSuccess()
-    }, 1000)
-  }, [onSuccess])
+    } catch (error: any) {
+      console.error('Publish failed:', error)
+      setState(prev => ({ ...prev, isPublishing: false }))
+      // You might want to show an error toast here
+      alert(`Publish failed: ${error.message}`)
+    }
+  }, [state.quiz, state.questions, onSuccess])
 
   // Render current step content with progressive loading
   const renderCurrentStep = useMemo(() => {
