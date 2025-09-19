@@ -69,32 +69,6 @@ const QuizAnalyticsComponent = dynamic(
   }
 )
 
-const TemplateEditorComponent = dynamic(
-  () => import('@/components/admin/TemplateEditor'),
-  {
-    loading: () => (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Loading Template Editor...</span>
-      </div>
-    ),
-    ssr: false
-  }
-)
-
-const TemplateLibraryComponent = dynamic(
-  () => import('@/components/admin/TemplateLibrary'),
-  {
-    loading: () => (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Loading Template Library...</span>
-      </div>
-    ),
-    ssr: false
-  }
-)
-
 const SecurityDashboardComponent = dynamic(
   () => import('@/components/admin/SecurityDashboard'),
   {
@@ -165,28 +139,6 @@ export const LazyComponents = {
     </Suspense>
   ),
 
-  TemplateEditor: (props: any) => (
-    <Suspense fallback={
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Loading Template Editor...</span>
-      </div>
-    }>
-      <TemplateEditorComponent {...props} />
-    </Suspense>
-  ),
-
-  TemplateLibrary: (props: any) => (
-    <Suspense fallback={
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Loading Template Library...</span>
-      </div>
-    }>
-      <TemplateLibraryComponent {...props} />
-    </Suspense>
-  ),
-
   SecurityDashboard: (props: any) => (
     <Suspense fallback={
       <div className="flex items-center justify-center p-8">
@@ -206,7 +158,5 @@ export {
   EnhancedQuestionCreationComponent,
   QuizBuilderComponent,
   QuizAnalyticsComponent,
-  TemplateEditorComponent,
-  TemplateLibraryComponent,
   SecurityDashboardComponent
 }

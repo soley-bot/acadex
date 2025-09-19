@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useCacheStats, courseCache, quizCache, userCache, cacheDebug } from '@/lib/cache'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Button } from '@mantine/core'
 import { Database, Trash2, Eye, RefreshCw } from 'lucide-react'
 
 interface CacheStatsDisplayProps {

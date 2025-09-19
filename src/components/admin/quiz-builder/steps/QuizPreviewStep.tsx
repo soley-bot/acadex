@@ -5,6 +5,7 @@ import React, { memo, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Eye, CheckCircle, AlertTriangle, Clock, Target, Users, BarChart3 } from 'lucide-react'
 import { useQuizBuilderPerformance } from '@/lib/adminPerformanceSystem'
+import { calculateQuizStats } from '../utils/QuizBuilderUtils'
 import type { Quiz, QuizQuestion } from '@/lib/supabase'
 
 interface QuizPreviewStepProps {
@@ -29,59 +30,19 @@ export const QuizPreviewStep = memo<QuizPreviewStepProps>(({
 
   // Calculate quiz statistics
   const quizStats = useMemo(() => {
-    const totalQuestions = questions.length
-    const validQuestions = questions.filter(q => {
-      // Basic validation - all questions need question text
-      if (!q.question?.trim()) return false
-      
-      // Type-specific validation
-      switch (q.question_type) {
-        case 'multiple_choice':
-        case 'single_choice':
-          return q.options && q.options.length >= 2 && q.correct_answer !== null
-        
-        case 'true_false':
-          return q.correct_answer !== null && q.correct_answer !== undefined
-        
-        case 'fill_blank':
-        case 'essay':
-          return true // Only need question text
-        
-        case 'matching':
-          return q.options && q.options.length >= 2
-        
-        case 'ordering':
-          return q.options && q.options.length >= 2
-        
-        default:
-          return q.correct_answer !== null
-      }
-    }).length
+    const baseStats = calculateQuizStats(quiz, questions)
     
-    const totalPoints = questions.reduce((sum, q) => sum + (q.points || 1), 0)
-    const estimatedTime = Math.ceil(totalQuestions * 1.5) // 1.5 minutes per question average
-    
-    const questionTypes = questions.reduce((acc, q) => {
-      const type = q.question_type || 'multiple_choice'
-      acc[type] = (acc[type] || 0) + 1
-      return acc
-    }, {} as Record<string, number>)
-
+    // Add category validation for this component
     const isValid = !!(
       quiz.title?.trim() &&
       quiz.category?.trim() &&
-      totalQuestions > 0 &&
-      validQuestions === totalQuestions
+      baseStats.totalQuestions > 0 &&
+      baseStats.validQuestions === baseStats.totalQuestions
     )
 
     return {
-      totalQuestions,
-      validQuestions,
-      totalPoints,
-      estimatedTime,
-      questionTypes,
-      isValid,
-      completionRate: totalQuestions > 0 ? (validQuestions / totalQuestions) * 100 : 0
+      ...baseStats,
+      isValid
     }
   }, [quiz, questions])
 

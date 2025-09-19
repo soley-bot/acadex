@@ -19,7 +19,6 @@ export interface FeatureFlags {
   // Phase 4: Advanced Features
   BULK_OPERATIONS: boolean
   ENHANCED_QUESTION_CREATION: boolean
-  QUESTION_TEMPLATES: boolean
   
   // Phase 5: Polish & Optimization
   VIRTUALIZED_LISTS: boolean
@@ -46,7 +45,6 @@ const DEFAULT_FLAGS: FeatureFlags = {
   // Phase 4: Advanced Features (Power user features)
   BULK_OPERATIONS: true,
   ENHANCED_QUESTION_CREATION: false, // Disabled - users prefer direct approach
-  QUESTION_TEMPLATES: false, // Disabled - not needed right now
   
   // Phase 5: Polish & Optimization (Performance features)
   VIRTUALIZED_LISTS: false,
@@ -69,7 +67,6 @@ function getFeatureFlags(): FeatureFlags {
       QUICK_EDIT_MODE: process.env.NEXT_PUBLIC_FF_QUICK_EDIT === 'true' || DEFAULT_FLAGS.QUICK_EDIT_MODE,
       BULK_OPERATIONS: process.env.NEXT_PUBLIC_FF_BULK_OPERATIONS === 'true' || DEFAULT_FLAGS.BULK_OPERATIONS,
       ENHANCED_QUESTION_CREATION: process.env.NEXT_PUBLIC_FF_ENHANCED_CREATION === 'true' || DEFAULT_FLAGS.ENHANCED_QUESTION_CREATION,
-      QUESTION_TEMPLATES: process.env.NEXT_PUBLIC_FF_TEMPLATES === 'true' || DEFAULT_FLAGS.QUESTION_TEMPLATES,
       VIRTUALIZED_LISTS: process.env.NEXT_PUBLIC_FF_VIRTUALIZED_LISTS === 'true' || DEFAULT_FLAGS.VIRTUALIZED_LISTS,
       ADVANCED_ANIMATIONS: process.env.NEXT_PUBLIC_FF_ANIMATIONS === 'true' || DEFAULT_FLAGS.ADVANCED_ANIMATIONS,
       PERFORMANCE_OPTIMIZATIONS: process.env.NEXT_PUBLIC_FF_PERFORMANCE === 'true' || DEFAULT_FLAGS.PERFORMANCE_OPTIMIZATIONS
