@@ -274,40 +274,6 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
                     </div>
                   </div>
 
-                  {/* Reading Passage Section - Only for reading quizzes */}
-                  {quiz.reading_passage && (
-                    <div className="mb-8">
-                      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <h3 className="font-semibold text-blue-900 mb-1">
-                              {quiz.passage_title || 'Reading Passage'}
-                            </h3>
-                            {quiz.passage_source && (
-                              <p className="text-blue-600 text-sm">Source: {quiz.passage_source}</p>
-                            )}
-                          </div>
-                          {quiz.word_count && (
-                            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                              {quiz.word_count} words
-                            </span>
-                          )}
-                        </div>
-                        <div className="bg-white border border-blue-200 rounded-lg p-4 max-h-80 overflow-y-auto">
-                          <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
-                            {quiz.reading_passage}
-                          </div>
-                        </div>
-                        {quiz.estimated_read_time && (
-                          <div className="flex items-center gap-2 mt-3 text-blue-600 text-sm">
-                            <Clock className="h-4 w-4" />
-                            Estimated reading time: {quiz.estimated_read_time} minutes
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
                   {/* Quiz Details */}
                   <div className="bg-gray-50 p-6 rounded-lg">
                     <h3 className="font-semibold text-gray-900 mb-4">Quiz Information</h3>

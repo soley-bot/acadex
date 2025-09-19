@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { ArrowLeft, Clock, BookOpen, HelpCircle, ChevronLeft, ChevronRight, CheckCircle, ChevronUp, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
-import { ReadingPassageDisplay } from '../display/ReadingPassageDisplay'
 import { QuestionContent } from '../core/QuestionContent'
 import type { Quiz } from '@/lib/supabase'
 
@@ -27,7 +26,6 @@ interface SimpleSplitLayoutProps {
 export default function SimpleSplitQuizLayout({ quiz }: SimpleSplitLayoutProps) {
   const [answers, setAnswers] = useState<Record<string, any>>({})
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [passageCollapsed, setPassageCollapsed] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [timeLeft] = useState(29 * 60 + 46) // 29:46
   const [submitting] = useState(false)
@@ -114,37 +112,6 @@ export default function SimpleSplitQuizLayout({ quiz }: SimpleSplitLayoutProps) 
       {/* Mobile Layout */}
       {isMobile ? (
         <div className="p-4 space-y-4">
-          {/* Reading Passage - Collapsible */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <button
-              onClick={() => setPassageCollapsed(!passageCollapsed)}
-              className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors rounded-t-xl"
-            >
-              <div className="flex items-center">
-                <BookOpen className="w-5 h-5 mr-3 text-blue-600" />
-                <span className="font-semibold text-gray-900">Reading Passage</span>
-              </div>
-              <div className="flex items-center text-sm text-blue-600">
-                <span className="mr-2">
-                  {passageCollapsed ? 'Show' : 'Hide'}
-                </span>
-                {passageCollapsed ? (
-                  <ChevronDown className="w-4 h-4" />
-                ) : (
-                  <ChevronUp className="w-4 h-4" />
-                )}
-              </div>
-            </button>
-
-            {!passageCollapsed && (
-              <div className="px-4 pb-4 border-t border-gray-100">
-                <div className="max-h-80 overflow-y-auto">
-                  <ReadingPassageDisplay passage={quiz.reading_passage || ''} />
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Question Card */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="mb-4">
@@ -215,25 +182,9 @@ export default function SimpleSplitQuizLayout({ quiz }: SimpleSplitLayoutProps) 
           </div>
         </div>
       ) : (
-        /* Desktop Split-Screen Layout - Exactly like your drawing */
-        <div className="h-[calc(100vh-81px)] flex">
-          {/* Left Side - Reading Passage (50%) */}
-          <div className="w-1/2 bg-white border-r border-gray-300 flex flex-col">
-            <div className="bg-gray-100 border-b border-gray-300 px-6 py-4">
-              <div className="flex items-center">
-                <BookOpen className="w-5 h-5 mr-3 text-blue-600" />
-                <h2 className="font-semibold text-gray-900 text-lg">Reading Passage</h2>
-              </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6">
-              <div className="prose prose-lg max-w-none">
-                <ReadingPassageDisplay passage={quiz.reading_passage || ''} />
-              </div>
-            </div>
-          </div>
-
-          {/* Right Side - Question Area (50%) */}
-          <div className="w-1/2 bg-white flex flex-col">
+        /* Desktop Single-Column Layout */
+        <div className="max-w-4xl mx-auto p-6">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200">
             <div className="bg-gray-100 border-b border-gray-300 px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
@@ -246,7 +197,7 @@ export default function SimpleSplitQuizLayout({ quiz }: SimpleSplitLayoutProps) 
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="p-8">
               <QuestionContent
                 question={currentQuestion}
                 answer={answers[currentQuestion?.id] || null}
@@ -300,9 +251,12 @@ export default function SimpleSplitQuizLayout({ quiz }: SimpleSplitLayoutProps) 
                 </div>
 
                 {currentQuestionIndex === totalQuestions - 1 ? (
-                  <button className="flex items-center px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-lg">
+                  <button 
+                    disabled={submitting}
+                    className="flex items-center px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-lg"
+                  >
                     <CheckCircle className="w-5 h-5 mr-2" />
-                    Submit Quiz
+                    {submitting ? 'Submitting...' : 'Submit Quiz'}
                   </button>
                 ) : (
                   <button 

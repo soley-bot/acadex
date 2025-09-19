@@ -324,9 +324,9 @@ export function useAdminDashboardData(page = 1, limit = 12) {
       logger.debug('🚀 Fetching admin dashboard data in batch')
       const headers = await getAuthHeaders()
       
-      // Make parallel requests for better performance - use slim mode for list view
+      // Make parallel requests for better performance - use full mode for admin dashboard
       const [quizzesRes, categoriesRes] = await Promise.all([
-        fetch(`/api/admin/quizzes?page=${page}&limit=${limit}&mode=slim`, {
+        fetch(`/api/admin/quizzes?page=${page}&limit=${limit}&mode=full`, {
           method: 'GET',
           headers,
           credentials: 'include'

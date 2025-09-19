@@ -75,7 +75,6 @@ export default function AdminQuizzesPage() {
   // Modal states
   const [showQuizForm, setShowQuizForm] = useState(false)
   const [editingQuiz, setEditingQuiz] = useState<Quiz | null>(null)
-  const [quizType, setQuizType] = useState<'standard' | 'reading'>('standard')
   const [deletingQuiz, setDeletingQuiz] = useState<Quiz | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
@@ -132,10 +131,20 @@ export default function AdminQuizzesPage() {
     if (!quizzes.length) return []
     
     return quizzes.filter(quiz => {
-      const matchesSearch = quiz.title.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
-                           quiz.description.toLowerCase().includes(deferredSearchTerm.toLowerCase())
-      const matchesCategory = deferredSelectedCategories.length === 0 || deferredSelectedCategories.includes(quiz.category)
-      const matchesDifficulty = deferredSelectedDifficulty === 'all' || quiz.difficulty === deferredSelectedDifficulty
+      // Safe search matching - handle empty search terms and null values
+      const searchTerm = deferredSearchTerm?.toLowerCase() || ''
+      const matchesSearch = !searchTerm || 
+                           (quiz.title?.toLowerCase() || '').includes(searchTerm) ||
+                           (quiz.description?.toLowerCase() || '').includes(searchTerm)
+      
+      // Category filtering
+      const matchesCategory = deferredSelectedCategories.length === 0 || 
+                             deferredSelectedCategories.includes(quiz.category)
+      
+      // Difficulty filtering  
+      const matchesDifficulty = deferredSelectedDifficulty === 'all' || 
+                               quiz.difficulty === deferredSelectedDifficulty
+      
       return matchesSearch && matchesCategory && matchesDifficulty
     })
   }, [quizzes, deferredSearchTerm, deferredSelectedCategories, deferredSelectedDifficulty])
@@ -161,13 +170,6 @@ export default function AdminQuizzesPage() {
   // ===== OPTIMIZED EVENT HANDLERS =====
   const handleCreateQuiz = useCallback(() => {
     setEditingQuiz(null)
-    setQuizType('standard')
-    setShowQuizForm(true)
-  }, [])
-
-  const handleCreateReadingQuiz = useCallback(() => {
-    setEditingQuiz(null)
-    setQuizType('reading')
     setShowQuizForm(true)
   }, [])
 
@@ -486,16 +488,6 @@ export default function AdminQuizzesPage() {
                           <div className="text-xs text-muted-foreground">Build from scratch</div>
                         </div>
                       </Link>
-                      <button
-                        onClick={handleCreateReadingQuiz}
-                        className="w-full text-left px-4 py-3 hover:bg-muted rounded-lg flex items-center gap-3 transition-colors"
-                      >
-                        <BookOpen size={16} className="text-green-600" />
-                        <div>
-                          <div className="font-medium">Reading Quiz</div>
-                          <div className="text-xs text-muted-foreground">Quiz with reading passage</div>
-                        </div>
-                      </button>
                       <button
                         disabled
                         className="w-full text-left px-4 py-3 opacity-50 cursor-not-allowed rounded-lg flex items-center gap-3 transition-colors"
@@ -919,18 +911,12 @@ export default function AdminQuizzesPage() {
                 }
               </p>
               {!searchTerm && selectedCategories.length === 0 && selectedDifficulty === 'all' && (
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <div className="flex justify-center">
                   <button 
                     onClick={handleCreateQuiz}
                     className="bg-gradient-to-r from-secondary to-secondary/90 hover:from-secondary/80 hover:to-secondary/90 text-white px-8 py-4 rounded-xl font-semibold text-base transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                   >
-                    Create Standard Quiz
-                  </button>
-                  <button 
-                    onClick={handleCreateReadingQuiz}
-                    className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white px-8 py-4 rounded-xl font-semibold text-base transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                  >
-                    Create Reading Quiz
+                    Create New Quiz
                   </button>
                 </div>
               )}
@@ -962,7 +948,6 @@ export default function AdminQuizzesPage() {
           isOpen={showQuizForm}
           onClose={() => setShowQuizForm(false)}
           onSuccess={handleFormSuccess}
-          quizType={quizType}
         />
   
         <DeleteModal

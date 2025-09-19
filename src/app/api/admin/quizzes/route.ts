@@ -78,7 +78,7 @@ export const GET = withAdminAuth(async (request: NextRequest, user) => {
         const quizIds = quizzes?.map((q: any) => q.id) || []
         
         // Get question counts for each quiz
-        const { data: questionCounts } = await serviceClient
+        const { data: questionCounts, error: questionCountsError } = await serviceClient
           .from('quiz_questions')
           .select('quiz_id')
           .in('quiz_id', quizIds)

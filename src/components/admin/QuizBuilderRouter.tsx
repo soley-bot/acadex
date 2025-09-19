@@ -9,29 +9,18 @@ export interface QuizBuilderRouterProps {
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
-  quizType?: 'standard' | 'reading'
   prefilledData?: any // For compatibility with existing code
 }
 
-export const QuizBuilderRouter: React.FC<QuizBuilderRouterProps> = ({ 
-  quizType = 'standard',
-  ...props 
-}) => {
-  // Auto-detect quiz type from existing quiz data
-  const detectedType = props.quiz?.reading_passage ? 'reading' : quizType
-  
+export const QuizBuilderRouter: React.FC<QuizBuilderRouterProps> = (props) => {
   console.log('🚀 QuizBuilderRouter:', { 
-    passedQuizType: quizType, 
-    detectedType, 
-    hasQuiz: !!props.quiz,
-    hasPassage: !!(props.quiz as any)?.reading_passage
+    hasQuiz: !!props.quiz
   })
 
-  // Use unified QuizBuilder for both types
+  // Use unified QuizBuilder
   return (
     <QuizBuilder 
       {...props} 
-      quizType={detectedType}
     />
   )
 }

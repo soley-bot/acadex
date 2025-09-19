@@ -37,7 +37,7 @@ export default function EditQuizPage() {
         console.log('Fetching quiz with ID:', params.id)
         console.log('Using headers:', headers)
 
-        const response = await fetch(`/api/admin/quizzes/${params.id}`, {
+        const response = await fetch(`/api/admin/quizzes/${params.id}?includeQuestions=true`, {
           method: 'GET',
           credentials: 'include', // Include cookies as fallback
           headers

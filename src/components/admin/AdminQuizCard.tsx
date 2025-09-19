@@ -115,12 +115,6 @@ export function AdminQuizCard({
                 <span className={`px-2 py-1 rounded-md font-medium ${getDifficultyColor(quiz.difficulty)}`}>
                   {quiz.difficulty}
                 </span>
-                {quiz.reading_passage && (
-                  <span className="px-2 py-1 rounded-md font-medium bg-blue-100 text-blue-700 flex items-center gap-1">
-                    <BookOpen className="h-3 w-3" />
-                    Reading
-                  </span>
-                )}
                 <span>{quiz.category}</span>
                 <span>{quiz.total_questions}q</span>
                 <span>{quiz.duration_minutes}m</span>
@@ -231,12 +225,6 @@ export function AdminQuizCard({
               <span className={`inline-flex px-3 py-2 text-sm font-bold rounded-xl capitalize ${getDifficultyColor(quiz.difficulty)}`}>
                 {quiz.difficulty}
               </span>
-              {quiz.reading_passage && (
-                <span className="inline-flex px-3 py-2 text-sm font-bold rounded-xl bg-blue-100 text-blue-700 items-center gap-1">
-                  <BookOpen className="h-4 w-4" />
-                  Reading Quiz
-                </span>
-              )}
             </div>
             <span className="text-base text-gray-700 font-medium capitalize">{quiz.category}</span>
           </div>

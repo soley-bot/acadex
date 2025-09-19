@@ -176,12 +176,6 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
               <span className="text-xs px-2 py-1 bg-muted/50 rounded-md">
                 {quiz.category || 'General'}
               </span>
-              {/* Reading Quiz Indicator */}
-              {quiz.reading_passage && (
-                <span className="ml-2 text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-md font-medium">
-                  📖 Reading
-                </span>
-              )}
             </div>
           </div>
 
