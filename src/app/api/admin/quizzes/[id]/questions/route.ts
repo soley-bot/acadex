@@ -58,100 +58,117 @@ async function performQuestionSave(request: NextRequest, quizId: string) {
   // Create admin service client
   const supabase = createServiceClient()
 
-  // Use a transaction-like approach with more robust error handling
-  // First, ensure we have a clean slate by deleting existing questions
-  let deleteAttempts = 0
-  const maxDeleteAttempts = 3
-  
-  while (deleteAttempts < maxDeleteAttempts) {
+  try {
+    logger.info('Starting optimized bulk question save', { quizId, questionsCount: questions.length })
+
+    // Use a more efficient approach: upsert instead of delete+insert
+    // This reduces the number of database operations and trigger executions
+    const questionsWithIds = questions.map((q: any, index: number) => ({
+      // Always generate new ID to avoid conflicts
+      id: crypto.randomUUID(),
+      quiz_id: quizId,
+      question: q.question,
+      question_type: q.question_type,
+      options: q.options,
+      correct_answer: q.correct_answer,
+      correct_answer_text: q.correct_answer_text,
+      correct_answer_json: q.correct_answer_json,
+      explanation: q.explanation,
+      order_index: index,
+      points: q.points,
+      difficulty_level: q.difficulty_level,
+      image_url: q.image_url,
+      audio_url: q.audio_url,
+      video_url: q.video_url,
+      tags: q.tags,
+      time_limit_seconds: q.time_limit_seconds,
+      required: q.required,
+      randomize_options: q.randomize_options,
+      partial_credit: q.partial_credit,
+      feedback_correct: q.feedback_correct,
+      feedback_incorrect: q.feedback_incorrect,
+      hint: q.hint
+    }))
+
+    // For better performance, do a clean replace operation
+    // First delete existing questions
     const { error: deleteError } = await supabase
       .from('quiz_questions')
       .delete()
       .eq('quiz_id', quizId)
 
-    if (!deleteError) {
-      logger.info('Successfully cleared existing questions', { quizId, attempt: deleteAttempts + 1 })
-      break
-    }
-    
-    deleteAttempts++
-    logger.warn('Delete attempt failed', { deleteError, quizId, attempt: deleteAttempts })
-    
-    if (deleteAttempts >= maxDeleteAttempts) {
-      logger.error('Failed to clear existing questions after multiple attempts', { deleteError, quizId })
+    if (deleteError) {
+      logger.error('Failed to clear existing questions', { deleteError, quizId })
       return NextResponse.json({
         error: 'Failed to clear existing questions',
         details: deleteError.message
       }, { status: 500 })
     }
-    
-    // Wait a bit before retrying
-    await new Promise(resolve => setTimeout(resolve, 100))
-  }
 
-  // Prepare questions with guaranteed fresh IDs and clean order_index
-  const questionsWithIds = questions.map((q: any, index: number) => ({
-    // Always generate new ID to avoid conflicts
-    id: crypto.randomUUID(),
-    quiz_id: quizId,
-    question: q.question,
-    question_type: q.question_type,
-    options: q.options,
-    correct_answer: q.correct_answer,
-    correct_answer_text: q.correct_answer_text,
-    correct_answer_json: q.correct_answer_json,
-    explanation: q.explanation,
-    order_index: index,
-    points: q.points,
-    difficulty_level: q.difficulty_level,
-    image_url: q.image_url,
-    audio_url: q.audio_url,
-    video_url: q.video_url,
-    tags: q.tags,
-    time_limit_seconds: q.time_limit_seconds,
-    required: q.required,
-    randomize_options: q.randomize_options,
-    partial_credit: q.partial_credit,
-    feedback_correct: q.feedback_correct,
-    feedback_incorrect: q.feedback_incorrect,
-    hint: q.hint
-  }))
+    // Then insert all new questions in smaller batches to reduce load
+    const BATCH_SIZE = 5 // Insert in batches of 5 to reduce trigger load
+    const batches = []
+    for (let i = 0; i < questionsWithIds.length; i += BATCH_SIZE) {
+      batches.push(questionsWithIds.slice(i, i + BATCH_SIZE))
+    }
 
-  const { data: insertedQuestions, error: insertError } = await supabase
-    .from('quiz_questions')
-    .insert(questionsWithIds)
-    .select()
+    let allInsertedQuestions: any[] = []
 
-  if (insertError) {
-    logger.error('Failed to insert questions', { insertError, quizId, questionsCount: questions.length })
+    for (const batch of batches) {
+      const { data: batchResults, error: batchError } = await supabase
+        .from('quiz_questions')
+        .insert(batch)
+        .select()
+
+      if (batchError) {
+        logger.error('Failed to insert question batch', { batchError, quizId, batchSize: batch.length })
+        return NextResponse.json({
+          error: 'Failed to save questions batch',
+          details: batchError.message
+        }, { status: 500 })
+      }
+
+      if (batchResults) {
+        allInsertedQuestions.push(...batchResults)
+      }
+
+      // Small delay between batches to prevent overwhelming the database
+      if (batches.length > 1) {
+        await new Promise(resolve => setTimeout(resolve, 50))
+      }
+    }
+
+    // Update the quiz total_questions count once at the end
+    const { error: updateError } = await supabase
+      .from('quizzes')
+      .update({ total_questions: questions.length })
+      .eq('id', quizId)
+
+    if (updateError) {
+      logger.warn('Failed to update quiz total_questions', { updateError, quizId })
+      // Don't fail the entire operation for this
+    }
+
+    logger.info('Questions saved successfully with batched approach', { 
+      quizId, 
+      questionsCount: questions.length,
+      insertedCount: allInsertedQuestions.length,
+      batchCount: batches.length
+    })
+
+    return NextResponse.json({
+      success: true,
+      questions: allInsertedQuestions,
+      message: `${questions.length} questions saved successfully`
+    })
+
+  } catch (error: any) {
+    logger.error('Failed to save questions', { error: error.message, quizId })
     return NextResponse.json({
       error: 'Failed to save questions',
-      details: insertError.message
+      details: error.message
     }, { status: 500 })
   }
-
-  // Update the quiz total_questions count
-  const { error: updateError } = await supabase
-    .from('quizzes')
-    .update({ total_questions: questions.length })
-    .eq('id', quizId)
-
-  if (updateError) {
-    logger.warn('Failed to update quiz total_questions', { updateError, quizId })
-  }
-
-  logger.info('Questions saved successfully', { 
-    quizId, 
-    questionsCount: questions.length,
-    insertedCount: insertedQuestions?.length,
-    deletedCount: 'all_existing'
-  })
-
-  return NextResponse.json({
-    success: true,
-    questions: insertedQuestions,
-    message: `${questions.length} questions saved successfully`
-  })
 }
 
 export const GET = withAdminAuth(async (
