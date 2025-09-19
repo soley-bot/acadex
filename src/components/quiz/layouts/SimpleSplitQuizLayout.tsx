@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { ArrowLeft, Clock, BookOpen, HelpCircle, ChevronLeft, ChevronRight, CheckCircle, ChevronUp, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
-import { ReadingPassageDisplayNew } from './ReadingPassageDisplayNew'
-import { QuestionContentNew } from './QuestionContentNew'
+import { ReadingPassageDisplay } from '../display/ReadingPassageDisplay'
+import { QuestionContent } from '../core/QuestionContent'
 import type { Quiz } from '@/lib/supabase'
 
 interface SimpleSplitLayoutProps {
@@ -139,7 +139,7 @@ export default function SimpleSplitQuizLayout({ quiz }: SimpleSplitLayoutProps) 
             {!passageCollapsed && (
               <div className="px-4 pb-4 border-t border-gray-100">
                 <div className="max-h-80 overflow-y-auto">
-                  <ReadingPassageDisplayNew passage={quiz.reading_passage || ''} />
+                  <ReadingPassageDisplay passage={quiz.reading_passage || ''} />
                 </div>
               </div>
             )}
@@ -153,7 +153,7 @@ export default function SimpleSplitQuizLayout({ quiz }: SimpleSplitLayoutProps) 
                 <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{currentQuestion?.question_type}</span>
               </div>
             </div>
-            <QuestionContentNew
+            <QuestionContent
               question={currentQuestion}
               answer={answers[currentQuestion?.id] || null}
               onAnswerChange={handleAnswerChange}
@@ -227,7 +227,7 @@ export default function SimpleSplitQuizLayout({ quiz }: SimpleSplitLayoutProps) 
             </div>
             <div className="flex-1 overflow-y-auto p-6">
               <div className="prose prose-lg max-w-none">
-                <ReadingPassageDisplayNew passage={quiz.reading_passage || ''} />
+                <ReadingPassageDisplay passage={quiz.reading_passage || ''} />
               </div>
             </div>
           </div>
@@ -247,7 +247,7 @@ export default function SimpleSplitQuizLayout({ quiz }: SimpleSplitLayoutProps) 
             </div>
 
             <div className="flex-1 overflow-y-auto p-6">
-              <QuestionContentNew
+              <QuestionContent
                 question={currentQuestion}
                 answer={answers[currentQuestion?.id] || null}
                 onAnswerChange={handleAnswerChange}

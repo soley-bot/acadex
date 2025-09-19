@@ -3048,3 +3048,18 @@
   background-color: hsl(var(--muted));
   color: hsl(var(--primary));
 }
+
+/* ============================================================================
+   SCROLLBAR UTILITIES - Mobile optimized scrollbars
+   ============================================================================ */
+@layer utilities {
+  .scrollbar-hide {
+    /* Firefox */
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    /* Safari and Chrome */
+    display: none;
+  }
+}

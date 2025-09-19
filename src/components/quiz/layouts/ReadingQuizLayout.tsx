@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ReadingPassageDisplay } from './ReadingPassageDisplay'
+import { ReadingPassageDisplay } from '../display/ReadingPassageDisplay'
 import { FileText, HelpCircle, BookOpen, Timer, BarChart3 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Quiz } from '@/lib/supabase'

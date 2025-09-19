@@ -12,7 +12,7 @@ import Header from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { MatchingQuestion } from '@/components/student/quiz/MatchingQuestion'
 import { MobileNavBarMinimal } from '@/components/mobile/MobileNavBar'
-import SimpleSplitQuizLayout from '@/components/quiz/SimpleSplitQuizLayout'
+import SimpleSplitQuizLayout from '@/components/quiz/layouts/SimpleSplitQuizLayout'
 import { 
   QuizStatusBar, 
   ProgressRestoreNotification 
@@ -814,40 +814,50 @@ export default function TakeQuizPage() {
           </div>
         </div>
 
-        {/* Main Quiz Content - Optimized Spacing */}
-        <div className="bg-white/95 rounded-xl p-5 shadow-lg border border-white/20">
+        {/* Main Quiz Content - Enhanced Mobile-First UI/UX */}
+        <div className="bg-white/95 rounded-xl p-4 sm:p-6 shadow-lg border border-white/20">
           {currentQuestion ? (
             <>
-              {/* Question - Compact Typography */}
-              <div className="mb-6">
-                <div className="bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg p-4 mb-4">
-                  <h2 className="text-xl font-semibold text-foreground leading-relaxed">
+              {/* Question Header - Improved Typography & Spacing */}
+              <div className="mb-5 sm:mb-6">
+                <div className="bg-gradient-to-r from-primary/8 to-secondary/8 rounded-lg p-3 sm:p-4 border border-primary/10">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <span className="text-xs sm:text-sm font-medium text-primary/70 uppercase tracking-wide">
+                      Question {currentQuestionIndex + 1} of {questions.length}
+                    </span>
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                      {currentQuestion.question_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </span>
+                  </div>
+                  <h2 className="text-lg sm:text-xl font-semibold text-foreground leading-relaxed">
                     {currentQuestion.question}
                   </h2>
                 </div>
               </div>
               
-              {/* Answer Options - Compact Spacing */}
-              <div className="space-y-2 mb-5">
-                {/* Multiple Choice / Single Choice */}
+              {/* Answer Options - Mobile-Optimized Spacing */}
+              <div className="space-y-3 mb-6">
+                {/* Multiple Choice / Single Choice - Enhanced Mobile UI */}
                 {(currentQuestion.question_type === 'multiple_choice' || currentQuestion.question_type === 'single_choice') && Array.isArray(currentQuestion.options) && (
                   <>
                     {(currentQuestion.options as string[]).map((option, index) => (
                       <label
                         key={index}
-                        className={`flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                        className={`group flex items-start gap-3 sm:gap-4 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 min-h-[48px] touch-manipulation ${
                           answers[currentQuestion?.id ?? ''] === index
-                            ? 'border-primary bg-primary/5'
-                            : 'border-gray-200 bg-white hover:border-red-300 hover:bg-red-25'
+                            ? 'border-primary bg-primary/8 shadow-sm'
+                            : 'border-gray-200 bg-white hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm'
                         }`}
+                        style={{ touchAction: 'manipulation' }}
                       >
-                        <div className={`flex items-center justify-center w-5 h-5 rounded-full border-2 transition-all ${
+                        {/* Custom Radio Button - Properly Sized */}
+                        <div className={`flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 transition-all flex-shrink-0 mt-0.5 ${
                           answers[currentQuestion?.id ?? ''] === index
-                            ? 'border-primary bg-primary/50'
-                            : 'border-gray-400 bg-white'
+                            ? 'border-primary bg-primary'
+                            : 'border-gray-400 bg-white group-hover:border-primary/50'
                         }`}>
                           {answers[currentQuestion?.id ?? ''] === index && (
-                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"></div>
                           )}
                         </div>
                         <input
@@ -858,7 +868,8 @@ export default function TakeQuizPage() {
                           onChange={() => currentQuestion && handleAnswerChange(currentQuestion.id, index)}
                           className="sr-only"
                         />
-                        <span className="text-base text-gray-800 flex-1">
+                        {/* Option Text - Better Typography */}
+                        <span className="text-sm sm:text-base text-gray-800 flex-1 leading-relaxed group-hover:text-gray-900">
                           {option}
                         </span>
                       </label>
@@ -866,22 +877,24 @@ export default function TakeQuizPage() {
                   </>
                 )}
 
-                {/* True/False */}
+                {/* True/False - Enhanced Mobile UI */}
                 {currentQuestion.question_type === 'true_false' && (
-                  <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {['True', 'False'].map((option, index) => (
                       <label
                         key={index}
-                        className={`flex items-start gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                        className={`group flex items-center justify-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 min-h-[56px] touch-manipulation ${
                           answers[currentQuestion?.id ?? ''] === index
-                            ? 'border-primary bg-primary/5'
-                            : 'border-gray-200 bg-white hover:border-red-300 hover:bg-red-25'
+                            ? 'border-primary bg-primary/8 shadow-sm'
+                            : 'border-gray-200 bg-white hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm'
                         }`}
+                        style={{ touchAction: 'manipulation' }}
                       >
+                        {/* Custom Radio Button */}
                         <div className={`flex items-center justify-center w-5 h-5 rounded-full border-2 transition-all ${
                           answers[currentQuestion?.id ?? ''] === index
-                            ? 'border-primary bg-primary/50'
-                            : 'border-gray-400 bg-white'
+                            ? 'border-primary bg-primary'
+                            : 'border-gray-400 bg-white group-hover:border-primary/50'
                         }`}>
                           {answers[currentQuestion?.id ?? ''] === index && (
                             <div className="w-2 h-2 bg-white rounded-full"></div>
@@ -895,25 +908,25 @@ export default function TakeQuizPage() {
                           onChange={() => currentQuestion && handleAnswerChange(currentQuestion.id, index)}
                           className="sr-only"
                         />
-                        <span className="text-base text-gray-800 flex-1 font-medium">
+                        <span className="text-base sm:text-lg text-gray-800 font-medium group-hover:text-gray-900">
                           {option}
                         </span>
                       </label>
                     ))}
-                  </>
+                  </div>
                 )}
 
                 {/* Fill in the Blank - Mobile Enhanced */}
                 {currentQuestion.question_type === 'fill_blank' && (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <input
                       type="text"
                       placeholder="Type your answer here..."
                       value={answers[currentQuestion?.id ?? ''] || ''}
                       onChange={(e) => currentQuestion && handleAnswerChange(currentQuestion.id, e.target.value)}
-                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all text-base md:text-lg bg-white shadow-sm hover:shadow-md touch-manipulation"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all text-base bg-white shadow-sm hover:shadow-md touch-manipulation"
                       style={{ 
-                        minHeight: '48px', // Touch-friendly height
+                        minHeight: '52px', // Touch-friendly height
                         fontSize: '16px', // Prevent zoom on iOS
                         touchAction: 'manipulation'
                       }}
@@ -921,36 +934,38 @@ export default function TakeQuizPage() {
                       spellCheck="true"
                       autoCapitalize="sentences"
                     />
-                    <div className="text-xs text-gray-500 flex items-center gap-1">
-                      💡 <span>Tip: Your answer will be auto-saved as you type</span>
+                    <div className="flex items-center gap-2 text-xs text-gray-500 bg-blue-50 p-2 rounded-lg">
+                      <span className="text-blue-500">💡</span>
+                      <span>Your answer will be auto-saved as you type</span>
                     </div>
                   </div>
                 )}
 
                 {/* Essay - Mobile Enhanced */}
                 {currentQuestion.question_type === 'essay' && (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <textarea
                       placeholder="Write your essay answer here..."
                       value={answers[currentQuestion?.id ?? ''] || ''}
                       onChange={(e) => currentQuestion && handleAnswerChange(currentQuestion.id, e.target.value)}
-                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all text-base md:text-lg resize-none bg-white shadow-sm hover:shadow-md touch-manipulation"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all text-base resize-none bg-white shadow-sm hover:shadow-md touch-manipulation"
                       rows={6}
                       style={{ 
-                        minHeight: '120px', // Adequate space for writing
+                        minHeight: '140px', // Adequate space for writing
                         fontSize: '16px', // Prevent zoom on iOS
                         touchAction: 'manipulation',
-                        lineHeight: '1.5'
+                        lineHeight: '1.6'
                       }}
                       autoComplete="off"
                       spellCheck="true"
                       autoCapitalize="sentences"
                     />
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <div className="flex items-center gap-1">
-                        💡 <span>Take your time to provide a detailed answer</span>
+                    <div className="flex items-center justify-between text-xs bg-gray-50 p-3 rounded-lg">
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <span className="text-blue-500">💡</span>
+                        <span>Take your time to provide a detailed answer</span>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 text-gray-500 font-mono">
                         <span>Words: {(answers[currentQuestion?.id ?? ''] || '').split(' ').filter((word: string) => word.length > 0).length}</span>
                       </div>
                     </div>
@@ -1243,47 +1258,51 @@ export default function TakeQuizPage() {
               </div>
 
               {/* Navigation - Enhanced Mobile Design */}
-              <div className="flex items-center justify-between gap-2 sm:gap-4 pt-4 border-t border-gray-200">
+              <div className="flex items-center justify-between gap-3 sm:gap-4 pt-5 sm:pt-6 border-t border-gray-200">
                 {/* Previous Button - Mobile optimized */}
                 <button
                   onClick={handlePreviousQuestion}
                   disabled={currentQuestionIndex === 0}
-                  className="px-3 sm:px-4 py-3 bg-muted/40 text-gray-700 rounded-xl font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted/60 active:scale-95 touch-manipulation min-h-[44px] flex-shrink-0"
+                  className="px-4 sm:px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-200 active:scale-95 touch-manipulation min-h-[48px] flex-shrink-0 border border-gray-200"
                   style={{ touchAction: 'manipulation' }}
                 >
                   <span className="hidden sm:inline">← Previous</span>
-                  <span className="sm:hidden">←</span>
+                  <span className="sm:hidden text-lg">←</span>
                 </button>
 
                 {/* Question Navigator - Enhanced Mobile Experience */}
                 <div className="flex-1 flex items-center justify-center px-2">
                   {/* Mobile: Compact progress indicator */}
-                  <div className="sm:hidden flex items-center gap-2">
-                    <div className="flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1">
-                      <span className="text-xs font-medium text-gray-700">
-                        {currentQuestionIndex + 1} / {questions.length}
+                  <div className="sm:hidden flex items-center gap-3">
+                    <div className="flex items-center gap-2 bg-primary/10 rounded-full px-3 py-2 border border-primary/20">
+                      <span className="text-sm font-semibold text-primary">
+                        {currentQuestionIndex + 1}
+                      </span>
+                      <span className="text-xs text-primary/70">of</span>
+                      <span className="text-sm font-medium text-primary/80">
+                        {questions.length}
                       </span>
                     </div>
-                    <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="w-20 h-2.5 bg-gray-200 rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-primary transition-all duration-300 rounded-full"
+                        className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-300 rounded-full"
                         style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
                       />
                     </div>
                   </div>
 
                   {/* Desktop: Full question dots */}
-                  <div className="hidden sm:flex items-center gap-1 max-w-md overflow-x-auto">
+                  <div className="hidden sm:flex items-center gap-1.5 max-w-md overflow-x-auto scrollbar-hide">
                     {questions.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => handleQuestionNavigation(index)}
-                        className={`w-8 h-8 rounded-full text-xs font-medium transition-all duration-200 flex-shrink-0 hover:scale-110 active:scale-95 touch-manipulation ${
+                        className={`w-9 h-9 rounded-full text-sm font-semibold transition-all duration-200 flex-shrink-0 hover:scale-110 active:scale-95 touch-manipulation border-2 ${
                           index === currentQuestionIndex
-                            ? 'bg-primary text-white shadow-md'
+                            ? 'bg-primary text-white shadow-lg border-primary'
                             : answers[questions[index]?.id ?? ''] !== undefined
-                            ? 'bg-green-100 text-green-700 border-2 border-green-300 shadow-sm'
-                            : 'bg-muted/60 text-gray-600 hover:bg-muted/80'
+                            ? 'bg-green-50 text-green-700 border-green-300 shadow-sm hover:bg-green-100'
+                            : 'bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100 hover:border-gray-400'
                         }`}
                         style={{ touchAction: 'manipulation' }}
                         aria-label={`Go to question ${index + 1}`}
@@ -1299,11 +1318,11 @@ export default function TakeQuizPage() {
                   <button
                     onClick={handleSubmitQuiz}
                     disabled={submitting}
-                    className={`px-4 sm:px-6 py-3 rounded-xl font-medium text-sm transition-all duration-200 min-h-[44px] flex-shrink-0 shadow-sm ${
+                    className={`px-5 sm:px-8 py-3.5 rounded-xl font-semibold text-sm sm:text-base transition-all duration-200 min-h-[52px] flex-shrink-0 border-2 ${
                       submitting 
-                        ? 'bg-gray-400 cursor-not-allowed opacity-75' 
-                        : 'bg-success hover:bg-success/90 hover:shadow-md active:scale-95 touch-manipulation'
-                    } text-white`}
+                        ? 'bg-gray-400 border-gray-400 cursor-not-allowed opacity-75' 
+                        : 'bg-green-500 border-green-500 hover:bg-green-600 hover:border-green-600 hover:shadow-lg active:scale-95 touch-manipulation'
+                    } text-white shadow-md`}
                     style={{ touchAction: 'manipulation' }}
                     aria-label={submitting ? 'Submitting quiz, please wait' : 'Submit quiz'}
                   >
@@ -1311,11 +1330,11 @@ export default function TakeQuizPage() {
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                         <span className="hidden sm:inline">Submitting...</span>
-                        <span className="sm:hidden">...</span>
+                        <span className="sm:hidden">⏳</span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span className="hidden sm:inline">Submit Quiz</span>
@@ -1326,11 +1345,11 @@ export default function TakeQuizPage() {
                 ) : (
                   <button
                     onClick={handleNextQuestion}
-                    className="px-3 sm:px-4 py-3 bg-primary hover:bg-secondary text-white rounded-xl font-medium text-sm transition-all duration-200 active:scale-95 touch-manipulation min-h-[44px] flex-shrink-0 shadow-sm hover:shadow-md"
+                    className="px-5 sm:px-8 py-3.5 bg-primary hover:bg-primary/90 text-white rounded-xl font-semibold text-sm sm:text-base transition-all duration-200 active:scale-95 touch-manipulation min-h-[52px] flex-shrink-0 shadow-md hover:shadow-lg border-2 border-primary hover:border-primary/90"
                     style={{ touchAction: 'manipulation' }}
                   >
                     <span className="hidden sm:inline">Next →</span>
-                    <span className="sm:hidden">→</span>
+                    <span className="sm:hidden text-lg">→</span>
                   </button>
                 )}
               </div>

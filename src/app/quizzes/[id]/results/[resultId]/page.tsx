@@ -7,9 +7,9 @@ import { getQuizResults } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertTriangle, CheckCircle, BarChart3, Lightbulb, Check, Edit, RefreshCw, BookOpen, Clock, Target, Award } from 'lucide-react'
-import { CollapsibleSection } from '@/components/quiz/CollapsibleSection'
+import { CollapsibleSection } from '@/components/quiz/display/CollapsibleSection'
 import { ContextualBackButton } from '@/components/navigation/ContextualBackButton'
-import { ResultsExplanation } from '@/components/quiz/ResultsExplanation'
+import { ResultsExplanation } from '@/components/quiz/display/ResultsExplanation'
 import { logger } from '@/lib/logger'
 
 interface QuizResult {
