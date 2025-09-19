@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '@/lib/supabase'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -120,55 +119,63 @@ export function ImageBrowser({ isOpen, onClose, onSelect, selectedUrl, context =
     try {
       let storageImages: ImageItem[] = []
       
-      // Determine bucket and folder based on context
-      let bucket: string
-      let folders: string[]
+      // Determine buckets to load based on context
+      let buckets: string[]
       
       switch (context) {
         case 'quiz':
-          bucket = 'quiz-images'
-          folders = ['', 'quizzes']
+          buckets = ['quiz-images']
           break
         case 'course':
-          bucket = 'course-images'
-          folders = ['', 'courses']
+          buckets = ['course-images']
           break
         case 'lesson':
-          bucket = 'lesson-resources'
-          folders = ['', 'lessons', 'resources']
+          buckets = ['lesson-resources']
           break
         default:
-          bucket = 'course-images'
-          folders = ['', 'courses']
+          buckets = ['course-images', 'quiz-images']
       }
       
-      try {
-        // Load images from the context-specific bucket and folders
-        for (const folder of folders) {
-          const path = folder || ''
-          const { data: files, error } = await supabase.storage
-            .from(bucket)
-            .list(path, { limit: 100, sortBy: { column: 'created_at', order: 'desc' } })
+      // Load images from each relevant bucket using the API
+      for (const bucket of buckets) {
+        try {
+          console.log(`🖼️ [IMAGE_BROWSER] Loading images from bucket: ${bucket}`)
           
-          if (files && !error) {
-            const folderImages = files
-              .filter((file: any) => file.name.toLowerCase().match(/\.(jpg|jpeg|png|webp|gif)$/))
-              .map((file: any) => ({
-                id: `${bucket}-${folder || 'root'}-${file.name}`,
-                name: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ').replace(/^\d+-\w+-/, ''),
-                url: supabase.storage.from(bucket).getPublicUrl(folder ? `${folder}/${file.name}` : file.name).data.publicUrl,
-                bucket,
-                folder: folder || 'root',
-                size: file.metadata?.size,
-                lastModified: file.created_at,
-                type: 'storage' as const
-              }))
+          // Use the API route instead of direct Supabase calls
+          const response = await fetch(`/api/admin/images?bucket=${bucket}`, {
+            method: 'GET',
+            credentials: 'include', // Include cookies for authentication
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          })
+          
+          console.log(`🖼️ [IMAGE_BROWSER] API response status:`, response.status)
+          
+          if (response.ok) {
+            const { images } = await response.json()
+            
+            console.log(`🖼️ [IMAGE_BROWSER] Loaded ${images?.length || 0} images from ${bucket}`)
+            
+            const folderImages = images.map((file: any) => ({
+              id: `${bucket}-${file.name}`,
+              name: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ').replace(/^\d+-\w+-/, ''),
+              url: file.url,
+              bucket,
+              folder: 'storage',
+              size: file.size,
+              lastModified: file.lastModified,
+              type: 'storage' as const
+            }))
             
             storageImages.push(...folderImages)
+          } else {
+            const errorData = await response.json().catch(() => ({}))
+            console.error(`❌ [IMAGE_BROWSER] Failed to load images from bucket ${bucket}:`, response.status, response.statusText, errorData)
           }
+        } catch (bucketErr) {
+          console.error(`❌ [IMAGE_BROWSER] Error loading from bucket ${bucket}:`, bucketErr)
         }
-      } catch (bucketErr) {
-        console.warn(`Error loading from bucket ${bucket}:`, bucketErr)
       }
       
       // Sort by creation date (newest first)
