@@ -1,11 +1,12 @@
 {
   "name": "Acadex - English Learning Platform",
   "short_name": "Acadex",
-  "description": "Master English with expert-led courses and interactive quizzes",
+  "description": "Master English with expert-led courses and interactive quizzes. Practice offline with persistent storage.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#dc2626",
+  "scope": "/",
   "icons": [
     {
       "src": "/favicon.ico",
@@ -17,10 +18,68 @@
       "sizes": "192x192",
       "type": "image/x-icon",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
     }
   ],
-  "categories": ["education", "productivity"],
+  "screenshots": [
+    {
+      "src": "/og-image-ielts.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Acadex Dashboard - Desktop View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Take a Quiz",
+      "short_name": "Quiz",
+      "description": "Start a new quiz session",
+      "url": "/quizzes",
+      "icons": [
+        {
+          "src": "/favicon.ico",
+          "sizes": "32x32",
+          "type": "image/x-icon"
+        }
+      ]
+    },
+    {
+      "name": "Browse Courses",
+      "short_name": "Courses",
+      "description": "Explore available courses",
+      "url": "/courses",
+      "icons": [
+        {
+          "src": "/favicon.ico",
+          "sizes": "32x32",
+          "type": "image/x-icon"
+        }
+      ]
+    },
+    {
+      "name": "View Progress",
+      "short_name": "Progress",
+      "description": "Check your learning progress",
+      "url": "/progress",
+      "icons": [
+        {
+          "src": "/favicon.ico",
+          "sizes": "32x32",
+          "type": "image/x-icon"
+        }
+      ]
+    }
+  ],
+  "categories": ["education", "productivity", "books"],
   "lang": "en",
   "dir": "ltr",
-  "orientation": "portrait-primary"
+  "orientation": "portrait-primary",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "prefer_related_applications": false,
+  "related_applications": []
 }

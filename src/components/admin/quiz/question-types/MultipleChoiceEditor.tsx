@@ -60,7 +60,7 @@ export const MultipleChoiceEditor = memo<MultipleChoiceEditorProps>(({
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <GripVertical className="w-4 h-4 text-gray-400 cursor-move" />
+            <GripVertical className="w-4 h-4 text-gray-500 cursor-move" />
             Multiple Choice Question
           </CardTitle>
           <Button 
@@ -82,7 +82,7 @@ export const MultipleChoiceEditor = memo<MultipleChoiceEditorProps>(({
             value={question.question}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateQuestion('question', e.target.value)}
             placeholder="Enter your multiple choice question..."
-            className={`w-full min-h-[100px] p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent ${errors.question ? 'border-red-500' : ''}`}
+            className={`w-full min-h-[100px] p-3 border border-gray-300 rounded-md bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.question ? 'border-red-500' : ''}`}
           />
           {errors.question && (
             <p className="text-sm text-red-500">{errors.question}</p>
@@ -128,7 +128,7 @@ export const MultipleChoiceEditor = memo<MultipleChoiceEditorProps>(({
                   value={option}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateOption(index, e.target.value)}
                   placeholder={`Option ${String.fromCharCode(65 + index)}`}
-                  className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="flex-1 p-2 border border-gray-300 rounded-md bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
 
                 <Button
@@ -179,7 +179,7 @@ export const MultipleChoiceEditor = memo<MultipleChoiceEditorProps>(({
               max="100"
               value={question.points}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateQuestion('points', parseInt(e.target.value) || 1)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
@@ -188,7 +188,7 @@ export const MultipleChoiceEditor = memo<MultipleChoiceEditorProps>(({
             <select
               value={question.difficulty_level}
               onChange={(e) => updateQuestion('difficulty_level', e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="easy">Easy</option>
               <option value="medium">Medium</option>
@@ -204,7 +204,7 @@ export const MultipleChoiceEditor = memo<MultipleChoiceEditorProps>(({
             value={question.explanation || ''}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateQuestion('explanation', e.target.value)}
             placeholder="Explain why this is the correct answer..."
-            className="w-full min-h-[80px] p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full min-h-[80px] p-3 border border-gray-300 rounded-md bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
       </CardContent>

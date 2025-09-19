@@ -6,6 +6,8 @@ import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { QueryProvider } from '@/providers/QueryProvider'
 import { ConditionalLayout } from '@/components/ConditionalLayout'
+import { ClientWrapper } from '@/components/ClientWrapper'
+import CoreWebVitalsMonitor from '@/components/CoreWebVitalsMonitor'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -88,11 +90,14 @@ html {
         `}</style>
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
+        <CoreWebVitalsMonitor />
         <QueryProvider>
           <AuthProvider>
-            <ConditionalLayout>
-              {children}
-            </ConditionalLayout>
+            <ClientWrapper>
+              <ConditionalLayout>
+                {children}
+              </ConditionalLayout>
+            </ClientWrapper>
           </AuthProvider>
         </QueryProvider>
       </body>

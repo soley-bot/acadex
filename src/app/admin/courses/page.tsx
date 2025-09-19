@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useTransition, useDeferredValue, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Pagination } from '@/components/ui/Pagination'
 import { DeleteCourseModal } from '@/components/admin/DeleteCourseModal'
 import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
 import { CourseViewModal } from '@/components/admin/CourseViewModal'
-import { CategoryManagement } from '@/components/admin/CategoryManagement'
 import Icon from '@/components/ui/Icon'
 import { useAuth } from '@/contexts/AuthContext'
 import { useAdminCourses } from '@/hooks/useOptimizedAPI'
@@ -15,14 +15,35 @@ import { useAdminCourses } from '@/hooks/useOptimizedAPI'
 // Optimized lib imports
 import { logger, authenticatedPost, type Course } from '@/lib'
 
+// Dynamic import for heavy CategoryManagement component - Week 2 Day 4 optimization
+const CategoryManagement = dynamic(
+  () => import('@/components/admin/CategoryManagement').then(mod => ({ default: mod.CategoryManagement })),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center p-4 border border-gray-200 rounded-lg">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+        <span className="ml-2 text-sm text-gray-600">Loading Category Management...</span>
+      </div>
+    ),
+    ssr: false
+  }
+)
+
 export default function CoursesPage() {
   const router = useRouter()
   const { user } = useAuth()
+  
+  // React 18 Concurrent Features for smooth filtering
+  const [isPending, startTransition] = useTransition()
   
   // React Query state
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
+  
+  // Use deferred values for smoother UI interactions
+  const deferredSearchTerm = useDeferredValue(searchTerm)
+  const deferredSelectedCategory = useDeferredValue(selectedCategory)
   
   // Use React Query hook for data fetching
   const { 
@@ -33,9 +54,21 @@ export default function CoursesPage() {
   } = useAdminCourses(
     currentPage,
     50, // limit
-    searchTerm,
-    selectedCategory === 'all' ? 'all' : selectedCategory
+    deferredSearchTerm,
+    deferredSelectedCategory === 'all' ? 'all' : deferredSelectedCategory
   )
+  
+  // Debug logging for development
+  if (process.env.NODE_ENV === 'development') {
+    console.log('📊 CoursesPage State:', { 
+      loading, 
+      error: error?.message, 
+      coursesCount: coursesData?.courses?.length,
+      currentPage,
+      searchTerm: deferredSearchTerm,
+      category: deferredSelectedCategory 
+    })
+  }
   
   const courses = coursesData?.courses || []
   const pagination = coursesData?.pagination || { page: 1, limit: 50, total: 0, totalPages: 0 }
@@ -48,16 +81,20 @@ export default function CoursesPage() {
   const [viewingCourse, setViewingCourse] = useState<Course | null>(null)
   const [showCategoryManagement, setShowCategoryManagement] = useState(false)
 
-  // Handle search input change
+  // Handle search input change with concurrent rendering
   const handleSearchChange = (value: string) => {
-    setSearchTerm(value)
-    setCurrentPage(1) // Reset to first page when searching
+    startTransition(() => {
+      setSearchTerm(value)
+      setCurrentPage(1) // Reset to first page when searching
+    })
   }
 
-  // Handle category change
+  // Handle category change with concurrent rendering
   const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category)
-    setCurrentPage(1) // Reset to first page when filtering
+    startTransition(() => {
+      setSelectedCategory(category)
+      setCurrentPage(1) // Reset to first page when filtering
+    })
   }
 
   // Handle pagination

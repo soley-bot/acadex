@@ -5,6 +5,7 @@ import React, { memo, useCallback, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Settings, FileText, Clock, Target, Globe, Camera } from 'lucide-react'
 import { useQuizBuilderPerformance } from '@/lib/adminPerformanceSystem'
+import { useAdminCategories } from '@/hooks/useOptimizedAPI'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import { uploadImage } from '@/lib/imageUpload'
 import type { Quiz } from '@/lib/supabase'
@@ -22,20 +23,9 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
   isValid = true,
   errors = []
 }) => {
-  const [categories] = useState<string[]>([
-    'English Grammar',
-    'English Language', 
-    'General English',
-    'IELTS Preparation',
-    'TOEFL Preparation',
-    'Business English',
-    'Academic Writing',
-    'Conversation Practice',
-    'Vocabulary Building',
-    'Reading Comprehension',
-    'Listening Skills'
-  ])
-  const [loadingCategories] = useState(false)
+  // Fetch categories from database
+  const { data: categoriesData, isLoading: loadingCategories } = useAdminCategories()
+  const categories = categoriesData?.categories?.map(c => c.name) || []
 
   // Performance monitoring
   const performanceMetrics = useQuizBuilderPerformance()

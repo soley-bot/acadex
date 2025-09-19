@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acadex - You're Offline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 500px;
+        }
+
+        .icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .features {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .features h3 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .features ul {
+            list-style: none;
+            text-align: left;
+        }
+
+        .features li {
+            padding: 0.5rem 0;
+            opacity: 0.9;
+        }
+
+        .features li:before {
+            content: "✓ ";
+            color: #4ade80;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .retry-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.5rem;
+        }
+
+        .retry-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .status {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .online {
+            background: rgba(74, 222, 128, 0.2);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+
+        .offline {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">
+            📚
+        </div>
+        
+        <h1>You're Offline</h1>
+        <p>Don't worry! Some features of Acadex are still available offline.</p>
+        
+        <div class="features">
+            <h3>Available Offline:</h3>
+            <ul>
+                <li>View cached quizzes</li>
+                <li>Continue saved progress</li>
+                <li>Complete stored quizzes</li>
+                <li>Browse cached courses</li>
+            </ul>
+        </div>
+        
+        <button class="retry-button" onclick="retry()">
+            <span id="retry-icon">🔄</span> Try Again
+        </button>
+        
+        <a href="/" class="retry-button">
+            🏠 Go to Home
+        </a>
+        
+        <div id="status" class="status offline">
+            📶 You're currently offline
+        </div>
+    </div>
+
+    <script>
+        // Connection status monitoring
+        function updateConnectionStatus() {
+            const status = document.getElementById('status')
+            const retryIcon = document.getElementById('retry-icon')
+            
+            if (navigator.onLine) {
+                status.className = 'status online'
+                status.innerHTML = "📶 You're back online!"
+                retryIcon.textContent = '✅'
+                
+                // Auto-redirect after a moment
+                setTimeout(() => {
+                    window.location.href = '/'
+                }, 2000)
+            } else {
+                status.className = 'status offline'
+                status.innerHTML = "📶 You're currently offline"
+                retryIcon.textContent = '🔄'
+            }
+        }
+        
+        // Retry connection
+        function retry() {
+            const retryIcon = document.getElementById('retry-icon')
+            retryIcon.className = 'loading'
+            retryIcon.textContent = '⏳'
+            
+            // Check connection
+            setTimeout(() => {
+                updateConnectionStatus()
+                
+                if (navigator.onLine) {
+                    window.location.reload()
+                } else {
+                    retryIcon.className = ''
+                    retryIcon.textContent = '🔄'
+                }
+            }, 1000)
+        }
+        
+        // Listen for connection changes
+        window.addEventListener('online', updateConnectionStatus)
+        window.addEventListener('offline', updateConnectionStatus)
+        
+        // Initial status check
+        updateConnectionStatus()
+        
+        // Service worker registration check
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(() => {
+                console.log('Service Worker is ready')
+            })
+        }
+        
+        // Register for background sync when online
+        if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+            navigator.serviceWorker.ready.then((registration) => {
+                // Request sync when connection is restored
+                window.addEventListener('online', () => {
+                    registration.sync.register('quiz-progress-sync')
+                    registration.sync.register('quiz-submission-sync')
+                })
+            })
+        }
+    </script>
+</body>
+</html>

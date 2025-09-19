@@ -12,9 +12,9 @@ import { Input } from '@/components/ui/input'
 import { QuizListCard } from '@/components/cards/QuizListCard'
 import { getHeroImage } from '@/lib/imageMapping'
 import { quizDifficulties } from '@/lib/quizConstants'
-import { useQuizzes, useQuizCategories } from '@/hooks/useQuizQueries'
 import { Badge } from '@/components/ui/badge'
 import { TextInput } from '@/components/ui/FormInputs'
+import { usePublicQuizzes, usePublicQuizCategories } from '@/hooks/usePublicQuizzes'
 
 interface PaginationData {
   page: number
@@ -43,22 +43,21 @@ export default function QuizzesPageWithReactQuery() {
     limit: itemsPerPage
   }), [searchTerm, selectedCategory, selectedDifficulty, currentPage])
 
-  // React Query hooks - automatically handles loading, error, and caching!
+  // Optimized React Query hooks - using dedicated public API endpoints!
   const { 
     data: quizData, 
     isLoading, 
     error,
-    isStale,
-    isFetching,
     refetch
-  } = useQuizzes(filters)
+  } = usePublicQuizzes(filters)
   
-  const categories = useQuizCategories()
+  // Extract categories from current quiz data (no separate API call)
+  const categories = usePublicQuizCategories(quizData?.quizzes || [])
 
-  // Extract data with fallbacks
+  // Extract data with fallbacks from optimized API
   const quizzes = quizData?.quizzes || []
-  const totalQuizzes = quizData?.total || 0
-  const totalPages = quizData?.totalPages || 1
+  const totalQuizzes = quizData?.pagination?.total || 0
+  const totalPages = quizData?.pagination?.totalPages || 1
   const categoriesLoading = false // Categories derive from quizzes, so no separate loading state
 
   // Pagination helpers
@@ -192,11 +191,11 @@ export default function QuizzesPageWithReactQuery() {
                 variant="outline"
                 size="sm"
                 onClick={() => refetch()}
-                disabled={isFetching}
+                disabled={isLoading}
                 className="gap-2 text-xs h-9 px-3"
               >
-                <RefreshCcw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
-                <span className="hidden sm:inline">{isFetching ? 'Updating...' : 'Refresh'}</span>
+                <RefreshCcw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">{isLoading ? 'Updating...' : 'Refresh'}</span>
               </Button>
             </div>
           </div>
@@ -261,16 +260,11 @@ export default function QuizzesPageWithReactQuery() {
                   {quizzes.length} of {totalQuizzes} quizzes
                   {hasActiveFilters && ' (filtered)'}
                 </span>
-                {isStale && (
-                  <Badge variant="outline" className="text-xs">
-                    Stale
-                  </Badge>
-                )}
               </div>
-              {isFetching && (
+              {isLoading && (
                 <div className="flex items-center gap-1 text-primary">
                   <Loader2 className="w-3 h-3 animate-spin" />
-                  <span>Updating...</span>
+                  <span>Loading...</span>
                 </div>
               )}
             </div>
@@ -357,7 +351,7 @@ export default function QuizzesPageWithReactQuery() {
                 totalItems={totalQuizzes}
                 itemsPerPage={itemsPerPage}
                 onPageChange={setCurrentPage}
-                isLoading={isFetching}
+                isLoading={isLoading}
               />
             </div>
           )}

@@ -12,6 +12,7 @@ import Header from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { MatchingQuestion } from '@/components/student/quiz/MatchingQuestion'
 import { MobileNavBarMinimal } from '@/components/mobile/MobileNavBar'
+import SimpleSplitQuizLayout from '@/components/quiz/SimpleSplitQuizLayout'
 import { 
   QuizStatusBar, 
   ProgressRestoreNotification 
@@ -122,6 +123,11 @@ export default function TakeQuizPage() {
   const [quizAttemptId, setQuizAttemptId] = useState<string>('')
   const [showProgressRestore, setShowProgressRestore] = useState(false)
   const [savedProgress, setSavedProgress] = useState<any>(null)
+
+  // Helper function to detect reading quiz
+  const isReadingQuiz = useMemo(() => {
+    return !!(quiz?.reading_passage?.trim())
+  }, [quiz?.reading_passage])
 
   // Client-side features
   const { isOnline, isReconnecting } = useNetworkStatus()

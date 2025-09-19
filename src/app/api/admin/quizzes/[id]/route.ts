@@ -9,6 +9,7 @@ export const GET = withAdminAuth(async (
   try {
     const url = new URL(request.url)
     const id = url.pathname.split('/').pop()
+    const { searchParams } = url
     
     if (!id) {
       return NextResponse.json(
@@ -17,36 +18,48 @@ export const GET = withAdminAuth(async (
       )
     }
 
+    // API Optimization: Support field selection
+    const fields = searchParams.get('fields')?.split(',') || []
+    const includeQuestions = searchParams.get('includeQuestions') === 'true'
+    
     // Use service role for admin access
     const supabase = createServiceClient()
 
-    // Fetch quiz with questions
+    // Build dynamic field selection
+    let selectFields = '*'
+    if (fields.length > 0) {
+      selectFields = fields.join(', ')
+    }
+
+    // Conditionally include questions
+    if (includeQuestions) {
+      selectFields += `, quiz_questions (
+        id,
+        question,
+        question_type,
+        options,
+        correct_answer,
+        correct_answer_text,
+        correct_answer_json,
+        explanation,
+        order_index,
+        points,
+        difficulty_level,
+        image_url,
+        audio_url,
+        video_url,
+        tags,
+        time_limit_seconds,
+        required,
+        randomize_options,
+        partial_credit
+      )`
+    }
+
+    // Fetch quiz with optional questions
     const { data: quiz, error: quizError } = await supabase
       .from('quizzes')
-      .select(`
-        *,
-        quiz_questions (
-          id,
-          question,
-          question_type,
-          options,
-          correct_answer,
-          correct_answer_text,
-          correct_answer_json,
-          explanation,
-          order_index,
-          points,
-          difficulty_level,
-          image_url,
-          audio_url,
-          video_url,
-          tags,
-          time_limit_seconds,
-          required,
-          randomize_options,
-          partial_credit
-        )
-      `)
+      .select(selectFields)
       .eq('id', id)
       .single()
 
@@ -65,25 +78,28 @@ export const GET = withAdminAuth(async (
       )
     }
 
+    // Type-safe handling of quiz data
+    const quizData = quiz as any
+
     // Debug logging - check what Supabase actually returned
     console.log('🔍 Raw Supabase response:', {
-      quizId: quiz.id,
-      title: quiz.title,
-      hasQuizQuestions: !!(quiz.quiz_questions),
-      quizQuestionsLength: quiz.quiz_questions ? quiz.quiz_questions.length : 0,
-      quizQuestionsType: typeof quiz.quiz_questions,
-      firstQuestion: quiz.quiz_questions && quiz.quiz_questions[0] ? {
-        id: quiz.quiz_questions[0].id,
-        question: quiz.quiz_questions[0].question?.substring(0, 50),
-        question_type: quiz.quiz_questions[0].question_type
+      quizId: quizData.id,
+      title: quizData.title,
+      hasQuizQuestions: !!(quizData.quiz_questions),
+      quizQuestionsLength: quizData.quiz_questions ? quizData.quiz_questions.length : 0,
+      quizQuestionsType: typeof quizData.quiz_questions,
+      firstQuestion: quizData.quiz_questions && quizData.quiz_questions[0] ? {
+        id: quizData.quiz_questions[0].id,
+        question: quizData.quiz_questions[0].question?.substring(0, 50),
+        question_type: quizData.quiz_questions[0].question_type
       } : null,
-      allQuizKeys: Object.keys(quiz)
+      allQuizKeys: Object.keys(quizData)
     })
 
     // Transform the data to match QuizWithQuestions interface
     const transformedQuiz = {
-      ...quiz,
-      questions: quiz.quiz_questions || []
+      ...quizData,
+      questions: quizData.quiz_questions || []
     }
 
     // Remove the raw quiz_questions to avoid confusion
@@ -94,8 +110,10 @@ export const GET = withAdminAuth(async (
       id: transformedQuiz.id,
       title: transformedQuiz.title,
       questionsCount: transformedQuiz.questions.length,
-      rawQuestionsCount: quiz.quiz_questions?.length || 0
+      rawQuestionsCount: quizData.quiz_questions?.length || 0
     })
+
+    return NextResponse.json(transformedQuiz)
 
     return NextResponse.json(transformedQuiz)
 

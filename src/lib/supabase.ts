@@ -100,6 +100,14 @@ export interface Quiz {
   is_published: boolean
   created_at: string
   updated_at: string
+  
+  // Reading quiz fields
+  reading_passage?: string | null
+  passage_title?: string | null
+  passage_source?: string | null
+  passage_audio_url?: string | null
+  word_count?: number | null
+  estimated_read_time?: number | null
 }
 
 // Type aliases for easier importing

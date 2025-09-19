@@ -57,7 +57,7 @@ export function MatchingEditor({ question, onChange, onRemove, isValid, errors }
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <GripVertical className="w-4 h-4 text-gray-400 cursor-move" />
+            <GripVertical className="w-4 h-4 text-gray-500 cursor-move" />
             <ArrowRightLeft className="w-5 h-5 text-purple-600" />
             Matching Question
           </CardTitle>
@@ -98,7 +98,7 @@ export function MatchingEditor({ question, onChange, onRemove, isValid, errors }
             </Button>
           </div>
           
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-700">
             Create pairs that students need to match. Left items will be shown on the left, right items on the right.
           </p>
 
@@ -110,7 +110,7 @@ export function MatchingEditor({ question, onChange, onRemove, isValid, errors }
               return (
                 <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
                   <div className="flex-1">
-                    <span className="text-xs text-gray-500">Left Item</span>
+                    <span className="text-xs text-gray-600">Left Item</span>
                     <TextInput
                       placeholder="Enter left item..."
                       value={leftItem.content}
@@ -119,10 +119,10 @@ export function MatchingEditor({ question, onChange, onRemove, isValid, errors }
                     />
                   </div>
                   
-                  <ArrowRightLeft className="w-4 h-4 text-gray-400 flex-shrink-0 mt-5" />
+                  <ArrowRightLeft className="w-4 h-4 text-gray-500 flex-shrink-0 mt-5" />
                   
                   <div className="flex-1">
-                    <span className="text-xs text-gray-500">Right Item</span>
+                    <span className="text-xs text-gray-600">Right Item</span>
                     <TextInput
                       placeholder="Enter right item..."
                       value={rightItem.content}
@@ -155,7 +155,7 @@ export function MatchingEditor({ question, onChange, onRemove, isValid, errors }
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-sm font-medium">Randomize Options</span>
-                <p className="text-xs text-gray-500">Randomize the order of items for students</p>
+                <p className="text-xs text-gray-600">Randomize the order of items for students</p>
               </div>
               <Switch
                 checked={randomizeOptions}

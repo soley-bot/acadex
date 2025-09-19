@@ -18,6 +18,12 @@ const LazyQuizSettingsStep = lazy(() =>
   }))
 )
 
+const LazyPassageStep = lazy(() => 
+  import('./reading-quiz/PassageInput').then(module => ({
+    default: module.PassageInput
+  }))
+)
+
 
 
 const LazyQuestionEditorFactory = lazy(() => 
@@ -51,13 +57,15 @@ interface QuizBuilderProps {
   onClose: () => void
   onSuccess: () => void
   prefilledData?: any // Compatibility with QuizForm interface
+  quizType?: 'standard' | 'reading' // Add quiz type prop
 }
 
 // Simplified Quiz Builder State
 interface QuizBuilderState {
-  currentStep: 'settings' | 'ai-configuration' | 'quiz-editing' | 'review'
+  currentStep: 'settings' | 'passage' | 'ai-configuration' | 'quiz-editing' | 'review'
   quiz: Partial<Quiz>
   questions: QuizQuestion[]
+  quizType: 'standard' | 'reading'
   aiConfig: {
     enabled: boolean
     language: 'english' | 'khmer'
@@ -269,6 +277,7 @@ const initialState: QuizBuilderState = {
   currentStep: 'settings',
   quiz: { title: '', description: '', duration_minutes: 10, time_limit_minutes: null },
   questions: [],
+  quizType: 'standard',
   aiConfig: {
     enabled: false,
     language: 'english',
@@ -464,13 +473,24 @@ QuestionCreationInterface.displayName = 'QuestionCreationInterface'
 const SimpleStepIndicator = memo<{
   currentStep: string
   onStepClick: (step: string) => void
-}>(({ currentStep, onStepClick }) => {
-  const steps = [
+  quizType: 'standard' | 'reading'
+}>(({ currentStep, onStepClick, quizType }) => {
+  const standardSteps = [
     { id: 'settings', label: 'Settings', icon: '⚙️' },
     { id: 'ai-configuration', label: 'AI Config', icon: '🤖' },
     { id: 'quiz-editing', label: 'Questions', icon: '📝' },
     { id: 'review', label: 'Review', icon: '✅' }
   ]
+  
+  const readingSteps = [
+    { id: 'settings', label: 'Settings', icon: '⚙️' },
+    { id: 'passage', label: 'Passage', icon: '📖' },
+    { id: 'ai-configuration', label: 'AI Config', icon: '🤖' },
+    { id: 'quiz-editing', label: 'Questions', icon: '📝' },
+    { id: 'review', label: 'Review', icon: '✅' }
+  ]
+  
+  const steps = quizType === 'reading' ? readingSteps : standardSteps
 
   const currentIndex = steps.findIndex(step => step.id === currentStep)
 
@@ -1049,12 +1069,31 @@ const isValidDifficultyLevel = (level: any): level is 'easy' | 'medium' | 'hard'
 }
 
 // Main QuizBuilder Component
-export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSuccess, prefilledData }) => {
-  const [state, setState] = React.useState<QuizBuilderState>(() => ({
-    ...initialState,
-    // If editing existing quiz, start on quiz-editing step
-    currentStep: quiz ? 'quiz-editing' : 'settings',
-    quiz: quiz ? { 
+export const QuizBuilder = memo<QuizBuilderProps>(({ 
+  quiz, 
+  isOpen, 
+  onClose, 
+  onSuccess, 
+  prefilledData, 
+  quizType = 'standard' 
+}) => {
+  // Debug logging to check props
+  console.log('🔍 QuizBuilder props:', { 
+    quizType, 
+    hasQuiz: !!quiz, 
+    quizHasPassage: !!(quiz as any)?.reading_passage 
+  })
+
+  const [state, setState] = React.useState<QuizBuilderState>(() => {
+    const detectedType = quiz?.reading_passage ? 'reading' : quizType
+    console.log('🎯 Detected quiz type:', detectedType)
+    
+    return {
+      ...initialState,
+      // Determine initial step based on quiz type
+      currentStep: quiz ? 'quiz-editing' : (detectedType === 'reading' ? 'settings' : 'settings'),
+      quizType: detectedType, // Use detected type
+      quiz: quiz ? { 
       // Only copy valid quiz table fields, exclude 'questions' and other non-table fields
       id: quiz.id,
       title: quiz.title,
@@ -1075,7 +1114,8 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
     } : initialState.quiz,
     // IMPORTANT: Initialize questions from quiz prop if editing existing quiz
     questions: quiz && (quiz as any).questions ? (quiz as any).questions : []
-  }))
+    }
+  })
 
   // Auto-save functionality with debouncing
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout>()
@@ -1664,6 +1704,25 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
           </LazyComponentErrorBoundary>
         )
 
+      case 'passage':
+        return (
+          <LazyComponentErrorBoundary step="passage">
+            <Suspense fallback={<StepLoadingFallback step="passage" />}>
+              <LazyPassageStep
+                value={{
+                  passage_title: state.quiz.passage_title || '',
+                  passage_source: state.quiz.passage_source || '',
+                  reading_passage: state.quiz.reading_passage || '',
+                  passage_audio_url: state.quiz.passage_audio_url || '',
+                  word_count: state.quiz.word_count || 0,
+                  estimated_read_time: state.quiz.estimated_read_time || 0
+                }}
+                onChange={(passageData) => handleQuizUpdate(passageData)}
+              />
+            </Suspense>
+          </LazyComponentErrorBoundary>
+        )
+
       case 'ai-configuration':
         return (
           <LazyComponentErrorBoundary step="ai-configuration">
@@ -1775,6 +1834,7 @@ export const QuizBuilder = memo<QuizBuilderProps>(({ quiz, isOpen, onClose, onSu
             <SimpleStepIndicator
               currentStep={state.currentStep}
               onStepClick={handleStepChange}
+              quizType={state.quizType}
             />
           </div>
 

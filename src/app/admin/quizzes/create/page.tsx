@@ -1,10 +1,27 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { Suspense } from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { ArrowLeft, BookOpen } from 'lucide-react'
 import { Card } from '@/components/ui/card'
-import { QuizBuilder } from '@/components/admin/QuizBuilder'
+
+// Dynamic import for heavy QuizBuilder component - Week 2 Day 4 optimization
+const QuizBuilder = dynamic(
+  () => import('@/components/admin/QuizBuilder').then(mod => ({ default: mod.QuizBuilder })),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center p-8 min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-3 text-gray-600">Loading Quiz Builder...</p>
+        </div>
+      </div>
+    ),
+    ssr: false
+  }
+)
 
 export default function CreateQuizPage() {
   const router = useRouter()

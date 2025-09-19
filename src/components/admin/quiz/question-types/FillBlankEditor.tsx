@@ -44,7 +44,7 @@ export const FillBlankEditor = memo<FillBlankEditorProps>(({
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <GripVertical className="w-4 h-4 text-gray-400 cursor-move" />
+            <GripVertical className="w-4 h-4 text-gray-500 cursor-move" />
             <Type className="w-5 h-5 text-blue-600" />
             Fill in the Blank Question
           </CardTitle>
@@ -114,7 +114,7 @@ export const FillBlankEditor = memo<FillBlankEditorProps>(({
           {errors.correct_answers && (
             <p className="text-sm text-red-500">{errors.correct_answers}</p>
           )}
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-600">
             Add multiple acceptable answers (e.g., &ldquo;color&rdquo; and &ldquo;colour&rdquo;)
           </p>
         </div>
@@ -175,7 +175,7 @@ export const FillBlankEditor = memo<FillBlankEditorProps>(({
             placeholder="Explain the correct answer and provide context..."
             className="w-full min-h-[80px] p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
           />
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-600">
             This explanation supports Khmer text for bilingual content
           </p>
         </div>

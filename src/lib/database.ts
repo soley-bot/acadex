@@ -12,7 +12,15 @@ export const userAPI = {
 
     const { data, error } = await supabase
       .from('users')
-      .select('*')
+      .select(`
+        id,
+        email,
+        name,
+        avatar_url,
+        role,
+        created_at,
+        updated_at
+      `)
       .eq('id', user.id)
       .single()
 
@@ -112,7 +120,33 @@ export const courseAPI = {
   async getCourse(id: string) {
     const { data, error } = await supabase
       .from('courses')
-      .select('*')
+      .select(`
+        id,
+        title,
+        description,
+        instructor_id,
+        instructor_name,
+        category,
+        level,
+        price,
+        duration,
+        image_url,
+        thumbnail_url,
+        video_preview_url,
+        tags,
+        prerequisites,
+        learning_objectives,
+        status,
+        published_at,
+        original_price,
+        discount_percentage,
+        is_free,
+        rating,
+        student_count,
+        is_published,
+        created_at,
+        updated_at
+      `)
       .eq('id', id)
       .eq('is_published', true)
       .single()
@@ -230,7 +264,30 @@ export const quizAPI = {
   async getQuizWithQuestions(id: string) {
     const { data: quiz, error: quizError } = await supabase
       .from('quizzes')
-      .select('*')
+      .select(`
+        id,
+        title,
+        description,
+        category,
+        difficulty,
+        duration_minutes,
+        total_questions,
+        course_id,
+        lesson_id,
+        passing_score,
+        max_attempts,
+        time_limit_minutes,
+        image_url,
+        is_published,
+        created_at,
+        updated_at,
+        reading_passage,
+        passage_title,
+        passage_source,
+        passage_audio_url,
+        word_count,
+        estimated_read_time
+      `)
       .eq('id', id)
       .eq('is_published', true)
       .single()
@@ -239,7 +296,32 @@ export const quizAPI = {
 
     const { data: questions, error: questionsError } = await supabase
       .from('quiz_questions')
-      .select('*')
+      .select(`
+        id,
+        quiz_id,
+        question,
+        question_type,
+        options,
+        correct_answer,
+        correct_answer_text,
+        correct_answer_json,
+        explanation,
+        order_index,
+        points,
+        difficulty_level,
+        image_url,
+        audio_url,
+        video_url,
+        randomize_options,
+        partial_credit,
+        feedback_correct,
+        feedback_incorrect,
+        hint,
+        time_limit_seconds,
+        weight,
+        auto_grade,
+        question_metadata
+      `)
       .eq('quiz_id', id)
       .order('order_index')
 

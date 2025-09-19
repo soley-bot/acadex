@@ -206,31 +206,50 @@ export function useAdminCourses(page = 1, limit = 50, search = '', category = 'a
   return useQuery({
     queryKey: ['admin', 'courses', { page, limit, search, category }],
     queryFn: async (): Promise<AdminCoursesResponse> => {
-      const headers = await getAuthHeaders()
+      console.log('🔍 useAdminCourses: Starting fetch', { page, limit, search, category })
       
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-        search,
-        category
-      })
-      
-      const response = await fetch(`/api/admin/courses?${params}`, {
-        method: 'GET',
-        headers,
-        credentials: 'include'
-      })
+      try {
+        const headers = await getAuthHeaders()
+        console.log('🔐 useAdminCourses: Auth headers obtained')
+        
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: limit.toString(),
+          search,
+          category
+        })
+        
+        const url = `/api/admin/courses?${params}`
+        console.log('🌐 useAdminCourses: Fetching from', url)
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          headers,
+          credentials: 'include'
+        })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to fetch courses')
-      }
+        console.log('📡 useAdminCourses: Response status', response.status, response.ok)
 
-      const data = await response.json()
-      return {
-        courses: data.data || [],
-        pagination: data.pagination || { page, limit, total: 0, totalPages: 0 },
-        success: data.success
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          console.error('❌ useAdminCourses: Request failed', { status: response.status, errorData })
+          throw new Error(errorData.error || `HTTP ${response.status}: Failed to fetch courses`)
+        }
+
+        const data = await response.json()
+        console.log('✅ useAdminCourses: Success', { 
+          coursesCount: data.data?.length, 
+          pagination: data.pagination 
+        })
+        
+        return {
+          courses: data.data || [],
+          pagination: data.pagination || { page, limit, total: 0, totalPages: 0 },
+          success: data.success
+        }
+      } catch (error) {
+        console.error('💥 useAdminCourses: Error in queryFn', error)
+        throw error
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -305,9 +324,9 @@ export function useAdminDashboardData(page = 1, limit = 12) {
       logger.debug('🚀 Fetching admin dashboard data in batch')
       const headers = await getAuthHeaders()
       
-      // Make parallel requests for better performance
+      // Make parallel requests for better performance - use slim mode for list view
       const [quizzesRes, categoriesRes] = await Promise.all([
-        fetch(`/api/admin/quizzes?page=${page}&limit=${limit}`, {
+        fetch(`/api/admin/quizzes?page=${page}&limit=${limit}&mode=slim`, {
           method: 'GET',
           headers,
           credentials: 'include'
@@ -372,6 +391,37 @@ export function useAdminDashboardData(page = 1, limit = 12) {
         recentSignups: 0
       }
     }, // Provide fallback structure when previousData is undefined
+  })
+}
+
+/**
+ * Lazy-load quiz statistics for performance optimization
+ */
+export function useQuizStatistics(quizIds: string[]) {
+  return useQuery({
+    queryKey: ['quiz-statistics', quizIds],
+    queryFn: async () => {
+      if (quizIds.length === 0) return {}
+      
+      logger.debug(`🔢 Lazy loading quiz statistics for ${quizIds.length} quizzes`)
+      const headers = await getAuthHeaders()
+      
+      const response = await fetch(`/api/admin/quizzes/stats?quizIds=${quizIds.join(',')}`, {
+        method: 'GET',
+        headers,
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch quiz statistics')
+      }
+
+      const data = await response.json()
+      return data.stats || {}
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    enabled: quizIds.length > 0, // Only run if we have quiz IDs
   })
 }
 

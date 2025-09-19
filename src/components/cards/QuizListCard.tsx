@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -18,10 +18,19 @@ interface Quiz {
   category: string
   difficulty: string
   duration_minutes: number
-  total_questions: number
+  total_questions?: number // Made optional to support both admin and public quiz types
   image_url?: string | null
   is_published: boolean
   created_at: string
+  // Optional statistics from public API
+  question_count?: number
+  attempts_count?: number
+  average_score?: number
+  // Reading quiz fields
+  reading_passage?: string
+  passage_title?: string
+  word_count?: number
+  estimated_read_time?: number
 }
 
 interface QuizListCardProps {
@@ -32,8 +41,7 @@ interface QuizListCardProps {
 export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true }) => {
   const { user } = useAuth()
   const router = useRouter()
-  const { hasAttempted, getQuizAttempt, quickActions } = useUserProgress()
-  const [actionLoading, setActionLoading] = useState(false)
+  const { hasAttempted, getQuizAttempt } = useUserProgress()
   
   // Memoized computed values
   const attempted = useMemo(() => hasAttempted(quiz.id), [hasAttempted, quiz.id])
@@ -50,46 +58,38 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
       return
     }
 
-    setActionLoading(true)
-    
-    try {
-      const result = await quickActions.quickStartQuiz(quiz.id, user.id)
-      if (!result.success) {
-        router.push(`/quizzes/${quiz.id}/take`)
-      }
-    } catch (error) {
-      console.error('Quick start failed:', error)
-      router.push(`/quizzes/${quiz.id}/take`)
-    } finally {
-      setActionLoading(false)
-    }
-  }, [user, router, quiz.id, quickActions])
+    // Direct navigation to quiz taking page - no complex logic needed
+    router.push(`/quizzes/${quiz.id}/take`)
+  }, [user, router, quiz.id])
 
   const getDifficultyColor = useCallback((difficulty: string) => {
+    if (!difficulty) return 'bg-gray-100 text-gray-600 border-gray-200' // Handle null/undefined
+    
     switch (difficulty.toLowerCase()) {
       case 'beginner':
       case 'easy':
-        return 'bg-success/10 text-success border-success/20'
+        return 'bg-green-100 text-green-800 border-green-200'
       case 'intermediate':
       case 'medium':
-        return 'bg-warning/10 text-warning border-warning/20'
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200'
       case 'advanced':
       case 'hard':
-        return 'bg-destructive/10 text-destructive border-destructive/20'
+        return 'bg-red-100 text-red-800 border-red-200'
+      case 'expert':
+        return 'bg-purple-100 text-purple-800 border-purple-200'
       default:
-        return 'bg-muted text-muted-foreground border-border'
+        return 'bg-gray-100 text-gray-600 border-gray-200'
     }
   }, [])
 
   const getActionButtonText = useCallback(() => {
-    if (actionLoading) return 'Starting...'
     if (!user) return 'Start Quiz'
     if (attempted) {
       if (lastAttempt?.completed_at) return 'Retake'
       return 'Continue'
     }
     return 'Start Quiz'
-  }, [actionLoading, user, attempted, lastAttempt])
+  }, [user, attempted, lastAttempt])
 
   const getScoreDisplay = useCallback(() => {
     if (!lastAttempt?.completed_at || !lastAttempt?.score) return null
@@ -162,20 +162,26 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
             <div className="flex items-center gap-4 text-sm text-muted-foreground mb-1.5">
               <div className="flex items-center gap-1">
                 <Brain className="w-4 h-4" />
-                <span>{quiz.total_questions}q</span>
+                <span>{quiz.total_questions || quiz.question_count || 'N/A'}q</span>
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
-                <span>{quiz.duration_minutes}m</span>
+                <span>{quiz.duration_minutes || 0}m</span>
               </div>
               <span className={`px-2 py-1 text-xs font-semibold rounded-md border ${getDifficultyColor(quiz.difficulty)}`}>
-                {quiz.difficulty}
+                {quiz.difficulty || 'Unknown'}
               </span>
             </div>
             <div>
               <span className="text-xs px-2 py-1 bg-muted/50 rounded-md">
-                {quiz.category}
+                {quiz.category || 'General'}
               </span>
+              {/* Reading Quiz Indicator */}
+              {quiz.reading_passage && (
+                <span className="ml-2 text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-md font-medium">
+                  📖 Reading
+                </span>
+              )}
             </div>
           </div>
 
@@ -189,15 +195,10 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
           {/* Action Button - Bottom */}
           <Button
             onClick={handleQuickStart}
-            disabled={actionLoading}
             className="w-full bg-primary hover:bg-secondary text-white px-4 py-2.5 text-sm font-medium mt-auto"
           >
             <span className="flex items-center justify-center gap-2">
-              {actionLoading ? (
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <Play className="w-4 h-4" />
-              )}
+              <Play className="w-4 h-4" />
               {getActionButtonText()}
             </span>
           </Button>

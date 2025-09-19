@@ -66,7 +66,7 @@ export function OrderingEditor({ question, onChange, onRemove, isValid, errors }
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <GripVertical className="w-4 h-4 text-gray-400 cursor-move" />
+            <GripVertical className="w-4 h-4 text-gray-500 cursor-move" />
             <ArrowUpDown className="w-5 h-5 text-green-600" />
             Ordering Question
           </CardTitle>
@@ -107,7 +107,7 @@ export function OrderingEditor({ question, onChange, onRemove, isValid, errors }
             </Button>
           </div>
           
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-700">
             Add items in the correct order. Students will need to arrange them properly.
           </p>
 
@@ -115,7 +115,7 @@ export function OrderingEditor({ question, onChange, onRemove, isValid, errors }
             {items.map((item, index) => (
               <div key={item.id || index} className="flex items-center gap-3 p-3 border rounded-lg">
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs text-gray-500 text-center">#{index + 1}</span>
+                  <span className="text-xs text-gray-600 text-center">#{index + 1}</span>
                   <div className="flex flex-col gap-1">
                     <Button
                       variant="ghost"
@@ -169,7 +169,7 @@ export function OrderingEditor({ question, onChange, onRemove, isValid, errors }
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-sm font-medium">Partial Credit</span>
-                <p className="text-xs text-gray-500">Award partial points for partially correct ordering</p>
+                <p className="text-xs text-gray-600">Award partial points for partially correct ordering</p>
               </div>
               <Switch
                 checked={allowPartialCredit}

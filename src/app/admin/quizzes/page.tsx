@@ -1,18 +1,18 @@
 'use client'
 
 import { logger } from '@/lib/logger'
-import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
+import { useState, useCallback, useRef, useMemo, useEffect, useTransition, useDeferredValue } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Pagination } from '@/components/ui/Pagination'
-import { Search, Plus, Brain, Clock, Users, BarChart3, Edit, Trash2, Eye, ChevronDown, Settings, EyeOff, Check, Timer, Home, ChevronRight, Filter, Download, Upload } from 'lucide-react'
-import { QuizBuilder } from '@/components/admin/QuizBuilder'
+import { Search, Plus, Brain, Clock, Users, BarChart3, Edit, Trash2, Eye, ChevronDown, Settings, EyeOff, Check, Timer, Home, ChevronRight, Filter, Download, Upload, BookOpen } from 'lucide-react'
+import { QuizBuilderRouter } from '@/components/admin/QuizBuilderRouter'
 import { QuizViewModal } from '@/components/admin/QuizViewModal'
 import { CategoryManagement } from '@/components/admin/CategoryManagement'
 import { QuizAnalytics } from '@/components/admin/QuizAnalytics'
 import { AdminQuizCard } from '@/components/admin/AdminQuizCard'
-import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
+import { DeleteModal } from '@/components/ui/DeleteModal'
 import { BulkOperations } from '@/components/admin/BulkOperations'
 import { useAdminDashboardData, useDeleteQuiz, usePrefetchQuiz, useBulkQuizOperations, type AdminDashboardData } from '@/hooks/useOptimizedAPI'
 import { supabase, type Quiz as BaseQuiz } from '@/lib/supabase'
@@ -49,11 +49,20 @@ export default function AdminQuizzesPage() {
   const quizzes = useMemo(() => (dashboardData as AdminDashboardData)?.quizzes || [], [dashboardData])
   const managedCategories = useMemo(() => (dashboardData as AdminDashboardData)?.categories || [], [dashboardData])
   
+  // ===== REACT 18 CONCURRENT FEATURES =====
+  const [isPending, startTransition] = useTransition()
+  
   // ===== LOCAL STATE (Minimal) =====
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
   const [selectedDifficulty, setSelectedDifficulty] = useState('all')
+  
+  // Use deferred values for smooth filtering during heavy operations
+  const deferredSearchTerm = useDeferredValue(searchTerm)
+  const deferredSelectedCategories = useDeferredValue(selectedCategories)
+  const deferredSelectedDifficulty = useDeferredValue(selectedDifficulty)
+  
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 12,
@@ -66,8 +75,9 @@ export default function AdminQuizzesPage() {
   // Modal states
   const [showQuizForm, setShowQuizForm] = useState(false)
   const [editingQuiz, setEditingQuiz] = useState<Quiz | null>(null)
+  const [quizType, setQuizType] = useState<'standard' | 'reading'>('standard')
   const [deletingQuiz, setDeletingQuiz] = useState<Quiz | null>(null)
-  const [showEnhancedDeleteModal, setShowEnhancedDeleteModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
   const [viewingQuiz, setViewingQuiz] = useState<Quiz | null>(null)
   const [showCategoryManagement, setShowCategoryManagement] = useState(false)
@@ -117,18 +127,18 @@ export default function AdminQuizzesPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // ===== OPTIMIZED FILTERING WITH MEMOIZATION =====
+  // ===== OPTIMIZED FILTERING WITH MEMOIZATION AND CONCURRENT RENDERING =====
   const filteredQuizzes = useMemo(() => {
     if (!quizzes.length) return []
     
     return quizzes.filter(quiz => {
-      const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           quiz.description.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(quiz.category)
-      const matchesDifficulty = selectedDifficulty === 'all' || quiz.difficulty === selectedDifficulty
+      const matchesSearch = quiz.title.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
+                           quiz.description.toLowerCase().includes(deferredSearchTerm.toLowerCase())
+      const matchesCategory = deferredSelectedCategories.length === 0 || deferredSelectedCategories.includes(quiz.category)
+      const matchesDifficulty = deferredSelectedDifficulty === 'all' || quiz.difficulty === deferredSelectedDifficulty
       return matchesSearch && matchesCategory && matchesDifficulty
     })
-  }, [quizzes, searchTerm, selectedCategories, selectedDifficulty])
+  }, [quizzes, deferredSearchTerm, deferredSelectedCategories, deferredSelectedDifficulty])
 
   // Memoized statistics calculation  
   const quizStats = useMemo(() => ({
@@ -151,6 +161,13 @@ export default function AdminQuizzesPage() {
   // ===== OPTIMIZED EVENT HANDLERS =====
   const handleCreateQuiz = useCallback(() => {
     setEditingQuiz(null)
+    setQuizType('standard')
+    setShowQuizForm(true)
+  }, [])
+
+  const handleCreateReadingQuiz = useCallback(() => {
+    setEditingQuiz(null)
+    setQuizType('reading')
     setShowQuizForm(true)
   }, [])
 
@@ -163,7 +180,7 @@ export default function AdminQuizzesPage() {
 
   const handleDeleteQuiz = useCallback((quiz: Quiz) => {
     setDeletingQuiz(quiz)
-    setShowEnhancedDeleteModal(true)
+    setShowDeleteModal(true)
   }, [])
 
   const handleViewQuiz = useCallback((quiz: Quiz) => {
@@ -182,7 +199,7 @@ export default function AdminQuizzesPage() {
 
   const handleDeleteSuccess = useCallback(() => {
     // No need to manually refetch - React Query mutation handles this
-    setShowEnhancedDeleteModal(false)
+    setShowDeleteModal(false)
     setDeletingQuiz(null)
   }, [])
 
@@ -256,7 +273,7 @@ export default function AdminQuizzesPage() {
     }
   }, [deleteQuizMutation])
 
-  const checkQuizUsage = async (quiz: any) => {
+  const checkQuizUsage = async (quiz: any): Promise<{ count: number; message?: string }> => {
     try {
       // Use client for read-only check (should work with RLS)
       const { count, error } = await supabase
@@ -265,10 +282,17 @@ export default function AdminQuizzesPage() {
         .eq('quiz_id', quiz.id)
 
       if (error) throw error
-      return count || 0
+      const attemptCount = count || 0
+      
+      return {
+        count: attemptCount,
+        message: attemptCount > 0 
+          ? `This quiz has ${attemptCount} student attempt${attemptCount === 1 ? '' : 's'}. Deleting will remove all associated data.`
+          : undefined
+      }
     } catch (error) {
       logger.error('Error checking quiz usage:', error)
-      return 0 // Default to 0 if we can't check
+      return { count: 0 } // Default to 0 if we can't check
     }
   }
 
@@ -463,6 +487,16 @@ export default function AdminQuizzesPage() {
                         </div>
                       </Link>
                       <button
+                        onClick={handleCreateReadingQuiz}
+                        className="w-full text-left px-4 py-3 hover:bg-muted rounded-lg flex items-center gap-3 transition-colors"
+                      >
+                        <BookOpen size={16} className="text-green-600" />
+                        <div>
+                          <div className="font-medium">Reading Quiz</div>
+                          <div className="text-xs text-muted-foreground">Quiz with reading passage</div>
+                        </div>
+                      </button>
+                      <button
                         disabled
                         className="w-full text-left px-4 py-3 opacity-50 cursor-not-allowed rounded-lg flex items-center gap-3 transition-colors"
                       >
@@ -599,12 +633,22 @@ export default function AdminQuizzesPage() {
             <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+                {isPending && (
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                    <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                  </div>
+                )}
                 <input
                   type="text"
                   placeholder="Search quizzes by title, category, or description..."
-                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white hover:bg-gray-50 transition-colors text-base font-medium text-gray-900 placeholder:text-gray-600"
+                  className={`w-full pl-12 pr-4 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white hover:bg-gray-50 transition-colors text-base font-medium text-gray-900 placeholder:text-gray-600 ${isPending ? 'opacity-70' : ''}`}
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    startTransition(() => {
+                      setSearchTerm(value)
+                    })
+                  }}
                 />
               </div>
               
@@ -652,13 +696,17 @@ export default function AdminQuizzesPage() {
                             type="checkbox"
                             checked={selectedCategories.includes(category)}
                             onChange={(e) => {
-                              if (e.target.checked) {
-                                setSelectedCategories([...selectedCategories, category])
-                              } else {
-                                setSelectedCategories(selectedCategories.filter(c => c !== category))
-                              }
+                              const isChecked = e.target.checked
+                              startTransition(() => {
+                                if (isChecked) {
+                                  setSelectedCategories([...selectedCategories, category])
+                                } else {
+                                  setSelectedCategories(selectedCategories.filter(c => c !== category))
+                                }
+                              })
                             }}
                             className="rounded border-border text-primary focus:ring-primary mr-3"
+                            disabled={isPending}
                           />
                           <span className="text-foreground font-medium capitalize">{category}</span>
                         </label>
@@ -668,9 +716,15 @@ export default function AdminQuizzesPage() {
                 </div>
 
                 <select
-                  className="px-6 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white hover:bg-gray-50 transition-colors text-base font-medium min-w-40 text-gray-900"
+                  className={`px-6 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white hover:bg-gray-50 transition-colors text-base font-medium min-w-40 text-gray-900 ${isPending ? 'opacity-70' : ''}`}
                   value={selectedDifficulty}
-                  onChange={(e) => setSelectedDifficulty(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    startTransition(() => {
+                      setSelectedDifficulty(value)
+                    })
+                  }}
+                  disabled={isPending}
                 >
                   {difficulties.map(difficulty => (
                     <option key={difficulty} value={difficulty}>
@@ -865,12 +919,20 @@ export default function AdminQuizzesPage() {
                 }
               </p>
               {!searchTerm && selectedCategories.length === 0 && selectedDifficulty === 'all' && (
-                <button 
-                  onClick={handleCreateQuiz}
-                  className="bg-gradient-to-r from-secondary to-secondary/90 hover:from-secondary/80 hover:to-secondary/90 text-white px-8 py-4 rounded-xl font-semibold text-base transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
-                  Create Your First Quiz
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <button 
+                    onClick={handleCreateQuiz}
+                    className="bg-gradient-to-r from-secondary to-secondary/90 hover:from-secondary/80 hover:to-secondary/90 text-white px-8 py-4 rounded-xl font-semibold text-base transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    Create Standard Quiz
+                  </button>
+                  <button 
+                    onClick={handleCreateReadingQuiz}
+                    className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white px-8 py-4 rounded-xl font-semibold text-base transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    Create Reading Quiz
+                  </button>
+                </div>
               )}
             </div>
           </CardContent>
@@ -895,18 +957,21 @@ export default function AdminQuizzesPage() {
       )}
 
         {/* Modals */}
-        <QuizBuilder
+        <QuizBuilderRouter
           quiz={editingQuiz}
           isOpen={showQuizForm}
           onClose={() => setShowQuizForm(false)}
           onSuccess={handleFormSuccess}
+          quizType={quizType}
         />
   
-        <EnhancedDeleteModal
-          item={deletingQuiz ? { id: deletingQuiz.id, title: deletingQuiz.title, type: 'quiz' } : null}
-          isOpen={showEnhancedDeleteModal}
-          onClose={() => setShowEnhancedDeleteModal(false)}
+        <DeleteModal
+          item={deletingQuiz ? { id: deletingQuiz.id, title: deletingQuiz.title, type: 'quiz' as const } : null}
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
           onSuccess={handleDeleteSuccess}
+          onDelete={deleteQuiz}
+          usageCheck={checkQuizUsage}
         />      <QuizViewModal
         quiz={viewingQuiz}
         isOpen={showViewModal}

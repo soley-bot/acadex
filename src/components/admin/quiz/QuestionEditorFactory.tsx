@@ -315,9 +315,9 @@ export const QuestionEditorFactory = React.memo(function QuestionEditorFactory({
         <div className="flex items-center gap-3">
           <button type="button" className="flex items-center justify-center">
             {isCollapsed ? (
-              <ChevronRight className="h-4 w-4 text-gray-400" />
+              <ChevronRight className="h-4 w-4 text-gray-500" />
             ) : (
-              <ChevronDown className="h-4 w-4 text-gray-400" />
+              <ChevronDown className="h-4 w-4 text-gray-500" />
             )}
           </button>
           
@@ -327,7 +327,7 @@ export const QuestionEditorFactory = React.memo(function QuestionEditorFactory({
             ) : (
               <AlertTriangle className="h-4 w-4 text-red-500" />
             )}
-            <span className="text-sm font-medium text-gray-500">
+            <span className="text-sm font-medium text-gray-700">
               {getQuestionTypeLabel(question.question_type)}
             </span>
           </div>
@@ -354,7 +354,7 @@ export const QuestionEditorFactory = React.memo(function QuestionEditorFactory({
             }}
             className="p-1 hover:bg-red-50 rounded"
           >
-            <Trash2 className="h-4 w-4 text-gray-400 hover:text-red-500" />
+            <Trash2 className="h-4 w-4 text-gray-500 hover:text-red-500" />
           </button>
         </div>
       </div>

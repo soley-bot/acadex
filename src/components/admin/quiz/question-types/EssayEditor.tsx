@@ -47,7 +47,7 @@ export const EssayEditor = memo<EssayEditorProps>(({
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <GripVertical className="w-4 h-4 text-gray-400 cursor-move" />
+            <GripVertical className="w-4 h-4 text-gray-500 cursor-move" />
             <FileText className="w-5 h-5 text-purple-600" />
             Essay Question
           </CardTitle>
@@ -116,7 +116,7 @@ export const EssayEditor = memo<EssayEditorProps>(({
           />
           <div className="space-y-1">
             <label className="text-sm font-medium">Enable Auto-grading</label>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-600">
               Use AI to automatically grade essays based on rubric criteria
             </p>
           </div>
@@ -163,7 +163,7 @@ export const EssayEditor = memo<EssayEditorProps>(({
                         }
                         className="w-16 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
                       />
-                      <span className="text-sm text-gray-500">pts</span>
+                      <span className="text-sm text-gray-600">pts</span>
                       <Button
                         type="button"
                         variant="outline"
@@ -188,7 +188,7 @@ export const EssayEditor = memo<EssayEditorProps>(({
             </div>
           )}
           
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             Define specific criteria for grading to ensure consistent evaluation
           </p>
         </div>
@@ -230,7 +230,7 @@ export const EssayEditor = memo<EssayEditorProps>(({
             placeholder="Provide a sample answer or key points students should address..."
             className="w-full min-h-[100px] p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
           />
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-600">
             This field supports Khmer text for bilingual explanations
           </p>
         </div>

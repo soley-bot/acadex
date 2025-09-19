@@ -32,7 +32,7 @@ const QuizSettingsStep = lazy(() =>
 
 // Loading fallback components optimized for each step
 interface LoadingFallbackProps {
-  step: 'settings' | 'ai-configuration' | 'quiz-editing' | 'review'
+  step: 'settings' | 'passage' | 'ai-configuration' | 'quiz-editing' | 'review'
   className?: string
 }
 
@@ -42,6 +42,11 @@ export const StepLoadingFallback: React.FC<LoadingFallbackProps> = ({ step, clas
       icon: Settings,
       title: 'Loading Quiz Settings...',
       description: 'Preparing quiz configuration interface'
+    },
+    'passage': {
+      icon: Edit,
+      title: 'Loading Passage Editor...',
+      description: 'Preparing reading passage interface'
     },
     'ai-configuration': {
       icon: Wand2,
@@ -84,6 +89,18 @@ export const StepLoadingFallback: React.FC<LoadingFallbackProps> = ({ step, clas
               <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
               <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
               <div className="h-24 bg-gray-200 rounded animate-pulse"></div>
+            </>
+          )}
+          
+          {step === 'passage' && (
+            <>
+              <div className="h-8 bg-gray-200 rounded animate-pulse mb-4"></div>
+              <div className="h-6 bg-gray-200 rounded animate-pulse mb-4"></div>
+              <div className="h-32 bg-gray-200 rounded animate-pulse mb-4"></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+              </div>
             </>
           )}
           
@@ -133,7 +150,7 @@ export const StepLoadingFallback: React.FC<LoadingFallbackProps> = ({ step, clas
 
 // Suspense-wrapped lazy components with error boundaries
 interface LazyComponentWrapperProps {
-  step: 'settings' | 'ai-configuration' | 'quiz-editing' | 'review'
+  step: 'settings' | 'passage' | 'ai-configuration' | 'quiz-editing' | 'review'
   children: React.ReactNode
   fallbackClassName?: string
 }
@@ -219,7 +236,7 @@ export class LazyComponentErrorBoundary extends React.Component<
 // Progressive loading HOC for quiz builder components
 export const withProgressiveLoading = <P extends object>(
   Component: React.ComponentType<P>,
-  step: 'settings' | 'ai-configuration' | 'quiz-editing' | 'review',
+  step: 'settings' | 'passage' | 'ai-configuration' | 'quiz-editing' | 'review',
   displayName?: string
 ) => {
   const ProgressiveComponent: React.FC<P> = (props) => (

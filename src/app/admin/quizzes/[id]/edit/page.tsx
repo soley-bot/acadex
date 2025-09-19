@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Save, Eye, Loader2 } from 'lucide-react'
-import { QuizBuilder } from '@/components/admin/QuizBuilder'
+import { QuizBuilderRouter } from '@/components/admin/QuizBuilderRouter'
 import { supabase } from '@/lib/supabase'
 import type { Quiz } from '@/lib/supabase'
 
@@ -145,7 +145,7 @@ export default function EditQuizPage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <QuizBuilder
+          <QuizBuilderRouter
             isOpen={true}
             onClose={() => router.push('/admin/quizzes')}
             onSuccess={handleSuccess}

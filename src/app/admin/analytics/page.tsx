@@ -111,55 +111,82 @@ export default function AdminAnalytics() {
 
       logger.apiCall('/admin/analytics', 'GET', { timeRange: debouncedTimeRange })
 
-      // Optimized parallel queries with only necessary fields
-      const [usersResult, coursesResult, quizzesResult, enrollmentsResult] = await Promise.all([
+      // Calculate date range for filtering
+      const now = new Date()
+      const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+      
+      // Database-optimized parallel queries with date filtering and limits
+      const [
+        totalUsersResult, 
+        newUsersResult, 
+        coursesResult, 
+        quizzesResult, 
+        enrollmentsResult,
+        revenueResult
+      ] = await Promise.all([
+        // Total users count (fast count query)
         supabase
           .from('users')
-          .select('id, created_at')
-          .order('created_at', { ascending: false }),
+          .select('id', { count: 'exact', head: true }),
+        
+        // New users this month (database-level date filtering)
+        supabase
+          .from('users')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', thisMonth.toISOString())
+          .lte('created_at', now.toISOString()),
+        
+        // Published courses with revenue calculation
         supabase
           .from('courses')
-          .select('id, price')
+          .select('price')
           .eq('is_published', true),
+        
+        // Published quizzes count
         supabase
           .from('quizzes')
-          .select('id')
+          .select('id', { count: 'exact', head: true })
           .eq('is_published', true),
+        
+        // Total enrollments count
         supabase
           .from('enrollments')
-          .select('id, course_id')
+          .select('id', { count: 'exact', head: true }),
+        
+        // Recent enrollments for activity (limited to last 100 for performance)
+        supabase
+          .from('enrollments')
+          .select('id, enrolled_at')
+          .gte('enrolled_at', thisMonth.toISOString())
+          .order('enrolled_at', { ascending: false })
+          .limit(100)
       ])
 
-      // Handle individual query errors gracefully
-      const users = usersResult.data || []
+      // Handle individual query results gracefully
+      const totalUsers = totalUsersResult.count || 0
+      const newUsers = newUsersResult.count || 0
       const courses = coursesResult.data || []
-      const quizzes = quizzesResult.data || []
-      const enrollments = enrollmentsResult.data || []
+      const totalQuizzes = quizzesResult.count || 0
+      const totalEnrollments = enrollmentsResult.count || 0
+      const recentEnrollments = revenueResult.data || []
 
       // Log any individual errors but don't fail completely
-      if (usersResult.error) logger.warn('Users query error', { error: usersResult.error })
+      if (totalUsersResult.error) logger.warn('Total users query error', { error: totalUsersResult.error })
+      if (newUsersResult.error) logger.warn('New users query error', { error: newUsersResult.error })
       if (coursesResult.error) logger.warn('Courses query error', { error: coursesResult.error })
       if (quizzesResult.error) logger.warn('Quizzes query error', { error: quizzesResult.error })
       if (enrollmentsResult.error) logger.warn('Enrollments query error', { error: enrollmentsResult.error })
 
-      // Calculate this month's new users
-      const now = new Date()
-      const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-      
-      const newUsersThisMonth = users.filter((user: { created_at: string }) => 
-        new Date(user.created_at) >= thisMonth
-      ).length
-
-      // Calculate total revenue from course prices
+      // Calculate total revenue from course prices (already filtered data)
       const totalRevenue = courses.reduce((sum: number, course: { price: number }) => sum + (Number(course.price) || 0), 0)
 
       const analyticsData = {
-        totalUsers: users.length,
+        totalUsers,
         totalCourses: courses.length,
-        totalQuizzes: quizzes.length,
-        courseEnrollments: enrollments.length,
+        totalQuizzes,
+        courseEnrollments: totalEnrollments,
         totalRevenue,
-        newUsersThisMonth
+        newUsersThisMonth: newUsers
       }
 
       // Cache the results for 5 minutes

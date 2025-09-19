@@ -13,15 +13,19 @@ export const GET = withAdminAuth(async (request: NextRequest, user) => {
     const search = searchParams.get('search') || ''
     const category = searchParams.get('category') || ''
     const difficulty = searchParams.get('difficulty') || ''
+    
+    // API Optimization: Support different response modes
+    const mode = searchParams.get('mode') || 'full' // 'slim', 'full', 'stats'
+    const fields = searchParams.get('fields')?.split(',') || []
 
     const { quizzes, pagination } = await withServiceRole(user, async (serviceClient) => {
       const from = (page - 1) * limit
       const to = from + limit - 1
 
-      // Build the query
-      let query = serviceClient
-        .from('quizzes')
-        .select(`
+      // Define field sets for different modes
+      const fieldSets = {
+        slim: `id, title, category, difficulty, is_published, created_at, image_url`,
+        full: `
           id, title, description, category, difficulty, duration_minutes,
           total_questions, passing_score, max_attempts, time_limit_minutes,
           is_published, created_at, updated_at, image_url, course_id, lesson_id,
@@ -29,7 +33,24 @@ export const GET = withAdminAuth(async (request: NextRequest, user) => {
           allow_review, allow_backtrack, randomize_questions,
           questions_per_page, show_progress, auto_submit, instructions,
           tags, estimated_time_minutes
-        `, { count: 'exact' })
+        `,
+        reading: `
+          id, title, description, category, difficulty, duration_minutes,
+          is_published, created_at, updated_at, image_url,
+          reading_passage, passage_title, passage_source, passage_audio_url,
+          word_count, estimated_read_time
+        `
+      }
+
+      // Use custom fields if provided, otherwise use mode-based field set
+      const selectFields = fields.length > 0 
+        ? fields.join(', ')
+        : fieldSets[mode as keyof typeof fieldSets] || fieldSets.slim
+
+      // Build the optimized query
+      let query = serviceClient
+        .from('quizzes')
+        .select(selectFields, { count: 'exact' })
         .order('created_at', { ascending: false })
         .range(from, to)
 
@@ -52,55 +73,70 @@ export const GET = withAdminAuth(async (request: NextRequest, user) => {
         throw new Error(`Database error: ${quizzesError.message}`)
       }
 
-      // Get question counts for each quiz
-      const quizIds = quizzes?.map((q: any) => q.id) || []
-      const { data: questionCounts } = await serviceClient
-        .from('quiz_questions')
-        .select('quiz_id')
-        .in('quiz_id', quizIds)
-
-      // Count questions per quiz
-      const questionCountMap = questionCounts?.reduce((acc: any, q: any) => {
-        acc[q.quiz_id] = (acc[q.quiz_id] || 0) + 1
-        return acc
-      }, {}) || {}
-
-      // Get attempt counts and scores for each quiz
-      const { data: attempts } = await serviceClient
-        .from('quiz_attempts')
-        .select('quiz_id, score')
-        .in('quiz_id', quizIds)
-
-      // Count attempts and calculate average scores per quiz
-      const quizStats = attempts?.reduce((acc: any, attempt: any) => {
-        if (!acc[attempt.quiz_id]) {
-          acc[attempt.quiz_id] = { count: 0, totalScore: 0 }
-        }
-        acc[attempt.quiz_id].count++
-        acc[attempt.quiz_id].totalScore += attempt.score || 0
-        return acc
-      }, {}) || {}
-
-      // Combine data with frontend-expected field names
-      const enrichedQuizzes = quizzes?.map((quiz: any) => {
-        const stats = quizStats[quiz.id] || { count: 0, totalScore: 0 }
-        const averageScore = stats.count > 0 ? Math.round(stats.totalScore / stats.count) : 0
+      // Only load statistics for full mode or when explicitly requested
+      if (mode === 'full' || mode === 'stats' || fields.some(f => ['total_questions', 'attempts_count', 'average_score'].includes(f))) {
+        const quizIds = quizzes?.map((q: any) => q.id) || []
         
-        return {
-          ...quiz,
-          total_questions: questionCountMap[quiz.id] || 0, // Frontend expects this field name
-          attempts_count: stats.count, // Frontend expects this field name
-          average_score: averageScore // Frontend expects this field name
-        }
-      })
+        // Get question counts for each quiz
+        const { data: questionCounts } = await serviceClient
+          .from('quiz_questions')
+          .select('quiz_id')
+          .in('quiz_id', quizIds)
 
-      return {
-        quizzes: enrichedQuizzes,
-        pagination: {
-          page,
-          limit,
-          total: count || 0,
-          totalPages: Math.ceil((count || 0) / limit)
+        // Count questions per quiz
+        const questionCountMap = questionCounts?.reduce((acc: any, q: any) => {
+          acc[q.quiz_id] = (acc[q.quiz_id] || 0) + 1
+          return acc
+        }, {}) || {}
+
+        // Get attempt counts and scores for each quiz
+        const { data: attempts } = await serviceClient
+          .from('quiz_attempts')
+          .select('quiz_id, score')
+          .in('quiz_id', quizIds)
+
+        // Count attempts and calculate average scores per quiz
+        const quizStats = attempts?.reduce((acc: any, attempt: any) => {
+          if (!acc[attempt.quiz_id]) {
+            acc[attempt.quiz_id] = { count: 0, totalScore: 0 }
+          }
+          acc[attempt.quiz_id].count++
+          acc[attempt.quiz_id].totalScore += attempt.score || 0
+          return acc
+        }, {}) || {}
+
+        // Combine data with frontend-expected field names
+        const enrichedQuizzes = quizzes?.map((quiz: any) => {
+          const stats = quizStats[quiz.id] || { count: 0, totalScore: 0 }
+          const averageScore = stats.count > 0 ? Math.round(stats.totalScore / stats.count) : 0
+          
+          return {
+            ...quiz,
+            total_questions: questionCountMap[quiz.id] || 0,
+            attempts_count: stats.count,
+            average_score: averageScore
+          }
+        })
+
+        return {
+          quizzes: enrichedQuizzes,
+          pagination: {
+            page,
+            limit,
+            total: count || 0,
+            totalPages: Math.ceil((count || 0) / limit)
+          }
+        }
+      } else {
+        // Slim mode - return quizzes without expensive statistics
+        return {
+          quizzes: quizzes || [],
+          pagination: {
+            page,
+            limit,
+            total: count || 0,
+            totalPages: Math.ceil((count || 0) / limit)
+          }
         }
       }
     })
@@ -166,7 +202,15 @@ export const POST = withAdminAuth(async (request: NextRequest, user) => {
           auto_submit: body.auto_submit || false,
           instructions: body.instructions || '',
           tags: body.tags || [],
-          estimated_time_minutes: body.estimated_time_minutes
+          estimated_time_minutes: body.estimated_time_minutes,
+          
+          // Reading quiz fields
+          reading_passage: body.reading_passage,
+          passage_title: body.passage_title,
+          passage_source: body.passage_source,
+          passage_audio_url: body.passage_audio_url,
+          word_count: body.word_count,
+          estimated_read_time: body.estimated_read_time
         }])
         .select()
         .single()
