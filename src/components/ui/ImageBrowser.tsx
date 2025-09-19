@@ -141,12 +141,22 @@ export function ImageBrowser({ isOpen, onClose, onSelect, selectedUrl, context =
         try {
           console.log(`🖼️ [IMAGE_BROWSER] Loading images from bucket: ${bucket}`)
           
-          // Use the API route instead of direct Supabase calls
+          // Get current session for authentication
+          const { supabase } = await import('@/lib/supabase')
+          const { data: { session } } = await supabase.auth.getSession()
+          
+          if (!session?.access_token) {
+            console.error(`❌ [IMAGE_BROWSER] No authentication session available`)
+            continue
+          }
+          
+          // Use the API route with proper authentication
           const response = await fetch(`/api/admin/images?bucket=${bucket}`, {
             method: 'GET',
-            credentials: 'include', // Include cookies for authentication
+            credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}` // Add proper auth header
             }
           })
           
@@ -172,6 +182,11 @@ export function ImageBrowser({ isOpen, onClose, onSelect, selectedUrl, context =
           } else {
             const errorData = await response.json().catch(() => ({}))
             console.error(`❌ [IMAGE_BROWSER] Failed to load images from bucket ${bucket}:`, response.status, response.statusText, errorData)
+            
+            // If it's a 401, it's likely an auth issue
+            if (response.status === 401) {
+              console.error(`❌ [IMAGE_BROWSER] Authentication failed - user may not have admin privileges`)
+            }
           }
         } catch (bucketErr) {
           console.error(`❌ [IMAGE_BROWSER] Error loading from bucket ${bucket}:`, bucketErr)
