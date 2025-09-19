@@ -115,6 +115,7 @@ export function ImageBrowser({ isOpen, onClose, onSelect, selectedUrl, context =
 
   // Simple and reliable function to load images from storage based on context
   const loadStorageImages = useCallback(async () => {
+    console.log('🚀 [IMAGE_BROWSER] Starting to load storage images...', { context })
     setLoading(true)
     try {
       let storageImages: ImageItem[] = []
@@ -135,6 +136,8 @@ export function ImageBrowser({ isOpen, onClose, onSelect, selectedUrl, context =
         default:
           buckets = ['course-images', 'quiz-images']
       }
+      
+      console.log('📂 [IMAGE_BROWSER] Loading from buckets:', buckets)
       
       // Load images from each relevant bucket using the API
       for (const bucket of buckets) {
@@ -214,14 +217,26 @@ export function ImageBrowser({ isOpen, onClose, onSelect, selectedUrl, context =
         }
       })
       
+      console.log('🎯 [IMAGE_BROWSER] Combining images:', {
+        contextPublicImages: contextPublicImages.length,
+        storageImages: storageImages.length,
+        total: contextPublicImages.length + storageImages.length
+      })
+      
       setImages([...contextPublicImages, ...storageImages])
       setLastLoaded(new Date())
       
+      console.log('✅ [IMAGE_BROWSER] Images loaded successfully:', {
+        totalImages: contextPublicImages.length + storageImages.length,
+        timestamp: new Date().toISOString()
+      })
+      
     } catch (error) {
-      console.error('Error loading storage images:', error)
+      console.error('❌ [IMAGE_BROWSER] Error loading storage images:', error)
       // Fallback to just public images if storage fails
       setImages(PUBLIC_IMAGES)
     } finally {
+      console.log('🏁 [IMAGE_BROWSER] Loading completed')
       setLoading(false)
     }
   }, [context])

@@ -1231,14 +1231,25 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
   // Separate function to fetch questions (memoized to prevent unnecessary re-renders)
   const fetchQuestionsForQuiz = React.useCallback(async (quizId: string) => {
     try {
+      console.log('🔍 [QUIZ_BUILDER] Starting to fetch questions for quiz:', quizId)
+      
+      // Prevent duplicate fetches if questions are already loaded
+      if (state.questions.length > 0) {
+        console.log('⚠️ [QUIZ_BUILDER] Questions already loaded, skipping fetch:', state.questions.length)
+        return
+      }
+      
       setState(prev => ({ ...prev, isGenerating: true }))
       
       // Get session for authentication
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
+        console.error('❌ [QUIZ_BUILDER] No authentication session')
         setState(prev => ({ ...prev, isGenerating: false }))
         return
       }
+
+      console.log('🔐 [QUIZ_BUILDER] Session found, fetching quiz with questions...')
 
       // Fetch quiz with questions using the edit API endpoint
       const response = await fetch(`/api/admin/quizzes/${quizId}?includeQuestions=true`, {
@@ -1250,36 +1261,75 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
         credentials: 'include'
       })
 
+      console.log('🌐 [QUIZ_BUILDER] API response status:', response.status)
+      console.trace('🔍 [QUIZ_BUILDER] fetchQuestionsForQuiz called from:')
+
       if (!response.ok) {
         const errorData = await response.json()
+        console.error('❌ [QUIZ_BUILDER] API error:', errorData)
         setState(prev => ({ ...prev, isGenerating: false }))
         return
       }
 
       const result = await response.json()
+      console.log('📝 [QUIZ_BUILDER] Fetched quiz data:', {
+        quizTitle: result.title,
+        hasQuizQuestions: !!result.quiz_questions,
+        hasQuestions: !!result.questions,
+        questionsCount: result.quiz_questions?.length || result.questions?.length || 0,
+        sampleQuestions: (result.quiz_questions || result.questions)?.slice(0, 2)
+      })
 
-      // Update state with fetched questions
-      setState(prev => ({
-        ...prev,
-        questions: result.questions || [],
-        isGenerating: false
+      // The API should return questions in the 'questions' property (after transformation)
+      const questions = result.questions || result.quiz_questions || []
+      const transformedQuestions = questions.map((q: any) => ({
+        id: q.id,
+        question: q.question,
+        question_type: q.question_type,
+        options: q.options || [],
+        correct_answer: q.correct_answer,
+        correct_answer_text: q.correct_answer_text,
+        explanation: q.explanation,
+        order_index: q.order_index,
+        points: q.points || 1,
+        difficulty_level: q.difficulty_level || 'medium'
       }))
 
+      console.log('🔄 [QUIZ_BUILDER] Transformed questions:', {
+        count: transformedQuestions.length,
+        sample: transformedQuestions.slice(0, 1)
+      })
+
+      // Only update state if we actually got questions
+      if (transformedQuestions.length > 0) {
+        setState(prev => ({
+          ...prev,
+          questions: transformedQuestions,
+          isGenerating: false
+        }))
+        console.log('✅ [QUIZ_BUILDER] Questions loaded successfully:', transformedQuestions.length)
+      } else {
+        console.log('⚠️ [QUIZ_BUILDER] No questions received from API')
+        setState(prev => ({ ...prev, isGenerating: false }))
+      }
+
     } catch (error) {
-      console.error('❌ QuizBuilder: Error fetching questions:', error)
+      console.error('❌ [QUIZ_BUILDER] Error fetching questions:', error)
       setState(prev => ({ ...prev, isGenerating: false }))
     }
-  }, [])
+  }, [state.questions.length])
 
   // Update state when quiz prop changes (for async loading)
   React.useEffect(() => {
     if (quiz) {
-      console.log('🔄 QuizBuilder useEffect: Updating from quiz prop', {
+      console.log('🔄 [QUIZ_BUILDER] useEffect: Updating from quiz prop', {
         quizId: quiz.id,
         title: quiz.title,
         hasQuestions: !!(quiz as any).questions,
         questionsCount: (quiz as any).questions ? (quiz as any).questions.length : 0,
-        questionsData: (quiz as any).questions ? (quiz as any).questions.slice(0, 1) : []
+        questionsData: (quiz as any).questions ? (quiz as any).questions.slice(0, 1) : [],
+        fetchedQuizRef: fetchedQuizRef.current,
+        shouldFetch: quiz.id && !(quiz as any).questions && fetchedQuizRef.current !== quiz.id
       })
       
       setState(prev => {
@@ -1309,14 +1359,29 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
           questions: (quiz as any).questions ? (quiz as any).questions : prev.questions
         }
         
+        console.log('📊 [QUIZ_BUILDER] New state after quiz prop update:', {
+          currentStep: newState.currentStep,
+          questionsLength: newState.questions.length,
+          questionsPreview: newState.questions.slice(0, 1)
+        })
+        
         return newState
       })
 
       // Fetch questions if needed (only once per quiz)
       if (quiz.id && !(quiz as any).questions && fetchedQuizRef.current !== quiz.id) {
+        console.log('🚀 [QUIZ_BUILDER] Fetching questions for quiz:', quiz.id)
         fetchedQuizRef.current = quiz.id
         fetchQuestionsForQuiz(quiz.id)
+      } else {
+        console.log('⏭️ [QUIZ_BUILDER] Skipping question fetch:', {
+          reason: (quiz as any).questions 
+            ? `Quiz already has ${(quiz as any).questions.length} questions` 
+            : `Already fetched quiz ${quiz.id} (ref: ${fetchedQuizRef.current})`
+        })
       }
+    } else {
+      console.log('❓ [QUIZ_BUILDER] No quiz prop provided')
     }
   }, [quiz, fetchQuestionsForQuiz])
 
