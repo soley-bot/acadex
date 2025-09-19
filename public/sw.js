@@ -104,9 +104,13 @@ async function handleAPIRequest(request) {
     const networkResponse = await fetch(request)
     
     if (networkResponse.ok) {
-      // Cache successful response
-      const cache = await caches.open(API_CACHE)
-      cache.put(request, networkResponse.clone())
+      // Cache successful response with error handling
+      try {
+        const cache = await caches.open(API_CACHE)
+        await cache.put(request, networkResponse.clone())
+      } catch (cacheError) {
+        console.warn('Service Worker: Failed to cache API response', cacheError)
+      }
       return networkResponse
     }
     
@@ -147,8 +151,12 @@ async function handleStaticRequest(request) {
     // Try network and cache
     const networkResponse = await fetch(request)
     if (networkResponse.ok) {
-      const cache = await caches.open(DYNAMIC_CACHE)
-      cache.put(request, networkResponse.clone())
+      try {
+        const cache = await caches.open(DYNAMIC_CACHE)
+        await cache.put(request, networkResponse.clone())
+      } catch (cacheError) {
+        console.warn('Service Worker: Failed to cache static asset', cacheError)
+      }
     }
     
     return networkResponse
@@ -173,9 +181,13 @@ async function handlePageRequest(request) {
     const networkResponse = await fetch(request)
     
     if (networkResponse.ok) {
-      // Cache successful response
-      const cache = await caches.open(DYNAMIC_CACHE)
-      cache.put(request, networkResponse.clone())
+      // Cache successful response with error handling
+      try {
+        const cache = await caches.open(DYNAMIC_CACHE)
+        await cache.put(request, networkResponse.clone())
+      } catch (cacheError) {
+        console.warn('Service Worker: Failed to cache page response', cacheError)
+      }
       return networkResponse
     }
     
