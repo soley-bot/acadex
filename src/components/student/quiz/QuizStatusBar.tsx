@@ -6,6 +6,7 @@
 import React from 'react'
 import { CheckCircle, Wifi, WifiOff, Save, AlertTriangle, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { formatTime, formatDateTime } from '@/lib/date-utils'
 
 interface SaveStatusProps {
   isAutoSaving: boolean
@@ -96,17 +97,7 @@ export function ProgressRestoreNotification({
   lastSaved, 
   className 
 }: ProgressRestoreNotificationProps) {
-  const formatTime = (date: Date) => {
-    const now = new Date()
-    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
-    
-    if (diffMinutes < 60) {
-      return `${diffMinutes} minute${diffMinutes === 1 ? '' : 's'} ago`
-    }
-    
-    const diffHours = Math.floor(diffMinutes / 60)
-    return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`
-  }
+  // Using formatDateTime from centralized utilities instead of local formatTime
 
   return (
     <div className={cn(
@@ -120,7 +111,7 @@ export function ProgressRestoreNotification({
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-semibold text-blue-900 mb-1">Previous Progress Found</h3>
           <p className="text-sm text-blue-700 leading-relaxed">
-            We found quiz progress saved {formatTime(lastSaved)}. Would you like to continue where you left off?
+            We found quiz progress saved {formatDateTime(lastSaved)}. Would you like to continue where you left off?
           </p>
           
           {/* Mobile-optimized buttons */}
@@ -171,16 +162,7 @@ export function QuizStatusBar({
   timeLeft,
   className
 }: QuizStatusBarProps) {
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
-
-    if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-    }
-    return `${minutes}:${secs.toString().padStart(2, '0')}`
-  }
+  // Using formatTime from centralized utilities
 
   const progressPercentage = (currentQuestion / totalQuestions) * 100
   const isLowTime = timeLeft !== undefined && timeLeft > 0 && timeLeft < 300 // < 5 minutes

@@ -8,6 +8,7 @@ import AddUserModal from '@/components/admin/AddUserModal'
 import EditUserModal from '@/components/admin/EditUserModal'
 import DeleteUserModal from '@/components/admin/DeleteUserModal'
 import Icon from '@/components/ui/Icon'
+import { formatDate } from '@/lib/date-utils'
 
 export default function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -57,14 +58,6 @@ export default function AdminUsers() {
       student: 'badge-primary'
     }
     return colors[role as keyof typeof colors] || colors.student
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
   }
 
   if (loading) {

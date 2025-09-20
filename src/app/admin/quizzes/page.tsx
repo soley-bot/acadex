@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Pagination } from '@/components/ui/Pagination'
 import { Search, Plus, Brain, Clock, Users, BarChart3, Edit, Trash2, Eye, ChevronDown, Settings, EyeOff, Check, Timer, Home, ChevronRight, Filter, Download, Upload, BookOpen } from 'lucide-react'
+import { formatDate } from '@/lib/date-utils'
 import { IconBrain, IconEye, IconEdit, IconUsers } from '@tabler/icons-react'
 import { QuizBuilderRouter } from '@/components/admin/QuizBuilderRouter'
 import { QuizViewModal } from '@/components/admin/QuizViewModal'
@@ -313,14 +314,6 @@ export default function AdminQuizzesPage() {
       logger.error('Error checking quiz usage:', error)
       return { count: 0 } // Default to 0 if we can't check
     }
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
   }
 
   // ===== BULK OPERATIONS HANDLERS =====

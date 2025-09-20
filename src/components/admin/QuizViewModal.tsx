@@ -5,6 +5,7 @@ import { logger } from '@/lib/logger'
 import { useState, useEffect, useCallback } from 'react'
 import { X, Eye, Edit, Clock, Users, BarChart3, CheckCircle, XCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { formatDate } from '@/lib/date-utils'
 
 interface Question {
   id: string
@@ -136,16 +137,6 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
     return isPublished 
       ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
       : 'bg-amber-100 text-amber-800 border border-amber-200'
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
   }
 
   if (!isOpen || !quiz) return null

@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Quiz } from '@/lib/supabase'
+import { formatDate } from '@/lib/date-utils'
 
 // Extended Quiz interface with calculated statistics
 interface ExtendedQuiz extends Quiz {
@@ -51,14 +52,6 @@ export function AdminQuizCard({
     return isPublished 
       ? 'badge-success'
       : 'badge-warning'
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
   }
 
   if (compact) {

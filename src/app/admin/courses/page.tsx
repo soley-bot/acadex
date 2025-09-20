@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Pagination } from '@/components/ui/Pagination'
-import { DeleteCourseModal } from '@/components/admin/DeleteCourseModal'
 import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
 import { CourseViewModal } from '@/components/admin/CourseViewModal'
+import { formatDate } from '@/lib/date-utils'
 import Icon from '@/components/ui/Icon'
 import { useAuth } from '@/contexts/AuthContext'
 import { useAdminCourses } from '@/hooks/api'
@@ -74,7 +74,6 @@ export default function CoursesPage() {
   const pagination = coursesData?.pagination || { page: 1, limit: 50, total: 0, totalPages: 0 }
   
   // Modal states  
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deletingCourse, setDeletingCourse] = useState<Course | null>(null)
   const [showEnhancedDeleteModal, setShowEnhancedDeleteModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
@@ -142,7 +141,6 @@ export default function CoursesPage() {
 
   const handleDeleteSuccess = () => {
     refetch() // Refresh courses after successful deletion
-    setShowDeleteModal(false)
     setShowEnhancedDeleteModal(false)
     setDeletingCourse(null)
   }
@@ -170,14 +168,6 @@ export default function CoursesPage() {
       logger.error('Error toggling publish status:', err)
       // Note: No setError needed as React Query will handle error state
     }
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
   }
 
   // Check if user is admin (after all hooks)
@@ -513,13 +503,6 @@ export default function CoursesPage() {
       )}
 
       {/* Modals */}
-      <DeleteCourseModal
-        course={deletingCourse}
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onSuccess={handleDeleteSuccess}
-      />
-
       <EnhancedDeleteModal
         item={deletingCourse ? { id: deletingCourse.id, title: deletingCourse.title, type: 'course' } : null}
         isOpen={showEnhancedDeleteModal}

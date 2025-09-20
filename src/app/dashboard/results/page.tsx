@@ -12,6 +12,7 @@ import {
   Calendar,
   Loader2
 } from 'lucide-react'
+import { formatTime, formatDate } from '@/lib/date-utils'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -84,22 +85,6 @@ export default function AllResultsPage() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = seconds % 60
-    return `${minutes}m ${remainingSeconds}s`
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
   }
 
   const getScoreColor = (score: number) => {

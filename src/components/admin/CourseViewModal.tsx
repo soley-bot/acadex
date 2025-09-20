@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { X, Users, Calendar, DollarSign, BookOpen, Clock, Star } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatDate } from '@/lib/date-utils'
 
 interface CourseViewModalProps {
   course: {
@@ -26,14 +27,6 @@ interface CourseViewModalProps {
 
 export function CourseViewModal({ course, isOpen, onClose, onEdit }: CourseViewModalProps) {
   if (!isOpen || !course) return null
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
 
   const getLevelColor = (level: string) => {
     switch (level) {

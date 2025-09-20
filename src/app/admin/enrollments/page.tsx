@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Users, BookOpen, Calendar, Clock, Search, Filter, UserMinus, Eye, MoreHorizontal, TrendingUp, Award, Plus } from 'lucide-react'
+import { formatDate } from '@/lib/date-utils'
 import { useAdminEnrollments } from '@/hooks/api'
 import type { Enrollment, Course, User } from '@/lib/supabase'
 import { ManualEnrollmentModal } from '@/components/admin/ManualEnrollmentModal'
@@ -98,14 +99,6 @@ export default function AdminEnrollmentsPage() {
     
     return matchesSearch && matchesStatus
   })
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
 
   const getProgressColor = (progress: number) => {
     if (progress >= 80) return 'bg-green-500'

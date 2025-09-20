@@ -21,6 +21,7 @@ import {
   Target,
   PlayCircle
 } from 'lucide-react'
+import { formatDate } from '@/lib/date-utils'
 
 export default function StudentDashboard() {
   const { user } = useAuth()
@@ -59,10 +60,6 @@ export default function StudentDashboard() {
     if (percentage >= 80) return 'text-green-600'
     if (percentage >= 60) return 'text-yellow-600'
     return 'text-red-600'
-  }
-
-  const formatDate = (isoString: string) => {
-    return new Date(isoString).toLocaleDateString()
   }
 
   if (loading) {

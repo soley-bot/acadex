@@ -5,6 +5,7 @@ import { ArrowLeft, Clock, BookOpen, HelpCircle, ChevronLeft, ChevronRight, Chec
 import Link from 'next/link'
 import { QuestionContent } from '../core/QuestionContent'
 import type { Quiz } from '@/lib/supabase'
+import { formatTime } from '@/lib/date-utils'
 
 interface SimpleSplitLayoutProps {
   quiz: Quiz & {
@@ -60,12 +61,6 @@ export default function SimpleSplitQuizLayout({ quiz }: SimpleSplitLayoutProps) 
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1)
     }
-  }
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
   return (

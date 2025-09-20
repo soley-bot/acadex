@@ -8,6 +8,7 @@
 import React, { useMemo, useTransition } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatTimeSpent } from '@/lib/date-utils'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -118,13 +119,6 @@ export function ProgressiveDashboard({ userId }: ProgressiveDashboardProps) {
     if (!dashboardData) return 0
     return Math.round((dashboardData.completedQuizzes / dashboardData.totalQuizzes) * 100)
   }, [dashboardData])
-  
-  // Format time spent
-  const formatTimeSpent = (minutes: number) => {
-    const hours = Math.floor(minutes / 60)
-    const mins = minutes % 60
-    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
-  }
   
   // Get activity icon
   const getActivityIcon = (type: string) => {

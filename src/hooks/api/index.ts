@@ -11,7 +11,7 @@ export * from './useAdminQuizzes'
 export * from './useAdminCourses'
 export * from './useAdminUsers'
 
-// Dashboard hooks
+// Dashboard hooks  
 export * from './useDashboardData'
 
 // Public API hooks

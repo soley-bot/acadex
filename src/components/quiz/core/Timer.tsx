@@ -2,6 +2,7 @@
 
 import { Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { formatTime } from "@/lib/date-utils"
 
 interface TimerProps {
   timeLeft: number
@@ -9,16 +10,7 @@ interface TimerProps {
 }
 
 export function Timer({ timeLeft, className }: TimerProps) {
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
-
-    if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-    }
-    return `${minutes}:${secs.toString().padStart(2, '0')}`
-  }
+  // Using formatTime from centralized utilities
 
   const getTimerColor = (time: number) => {
     if (time <= 300) return 'text-red-600' // Last 5 minutes
