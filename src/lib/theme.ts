@@ -3,6 +3,7 @@ import { createTheme } from '@mantine/core'
 export const theme = createTheme({
   // Your brand color (matches your theme-color in metadata)
   primaryColor: 'red',
+  defaultRadius: 'md',
   
   // Font configuration (using your existing Inter font)
   fontFamily: 'var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif',
@@ -18,23 +19,35 @@ export const theme = createTheme({
     }
   },
 
-  // Color scheme (matches your red theme)
+  // ENHANCED: Proper Mantine color palette
   colors: {
+    red: [
+      '#fff5f5', // 0
+      '#fed7d7', // 1
+      '#feb2b2', // 2
+      '#fc8181', // 3
+      '#f56565', // 4
+      '#e53e3e', // 5 - main brand
+      '#c53030', // 6
+      '#9b2c2c', // 7
+      '#822727', // 8
+      '#63171b', // 9
+    ],
     brand: [
-      '#fef2f2', // red-50
-      '#fee2e2', // red-100  
-      '#fecaca', // red-200
-      '#fca5a5', // red-300
-      '#f87171', // red-400
-      '#ef4444', // red-500
-      '#dc2626', // red-600 (your theme color)
-      '#b91c1c', // red-700
-      '#991b1b', // red-800
-      '#7f1d1d', // red-900
+      '#fff5f5',
+      '#fed7d7', 
+      '#feb2b2',
+      '#fc8181',
+      '#f56565',
+      '#e53e3e', // Your theme color
+      '#c53030',
+      '#9b2c2c',
+      '#822727',
+      '#63171b',
     ],
   },
 
-  // Default spacing and sizes
+  // Enhanced spacing and shadows
   spacing: {
     xs: '0.5rem',
     sm: '0.75rem', 
@@ -43,33 +56,41 @@ export const theme = createTheme({
     xl: '1.5rem',
   },
 
-  // Component defaults
+  shadows: {
+    xs: '0 1px 2px rgba(0, 0, 0, 0.05)',
+    sm: '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
+    md: '0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06)',
+    lg: '0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)',
+    xl: '0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04)',
+  },
+
+  // ENHANCED: Beautiful component styling like mantine.dev
   components: {
     Button: {
       defaultProps: {
         size: 'md',
-        radius: 'sm',
+        radius: 'md',
       },
     },
     
     TextInput: {
       defaultProps: {
         size: 'md',
-        radius: 'sm',
+        radius: 'md',
       },
     },
 
     Select: {
       defaultProps: {
         size: 'md',
-        radius: 'sm',
+        radius: 'md',
       },
     },
 
     Textarea: {
       defaultProps: {
         size: 'md',
-        radius: 'sm',
+        radius: 'md',
       },
     },
 
@@ -98,6 +119,19 @@ export const theme = createTheme({
           opacity: 0.55,
           blur: 3,
         },
+      },
+    },
+
+    Menu: {
+      defaultProps: {
+        radius: 'md',
+        shadow: 'md',
+      },
+    },
+
+    Badge: {
+      defaultProps: {
+        radius: 'md',
       },
     },
   },

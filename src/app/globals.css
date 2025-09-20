@@ -2169,6 +2169,56 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+
+    /* ============================================================================
+       MANTINE UI ENHANCEMENTS - Professional Design Tokens
+       ============================================================================ */
+    
+    /* Mantine Core Variables for Beautiful Components */
+    --mantine-color-body: #ffffff;
+    --mantine-color-text: #212529;
+    --mantine-color-dimmed: #6c757d;
+    --mantine-color-bright: #ffffff;
+    
+    /* Enhanced Shadows for Depth & Professional Look */
+    --mantine-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --mantine-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --mantine-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+    --mantine-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+    --mantine-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+    
+    /* Professional Border Radius Scale */
+    --mantine-radius-xs: 0.125rem;  /* 2px */
+    --mantine-radius-sm: 0.25rem;   /* 4px */
+    --mantine-radius-md: 0.375rem;  /* 6px */
+    --mantine-radius-lg: 0.5rem;    /* 8px */
+    --mantine-radius-xl: 0.75rem;   /* 12px */
+    
+    /* Brand Color Enhancement for Mantine */
+    --mantine-primary-color-filled: #e53e3e;
+    --mantine-primary-color-filled-hover: #c53030;
+    --mantine-primary-color-light: #fff5f5;
+    --mantine-primary-color-light-hover: #fed7d7;
+    
+    /* Interactive State Colors */
+    --mantine-color-hover: rgba(0, 0, 0, 0.05);
+    --mantine-color-active: rgba(0, 0, 0, 0.08);
+    --mantine-color-focus: rgba(229, 62, 62, 0.1);
+    
+    /* Component-Specific Variables */
+    --mantine-card-background: #ffffff;
+    --mantine-card-border: #e9ecef;
+    --mantine-card-shadow: var(--mantine-shadow-sm);
+    
+    --mantine-paper-background: #ffffff;
+    --mantine-paper-border: #e9ecef;
+    --mantine-paper-shadow: var(--mantine-shadow-xs);
+    
+    /* Input Enhancement */
+    --mantine-input-border: #ced4da;
+    --mantine-input-border-hover: #adb5bd;
+    --mantine-input-border-focus: #e53e3e;
+    --mantine-input-placeholder: #6c757d;
     
     /* ============================================================================
        CONTAINER & SPACING SYSTEM - Modern Fluid Layout Tokens
