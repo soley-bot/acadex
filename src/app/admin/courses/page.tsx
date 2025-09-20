@@ -10,7 +10,7 @@ import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
 import { CourseViewModal } from '@/components/admin/CourseViewModal'
 import Icon from '@/components/ui/Icon'
 import { useAuth } from '@/contexts/AuthContext'
-import { useAdminCourses } from '@/hooks/useOptimizedAPI'
+import { useAdminCourses } from '@/hooks/api'
 
 // Optimized lib imports
 import { logger, authenticatedPost, type Course } from '@/lib'

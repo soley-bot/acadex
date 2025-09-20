@@ -59,7 +59,7 @@ export default function AllResultsPage() {
     const fetchAllResults = async () => {
       try {
         setLoading(true)
-        const { data, error: fetchError, pagination: paginationData } = await getUserQuizAttempts(user.id, 10, currentPage)
+        const { data, error: fetchError, pagination: paginationData } = await getUserQuizAttempts(user.id, { limit: 10, page: currentPage })
         
         if (fetchError) {
           setError('Failed to load quiz results')

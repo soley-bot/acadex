@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Users, BookOpen, Calendar, Clock, Search, Filter, UserMinus, Eye, MoreHorizontal, TrendingUp, Award, Plus } from 'lucide-react'
-import { useAdminEnrollments } from '@/hooks/useOptimizedAPI'
+import { useAdminEnrollments } from '@/hooks/api'
 import type { Enrollment, Course, User } from '@/lib/supabase'
 import { ManualEnrollmentModal } from '@/components/admin/ManualEnrollmentModal'
 

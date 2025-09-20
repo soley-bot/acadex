@@ -58,7 +58,7 @@ export default function MyQuizzesPage() {
       setError(null) // Clear any previous errors
       
       // Fetch user's quiz attempts with better error handling
-      const attemptsResponse = await getUserQuizAttempts(user.id, 10)
+      const attemptsResponse = await getUserQuizAttempts(user.id, { limit: 10 })
       
       // Transform attempts data first so we can use it later
       let transformedAttempts: QuizAttempt[] = []

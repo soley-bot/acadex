@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useAdminUsers } from '@/hooks/useOptimizedAPI'
+import { useAdminUsers } from '@/hooks/api'
 import type { User } from '@/lib/supabase'
 import AddUserModal from '@/components/admin/AddUserModal'
 import EditUserModal from '@/components/admin/EditUserModal'

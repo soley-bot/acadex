@@ -2,7 +2,6 @@ import React, { useCallback, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Brain, Loader2, Sparkles, Target, CheckCircle, X, ArrowLeft, ArrowRight } from 'lucide-react'
 import { FrontendQuizData, QuestionType } from '@/lib/simple-ai-quiz-generator'
-import { IELTSQualityToggle } from '../IELTSQualityToggle'
 
 interface EnhancedAIStepProps {
   isGenerating: boolean
@@ -57,7 +56,6 @@ export function EnhancedAIStep({
   const [language, setLanguage] = useState(aiConfig.language || 'english')
   const [explanationLanguage, setExplanationLanguage] = useState(aiConfig.language || 'english')
   const [additionalPrompt, setAdditionalPrompt] = useState(aiConfig.customPrompt || '')
-  const [applyIELTSQuality, setApplyIELTSQuality] = useState(false) // 🆕 IELTS Quality toggle state
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -90,8 +88,7 @@ export function EnhancedAIStep({
           questionTypes: selectedQuestionTypes,
           language,
           explanationLanguage,
-          additionalPrompt: additionalPrompt.trim() || undefined, // Send as additional instructions
-          applyIELTSQuality // 🆕 Include IELTS Quality toggle
+          additionalPrompt: additionalPrompt.trim() || undefined // Send as additional instructions
         })
       })
 
@@ -303,16 +300,6 @@ export function EnhancedAIStep({
               ))}
             </div>
           </div>
-
-          {/* IELTS Quality Matrix Toggle */}
-          <IELTSQualityToggle
-            enabled={applyIELTSQuality}
-            onChange={setApplyIELTSQuality}
-            subject={subject}
-            topic={topic}
-            language={language}
-            showDescription={true}
-          />
 
           {/* Error/Success Messages */}
           {error && (

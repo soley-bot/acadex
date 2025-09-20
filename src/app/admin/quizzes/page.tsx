@@ -19,7 +19,8 @@ import { StatsCards, type StatCardData } from '@/components/admin/dashboard/Stat
 import { QuizActionsToolbar } from '@/components/admin/dashboard/QuizActionsToolbar'
 import { QuizFiltersSection } from '@/components/admin/dashboard/QuizFiltersSection'
 import { QuizGridView } from '@/components/admin/dashboard/QuizGridView'
-import { useAdminDashboardData, useDeleteQuiz, usePrefetchQuiz, useBulkQuizOperations, type AdminDashboardData } from '@/hooks/useOptimizedAPI'
+import { useAdminDashboardData, useDeleteQuiz, usePrefetchQuiz, useBulkQuizOperations } from '@/hooks/api'
+import type { AdminDashboardResponse } from '@/types'
 import { useAdminModals } from '@/hooks/admin/useAdminModals'
 import { supabase, type Quiz as BaseQuiz } from '@/lib/supabase'
 import { authenticatedPut } from '@/lib/auth-api'
@@ -52,8 +53,8 @@ export default function AdminQuizzesPage() {
   const prefetchQuiz = usePrefetchQuiz()
 
   // Extract data from the batched response (memoized to prevent unnecessary recalculations)
-  const quizzes = useMemo(() => (dashboardData as AdminDashboardData)?.quizzes || [], [dashboardData])
-  const managedCategories = useMemo(() => (dashboardData as AdminDashboardData)?.categories || [], [dashboardData])
+  const quizzes = useMemo(() => (dashboardData as AdminDashboardResponse)?.quizzes || [], [dashboardData])
+  const managedCategories = useMemo(() => (dashboardData as AdminDashboardResponse)?.categories || [], [dashboardData])
   
   // ===== REACT 18 CONCURRENT FEATURES =====
   const [isPending, startTransition] = useTransition()
@@ -105,7 +106,7 @@ export default function AdminQuizzesPage() {
   // ===== DERIVED STATE & MEMOIZED VALUES =====
     // Update pagination when data changes
   const paginationData = useMemo(() => {
-    const data = dashboardData as AdminDashboardData
+    const data = dashboardData as AdminDashboardResponse
     if (data?.stats) {
       return {
         page: currentPage,

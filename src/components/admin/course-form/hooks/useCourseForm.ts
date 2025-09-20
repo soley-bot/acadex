@@ -51,11 +51,11 @@ export function useCourseForm(course?: Course) {
     }
 
     // Validate modules and lessons
-    for (const module of formData.modules) {
-      if (!module.title.trim() || !module.description.trim()) {
+    for (const courseModule of formData.modules) {
+      if (!courseModule.title.trim() || !courseModule.description.trim()) {
         return true
       }
-      for (const lesson of module.lessons) {
+      for (const lesson of courseModule.lessons) {
         if (!lesson.title.trim() || !lesson.description.trim() || !lesson.content.trim()) {
           return true
         }

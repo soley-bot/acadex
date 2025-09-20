@@ -387,6 +387,10 @@ export default function TakeQuizPage() {
       const endTime = new Date()
       const timeTakenSeconds = startTime ? Math.round((endTime.getTime() - startTime.getTime()) / 1000) : 0
       
+      // Calculate basic metrics for submission
+      const totalQuestions = questions.length
+      const answeredCount = Object.keys(answers).length
+      
       // Retry submission up to 3 times
       let submitResult = null
       let lastError = null
@@ -398,7 +402,12 @@ export default function TakeQuizPage() {
             quiz_id: params.id as string,
             user_id: user!.id,
             answers,
-            time_taken_seconds: timeTakenSeconds
+            time_taken_seconds: timeTakenSeconds,
+            created_at: new Date().toISOString(),
+            total_questions: totalQuestions,
+            score: 0, // Will be calculated by backend
+            attempt_number: 1, // TODO: Track actual attempt number
+            passed: false // Will be determined by backend
           })
           
           if (submitResult.error) {
@@ -450,7 +459,7 @@ export default function TakeQuizPage() {
     } finally {
       setSubmitting(false)
     }
-  }, [submitting, lastSubmitTime, params.id, user, answers, router, startTime, saveNow, clearProgress])
+  }, [submitting, lastSubmitTime, params.id, user, answers, router, startTime, saveNow, clearProgress, questions.length])
 
   // Timer effect - Enhanced to prevent conflicts
   useEffect(() => {
