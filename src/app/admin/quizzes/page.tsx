@@ -14,13 +14,13 @@ import { QuizViewModal } from '@/components/admin/QuizViewModal'
 import { CategoryManagement } from '@/components/admin/CategoryManagement'
 import { QuizAnalytics } from '@/components/admin/QuizAnalytics'
 import { AdminQuizCard } from '@/components/admin/AdminQuizCard'
-import { DeleteModal } from '@/components/ui/DeleteModal'
+import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
 import { BulkOperations } from '@/components/admin/BulkOperations'
 import { StatsCards, type StatCardData } from '@/components/admin/dashboard/StatsCards'
 import { QuizActionsToolbar } from '@/components/admin/dashboard/QuizActionsToolbar'
 import { QuizFiltersSection } from '@/components/admin/dashboard/QuizFiltersSection'
 import { QuizGridView } from '@/components/admin/dashboard/QuizGridView'
-import { useAdminDashboardData, useDeleteQuiz, usePrefetchQuiz, useBulkQuizOperations } from '@/hooks/api'
+import { useAdminDashboardData, usePrefetchQuiz, useBulkQuizOperations } from '@/hooks/api'
 import type { AdminDashboardResponse } from '@/types'
 import { useAdminModals } from '@/hooks/admin/useAdminModals'
 import { supabase, type Quiz as BaseQuiz } from '@/lib/supabase'
@@ -50,7 +50,6 @@ export default function AdminQuizzesPage() {
     refetch 
   } = useAdminDashboardData(currentPage, 12)
   
-  const deleteQuizMutation = useDeleteQuiz()
   const prefetchQuiz = usePrefetchQuiz()
 
   // Extract data from the batched response (memoized to prevent unnecessary recalculations)
@@ -283,39 +282,6 @@ export default function AdminQuizzesPage() {
     }
   }, [refetch])
 
-  // Simplified delete function (React Query handles the API call)
-  const deleteQuiz = useCallback(async (quiz: any) => {
-    try {
-      await deleteQuizMutation.mutateAsync(quiz.id)
-      return Promise.resolve()
-    } catch (error) {
-      return Promise.reject(error)
-    }
-  }, [deleteQuizMutation])
-
-  const checkQuizUsage = async (quiz: any): Promise<{ count: number; message?: string }> => {
-    try {
-      // Use client for read-only check (should work with RLS)
-      const { count, error } = await supabase
-        .from('quiz_attempts')
-        .select('*', { count: 'exact', head: true })
-        .eq('quiz_id', quiz.id)
-
-      if (error) throw error
-      const attemptCount = count || 0
-      
-      return {
-        count: attemptCount,
-        message: attemptCount > 0 
-          ? `This quiz has ${attemptCount} student attempt${attemptCount === 1 ? '' : 's'}. Deleting will remove all associated data.`
-          : undefined
-      }
-    } catch (error) {
-      logger.error('Error checking quiz usage:', error)
-      return { count: 0 } // Default to 0 if we can't check
-    }
-  }
-
   // ===== BULK OPERATIONS HANDLERS =====
   const handleSelectQuiz = useCallback((quizId: string) => {
     setSelectedQuizIds(prev => 
@@ -511,13 +477,11 @@ export default function AdminQuizzesPage() {
           onSuccess={handleFormSuccess}
         />
   
-        <DeleteModal
+        <EnhancedDeleteModal
           item={deletingQuiz ? { id: deletingQuiz.id, title: deletingQuiz.title, type: 'quiz' as const } : null}
           isOpen={showDeleteModal}
           onClose={() => actions.closeModal('showDeleteModal')}
           onSuccess={handleDeleteSuccess}
-          onDelete={deleteQuiz}
-          usageCheck={checkQuizUsage}
         />      <QuizViewModal
         quiz={viewingQuiz}
         isOpen={showViewModal}
