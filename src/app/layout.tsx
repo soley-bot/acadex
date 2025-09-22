@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { Inter } from 'next/font/google'
-import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { QueryProvider } from '@/providers/QueryProvider'
 import { ConditionalLayout } from '@/components/ConditionalLayout'
@@ -19,6 +18,12 @@ import { theme } from '@/lib/theme'
 import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
 import '@mantine/dates/styles.css'
+
+// Design System CSS
+import '@/styles/design-tokens.css'
+
+// Global styles
+import './globals.css'
 
 const inter = Inter({ 
   subsets: ['latin'],

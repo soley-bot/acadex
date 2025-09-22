@@ -44,8 +44,8 @@ const nextConfig = {
     ],
     // Enable server components optimization
     optimizeServerReact: true,
-    // Enable CSS optimization
-    optimizeCss: true,
+    // Disable CSS optimization to prevent Mantine selector warnings
+    optimizeCss: false,
   },
 
   // Turbopack configuration (moved from experimental)

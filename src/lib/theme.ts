@@ -1,8 +1,9 @@
 import { createTheme } from '@mantine/core'
 
 export const theme = createTheme({
-  // Your brand color (matches your theme-color in metadata)
-  primaryColor: 'red',
+  // Primary brand color - Academic Purple
+  primaryColor: 'acadexPurple',
+  // Default radius for consistent design
   defaultRadius: 'md',
   
   // Font configuration (using your existing Inter font)
@@ -19,31 +20,40 @@ export const theme = createTheme({
     }
   },
 
-  // ENHANCED: Proper Mantine color palette
+  // ENHANCED: Brand Color System with Primary & Secondary
   colors: {
-    red: [
-      '#fff5f5', // 0
-      '#fed7d7', // 1
-      '#feb2b2', // 2
-      '#fc8181', // 3
-      '#f56565', // 4
-      '#e53e3e', // 5 - main brand
-      '#c53030', // 6
-      '#9b2c2c', // 7
-      '#822727', // 8
-      '#63171b', // 9
+    // Primary Brand Color - Acadex Purple
+    acadexPurple: [
+      '#f9f8ff', // 0 - lightest tint
+      '#f3f2ff', // 1 - very light
+      '#e8e5ff', // 2 - light
+      '#d1c9ff', // 3 - medium light  
+      '#bdb1ff', // 4 - medium
+      '#4f46e5', // 5 - PRIMARY BRAND COLOR
+      '#4338ca', // 6 - medium dark
+      '#3730a3', // 7 - dark
+      '#312e81', // 8 - darker
+      '#1e1b4b', // 9 - darkest shade
     ],
-    brand: [
-      '#fff5f5',
-      '#fed7d7', 
-      '#feb2b2',
-      '#fc8181',
-      '#f56565',
-      '#e53e3e', // Your theme color
-      '#c53030',
-      '#9b2c2c',
-      '#822727',
-      '#63171b',
+    
+    // Secondary Color - Academic Violet for accents
+    acadexViolet: [
+      '#faf9ff', // 0 - lightest
+      '#f5f3ff', // 1 - very light
+      '#ede9fe', // 2 - light
+      '#ddd6fe', // 3 - medium light
+      '#c4b5fd', // 4 - medium
+      '#6d28d9', // 5 - SECONDARY BRAND COLOR
+      '#5b21b6', // 6 - medium dark
+      '#4c1d95', // 7 - dark
+      '#3c1a78', // 8 - darker
+      '#2d1b69', // 9 - darkest
+    ],
+
+    // Keep original red for backward compatibility
+    red: [
+      '#fff5f5', '#fed7d7', '#feb2b2', '#fc8181', '#f56565',
+      '#e53e3e', '#c53030', '#9b2c2c', '#822727', '#63171b',
     ],
   },
 
@@ -64,13 +74,19 @@ export const theme = createTheme({
     xl: '0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04)',
   },
 
-  // ENHANCED: Beautiful component styling like mantine.dev
+  // ENHANCED: Professional component styling with brand colors
   components: {
     Button: {
       defaultProps: {
         size: 'md',
         radius: 'md',
       },
+      styles: {
+        root: {
+          '--mantine-shadow-xs': '0 1px 2px rgba(0, 0, 0, 0.05)',
+          '--mantine-shadow-sm': '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
+        }
+      }
     },
     
     TextInput: {
@@ -78,6 +94,15 @@ export const theme = createTheme({
         size: 'md',
         radius: 'md',
       },
+      styles: {
+        input: {
+          border: '1px solid var(--mantine-color-gray-3)',
+          '&:focus': {
+            borderColor: 'var(--mantine-color-acadexPurple-5)',
+            boxShadow: '0 0 0 2px rgba(79, 70, 229, 0.2)',
+          },
+        }
+      }
     },
 
     Select: {
@@ -85,6 +110,14 @@ export const theme = createTheme({
         size: 'md',
         radius: 'md',
       },
+      styles: {
+        input: {
+          '&:focus': {
+            borderColor: 'var(--mantine-color-acadexPurple-5)',
+            boxShadow: '0 0 0 2px rgba(79, 70, 229, 0.2)',
+          },
+        }
+      }
     },
 
     Textarea: {
@@ -92,6 +125,14 @@ export const theme = createTheme({
         size: 'md',
         radius: 'md',
       },
+      styles: {
+        input: {
+          '&:focus': {
+            borderColor: 'var(--mantine-color-acadexPurple-5)',
+            boxShadow: '0 0 0 2px rgba(79, 70, 229, 0.2)',
+          },
+        }
+      }
     },
 
     Card: {
@@ -101,6 +142,16 @@ export const theme = createTheme({
         radius: 'md',
         padding: 'lg',
       },
+      styles: {
+        root: {
+          borderColor: 'var(--mantine-color-gray-2)',
+          transition: 'all 0.15s ease',
+          '&:hover': {
+            transform: 'translateY(-1px)',
+            boxShadow: 'var(--mantine-shadow-md)',
+          },
+        }
+      }
     },
 
     Paper: {
@@ -120,6 +171,13 @@ export const theme = createTheme({
           blur: 3,
         },
       },
+      styles: {
+        header: {
+          borderBottom: '1px solid var(--mantine-color-gray-2)',
+          paddingBottom: 'var(--mantine-spacing-md)',
+          marginBottom: 'var(--mantine-spacing-md)',
+        }
+      }
     },
 
     Menu: {
@@ -127,12 +185,52 @@ export const theme = createTheme({
         radius: 'md',
         shadow: 'md',
       },
+      styles: {
+        dropdown: {
+          borderColor: 'var(--mantine-color-gray-2)',
+        }
+      }
     },
 
     Badge: {
       defaultProps: {
         radius: 'md',
+        variant: 'light',
       },
+    },
+
+    // Enhanced Navbar styling
+    NavLink: {
+      styles: {
+        root: {
+          borderRadius: 'var(--mantine-radius-md)',
+          '&[data-active]': {
+            backgroundColor: 'var(--mantine-color-acadexRed-0)',
+            color: 'var(--mantine-color-acadexRed-7)',
+            borderLeft: '3px solid var(--mantine-color-acadexRed-5)',
+          },
+          '&:hover': {
+            backgroundColor: 'var(--mantine-color-gray-0)',
+          },
+        }
+      }
+    },
+
+    // Stats and metrics styling  
+    RingProgress: {
+      styles: {
+        root: {
+          '--ring-color': 'var(--mantine-color-acadexRed-5)',
+        }
+      }
+    },
+
+    Progress: {
+      styles: {
+        root: {
+          '--progress-color': 'var(--mantine-color-acadexRed-5)',
+        }
+      }
     },
   },
 
