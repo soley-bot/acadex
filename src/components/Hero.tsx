@@ -1,6 +1,5 @@
 ﻿import Link from 'next/link'
 import Image from 'next/image'
-import { LinkButton } from '@/components/ui/LinkButton'
 import { Card, CardContent } from '@/components/ui/card'
 import { BlobBackground } from '@/components/ui/BlobBackground'
 import { AnimatedDiv, StaggerContainer, StaggerItem, HoverScale } from '@/components/ui/AnimatedComponents'
