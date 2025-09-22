@@ -1,5 +1,5 @@
 /**
- * Optimized Course Card - Lighter version focused on performance
+ * Optimized Course Card -export const CourseCard = memo<CourseCardProps>({Lighter version focused on performance
  * Similar to QuizListCard but for courses
  */
 
@@ -20,16 +20,16 @@ import {
 import type { Course } from '@/lib/supabase'
 import { getCourseImage, getOptimizedImageProps } from '@/lib/imageMapping'
 
-interface OptimizedCourseCardProps {
+interface CourseCardProps {
   course: Course
   priority?: boolean
   className?: string
 }
 
 /**
- * Optimized course card with minimal re-renders and faster loading
+ * Course card with minimal re-renders and faster loading
  */
-export const OptimizedCourseCard = memo<OptimizedCourseCardProps>(({ 
+export const CourseCard = memo<CourseCardProps>(({ 
   course, 
   priority = false,
   className = "" 
@@ -183,4 +183,4 @@ export const OptimizedCourseCard = memo<OptimizedCourseCardProps>(({
   )
 })
 
-OptimizedCourseCard.displayName = 'OptimizedCourseCard'
+CourseCard.displayName = 'CourseCard'

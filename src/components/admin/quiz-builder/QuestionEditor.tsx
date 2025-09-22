@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { QuizQuestion } from '@/lib/supabase'
 import { useQuizBuilderPerformance } from '@/lib/adminPerformanceSystem'
 
-interface OptimizedQuestionEditorProps {
+interface QuestionEditorProps {
   question: QuizQuestion
   index: number
   onUpdate: (updates: Partial<QuizQuestion>) => void
@@ -88,8 +88,8 @@ const QuestionTypeSelector = memo<{
 
 QuestionTypeSelector.displayName = 'QuestionTypeSelector'
 
-// Main Optimized Question Editor Component
-export const OptimizedQuestionEditor = memo<OptimizedQuestionEditorProps>(({
+// Main Question Editor Component
+export const QuestionEditor = memo<QuestionEditorProps>(({
   question,
   index,
   onUpdate,
@@ -387,4 +387,4 @@ export const OptimizedQuestionEditor = memo<OptimizedQuestionEditorProps>(({
   )
 })
 
-OptimizedQuestionEditor.displayName = 'OptimizedQuestionEditor'
+QuestionEditor.displayName = 'QuestionEditor'

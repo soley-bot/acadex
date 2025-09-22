@@ -8,7 +8,7 @@ import { useOptimizedCourses, useOptimizedCategories } from '@/hooks/useCourseQu
 import { Pagination } from '@/components/ui/Pagination'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { OptimizedCourseCard } from '@/components/cards/OptimizedCourseCard'
+import { CourseCard } from '@/components/cards/CourseCard'
 import { 
   BookOpen, 
   Filter, 
@@ -282,7 +282,7 @@ export default function CoursesPage() {
               ))
             ) : courses.length > 0 ? (
               courses.map((course: Course) => (
-                <OptimizedCourseCard 
+                <CourseCard 
                   key={course.id} 
                   course={course} 
                   priority={currentPage === 1} 

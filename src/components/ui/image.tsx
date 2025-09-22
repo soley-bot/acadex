@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect, memo } from 'react'
 import Image from 'next/image'
 import { Icons } from './icons'
 
@@ -11,6 +11,7 @@ interface ImageWithFallbackProps {
   fallbackType?: 'course' | 'quiz' | 'user' | 'generic'
   priority?: boolean
   quality?: number
+  lazy?: boolean // Enable lazy loading (default: true)
 }
 
 const FALLBACK_IMAGES = {
@@ -46,7 +47,7 @@ const ImagePlaceholder: React.FC<{
   )
 }
 
-export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
+export const ImageWithFallback: React.FC<ImageWithFallbackProps> = memo(({
   src,
   alt,
   width,
@@ -54,10 +55,38 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   className = '',
   fallbackType = 'generic',
   priority = false,
-  quality = 80
+  quality = 80,
+  lazy = true
 }) => {
   const [hasError, setHasError] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isInView, setIsInView] = useState(!lazy) // If not lazy, always in view
+  const imgRef = useRef<HTMLDivElement>(null)
+
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    if (!lazy || isInView) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        if (entry && entry.isIntersecting) {
+          setIsInView(true)
+          observer.disconnect()
+        }
+      },
+      { 
+        threshold: 0.1,
+        rootMargin: '50px' // Load images 50px before they enter viewport
+      }
+    )
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [lazy, isInView])
 
   // If no src provided or error occurred, show placeholder
   if (!src || hasError) {
@@ -65,27 +94,35 @@ export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   }
 
   return (
-    <div className="relative">
-      {isLoading && (
+    <div ref={imgRef} className="relative">
+      {isLoading && isInView && (
         <div 
           className={`absolute inset-0 bg-muted animate-pulse rounded-lg ${className}`}
           style={{ width, height }}
         />
       )}
-      <Image
-        src={src}
-        alt={alt}
-        width={width}
-        height={height}
-        className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-        priority={priority}
-        quality={quality}
-        onError={() => setHasError(true)}
-        onLoad={() => setIsLoading(false)}
-      />
+      {isInView && (
+        <Image
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+          priority={priority}
+          quality={quality}
+          loading={priority ? "eager" : "lazy"}
+          onError={() => {
+            setHasError(true)
+            setIsLoading(false)
+          }}
+          onLoad={() => setIsLoading(false)}
+        />
+      )}
     </div>
   )
-}
+})
+
+ImageWithFallback.displayName = 'ImageWithFallback'
 
 // Specialized components for different use cases
 export const CourseImage: React.FC<{
@@ -95,25 +132,50 @@ export const CourseImage: React.FC<{
   height?: number
   className?: string
   priority?: boolean
+  lazy?: boolean
+  size?: 'small' | 'medium' | 'large'
 }> = ({ 
   src, 
   alt, 
-  width = 400, 
-  height = 300, 
+  width,
+  height,
   className = 'rounded-lg object-cover',
-  priority = false 
-}) => (
-  <ImageWithFallback
-    src={src}
-    alt={alt}
-    width={width}
-    height={height}
-    className={className}
-    fallbackType="course"
-    priority={priority}
-    quality={85}
-  />
-)
+  priority = false,
+  lazy = true,
+  size
+}) => {
+  // If size is provided, use predefined dimensions
+  let finalWidth: number
+  let finalHeight: number
+  
+  if (size) {
+    const dimensions = {
+      small: { width: 200, height: 150 },
+      medium: { width: 400, height: 300 },
+      large: { width: 800, height: 600 }
+    }
+    finalWidth = dimensions[size].width
+    finalHeight = dimensions[size].height
+  } else {
+    // Use provided dimensions or defaults
+    finalWidth = width || 400
+    finalHeight = height || 300
+  }
+
+  return (
+    <ImageWithFallback
+      src={src}
+      alt={alt}
+      width={finalWidth}
+      height={finalHeight}
+      className={className}
+      fallbackType="course"
+      priority={priority}
+      quality={85}
+      lazy={lazy}
+    />
+  )
+}
 
 export const QuizImage: React.FC<{
   src: string | null | undefined
@@ -121,12 +183,14 @@ export const QuizImage: React.FC<{
   width?: number
   height?: number
   className?: string
+  lazy?: boolean
 }> = ({ 
   src, 
   alt, 
   width = 400, 
   height = 300, 
-  className = 'rounded-lg object-cover'
+  className = 'rounded-lg object-cover',
+  lazy = true
 }) => (
   <ImageWithFallback
     src={src}
@@ -136,6 +200,7 @@ export const QuizImage: React.FC<{
     className={className}
     fallbackType="quiz"
     quality={85}
+    lazy={lazy}
   />
 )
 
@@ -144,11 +209,13 @@ export const UserAvatar: React.FC<{
   alt: string
   size?: number
   className?: string
+  lazy?: boolean
 }> = ({ 
   src, 
   alt, 
   size = 40, 
-  className = 'rounded-full object-cover'
+  className = 'rounded-full object-cover',
+  lazy = false // Avatars are usually small and above-the-fold
 }) => (
   <ImageWithFallback
     src={src}
@@ -158,6 +225,7 @@ export const UserAvatar: React.FC<{
     className={className}
     fallbackType="user"
     quality={90}
+    lazy={lazy}
   />
 )
 

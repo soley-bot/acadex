@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2, Brain, Wand2, CheckCircle, AlertCircle, X } from 'lucide-react'
 import { useQuizBuilderPerformance } from '@/lib/adminPerformanceSystem'
 
-interface OptimizedAIStepProps {
+interface AIStepProps {
   isGenerating: boolean
   aiConfig: {
     enabled: boolean
@@ -203,8 +203,8 @@ const GenerationProgress = memo<{
 
 GenerationProgress.displayName = 'GenerationProgress'
 
-// Main Optimized AI Step Component
-export const OptimizedAIStep = memo<OptimizedAIStepProps>(({
+// Main AI Step Component
+export const AIStep = memo<AIStepProps>(({
   isGenerating,
   aiConfig,
   onConfigChange,
@@ -425,4 +425,4 @@ export const OptimizedAIStep = memo<OptimizedAIStepProps>(({
   )
 })
 
-OptimizedAIStep.displayName = 'OptimizedAIStep'
+AIStep.displayName = 'AIStep'

@@ -6,15 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2, Settings, Edit, Eye, Wand2, AlertTriangle } from 'lucide-react'
 
 // Lazy load heavy components for better initial load performance
-const OptimizedQuestionEditor = lazy(() => 
-  import('./OptimizedQuestionEditor').then(module => ({
-    default: module.OptimizedQuestionEditor
+const QuestionEditor = lazy(() => 
+  import('./QuestionEditor').then(module => ({
+    default: module.QuestionEditor
   }))
 )
 
-const OptimizedAIStep = lazy(() => 
-  import('./OptimizedAIStep').then(module => ({
-    default: module.OptimizedAIStep
+const AIStep = lazy(() => 
+  import('./AIStep').then(module => ({
+    default: module.AIStep
   }))
 )
 
@@ -254,8 +254,8 @@ export const withProgressiveLoading = <P extends object>(
 
 // Export lazy-loaded components for use in QuizBuilder
 export { 
-  OptimizedQuestionEditor as LazyQuestionEditor,
-  OptimizedAIStep as LazyAIStep,
+  QuestionEditor as LazyQuestionEditor,
+  AIStep as LazyAIStep,
   QuizPreviewStep as LazyPreviewStep,
   QuizSettingsStep as LazySettingsStep
 }
