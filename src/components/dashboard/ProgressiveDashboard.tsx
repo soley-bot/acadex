@@ -34,7 +34,7 @@ import {
   useCacheHealthMonitoring,
   useBackgroundSync
 } from '@/hooks/useAdvancedCaching'
-import { AdaptiveSkeleton } from '@/components/ui/enhanced-skeletons'
+import { AdaptiveSkeleton } from '@/components/ui/skeleton'
 
 interface DashboardStats {
   totalQuizzes: number

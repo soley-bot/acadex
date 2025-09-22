@@ -19,7 +19,7 @@ import {
   useBackgroundSyncStatus,
   useNetworkAwareOperations
 } from '@/hooks/useProgressiveEnhancement'
-import { AdaptiveSkeleton } from '@/components/ui/enhanced-skeletons'
+import { AdaptiveSkeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
 
 interface QuizQuestion {
