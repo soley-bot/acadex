@@ -1,49 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createAuthenticatedClient } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
-
-// Create authenticated Supabase client from Authorization header or cookies
-function createAuthenticatedClient(request: NextRequest) {
-  const authHeader = request.headers.get('authorization')
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-  
-  if (authHeader?.startsWith('Bearer ')) {
-    const token = authHeader.substring(7)
-    logger.info('Using Bearer token authentication for course modules API')
-    
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      },
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    })
-    
-    return supabase
-  }
-  
-  // Fallback to cookie-based auth
-  const { createServerClient } = require('@supabase/ssr')
-  const { cookies } = require('next/headers')
-  
-  logger.info('Using cookie authentication for course modules API')
-  return createServerClient(
-    supabaseUrl,
-    supabaseServiceKey,
-    {
-      cookies: {
-        get: (name: string) => cookies().get(name)?.value,
-        set: () => {},
-        remove: () => {}
-      }
-    }
-  )
-}
 
 // Verify admin authentication
 async function verifyAdminAuth(supabase: any) {

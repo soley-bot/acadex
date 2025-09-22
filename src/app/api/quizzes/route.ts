@@ -1,18 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createServiceClient } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
 
 // Create public client for read-only operations
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!, // Need service role for optimal queries
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
+const supabase = createServiceClient()
 
 // GET - Fetch public quizzes (OPTIMIZED FOR PERFORMANCE)
 export async function GET(request: NextRequest) {
