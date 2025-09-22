@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createAuthenticatedClient } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
 
 export async function GET(
@@ -20,6 +20,8 @@ export async function GET(
         { status: 400 }
       )
     }
+    
+    const supabase = createAuthenticatedClient(request)
     
     // Get user's quiz attempts and stats
     const { data: attempts, error: attemptsError } = await supabase

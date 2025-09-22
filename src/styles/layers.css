@@ -1,0 +1,29 @@
+/* ============================================================================
+   CSS LAYER ORGANIZATION - Proper cascade management
+   ============================================================================ */
+
+/* Define layer order - this is critical for CSS cascade */
+@layer reset, tokens, base, components, utilities, overrides;
+
+/* Import order for proper cascade */
+@import 'tailwindcss/base' layer(reset);
+@import './design-tokens.css' layer(tokens);
+@import 'tailwindcss/components' layer(components);
+@import 'tailwindcss/utilities' layer(utilities);
+@import './z-index-scale.css' layer(tokens);
+
+/* Component-specific layers */
+@layer components {
+  /* Move all .btn-, .card-, .input- classes here */
+  /* This ensures they have proper specificity */
+}
+
+@layer utilities {
+  /* Only utility classes here */
+  /* No component styles */
+}
+
+@layer overrides {
+  /* Third-party overrides (Mantine, etc.) */
+  /* Emergency overrides only */
+}

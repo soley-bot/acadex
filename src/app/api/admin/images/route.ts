@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
-import { withAdminAuth } from '@/lib/api-auth'
+import { withAdminAuth, createServiceClient } from '@/lib/api-auth'
 
 export const GET = withAdminAuth(async (request: NextRequest) => {
   try {
@@ -8,6 +7,8 @@ export const GET = withAdminAuth(async (request: NextRequest) => {
     const bucket = url.searchParams.get('bucket') || 'quiz-images'
     
     console.log(`📁 [ADMIN_IMAGES_API] Loading from bucket: ${bucket}`)
+    
+    const supabase = createServiceClient()
     
     let allImages: any[] = []
     

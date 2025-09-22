@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createAuthenticatedClient } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
@@ -18,6 +18,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+    
+    const supabase = createAuthenticatedClient(request)
     
     // Save or update quiz progress
     const { data, error } = await supabase
@@ -76,6 +78,8 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       )
     }
+    
+    const supabase = createAuthenticatedClient(request)
     
     // Get saved quiz progress
     const { data, error } = await supabase
