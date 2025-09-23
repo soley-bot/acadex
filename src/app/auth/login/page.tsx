@@ -134,15 +134,16 @@ function EnhancedLoginForm() {
       setAttemptCount(prev => prev + 1)
       setLastAttempt(now)
       
-      // Enhanced error messages
-      if (error.includes('Invalid login credentials')) {
+      // Enhanced error messages - now working with AuthError type
+      const errorMessage = error.message || error.toString()
+      if (errorMessage.includes('Invalid login credentials')) {
         setError('Email or password is incorrect. Please check your credentials and try again.')
-      } else if (error.includes('Too many failed attempts')) {
+      } else if (errorMessage.includes('Too many failed attempts')) {
         setError('Too many failed login attempts. Please wait a few minutes before trying again.')
-      } else if (error.includes('Email not confirmed')) {
+      } else if (errorMessage.includes('Email not confirmed')) {
         setError('Please check your email and click the verification link before signing in.')
       } else {
-        setError(error)
+        setError(errorMessage)
       }
     } else {
       // Reset on successful login

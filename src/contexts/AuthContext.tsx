@@ -9,23 +9,29 @@ import { AuthSecurity, authRateLimiter } from '@/lib/auth-security'
 import { SecurityAudit } from '@/lib/security-audit'
 import { logger } from '@/lib/logger'
 
+// Safe error type for authentication responses
+interface AuthError {
+  message: string
+  code?: string
+}
+
 interface AuthContextType {
   user: User | null
   supabaseUser: SupabaseUser | null
   loading: boolean
-  signIn: (email: string, password: string) => Promise<{ error: any }>
-  signUp: (email: string, password: string, name?: string, options?: { provider?: string }) => Promise<{ error: any }>
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
+  signUp: (email: string, password: string, name?: string, options?: { provider?: string }) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
-  updateProfile: (updates: Partial<User>) => Promise<{ error: any }>
-  updateUser: (updatedUser: any) => void
+  updateProfile: (updates: Partial<User>) => Promise<{ error: AuthError | null }>
+  updateUser: (updatedUser: User) => void
   // Enhanced security methods
   isAdmin: () => boolean
   isStudent: () => boolean
   canAccessRoute: (route: string) => boolean
   checkRateLimit: (identifier: string) => { isBlocked: boolean; remainingCooldown: number }
   // Password reset methods
-  resetPassword: (email: string) => Promise<{ error: any }>
-  updatePassword: (password: string) => Promise<{ error: any }>
+  resetPassword: (email: string) => Promise<{ error: AuthError | null }>
+  updatePassword: (password: string) => Promise<{ error: AuthError | null }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -133,7 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: any, session: any) => {
+      async (event: string, session: { user: SupabaseUser } | null) => {
         if (!mounted) return
 
         if (session?.user) {
@@ -304,7 +310,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error }
   }
 
-  const updateUser = (updatedUser: any) => {
+  const updateUser = (updatedUser: User) => {
     const sanitizedUser = AuthSecurity.sanitizeUser(updatedUser)
     setUser(sanitizedUser)
   }

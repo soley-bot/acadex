@@ -1,5 +1,15 @@
 'use client'
 
+// Secure HTML sanitization to prevent XSS attacks
+const sanitizeHTML = (html: string): string => {
+  // Remove potentially dangerous tags and attributes
+  const dangerousTags = /<(script|iframe|object|embed|form|input|textarea|button|link|meta|base)[^>]*>.*?<\/\1>|<(script|iframe|object|embed|form|input|textarea|button|link|meta|base)[^>]*\/?>|<[^>]*on\w+=[^>]*>/gi
+  const sanitized = html.replace(dangerousTags, '')
+  
+  // Remove javascript: and data: protocols
+  return sanitized.replace(/(href|src|action)=["']?(javascript:|data:|vbscript:)[^"']*["']?/gi, '')
+}
+
 interface RichTextRendererProps {
   content: string
   className?: string
@@ -7,7 +17,15 @@ interface RichTextRendererProps {
 
 export function RichTextRenderer({ content, className = "" }: RichTextRendererProps) {
   const formatRichText = (text: string): string => {
-    let formatted = text
+    // Input validation and sanitization
+    if (!text || typeof text !== 'string') {
+      return ''
+    }
+    
+    // Limit content length to prevent DoS
+    const safeText = text.substring(0, 10000)
+    
+    let formatted = safeText
     
     // Bold text: **text** → <strong>text</strong>
     formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>')
@@ -51,7 +69,8 @@ export function RichTextRenderer({ content, className = "" }: RichTextRendererPr
     formatted = formatted.replace(/<br>\s*<(h[1-6]|ul|ol|div)/g, '<$1')
     formatted = formatted.replace(/<\/(h[1-6]|ul|ol|div)>\s*<br>/g, '</$1>')
     
-    return formatted
+    // Apply security sanitization before returning
+    return sanitizeHTML(formatted)
   }
 
   return (

@@ -127,9 +127,18 @@ class CourseSearchService {
           )
         `)
 
-      // Apply filters
+      // Apply filters with proper sanitization to prevent SQL injection
       if (options.query) {
-        query = query.or(`title.ilike.%${options.query}%, description.ilike.%${options.query}%`)
+        // Sanitize query to prevent SQL injection - escape special characters
+        const sanitizedQuery = options.query
+          .replace(/[%_\\]/g, '\\$&') // Escape LIKE wildcards and backslashes
+          .replace(/[<>'"&]/g, '') // Remove potential XSS characters
+          .trim()
+          .substring(0, 100) // Limit length to prevent DoS
+        
+        if (sanitizedQuery.length > 0) {
+          query = query.or(`title.ilike.%${sanitizedQuery}%, description.ilike.%${sanitizedQuery}%`)
+        }
       }
       
       if (options.category) {

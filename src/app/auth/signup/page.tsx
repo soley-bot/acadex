@@ -110,15 +110,16 @@ function EnhancedSignupForm() {
       setAttemptCount(prev => prev + 1)
       setLastAttempt(now)
       
-      // Enhanced error messages
-      if (error.includes('User already registered')) {
+      // Enhanced error messages - now working with AuthError type
+      const errorMessage = error.message || error.toString()
+      if (errorMessage.includes('User already registered')) {
         setError('An account with this email already exists. Try signing in instead.')
-      } else if (error.includes('Password should be at least')) {
+      } else if (errorMessage.includes('Password should be at least')) {
         setError('Your password doesn\'t meet the minimum requirements. Please choose a stronger password.')
-      } else if (error.includes('Invalid email')) {
+      } else if (errorMessage.includes('Invalid email')) {
         setError('Please enter a valid email address.')
       } else {
-        setError(error)
+        setError(errorMessage)
       }
       setLoading(false)
     } else {
