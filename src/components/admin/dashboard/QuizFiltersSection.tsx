@@ -2,32 +2,41 @@
  * Quiz Filters Section Component  
  * Extracted from admin quizzes page to reduce complexity
  * Handles search, category filtering, and difficulty selection
- * Now using Mantine UI components for better design
+ * Converted to ShadCN UI components
  */
 
 import React from 'react'
 import { 
-  Paper, 
-  TextInput, 
-  Select, 
-  Group, 
-  Button, 
-  Badge, 
-  Stack, 
-  Container,
-  Loader,
-  Menu,
-  Checkbox,
-  ActionIcon,
-  Text
-} from '@mantine/core'
+  Card,
+  CardContent,
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
+} from '@/components/ui/dropdown-menu'
+import { Separator } from '@/components/ui/separator'
 import { 
-  IconSearch, 
-  IconFilter, 
-  IconSettings,
-  IconChevronDown,
-  IconX
-} from '@tabler/icons-react'
+  Search, 
+  Filter, 
+  Settings,
+  ChevronDown,
+  X,
+  Loader2
+} from 'lucide-react'
 
 interface QuizFiltersSectionProps {
   searchTerm: string
@@ -78,122 +87,141 @@ export const QuizFiltersSection: React.FC<QuizFiltersSectionProps> = ({
       : `${selectedCategories.length} Categories`
 
   return (
-    <Container size="xl" mb="lg">
-      <Paper p="lg" radius="md" withBorder>
-        <Stack gap="lg">
-          {/* Search and Quick Filters Row */}
-          <Group align="flex-end">
-            <TextInput
-              flex={1}
-              placeholder="Search quizzes by title, category, or description..."
-              leftSection={<IconSearch size="1rem" />}
-              rightSection={isPending ? <Loader size="xs" /> : null}
-              value={searchTerm}
-              onChange={(event) => onSearchChange(event.currentTarget.value)}
-              disabled={isPending}
-              size="md"
-            />
-            
-            <Menu 
-              shadow="md" 
-              width={300}
-              opened={showCategoryDropdown}
-              onClose={onCloseCategoryDropdown}
-            >
-              <Menu.Target>
-                <Button
-                  variant="outline"
-                  leftSection={<IconFilter size="1rem" />}
-                  rightSection={<IconChevronDown size="1rem" />}
-                  onClick={onToggleCategoryDropdown}
+    <div className="container mx-auto mb-6 max-w-7xl">
+      <Card>
+        <CardContent className="p-6">
+          <div className="space-y-6">
+            {/* Search and Quick Filters Row */}
+            <div className="flex items-end gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                <Input
+                  placeholder="Search quizzes by title, category, or description..."
+                  value={searchTerm}
+                  onChange={(e) => onSearchChange(e.target.value)}
                   disabled={isPending}
-                  size="md"
-                  w={200}
-                >
-                  {categoryDisplayText}
-                </Button>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Label>
-                  <Group justify="space-between">
-                    <Text size="sm">Categories</Text>
-                    <Group gap="xs">
-                      <Button size="xs" variant="subtle" onClick={onClearCategories}>
+                  className="pl-10 pr-10"
+                />
+                {isPending && (
+                  <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-gray-500" />
+                )}
+              </div>
+              
+              <DropdownMenu 
+                open={showCategoryDropdown}
+                onOpenChange={(open) => {
+                  if (open) {
+                    onToggleCategoryDropdown()
+                  } else {
+                    onCloseCategoryDropdown()
+                  }
+                }}
+              >
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    disabled={isPending}
+                    className="w-48"
+                  >
+                    <Filter className="h-4 w-4 mr-2" />
+                    {categoryDisplayText}
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-80">
+                  <DropdownMenuLabel className="flex justify-between items-center">
+                    <span>Categories</span>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        onClick={onClearCategories}
+                        className="h-6 text-xs"
+                      >
                         Clear All
                       </Button>
                       <Button 
-                        size="xs" 
-                        variant="subtle" 
-                        leftSection={<IconSettings size="0.8rem" />}
+                        size="sm" 
+                        variant="ghost"
                         onClick={onOpenCategoryManagement}
+                        className="h-6 text-xs"
                       >
+                        <Settings className="h-3 w-3 mr-1" />
                         Manage
                       </Button>
-                    </Group>
-                  </Group>
-                </Menu.Label>
-                <Menu.Divider />
-                {categories.filter(cat => cat !== 'all').map(category => (
-                  <Menu.Item key={category} closeMenuOnClick={false}>
-                    <Checkbox
-                      label={category.charAt(0).toUpperCase() + category.slice(1)}
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {categories.filter(cat => cat !== 'all').map(category => (
+                    <DropdownMenuCheckboxItem
+                      key={category}
                       checked={selectedCategories.includes(category)}
-                      onChange={(event) => {
-                        const isChecked = event.currentTarget.checked
-                        if (isChecked) {
+                      onCheckedChange={(checked) => {
+                        if (checked) {
                           onCategoryChange([...selectedCategories, category])
                         } else {
                           onCategoryChange(selectedCategories.filter(c => c !== category))
                         }
                       }}
                       disabled={isPending}
-                    />
-                  </Menu.Item>
-                ))}
-              </Menu.Dropdown>
-            </Menu>
-
-            <Select
-              placeholder="All Levels"
-              data={difficultiesData}
-              value={selectedDifficulty}
-              onChange={(value) => value && onDifficultyChange(value)}
-              disabled={isPending}
-              w={150}
-              size="md"
-            />
-          </Group>
-
-          {/* Selected Categories Tags */}
-          {selectedCategories.length > 0 && (
-            <Group gap="xs" pt="sm" style={{ borderTop: '1px solid var(--mantine-color-gray-3)' }}>
-              <Text size="sm" c="dimmed" fw={500}>Active filters:</Text>
-              {selectedCategories.map(category => (
-                <Badge
-                  key={category}
-                  variant="light"
-                  rightSection={
-                    <ActionIcon 
-                      size="xs" 
-                      color="blue" 
-                      radius="xl" 
-                      variant="transparent"
-                      onClick={() => onRemoveCategory(category)}
                     >
-                      <IconX size="0.8rem" />
-                    </ActionIcon>
-                  }
-                >
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </Badge>
-              ))}
-              <Button size="xs" variant="subtle" onClick={onClearCategories}>
-                Clear all
-              </Button>
-            </Group>
-          )}
-        </Stack>
-      </Paper>
-    </Container>
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Select
+                value={selectedDifficulty}
+                onValueChange={onDifficultyChange}
+                disabled={isPending}
+              >
+                <SelectTrigger className="w-38">
+                  <SelectValue placeholder="All Levels" />
+                </SelectTrigger>
+                <SelectContent>
+                  {difficultiesData.map(({ value, label }) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Selected Categories Tags */}
+            {selectedCategories.length > 0 && (
+              <>
+                <Separator />
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-medium text-gray-600">Active filters:</span>
+                  {selectedCategories.map(category => (
+                    <Badge
+                      key={category}
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                      <X 
+                        className="h-3 w-3 cursor-pointer hover:text-red-500" 
+                        onClick={() => onRemoveCategory(category)}
+                      />
+                    </Badge>
+                  ))}
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={onClearCategories}
+                    className="h-6 text-xs"
+                  >
+                    Clear all
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

@@ -1,8 +1,6 @@
 import React, { memo, useCallback, useState, Suspense, lazy } from 'react'
-import {
-  Button,
-  Modal
-} from '@mantine/core'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { IconPlus, IconChevronDown } from '@tabler/icons-react'
 import { useFeatureFlag } from '@/lib/featureFlags'
 import type { Quiz, QuizQuestion } from '@/lib/supabase'
@@ -46,33 +44,31 @@ export const QuestionCreationInterface = memo<QuestionCreationInterfaceProps>(({
     return (
       <>
         <Button
-          variant="filled"
-          color="red"
-          leftSection={<IconPlus size={16} />}
-          rightSection={<IconChevronDown size={16} />}
+          className="bg-red-600 hover:bg-red-700 text-white"
           onClick={() => setShowEnhancedCreation(true)}
         >
+          <IconPlus size={16} className="mr-2" />
           Create Question
+          <IconChevronDown size={16} className="ml-2" />
         </Button>
 
-        <Modal
-          opened={showEnhancedCreation}
-          onClose={() => setShowEnhancedCreation(false)}
-          size="xl"
-          title="Create Question"
-          centered
-        >
-          <Suspense fallback={<StepLoadingFallback step="quiz-editing" />}>
-            <LazyQuestionCreation
-              topic={quizData?.title || ''}
-              category={quizData?.category || ''}
-              difficulty={quizData?.difficulty as any || 'intermediate'}
-              existingQuestions={existingQuestions}
-              onCreateQuestion={handleCreateQuestion}
-              onClose={() => setShowEnhancedCreation(false)}
-            />
-          </Suspense>
-        </Modal>
+        <Dialog open={showEnhancedCreation} onOpenChange={setShowEnhancedCreation}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Create Question</DialogTitle>
+            </DialogHeader>
+            <Suspense fallback={<StepLoadingFallback step="quiz-editing" />}>
+              <LazyQuestionCreation
+                topic={quizData?.title || ''}
+                category={quizData?.category || ''}
+                difficulty={quizData?.difficulty as any || 'intermediate'}
+                existingQuestions={existingQuestions}
+                onCreateQuestion={handleCreateQuestion}
+                onClose={() => setShowEnhancedCreation(false)}
+              />
+            </Suspense>
+          </DialogContent>
+        </Dialog>
       </>
     )
   }

@@ -1,11 +1,11 @@
-import React, { memo, useState } from 'react'
+import React, { memo } from 'react'
+import { Button } from '@/components/ui/button'
 import {
-  Menu,
-  Button,
-  Group,
-  Text,
-  Stack
-} from '@mantine/core'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { IconPlus, IconChevronDown } from '@tabler/icons-react'
 
 interface QuestionTypeDropdownProps {
@@ -24,56 +24,33 @@ const questionTypes = [
 export const QuestionTypeDropdown = memo<QuestionTypeDropdownProps>(({
   onCreateQuestion
 }) => {
-  const [opened, setOpened] = useState(false)
-
   const handleSelect = (type: string) => {
     onCreateQuestion(type)
-    setOpened(false)
   }
 
   return (
-    <Menu
-      opened={opened}
-      onChange={setOpened}
-      position="bottom-start"
-      withArrow
-      shadow="md"
-      width={320}
-    >
-      <Menu.Target>
-        <Button
-          variant="filled"
-          color="red"
-          leftSection={<IconPlus size={16} />}
-          rightSection={<IconChevronDown size={16} />}
-          onClick={() => setOpened(!opened)}
-        >
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button className="bg-red-600 hover:bg-red-700 text-white">
+          <IconPlus size={16} className="mr-2" />
           Add Question
+          <IconChevronDown size={16} className="ml-2" />
         </Button>
-      </Menu.Target>
-
-      <Menu.Dropdown>
-        <Stack gap="xs">
-          {questionTypes.map(({ type, label, icon }) => (
-            <Menu.Item
-              key={type}
-              onClick={() => handleSelect(type)}
-              leftSection={
-                <Text size="lg" style={{ lineHeight: 1 }}>
-                  {icon}
-                </Text>
-              }
-            >
-              <Group gap="sm" align="center">
-                <Text size="sm" fw={500}>
-                  {label}
-                </Text>
-              </Group>
-            </Menu.Item>
-          ))}
-        </Stack>
-      </Menu.Dropdown>
-    </Menu>
+      </DropdownMenuTrigger>
+      
+      <DropdownMenuContent className="w-80">
+        {questionTypes.map(({ type, label, icon }) => (
+          <DropdownMenuItem
+            key={type}
+            onClick={() => handleSelect(type)}
+            className="flex items-center gap-3 p-3"
+          >
+            <span className="text-lg leading-none">{icon}</span>
+            <span className="text-sm font-medium">{label}</span>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 })
 

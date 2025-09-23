@@ -8,16 +8,8 @@ import { ConditionalLayout } from '@/components/ConditionalLayout'
 import { ClientWrapper } from '@/components/ClientWrapper'
 import CoreWebVitalsMonitor from '@/components/CoreWebVitalsMonitor'
 
-// Mantine imports
-import { MantineProvider, ColorSchemeScript } from '@mantine/core'
-import { Notifications } from '@mantine/notifications'
-import { ModalsProvider } from '@mantine/modals'
-import { theme } from '@/lib/theme'
-
-// Mantine CSS imports
-import '@mantine/core/styles.css'
-import '@mantine/notifications/styles.css'
-import '@mantine/dates/styles.css'
+// ShadCN Toast Notifications
+import { Toaster } from '@/components/ui/toaster'
 
 // Design System CSS
 import '@/styles/design-tokens.css'
@@ -93,7 +85,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <ColorSchemeScript />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#dc2626" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
@@ -108,20 +99,16 @@ html {
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <CoreWebVitalsMonitor />
-        <MantineProvider theme={theme}>
-          <Notifications />
-          <ModalsProvider>
-            <QueryProvider>
-              <AuthProvider>
-                <ClientWrapper>
-                  <ConditionalLayout>
-                    {children}
-                  </ConditionalLayout>
-                </ClientWrapper>
-              </AuthProvider>
-            </QueryProvider>
-          </ModalsProvider>
-        </MantineProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <ClientWrapper>
+              <ConditionalLayout>
+                {children}
+              </ConditionalLayout>
+            </ClientWrapper>
+          </AuthProvider>
+        </QueryProvider>
+        <Toaster />
       </body>
     </html>
   )

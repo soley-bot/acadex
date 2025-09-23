@@ -1,21 +1,13 @@
 import React, { memo, useState } from 'react'
-import {
-  Card,
-  Stack,
-  Group,
-  Title,
-  Text,
-  Button,
-  TextInput,
-  Textarea,
-  NumberInput,
-  Select,
-  Switch,
-  Badge,
-  Accordion,
-  ActionIcon,
-  Alert
-} from '@mantine/core'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Switch } from '@/components/ui/switch'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
   IconPlus, 
   IconTrash, 
@@ -147,214 +139,233 @@ export const CourseContentStep = memo<CourseContentStepProps>(({
   }
 
   return (
-    <Card shadow="sm" padding="xl" radius="md" withBorder>
-      <Stack gap="lg">
+    <Card className="shadow-sm">
+      <CardContent className="space-y-6 p-6">
         {/* Header */}
-        <Group justify="space-between" align="center">
-          <Group gap="xs">
-            <IconBook size={20} color="var(--mantine-color-blue-6)" />
-            <Title order={3}>Course Content</Title>
-          </Group>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <IconBook size={20} className="text-blue-600" />
+            <h3 className="text-lg font-semibold">Course Content</h3>
+          </div>
           <Button
-            leftSection={<IconPlus size={16} />}
             onClick={addModule}
-            variant="light"
+            variant="outline"
+            className="flex items-center gap-2"
           >
+            <IconPlus size={16} />
             Add Module
           </Button>
-        </Group>
+        </div>
 
         {/* Course Stats */}
-        <Card withBorder variant="light">
-          <Group justify="space-between">
-            <div>
-              <Text size="xs" c="dimmed" tt="uppercase">Modules</Text>
-              <Text size="sm" fw={500}>{modules.length}</Text>
+        <Card className="border border-gray-200 bg-gray-50">
+          <CardContent className="p-4">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center">
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Modules</p>
+                <p className="text-sm font-medium">{modules.length}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Total Lessons</p>
+                <p className="text-sm font-medium">{totalLessons}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Total Duration</p>
+                <p className="text-sm font-medium">{totalDuration} minutes</p>
+              </div>
             </div>
-            <div>
-              <Text size="xs" c="dimmed" tt="uppercase">Total Lessons</Text>
-              <Text size="sm" fw={500}>{totalLessons}</Text>
-            </div>
-            <div>
-              <Text size="xs" c="dimmed" tt="uppercase">Total Duration</Text>
-              <Text size="sm" fw={500}>{totalDuration} minutes</Text>
-            </div>
-          </Group>
+          </CardContent>
         </Card>
 
         {/* Modules List */}
         {modules.length === 0 ? (
-          <Card withBorder>
-            <Stack gap="md" align="center" py="xl">
-              <Text size="lg" c="dimmed">No modules yet</Text>
-              <Text size="sm" c="dimmed" ta="center">
+          <Card className="border border-gray-200">
+            <CardContent className="flex flex-col items-center gap-4 py-12">
+              <p className="text-lg text-gray-500">No modules yet</p>
+              <p className="text-sm text-gray-500 text-center">
                 Add your first module to start building your course content
-              </Text>
+              </p>
               <Button
-                leftSection={<IconPlus size={16} />}
                 onClick={addModule}
+                className="flex items-center gap-2"
               >
+                <IconPlus size={16} />
                 Create First Module
               </Button>
-            </Stack>
+            </CardContent>
           </Card>
         ) : (
-          <Stack gap="md">
+          <div className="space-y-4">
             {modules.map((module, moduleIndex) => (
-              <Card key={moduleIndex} withBorder>
-                <Stack gap="md">
+              <Card key={moduleIndex} className="border border-gray-200">
+                <CardContent className="space-y-4 p-6">
                   {/* Module Header */}
-                  <Group justify="space-between" align="flex-start">
-                    <Group gap="sm" align="flex-start" flex={1}>
-                      <Badge variant="light" size="sm">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-3 flex-1">
+                      <Badge variant="secondary" className="text-xs">
                         Module {moduleIndex + 1}
                       </Badge>
-                      <Stack gap="xs" flex={1}>
-                        <TextInput
+                      <div className="flex-1 space-y-2">
+                        <Input
                           placeholder="Module title"
                           value={module.title}
-                          onChange={(e) => updateModule(moduleIndex, { title: e.currentTarget.value })}
-                          variant="unstyled"
-                          size="md"
-                          fw={500}
+                          onChange={(e) => updateModule(moduleIndex, { title: e.target.value })}
+                          className="border-none text-base font-medium p-0 h-auto focus-visible:ring-0"
                         />
                         <Textarea
                           placeholder="Module description"
                           value={module.description}
-                          onChange={(e) => updateModule(moduleIndex, { description: e.currentTarget.value })}
-                          variant="unstyled"
-                          size="sm"
+                          onChange={(e) => updateModule(moduleIndex, { description: e.target.value })}
+                          className="border-none text-sm p-0 resize-none focus-visible:ring-0"
                           rows={2}
                         />
-                      </Stack>
-                    </Group>
-                    <ActionIcon
-                      color="red"
-                      variant="subtle"
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => removeModule(moduleIndex)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
                     >
                       <IconTrash size={16} />
-                    </ActionIcon>
-                  </Group>
+                    </Button>
+                  </div>
 
                   {/* Lessons */}
                   <div>
-                    <Group justify="space-between" mb="sm">
-                      <Text size="sm" fw={500}>
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-sm font-medium">
                         Lessons ({module.lessons.length})
-                      </Text>
+                      </h4>
                       <Button
-                        size="xs"
-                        variant="light"
-                        leftSection={<IconPlus size={14} />}
+                        size="sm"
+                        variant="outline"
                         onClick={() => addLesson(moduleIndex)}
+                        className="flex items-center gap-2"
                       >
+                        <IconPlus size={14} />
                         Add Lesson
                       </Button>
-                    </Group>
+                    </div>
 
                     {module.lessons.length === 0 ? (
-                      <Alert color="gray" variant="light">
-                        <Text size="sm">No lessons in this module yet</Text>
+                      <Alert>
+                        <AlertDescription>
+                          <p className="text-sm">No lessons in this module yet</p>
+                        </AlertDescription>
                       </Alert>
                     ) : (
-                      <Stack gap="sm">
+                      <div className="space-y-3">
                         {module.lessons.map((lesson, lessonIndex) => (
-                          <Card key={lessonIndex} withBorder padding="md">
-                            <Stack gap="sm">
-                              <Group justify="space-between" align="flex-start">
-                                <Group gap="xs">
-                                  <Badge variant="outline" size="xs">
+                          <Card key={lessonIndex} className="border border-gray-200 p-4">
+                            <div className="space-y-3">
+                              <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline" className="text-xs">
                                     {lessonIndex + 1}
                                   </Badge>
                                   {lesson.is_free_preview && (
-                                    <Badge color="green" size="xs">Free Preview</Badge>
+                                    <Badge className="bg-green-100 text-green-800 text-xs">Free Preview</Badge>
                                   )}
-                                </Group>
-                                <ActionIcon
-                                  color="red"
-                                  variant="subtle"
+                                </div>
+                                <Button
+                                  variant="ghost"
                                   size="sm"
                                   onClick={() => removeLesson(moduleIndex, lessonIndex)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 p-1"
                                 >
                                   <IconTrash size={14} />
-                                </ActionIcon>
-                              </Group>
+                                </Button>
+                              </div>
 
-                              <Group grow>
-                                <TextInput
+                              <div className="grid grid-cols-2 gap-3">
+                                <Input
                                   placeholder="Lesson title"
                                   value={lesson.title}
-                                  onChange={(e) => updateLesson(moduleIndex, lessonIndex, { title: e.currentTarget.value })}
-                                  size="sm"
+                                  onChange={(e) => updateLesson(moduleIndex, lessonIndex, { title: e.target.value })}
+                                  className="text-sm"
                                 />
-                                <NumberInput
+                                <Input
+                                  type="number"
                                   placeholder="Duration (min)"
-                                  value={lesson.duration_minutes}
-                                  onChange={(value) => updateLesson(moduleIndex, lessonIndex, { duration_minutes: Number(value) || 0 })}
-                                  min={0}
-                                  size="sm"
+                                  value={lesson.duration_minutes || ''}
+                                  onChange={(e) => updateLesson(moduleIndex, lessonIndex, { duration_minutes: Number(e.target.value) || 0 })}
+                                  min="0"
+                                  className="text-sm"
                                 />
-                              </Group>
+                              </div>
 
                               <Textarea
                                 placeholder="Lesson description"
                                 value={lesson.description}
-                                onChange={(e) => updateLesson(moduleIndex, lessonIndex, { description: e.currentTarget.value })}
+                                onChange={(e) => updateLesson(moduleIndex, lessonIndex, { description: e.target.value })}
                                 rows={2}
-                                size="sm"
+                                className="text-sm"
                               />
 
-                              <Group>
-                                <TextInput
+                              <div>
+                                <Label className="flex items-center gap-2 text-sm">
+                                  <IconVideo size={16} />
+                                  Video URL
+                                </Label>
+                                <Input
                                   placeholder="Video URL (YouTube or upload)"
                                   value={lesson.video_url}
-                                  onChange={(e) => updateLesson(moduleIndex, lessonIndex, { video_url: e.currentTarget.value })}
-                                  leftSection={<IconVideo size={16} />}
-                                  flex={1}
-                                  size="sm"
+                                  onChange={(e) => updateLesson(moduleIndex, lessonIndex, { video_url: e.target.value })}
+                                  className="text-sm mt-1"
                                 />
-                              </Group>
+                              </div>
 
-                              <Group justify="space-between">
-                                <Switch
-                                  label="Free preview"
-                                  checked={lesson.is_free_preview}
-                                  onChange={(e) => updateLesson(moduleIndex, lessonIndex, { is_free_preview: e.currentTarget.checked })}
-                                  size="sm"
-                                />
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id={`free-preview-${moduleIndex}-${lessonIndex}`}
+                                    checked={lesson.is_free_preview}
+                                    onCheckedChange={(checked) => updateLesson(moduleIndex, lessonIndex, { is_free_preview: checked })}
+                                  />
+                                  <Label htmlFor={`free-preview-${moduleIndex}-${lessonIndex}`} className="text-sm">Free preview</Label>
+                                </div>
                                 <Select
-                                  placeholder="Attach quiz"
-                                  data={availableQuizzes.map(q => ({ value: q.id, label: q.title }))}
-                                  value={lesson.quiz_id}
-                                  onChange={(value) => updateLesson(moduleIndex, lessonIndex, { quiz_id: value || undefined })}
-                                  clearable
-                                  size="sm"
-                                  style={{ minWidth: 200 }}
-                                />
-                              </Group>
-                            </Stack>
+                                  value={lesson.quiz_id || ''}
+                                  onValueChange={(value) => updateLesson(moduleIndex, lessonIndex, { quiz_id: value || undefined })}
+                                >
+                                  <SelectTrigger className="w-48 text-sm">
+                                    <SelectValue placeholder="Attach quiz" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {availableQuizzes.map((quiz) => (
+                                      <SelectItem key={quiz.id} value={quiz.id}>
+                                        {quiz.title}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
                           </Card>
                         ))}
-                      </Stack>
+                      </div>
                     )}
                   </div>
-                </Stack>
+                </CardContent>
               </Card>
             ))}
-          </Stack>
+          </div>
         )}
 
         {/* Summary Alert */}
         {modules.length > 0 && totalLessons === 0 && (
-          <Alert icon={<IconAlertTriangle size={16} />} color="orange" variant="light">
-            <Text size="sm">
-              Your course has {modules.length} module(s) but no lessons yet. 
-              Add lessons to each module to complete your course structure.
-            </Text>
+          <Alert>
+            <IconAlertTriangle className="w-4 h-4" />
+            <AlertDescription>
+              <p className="text-sm">
+                Your course has {modules.length} module(s) but no lessons yet. 
+                Add lessons to each module to complete your course structure.
+              </p>
+            </AlertDescription>
           </Alert>
         )}
-      </Stack>
+      </CardContent>
     </Card>
   )
 })

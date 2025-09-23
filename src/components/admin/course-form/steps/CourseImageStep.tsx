@@ -1,20 +1,11 @@
 import React, { memo, useCallback, useState } from 'react'
-import {
-  Card,
-  Stack,
-  Group,
-  Title,
-  Text,
-  Button,
-  FileInput,
-  Image,
-  Alert,
-  Progress,
-  ActionIcon,
-  Badge,
-  Center,
-  Box
-} from '@mantine/core'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Progress } from '@/components/ui/progress'
 import { 
   IconPhoto,
   IconUpload,
@@ -113,25 +104,32 @@ export const CourseImageStep = memo<CourseImageStepProps>(({
     onRemove: () => void,
     title: string 
   }) => (
-    <Card withBorder>
-      <Stack gap="xs">
-        <Group justify="space-between" align="center">
-          <Text size="sm" fw={500}>{title}</Text>
-          <ActionIcon color="red" variant="subtle" onClick={onRemove}>
+    <Card className="border">
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-medium">{title}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRemove}
+            className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
+          >
             <IconX size={16} />
-          </ActionIcon>
-        </Group>
-        <Image
-          src={image.url || (image.file ? URL.createObjectURL(image.file) : undefined)}
-          alt={image.alt_text}
-          height={120}
-          fit="cover"
-          radius="sm"
-        />
-        {image.upload_progress !== undefined && image.upload_progress < 100 && (
-          <Progress value={image.upload_progress} size="xs" animated />
-        )}
-      </Stack>
+          </Button>
+        </div>
+        <div className="relative">
+          <img
+            src={image.url || (image.file ? URL.createObjectURL(image.file) : undefined)}
+            alt={image.alt_text}
+            className="w-full h-30 object-cover rounded-md"
+          />
+          {image.upload_progress !== undefined && image.upload_progress < 100 && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-md">
+              <Progress value={image.upload_progress} className="w-3/4" />
+            </div>
+          )}
+        </div>
+      </CardContent>
     </Card>
   )
 
@@ -140,47 +138,62 @@ export const CourseImageStep = memo<CourseImageStepProps>(({
     description: string
     onFileSelect: (file: File | null) => void
     disabled?: boolean
-  }) => (
-    <Card withBorder padding="md">
-      <Stack align="center" gap="md" style={{ minHeight: 120 }}>
-        <IconPhoto size={40} color="var(--mantine-color-dimmed)" />
-        <div style={{ textAlign: 'center' }}>
-          <Text size="lg" fw={500}>{title}</Text>
-          <Text size="sm" c="dimmed">{description}</Text>
-        </div>
-        <FileInput
-          placeholder="Select image file"
-          accept="image/*"
-          onChange={onFileSelect}
-          disabled={disabled || isUploading}
-          leftSection={<IconUpload size={16} />}
-        />
-      </Stack>
-    </Card>
-  )
+  }) => {
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0] || null
+      onFileSelect(file)
+    }
+
+    return (
+      <Card className="border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors">
+        <CardContent className="p-8">
+          <div className="flex flex-col items-center text-center space-y-3" style={{ minHeight: 120 }}>
+            <IconPhoto size={40} className="text-gray-400" />
+            <div>
+              <h4 className="text-lg font-medium">{title}</h4>
+              <p className="text-sm text-gray-600">{description}</p>
+            </div>
+            <Label htmlFor={`file-${title.replace(/\s+/g, '-').toLowerCase()}`} className="cursor-pointer">
+              <Input
+                id={`file-${title.replace(/\s+/g, '-').toLowerCase()}`}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                disabled={disabled}
+                className="sr-only"
+              />
+              <Button type="button" disabled={disabled} className="pointer-events-none">
+                <IconUpload size={16} className="mr-2" />
+                Select Image
+              </Button>
+            </Label>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
-    <Card shadow="sm" padding="xl" radius="md" withBorder>
-      <Stack gap="lg">
-        {/* Header */}
-        <Group gap="xs">
-          <IconPhoto size={20} color="var(--mantine-color-blue-6)" />
-          <Title order={3}>Course Images</Title>
-        </Group>
-
-        <Text size="sm" c="dimmed">
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <IconPhoto size={20} className="text-blue-600" />
+          Course Images
+        </CardTitle>
+        <p className="text-sm text-gray-600">
           Add high-quality images to make your course more attractive to students.
-        </Text>
-
-        {/* Featured Image */}
+        </p>
+      </CardHeader>
+      
+      <CardContent className="space-y-8">{/* Featured Image */}
         <div>
-          <Group justify="space-between" mb="sm">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <Text fw={500}>Featured Image</Text>
-              <Text size="sm" c="dimmed">Main course image (recommended: 1200x675px)</Text>
+              <h4 className="font-medium">Featured Image</h4>
+              <p className="text-sm text-gray-600">Main course image (recommended: 1200x675px)</p>
             </div>
-            <Badge variant="light" color="red">Required</Badge>
-          </Group>
+            <Badge variant="destructive">Required</Badge>
+          </div>
 
           {images.featured_image ? (
             <ImagePreview
@@ -200,13 +213,13 @@ export const CourseImageStep = memo<CourseImageStepProps>(({
 
         {/* Thumbnail Image */}
         <div>
-          <Group justify="space-between" mb="sm">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <Text fw={500}>Thumbnail Image</Text>
-              <Text size="sm" c="dimmed">Square image for course cards (recommended: 400x400px)</Text>
+              <h4 className="font-medium">Thumbnail Image</h4>
+              <p className="text-sm text-gray-600">Square image for course cards (recommended: 400x400px)</p>
             </div>
-            <Badge variant="light">Optional</Badge>
-          </Group>
+            <Badge variant="secondary">Optional</Badge>
+          </div>
 
           {images.thumbnail_image ? (
             <ImagePreview
@@ -226,18 +239,18 @@ export const CourseImageStep = memo<CourseImageStepProps>(({
 
         {/* Gallery Images */}
         <div>
-          <Group justify="space-between" mb="sm">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <Text fw={500}>Gallery Images</Text>
-              <Text size="sm" c="dimmed">Additional images to showcase course content</Text>
+              <h4 className="font-medium">Gallery Images</h4>
+              <p className="text-sm text-gray-600">Additional images to showcase course content</p>
             </div>
-            <Badge variant="light">
+            <Badge variant="secondary">
               {images.gallery_images?.length || 0}/6 images
             </Badge>
-          </Group>
+          </div>
 
           {images.gallery_images && images.gallery_images.length > 0 && (
-            <Stack gap="sm" mb="md">
+            <div className="space-y-4 mb-4">
               {images.gallery_images.map((image, index) => (
                 <ImagePreview
                   key={index}
@@ -246,7 +259,7 @@ export const CourseImageStep = memo<CourseImageStepProps>(({
                   title={`Gallery Image ${index + 1}`}
                 />
               ))}
-            </Stack>
+            </div>
           )}
 
           {(!images.gallery_images || images.gallery_images.length < 6) && (
@@ -261,36 +274,39 @@ export const CourseImageStep = memo<CourseImageStepProps>(({
 
         {/* Upload Progress */}
         {Object.keys(uploadProgress).length > 0 && (
-          <Card withBorder variant="light">
-            <Stack gap="xs">
-              <Text size="sm" fw={500}>Uploading Images...</Text>
+          <Card className="border border-gray-200 bg-gray-50">
+            <CardContent className="space-y-2">
+              <h4 className="text-sm font-medium">Uploading Images...</h4>
               {Object.entries(uploadProgress).map(([id, progress]) => (
                 <div key={id}>
-                  <Group justify="space-between" mb={4}>
-                    <Text size="xs">{id.replace('-', ' ').toUpperCase()}</Text>
-                    <Text size="xs">{progress}%</Text>
-                  </Group>
-                  <Progress value={progress} size="sm" animated />
+                  <div className="flex justify-between items-center mb-1">
+                    <p className="text-xs">{id.replace('-', ' ').toUpperCase()}</p>
+                    <p className="text-xs">{progress}%</p>
+                  </div>
+                  <Progress value={progress} className="h-2" />
                 </div>
               ))}
-            </Stack>
+            </CardContent>
           </Card>
         )}
 
         {/* Guidelines */}
-        <Alert icon={<IconAlertTriangle size={16} />} variant="light">
-          <Stack gap="xs">
-            <Text size="sm" fw={500}>Image Guidelines:</Text>
-            <Text size="sm" component="ul" style={{ margin: 0, paddingLeft: 20 }}>
-              <li>Use high-quality, professional images</li>
-              <li>Featured image should be 1200x675px for best results</li>
-              <li>Thumbnail should be square (400x400px recommended)</li>
-              <li>Maximum file size: 5MB per image</li>
-              <li>Supported formats: JPG, PNG, WebP</li>
-            </Text>
-          </Stack>
+        <Alert>
+          <IconAlertTriangle className="w-4 h-4" />
+          <AlertDescription>
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Image Guidelines:</p>
+              <ul className="text-sm space-y-1 ml-0 pl-5">
+                <li>Use high-quality, professional images</li>
+                <li>Featured image should be 1200x675px for best results</li>
+                <li>Thumbnail should be square (400x400px recommended)</li>
+                <li>Maximum file size: 5MB per image</li>
+                <li>Supported formats: JPG, PNG, WebP</li>
+              </ul>
+            </div>
+          </AlertDescription>
         </Alert>
-      </Stack>
+      </CardContent>
     </Card>
   )
 })

@@ -1,17 +1,10 @@
 import React, { memo, useMemo } from 'react'
-import {
-  Card,
-  Stack,
-  Group,
-  Title,
-  Text,
-  Button,
-  Grid,
-  Badge,
-  Progress,
-  Alert,
-  Divider
-} from '@mantine/core'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Separator } from '@/components/ui/separator'
 import { 
   IconCircleCheck,
   IconAlertTriangle,
@@ -60,190 +53,175 @@ export const QuizSummaryCard = memo<QuizSummaryCardProps>(({
   const getStatusIcon = (isComplete: boolean) => isComplete ? <IconCheck size={14} /> : <IconAlertTriangle size={14} />
 
   return (
-    <Card shadow="sm" padding="xl" radius="md" withBorder>
-      <Stack gap="lg">
+    <Card className="shadow-sm border border-gray-200">
+      <CardContent className="space-y-6 p-6">
         {/* Header */}
-        <Group justify="space-between" align="flex-start">
-          <Group gap="xs">
-            <IconCircleCheck size={20} color="var(--mantine-color-green-6)" />
-            <Title order={3}>Quiz Summary</Title>
-          </Group>
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-2">
+            <IconCircleCheck size={20} className="text-green-600" />
+            <h3 className="text-lg font-semibold">Quiz Summary</h3>
+          </div>
           <Badge 
-            color={summaryStats.isValid ? 'green' : 'orange'} 
-            variant={summaryStats.isValid ? 'filled' : 'light'}
-            leftSection={summaryStats.isValid ? <IconCheck size={12} /> : <IconAlertTriangle size={12} />}
+            className={summaryStats.isValid ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}
           >
-            {summaryStats.isValid ? 'Ready to Publish' : 'Needs Attention'}
+            <div className="flex items-center gap-1">
+              {summaryStats.isValid ? <IconCheck size={12} /> : <IconAlertTriangle size={12} />}
+              {summaryStats.isValid ? 'Ready to Publish' : 'Needs Attention'}
+            </div>
           </Badge>
-        </Group>
+        </div>
 
         {/* Statistics Grid */}
-        <Grid>
-          <Grid.Col span={6}>
-            <Card withBorder padding="md" style={{ textAlign: 'center', backgroundColor: 'var(--mantine-color-blue-0)' }}>
-              <Text size="xl" fw={700} c="blue">
-                {summaryStats.totalQuestions}
-              </Text>
-              <Text size="sm" c="dimmed">Total Questions</Text>
-            </Card>
-          </Grid.Col>
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="border border-blue-200 bg-blue-50 p-4 text-center">
+            <p className="text-2xl font-bold text-blue-600">
+              {summaryStats.totalQuestions}
+            </p>
+            <p className="text-sm text-gray-600">Total Questions</p>
+          </Card>
 
-          <Grid.Col span={6}>
-            <Card withBorder padding="md" style={{ textAlign: 'center', backgroundColor: 'var(--mantine-color-green-0)' }}>
-              <Text size="xl" fw={700} c="green">
-                {summaryStats.validQuestions}
-              </Text>
-              <Text size="sm" c="dimmed">Valid Questions</Text>
-            </Card>
-          </Grid.Col>
+          <Card className="border border-green-200 bg-green-50 p-4 text-center">
+            <p className="text-2xl font-bold text-green-600">
+              {summaryStats.validQuestions}
+            </p>
+            <p className="text-sm text-gray-600">Valid Questions</p>
+          </Card>
 
-          <Grid.Col span={6}>
-            <Card withBorder padding="md" style={{ textAlign: 'center', backgroundColor: 'var(--mantine-color-yellow-0)' }}>
-              <Text size="xl" fw={700} c="orange">
-                {summaryStats.totalPoints}
-              </Text>
-              <Text size="sm" c="dimmed">Total Points</Text>
-            </Card>
-          </Grid.Col>
+          <Card className="border border-yellow-200 bg-yellow-50 p-4 text-center">
+            <p className="text-2xl font-bold text-orange-600">
+              {summaryStats.totalPoints}
+            </p>
+            <p className="text-sm text-gray-600">Total Points</p>
+          </Card>
 
-          <Grid.Col span={6}>
-            <Card withBorder padding="md" style={{ textAlign: 'center', backgroundColor: 'var(--mantine-color-purple-0)' }}>
-              <Text size="xl" fw={700} c="violet">
-                {summaryStats.estimatedTime}m
-              </Text>
-              <Text size="sm" c="dimmed">Est. Time</Text>
-            </Card>
-          </Grid.Col>
-        </Grid>
+          <Card className="border border-purple-200 bg-purple-50 p-4 text-center">
+            <p className="text-2xl font-bold text-violet-600">
+              {quiz.duration_minutes || 10}m
+            </p>
+            <p className="text-sm text-gray-600">Est. Time</p>
+          </Card>
+        </div>
 
-        {/* Completion Progress */}
-        <div>
-          <Group justify="space-between" mb="xs">
-            <Text size="sm" fw={500}>Quiz Completion</Text>
-            <Text size="sm" c="dimmed">
-              {Math.round(summaryStats.completionRate)}%
-            </Text>
-          </Group>
+        {/* Progress Section */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-medium">Quiz Completion</span>
+            <span className="text-gray-600">
+              {Math.round((summaryStats.completionRate || 0))}%
+            </span>
+          </div>
           <Progress 
-            value={summaryStats.completionRate} 
-            color={summaryStats.completionRate === 100 ? 'green' : 'orange'}
-            size="lg"
-            radius="md"
+            value={summaryStats.completionRate || 0} 
+            className="h-2"
           />
         </div>
 
-        {/* Status Checklist */}
-        <Stack gap="xs">
-          <Text size="sm" fw={500} mb="xs">Quiz Status</Text>
-          
-          <Group justify="space-between">
-            <Group gap="xs">
+        {/* Checklist */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
               {getStatusIcon(summaryStats.hasTitle)}
-              <Text size="sm">Quiz Title</Text>
-            </Group>
+              <span className="text-sm">Has Title</span>
+            </div>
             <Badge 
-              size="sm" 
-              color={getStatusColor(summaryStats.hasTitle)}
-              variant="light"
+              className={summaryStats.hasTitle ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}
             >
-              {summaryStats.hasTitle ? 'Complete' : 'Missing'}
+              {summaryStats.hasTitle ? 'Added' : 'Missing'}
             </Badge>
-          </Group>
+          </div>
 
-          <Group justify="space-between">
-            <Group gap="xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
               {getStatusIcon(summaryStats.hasQuestions)}
-              <Text size="sm">Has Questions</Text>
-            </Group>
+              <span className="text-sm">Has Questions</span>
+            </div>
             <Badge 
-              size="sm" 
-              color={getStatusColor(summaryStats.hasQuestions)}
-              variant="light"
+              className={summaryStats.hasQuestions ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}
             >
               {summaryStats.hasQuestions ? `${summaryStats.totalQuestions} Added` : 'None'}
             </Badge>
-          </Group>
+          </div>
 
-          <Group justify="space-between">
-            <Group gap="xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
               {getStatusIcon(summaryStats.allQuestionsValid)}
-              <Text size="sm">All Questions Valid</Text>
-            </Group>
+              <span className="text-sm">All Questions Valid</span>
+            </div>
             <Badge 
-              size="sm" 
-              color={getStatusColor(summaryStats.allQuestionsValid)}
-              variant="light"
+              className={summaryStats.allQuestionsValid ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}
             >
               {summaryStats.allQuestionsValid ? 'All Valid' : `${summaryStats.validQuestions}/${summaryStats.totalQuestions}`}
             </Badge>
-          </Group>
-        </Stack>
+          </div>
+        </div>
 
         {/* Validation Alert */}
         {!summaryStats.isValid && (
-          <Alert 
-            icon={<IconAlertTriangle size={16} />} 
-            color="orange" 
-            variant="light"
-          >
-            <Text size="sm" fw={500} mb="xs">Complete these steps to publish:</Text>
-            <Text size="sm" component="ul" style={{ margin: 0, paddingLeft: 20 }}>
-              {!summaryStats.hasTitle && <li>Add a quiz title</li>}
-              {!summaryStats.hasQuestions && <li>Add at least one question</li>}
-              {summaryStats.hasQuestions && !summaryStats.allQuestionsValid && (
-                <li>Fix {summaryStats.totalQuestions - summaryStats.validQuestions} invalid question(s)</li>
-              )}
-            </Text>
+          <Alert className="border-orange-200 bg-orange-50">
+            <IconAlertTriangle className="w-4 h-4" />
+            <AlertDescription>
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Complete these steps to publish:</p>
+                <ul className="text-sm space-y-1 ml-0 pl-5">
+                  {!summaryStats.hasTitle && <li>Add a quiz title</li>}
+                  {!summaryStats.hasQuestions && <li>Add at least one question</li>}
+                  {summaryStats.hasQuestions && !summaryStats.allQuestionsValid && (
+                    <li>Fix {summaryStats.totalQuestions - summaryStats.validQuestions} invalid question(s)</li>
+                  )}
+                </ul>
+              </div>
+            </AlertDescription>
           </Alert>
         )}
 
-        <Divider />
+        <Separator />
 
         {/* Action Buttons */}
-        <Group justify="space-between">
+        <div className="flex items-center justify-between">
           <Button
-            variant="default"
-            leftSection={<IconDeviceFloppy size={16} />}
+            variant="outline"
             onClick={onSave}
-            loading={isSaving}
-            disabled={isPublishing}
+            disabled={isPublishing || isSaving}
+            className="flex items-center gap-2"
           >
+            <IconDeviceFloppy size={16} />
             {isSaving ? 'Saving...' : 'Save Draft'}
           </Button>
 
           <Button
-            leftSection={<IconWorldUpload size={16} />}
             onClick={onPublish}
-            loading={isPublishing}
-            disabled={!summaryStats.isValid || isSaving || !canPublish}
-            color={summaryStats.isValid ? 'green' : 'gray'}
+            disabled={!summaryStats.isValid || isSaving || !canPublish || isPublishing}
+            className={`flex items-center gap-2 ${
+              summaryStats.isValid ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'
+            }`}
           >
+            <IconWorldUpload size={16} />
             {isPublishing ? 'Publishing...' : 'Publish Quiz'}
           </Button>
-        </Group>
+        </div>
 
         {/* Quiz Info Summary */}
         {summaryStats.isValid && (
-          <Card withBorder padding="sm" bg="green.0">
-            <Group justify="space-between" align="center">
-              <Group gap="sm">
-                <IconTargetArrow size={16} color="var(--mantine-color-green-7)" />
-                <Text size="sm" fw={500} c="green.7">Ready to Publish!</Text>
-              </Group>
-              <Group gap="lg">
-                <Group gap={4}>
+          <Card className="border border-green-200 bg-green-50 p-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <IconTargetArrow size={16} className="text-green-700" />
+                <span className="text-sm font-medium text-green-700">Ready to Publish!</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
                   <IconQuestionMark size={14} />
-                  <Text size="xs" c="dimmed">{summaryStats.totalQuestions} Questions</Text>
-                </Group>
-                <Group gap={4}>
+                  <span className="text-xs text-gray-600">{summaryStats.totalQuestions} Questions</span>
+                </div>
+                <div className="flex items-center gap-1">
                   <IconClock size={14} />
-                  <Text size="xs" c="dimmed">{quiz.duration_minutes || 10} min</Text>
-                </Group>
-              </Group>
-            </Group>
+                  <span className="text-xs text-gray-600">{quiz.duration_minutes || 10} min</span>
+                </div>
+              </div>
+            </div>
           </Card>
         )}
-      </Stack>
+      </CardContent>
     </Card>
   )
 })

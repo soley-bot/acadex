@@ -1,30 +1,29 @@
-import React, { memo } from 'react'
-import {
-  Card,
-  TextInput,
-  Textarea,
-  Select,
-  Group,
-  Stack,
-  Title,
-  NumberInput,
-  Text,
-  Chip
-} from '@mantine/core'
-import { useForm } from '@mantine/form'
-import { IconBook, IconUser, IconCoin } from '@tabler/icons-react'
+import React, { memo, useState, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { IconBook, IconUser, IconCoin, IconX } from '@tabler/icons-react'
 
-interface CourseBasicInfo {
-  title: string
-  description: string
-  instructor_name: string
-  category: string
-  level: string
-  price?: number
-  estimated_duration?: number
-  tags: string[]
-  learning_outcomes: string[]
-}
+const courseBasicInfoSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters').min(1, 'Course title is required'),
+  description: z.string().min(20, 'Description must be at least 20 characters').min(1, 'Course description is required'),
+  instructor_name: z.string().min(1, 'Instructor name is required'),
+  category: z.string().min(1, 'Please select a category'),
+  level: z.string().min(1, 'Please select a difficulty level'),
+  price: z.number().min(0, 'Price cannot be negative').optional(),
+  estimated_duration: z.number().min(0).optional(),
+  tags: z.array(z.string()),
+  learning_outcomes: z.array(z.string())
+})
+
+type CourseBasicInfo = z.infer<typeof courseBasicInfoSchema>
 
 interface CourseBasicInfoStepProps {
   initialData: CourseBasicInfo
@@ -39,213 +38,290 @@ export const CourseBasicInfoStep = memo<CourseBasicInfoStepProps>(({
   categories,
   levels
 }) => {
+  const [tagInput, setTagInput] = useState('')
+  const [outcomeInput, setOutcomeInput] = useState('')
+
   const form = useForm<CourseBasicInfo>({
-    initialValues: initialData,
-    validate: {
-      title: (value) => {
-        if (!value.trim()) return 'Course title is required'
-        if (value.trim().length < 3) return 'Title must be at least 3 characters'
-        return null
-      },
-      description: (value) => {
-        if (!value.trim()) return 'Course description is required'
-        if (value.trim().length < 20) return 'Description must be at least 20 characters'
-        return null
-      },
-      instructor_name: (value) => {
-        if (!value.trim()) return 'Instructor name is required'
-        return null
-      },
-      category: (value) => !value ? 'Please select a category' : null,
-      level: (value) => !value ? 'Please select a difficulty level' : null,
-      price: (value) => {
-        if (value !== undefined && value < 0) return 'Price cannot be negative'
-        return null
-      }
+    resolver: zodResolver(courseBasicInfoSchema),
+    defaultValues: {
+      ...initialData,
+      tags: initialData.tags || [],
+      learning_outcomes: initialData.learning_outcomes || []
     },
-    onValuesChange: (values) => {
-      onChange(values)
-    }
+    mode: 'onChange'
   })
 
-  const handleTagAdd = (tag: string) => {
-    if (tag.trim() && !form.values.tags.includes(tag.trim())) {
-      const newTags = [...form.values.tags, tag.trim()]
-      form.setFieldValue('tags', newTags)
+  const watchedValues = form.watch()
+
+  useEffect(() => {
+    if (form.formState.isValid) {
+      onChange(watchedValues)
+    }
+  }, [watchedValues, form.formState.isValid, onChange])
+
+  const handleTagAdd = () => {
+    const tag = tagInput.trim()
+    if (tag && !watchedValues.tags.includes(tag)) {
+      const newTags = [...watchedValues.tags, tag]
+      form.setValue('tags', newTags)
+      setTagInput('')
+    }
+  }
+
+  const handleTagKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleTagAdd()
     }
   }
 
   const handleTagRemove = (tagToRemove: string) => {
-    const newTags = form.values.tags.filter(tag => tag !== tagToRemove)
-    form.setFieldValue('tags', newTags)
+    const newTags = watchedValues.tags.filter(tag => tag !== tagToRemove)
+    form.setValue('tags', newTags)
   }
 
-  const handleLearningOutcomeAdd = (outcome: string) => {
-    if (outcome.trim() && !form.values.learning_outcomes.includes(outcome.trim())) {
-      const newOutcomes = [...form.values.learning_outcomes, outcome.trim()]
-      form.setFieldValue('learning_outcomes', newOutcomes)
+  const handleOutcomeAdd = () => {
+    const outcome = outcomeInput.trim()
+    if (outcome && !watchedValues.learning_outcomes.includes(outcome)) {
+      const newOutcomes = [...watchedValues.learning_outcomes, outcome]
+      form.setValue('learning_outcomes', newOutcomes)
+      setOutcomeInput('')
     }
   }
 
-  const handleLearningOutcomeRemove = (outcomeToRemove: string) => {
-    const newOutcomes = form.values.learning_outcomes.filter(outcome => outcome !== outcomeToRemove)
-    form.setFieldValue('learning_outcomes', newOutcomes)
+  const handleOutcomeKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleOutcomeAdd()
+    }
+  }
+
+  const handleOutcomeRemove = (outcomeToRemove: string) => {
+    const newOutcomes = watchedValues.learning_outcomes.filter(outcome => outcome !== outcomeToRemove)
+    form.setValue('learning_outcomes', newOutcomes)
   }
 
   return (
-    <Card shadow="sm" padding="xl" radius="md" withBorder>
-      <Stack gap="lg">
-        {/* Header */}
-        <Group gap="xs">
-          <IconBook size={20} color="var(--mantine-color-blue-6)" />
-          <Title order={3}>Course Information</Title>
-        </Group>
-
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <IconBook size={20} className="text-blue-600" />
+          Course Information
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
         {/* Basic Course Details */}
-        <Group grow>
-          <TextInput
-            label="Course Title"
-            placeholder="Enter course title"
-            required
-            {...form.getInputProps('title')}
-          />
-          <TextInput
-            label="Instructor Name"
-            placeholder="Enter instructor name"
-            required
-            leftSection={<IconUser size={16} />}
-            {...form.getInputProps('instructor_name')}
-          />
-        </Group>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Course Title *</Label>
+            <Input
+              id="title"
+              placeholder="Enter course title"
+              {...form.register('title')}
+            />
+            {form.formState.errors.title && (
+              <p className="text-sm text-red-600">{form.formState.errors.title.message}</p>
+            )}
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="instructor_name">Instructor Name *</Label>
+            <div className="relative">
+              <IconUser size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Input
+                id="instructor_name"
+                placeholder="Enter instructor name"
+                className="pl-9"
+                {...form.register('instructor_name')}
+              />
+            </div>
+            {form.formState.errors.instructor_name && (
+              <p className="text-sm text-red-600">{form.formState.errors.instructor_name.message}</p>
+            )}
+          </div>
+        </div>
 
         {/* Description */}
-        <Textarea
-          label="Course Description"
-          placeholder="Enter detailed course description"
-          required
-          rows={4}
-          {...form.getInputProps('description')}
-        />
+        <div className="space-y-2">
+          <Label htmlFor="description">Course Description *</Label>
+          <Textarea
+            id="description"
+            placeholder="Enter detailed course description"
+            rows={4}
+            {...form.register('description')}
+          />
+          {form.formState.errors.description && (
+            <p className="text-sm text-red-600">{form.formState.errors.description.message}</p>
+          )}
+        </div>
 
         {/* Category and Level */}
-        <Group grow>
-          <Select
-            label="Category"
-            placeholder="Select category"
-            required
-            data={categories}
-            {...form.getInputProps('category')}
-          />
-          <Select
-            label="Difficulty Level"
-            placeholder="Select level"
-            required
-            data={levels}
-            {...form.getInputProps('level')}
-          />
-        </Group>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Category *</Label>
+            <Select 
+              value={watchedValues.category} 
+              onValueChange={(value) => form.setValue('category', value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category.value} value={category.value}>
+                    {category.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {form.formState.errors.category && (
+              <p className="text-sm text-red-600">{form.formState.errors.category.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Difficulty Level *</Label>
+            <Select 
+              value={watchedValues.level} 
+              onValueChange={(value) => form.setValue('level', value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select level" />
+              </SelectTrigger>
+              <SelectContent>
+                {levels.map((level) => (
+                  <SelectItem key={level.value} value={level.value}>
+                    {level.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {form.formState.errors.level && (
+              <p className="text-sm text-red-600">{form.formState.errors.level.message}</p>
+            )}
+          </div>
+        </div>
 
         {/* Price and Duration */}
-        <Group grow>
-          <NumberInput
-            label="Price (USD)"
-            placeholder="0.00"
-            min={0}
-            step={0.01}
-            leftSection={<IconCoin size={16} />}
-            description="Leave empty for free course"
-            {...form.getInputProps('price')}
-          />
-          <NumberInput
-            label="Estimated Duration (hours)"
-            placeholder="0"
-            min={0}
-            step={0.5}
-            description="Total estimated time to complete"
-            {...form.getInputProps('estimated_duration')}
-          />
-        </Group>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="price">Price (USD)</Label>
+            <div className="relative">
+              <IconCoin size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Input
+                id="price"
+                type="number"
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                className="pl-9"
+                {...form.register('price', { valueAsNumber: true })}
+              />
+            </div>
+            <p className="text-sm text-gray-600">Leave empty for free course</p>
+            {form.formState.errors.price && (
+              <p className="text-sm text-red-600">{form.formState.errors.price.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="estimated_duration">Estimated Duration (hours)</Label>
+            <Input
+              id="estimated_duration"
+              type="number"
+              placeholder="0"
+              step="0.5"
+              min="0"
+              {...form.register('estimated_duration', { valueAsNumber: true })}
+            />
+            <p className="text-sm text-gray-600">Total estimated time to complete</p>
+          </div>
+        </div>
 
         {/* Tags Section */}
-        <div>
-          <Text size="sm" fw={500} mb="xs">Course Tags</Text>
-          <Group gap="xs" mb="xs">
-            {form.values.tags.map((tag, index) => (
-              <Chip
-                key={index}
-                variant="light"
-                checked={false}
-                onChange={() => handleTagRemove(tag)}
-              >
+        <div className="space-y-3">
+          <Label>Course Tags</Label>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {watchedValues.tags.map((tag, index) => (
+              <Badge key={index} variant="secondary" className="flex items-center gap-1">
                 {tag}
-              </Chip>
+                <button
+                  type="button"
+                  onClick={() => handleTagRemove(tag)}
+                  className="ml-1 hover:text-red-600"
+                >
+                  <IconX size={12} />
+                </button>
+              </Badge>
             ))}
-          </Group>
-          <TextInput
-            placeholder="Add tags (press Enter)"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                const input = e.currentTarget
-                handleTagAdd(input.value)
-                input.value = ''
-              }
-            }}
-            description="Press Enter to add tags that help students find your course"
-          />
+          </div>
+          <div className="flex gap-2">
+            <Input
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              placeholder="Add tags (press Enter)"
+              onKeyDown={handleTagKeyDown}
+            />
+            <Button type="button" onClick={handleTagAdd} variant="outline">
+              Add
+            </Button>
+          </div>
+          <p className="text-sm text-gray-600">Add tags that help students find your course</p>
         </div>
 
         {/* Learning Outcomes Section */}
-        <div>
-          <Text size="sm" fw={500} mb="xs">Learning Outcomes</Text>
-          <Stack gap="xs" mb="xs">
-            {form.values.learning_outcomes.map((outcome, index) => (
-              <Group key={index} gap="xs" justify="space-between">
-                <Text size="sm" flex={1}>• {outcome}</Text>
+        <div className="space-y-3">
+          <Label>Learning Outcomes</Label>
+          <div className="space-y-2 mb-3">
+            {watchedValues.learning_outcomes.map((outcome, index) => (
+              <div key={index} className="flex items-start justify-between gap-3 p-2 bg-gray-50 rounded-md">
+                <span className="text-sm flex-1">• {outcome}</span>
                 <button
                   type="button"
-                  onClick={() => handleLearningOutcomeRemove(outcome)}
-                  className="text-red-500 hover:text-red-700"
+                  onClick={() => handleOutcomeRemove(outcome)}
+                  className="text-red-500 hover:text-red-700 mt-0.5"
                 >
-                  ×
+                  <IconX size={16} />
                 </button>
-              </Group>
+              </div>
             ))}
-          </Stack>
-          <TextInput
-            placeholder="Add learning outcome (press Enter)"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                const input = e.currentTarget
-                handleLearningOutcomeAdd(input.value)
-                input.value = ''
-              }
-            }}
-            description="What will students learn from this course?"
-          />
+          </div>
+          <div className="flex gap-2">
+            <Input
+              value={outcomeInput}
+              onChange={(e) => setOutcomeInput(e.target.value)}
+              placeholder="Add learning outcome (press Enter)"
+              onKeyDown={handleOutcomeKeyDown}
+            />
+            <Button type="button" onClick={handleOutcomeAdd} variant="outline">
+              Add
+            </Button>
+          </div>
+          <p className="text-sm text-gray-600">What will students learn from this course?</p>
         </div>
 
         {/* Course Stats */}
-        <Card withBorder variant="light">
-          <Group justify="space-between">
-            <div>
-              <Text size="xs" c="dimmed" tt="uppercase">Total Tags</Text>
-              <Text size="sm" fw={500}>{form.values.tags.length}</Text>
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Total Tags</p>
+                <p className="text-sm font-medium mt-1">{watchedValues.tags.length}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Learning Outcomes</p>
+                <p className="text-sm font-medium mt-1">{watchedValues.learning_outcomes.length}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Price</p>
+                <p className="text-sm font-medium mt-1">
+                  {watchedValues.price ? `$${watchedValues.price.toFixed(2)}` : 'Free'}
+                </p>
+              </div>
             </div>
-            <div>
-              <Text size="xs" c="dimmed" tt="uppercase">Learning Outcomes</Text>
-              <Text size="sm" fw={500}>{form.values.learning_outcomes.length}</Text>
-            </div>
-            <div>
-              <Text size="xs" c="dimmed" tt="uppercase">Price</Text>
-              <Text size="sm" fw={500}>
-                {form.values.price ? `$${form.values.price.toFixed(2)}` : 'Free'}
-              </Text>
-            </div>
-          </Group>
+          </CardContent>
         </Card>
-      </Stack>
+      </CardContent>
     </Card>
   )
 })

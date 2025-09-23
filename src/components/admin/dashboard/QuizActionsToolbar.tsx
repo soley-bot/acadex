@@ -2,41 +2,37 @@
  * Quiz Actions Toolbar Component
  * Extracted from admin quizzes page to reduce complexity
  * Handles header, breadcrumb, and action buttons section
- * Now using Mantine UI components for better design
+ * Converted to ShadCN UI components
  */
 
 import React from 'react'
 import Link from 'next/link'
 import { 
-  Paper, 
-  Group, 
-  Button, 
-  Title, 
-  Text, 
-  Badge, 
-  Breadcrumbs, 
-  Anchor, 
-  Menu, 
-  Box,
-  ActionIcon,
-  Loader,
-  Flex,
-  Stack,
-  ThemeIcon,
-  Container
-} from '@mantine/core'
+  Card,
+  CardContent,
+} from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
+import { Badge } from '@/components/ui/badge'
 import { 
-  IconBrain, 
-  IconHome, 
-  IconChevronRight, 
-  IconPlus, 
-  IconEdit, 
-  IconSettings, 
-  IconChartBar, 
-  IconChevronDown, 
-  IconDownload, 
-  IconUpload 
-} from '@tabler/icons-react'
+  Brain, 
+  Home, 
+  ChevronRight, 
+  Plus, 
+  Edit, 
+  Settings, 
+  BarChart3, 
+  ChevronDown, 
+  Download, 
+  Upload,
+  Loader2
+} from 'lucide-react'
 
 interface QuizStats {
   total: number
@@ -56,223 +52,174 @@ export const QuizActionsToolbar: React.FC<QuizActionsToolbarProps> = ({
   onShowAnalytics,
   isLoading = false
 }) => {
-  const breadcrumbItems = [
-    { title: 'Admin', href: '/admin' },
-    { title: 'Quiz Management', href: '#' }
-  ].map((item, index) => (
-    <Anchor component={Link} href={item.href} key={index} size="sm">
-      {item.title}
-    </Anchor>
-  ))
-
   return (
     <>
       {/* Loading Overlay */}
       {isLoading && (
-        <Paper p="sm" bg="blue.1" withBorder>
-          <Container size="xl">
-            <Group justify="center" gap="xs">
-              <Loader size="sm" color="blue" />
-              <Text size="sm" fw={500} c="blue">Refreshing quizzes...</Text>
-            </Group>
-          </Container>
-        </Paper>
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="p-4">
+            <div className="container mx-auto max-w-7xl">
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                <span className="text-sm font-medium text-blue-700">Refreshing quizzes...</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Breadcrumb Navigation */}
-      <Paper withBorder py="md">
-        <Container size="xl">
-          <Breadcrumbs>
-            {breadcrumbItems}
-          </Breadcrumbs>
-        </Container>
-      </Paper>
+      <Card className="border-b rounded-none">
+        <CardContent className="py-4">
+          <div className="container mx-auto max-w-7xl">
+            <nav className="flex items-center gap-2 text-sm text-gray-600">
+              <Link href="/admin" className="hover:text-gray-900 transition-colors">
+                Admin
+              </Link>
+              <ChevronRight className="h-4 w-4" />
+              <span className="text-gray-900 font-medium">Quiz Management</span>
+            </nav>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Enhanced Header Section */}
-      <Container size="xl" py="xl">
-        <Paper 
-          p="xl" 
-          radius="lg" 
-          withBorder 
-          shadow="md"
-          style={{
-            background: 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)',
-            borderColor: '#e9ecef',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-          className="hover:shadow-lg transition-all duration-300"
-        >
+      <div className="container mx-auto max-w-7xl py-8">
+        <Card className="shadow-lg border relative overflow-hidden hover:shadow-xl transition-all duration-300">
           {/* Subtle background decoration */}
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            width: '200px',
-            height: '200px',
-            background: 'radial-gradient(circle, rgba(229, 62, 62, 0.05) 0%, transparent 70%)',
-            transform: 'translate(50%, -50%)',
-          }} />
+          <div 
+            className="absolute -top-24 -right-24 w-48 h-48 rounded-full"
+            style={{
+              background: 'radial-gradient(circle, rgba(239, 68, 68, 0.05) 0%, transparent 70%)',
+            }}
+          />
           
-          <Stack gap="xl" style={{ position: 'relative' }}>
-            {/* Header Content */}
-            <Flex justify="space-between" align="flex-start" gap="lg" wrap="wrap">
-              <Group gap="lg" flex={1}>
-                <ThemeIcon size="xl" variant="gradient" gradient={{ from: 'red', to: 'pink', deg: 45 }}>
-                  <IconBrain size="2rem" />
-                </ThemeIcon>
-                <Box>
-                  <Title order={1} size="h1" mb="xs" style={{ color: '#212529' }}>Quiz Management</Title>
-                  <Text size="lg" c="dimmed">Create, edit, and manage interactive assessments for your students</Text>
-                </Box>
-              </Group>
-              
-              {/* Enhanced Quick Stats */}
-              <Group gap="md">
-                <Paper 
-                  p="md" 
-                  withBorder 
-                  radius="md" 
-                  shadow="xs"
-                  style={{ backgroundColor: '#f8f9fa', borderColor: '#dee2e6' }}
-                  className="hover:shadow-sm transition-shadow duration-200"
-                >
-                  <Group gap="xs">
-                    <Text size="sm" c="dimmed" fw={500}>Total Quizzes:</Text>
-                    <Text fw={700} c="blue" size="lg">{quizStats.total}</Text>
-                  </Group>
-                </Paper>
-                <Paper 
-                  p="md" 
-                  withBorder 
-                  radius="md" 
-                  shadow="xs"
-                  style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' }}
-                  className="hover:shadow-sm transition-shadow duration-200"
-                >
-                  <Group gap="xs">
-                    <Text size="sm" c="dimmed" fw={500}>Published:</Text>
-                    <Text fw={700} c="green" size="lg">{quizStats.published}</Text>
-                  </Group>
-                </Paper>
-              </Group>
-            </Flex>
-
-            {/* Enhanced Action Buttons Row */}
-            <Group justify="space-between" pt="md" style={{ borderTop: '1px solid #e9ecef' }}>
-              {/* Primary Actions */}
-              <Group gap="md">
-                <Menu shadow="lg" width={300} radius="md">
-                  <Menu.Target>
-                    <Button 
-                      leftSection={<IconPlus size="1.2rem" />} 
-                      rightSection={<IconChevronDown size="1rem" />}
-                      size="lg"
-                      variant="gradient"
-                      gradient={{ from: 'red', to: 'pink', deg: 45 }}
-                      radius="md"
-                      style={{ fontWeight: 600 }}
-                      className="hover:transform hover:scale-105 transition-transform duration-200"
-                    >
-                      Create New Quiz
-                    </Button>
-                  </Menu.Target>
-                  <Menu.Dropdown style={{ border: '1px solid #e9ecef', boxShadow: 'var(--mantine-shadow-lg)' }}>
-                    <Menu.Item 
-                      component={Link}
-                      href="/admin/quizzes/create"
-                      leftSection={<IconEdit size="1rem" />}
-                      style={{ borderRadius: '6px', margin: '4px' }}
-                    >
-                      <Box>
-                        <Text fw={500}>Create Manually</Text>
-                        <Text size="xs" c="dimmed">Build from scratch</Text>
-                      </Box>
-                    </Menu.Item>
-                    <Menu.Item 
-                      leftSection={<IconBrain size="1rem" />}
-                      disabled
-                      style={{ borderRadius: '6px', margin: '4px' }}
-                    >
-                      <Box>
-                        <Text fw={500}>Create with AI</Text>
-                        <Text size="xs" c="dimmed">Coming soon</Text>
-                      </Box>
-                    </Menu.Item>
-                  </Menu.Dropdown>
-                </Menu>
-
-                <Button 
-                  variant="outline"
-                  leftSection={<IconSettings size="1.2rem" />}
-                  onClick={onShowCategoryManagement}
-                  size="lg"
-                  radius="md"
-                  style={{ 
-                    borderColor: '#e53e3e',
-                    color: '#e53e3e',
-                    fontWeight: 500,
-                  }}
-                  className="hover:bg-red-50 hover:border-red-400 hover:transform hover:scale-105 transition-all duration-200"
-                >
-                  Manage Categories
-                </Button>
-              </Group>
-
-              {/* Secondary Actions */}
-              <Group gap="md">
-                <Button 
-                  variant="subtle"
-                  leftSection={<IconChartBar size="1.2rem" />}
-                  onClick={onShowAnalytics}
-                  size="lg"
-                  radius="md"
-                  c="gray.7"
-                  className="hover:bg-gray-100 transition-colors duration-200"
-                >
-                  Analytics
-                </Button>
+          <CardContent className="p-8 relative z-10">
+            <div className="space-y-8">
+              {/* Header Content */}
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-lg bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg">
+                    <Brain className="h-8 w-8" />
+                  </div>
+                  <div>
+                    <h1 className="text-4xl font-bold text-gray-900 mb-2">Quiz Management</h1>
+                    <p className="text-lg text-gray-600">Create, edit, and manage interactive assessments for your students</p>
+                  </div>
+                </div>
                 
-                <Menu shadow="lg" width={220} radius="md">
-                  <Menu.Target>
-                    <Button 
-                      variant="subtle"
-                      rightSection={<IconChevronDown size="1rem" />}
-                      size="lg"
-                      radius="md"
-                      c="gray.7"
-                      className="hover:bg-gray-100 transition-colors duration-200"
-                    >
-                      More Actions
-                    </Button>
-                  </Menu.Target>
-                  <Menu.Dropdown style={{ border: '1px solid #e9ecef', boxShadow: 'var(--mantine-shadow-lg)' }}>
-                    <Menu.Item 
-                      leftSection={<IconDownload size="1rem" />}
-                      style={{ borderRadius: '6px', margin: '2px' }}
-                    >
-                      Export Quizzes
-                    </Menu.Item>
-                    <Menu.Item 
-                      leftSection={<IconUpload size="1rem" />}
-                      style={{ borderRadius: '6px', margin: '2px' }}
-                    >
-                      Import Quizzes
-                    </Menu.Item>
-                    <Menu.Divider />
-                    <Menu.Item 
-                      leftSection={<IconSettings size="1rem" />}
-                      style={{ borderRadius: '6px', margin: '2px' }}
-                    >
-                      Quiz Settings
-                    </Menu.Item>
-                  </Menu.Dropdown>
-                </Menu>
-              </Group>
-            </Group>
-          </Stack>
-        </Paper>
-      </Container>
+                {/* Enhanced Quick Stats */}
+                <div className="flex gap-4">
+                  <Card className="bg-gray-50 hover:shadow-sm transition-shadow duration-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600 font-medium">Total Quizzes:</span>
+                        <span className="text-lg font-bold text-blue-600">{quizStats.total}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-green-50 border-green-200 hover:shadow-sm transition-shadow duration-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600 font-medium">Published:</span>
+                        <span className="text-lg font-bold text-green-600">{quizStats.published}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              {/* Enhanced Action Buttons Row */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6 border-t border-gray-200">
+                {/* Primary Actions */}
+                <div className="flex flex-wrap gap-3">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        size="lg"
+                        className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
+                      >
+                        <Plus className="h-5 w-5 mr-2" />
+                        Create New Quiz
+                        <ChevronDown className="h-4 w-4 ml-2" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-72 shadow-xl">
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer">
+                        <Link href="/admin/quizzes/create" className="flex items-start gap-3">
+                          <Edit className="h-4 w-4 mt-1" />
+                          <div>
+                            <div className="font-medium">Create Manually</div>
+                            <div className="text-xs text-gray-500">Build from scratch</div>
+                          </div>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem disabled className="p-3">
+                        <Brain className="h-4 w-4 mr-3" />
+                        <div>
+                          <div className="font-medium">Create with AI</div>
+                          <div className="text-xs text-gray-500">Coming soon</div>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <Button 
+                    variant="outline"
+                    size="lg"
+                    onClick={onShowCategoryManagement}
+                    className="border-red-500 text-red-500 hover:bg-red-50 hover:border-red-600 hover:scale-105 transition-all duration-200 font-medium"
+                  >
+                    <Settings className="h-5 w-5 mr-2" />
+                    Manage Categories
+                  </Button>
+                </div>
+
+                {/* Secondary Actions */}
+                <div className="flex flex-wrap gap-3">
+                  <Button 
+                    variant="ghost"
+                    size="lg"
+                    onClick={onShowAnalytics}
+                    className="text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                  >
+                    <BarChart3 className="h-5 w-5 mr-2" />
+                    Analytics
+                  </Button>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="ghost"
+                        size="lg"
+                        className="text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                      >
+                        More Actions
+                        <ChevronDown className="h-4 w-4 ml-2" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56 shadow-xl">
+                      <DropdownMenuItem className="cursor-pointer">
+                        <Download className="h-4 w-4 mr-2" />
+                        Export Quizzes
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer">
+                        <Upload className="h-4 w-4 mr-2" />
+                        Import Quizzes
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="cursor-pointer">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Quiz Settings
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </>
   )
 }
