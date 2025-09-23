@@ -66,6 +66,9 @@ export const useQuizBuilder = ({
 }: UseQuizBuilderProps) => {
   const { toast } = useToast()
   
+  // Track which quiz ID we've loaded questions for to prevent re-fetching
+  const loadedQuizIdRef = useRef<string | null>(null)
+  
   // Core state management
   const [state, setState] = useState<QuizBuilderState>(() => {
     console.log('🎯 Initializing quiz builder state')
@@ -110,6 +113,7 @@ export const useQuizBuilder = ({
       setIsDirty(false)
       setLastSaved(null)
       setIsSaving(false)
+      loadedQuizIdRef.current = null // Reset loaded quiz tracking
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current)
       }
@@ -265,11 +269,14 @@ export const useQuizBuilder = ({
 
   // Effect to load questions when quiz changes
   useEffect(() => {
-    if (quiz?.id && (!state.questions.length || state.quiz.id !== quiz.id)) {
+    if (quiz?.id && loadedQuizIdRef.current !== quiz.id) {
       console.log('🔄 Quiz prop changed, updating state:', {
         quizId: quiz.id,
-        hasExistingQuestions: state.questions.length > 0
+        previouslyLoadedId: loadedQuizIdRef.current
       })
+
+      // Mark this quiz ID as being loaded
+      loadedQuizIdRef.current = quiz.id
 
       // Update quiz data
       setState(prev => ({
@@ -298,7 +305,7 @@ export const useQuizBuilder = ({
       // Load questions
       fetchQuestionsForQuiz(quiz.id)
     }
-  }, [quiz, fetchQuestionsForQuiz, state.quiz.id, state.questions.length])
+  }, [quiz, fetchQuestionsForQuiz])
 
   // State update functions
   const updateQuiz = useCallback((updates: Partial<Quiz>) => {

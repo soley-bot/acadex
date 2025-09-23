@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Quiz, QuizQuestion } from '@/lib/supabase'
 
 // Import extracted components
-import { QuizSettingsForm } from '@/components/admin/quiz-builder/components/QuizSettingsForm'
 import { QuizSummaryCard } from '@/components/admin/quiz-builder/components/QuizSummaryCard'
 import { QuizBuilderErrorBoundary, QuizBuilderLoadingFallback } from '@/components/admin/quiz-builder/utils/QuizBuilderUtils'
 
@@ -311,13 +310,8 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
               </div>
             </div>
 
-            {/* Right Sidebar - Quiz Settings and Summary */}
+            {/* Right Sidebar - Quiz Summary */}
             <div className="w-80 flex-shrink-0 border-l pl-6 space-y-6 overflow-y-auto py-6 pr-6">
-              <QuizSettingsForm
-                quiz={state.quiz}
-                onUpdate={handleQuizUpdate}
-              />
-              
               <QuizSummaryCard
                 quiz={state.quiz}
                 questions={state.questions}
