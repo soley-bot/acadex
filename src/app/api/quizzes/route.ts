@@ -2,12 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
 
-// Create public client for read-only operations
-const supabase = createServiceClient()
-
 // GET - Fetch public quizzes (OPTIMIZED FOR PERFORMANCE)
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createServiceClient()
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = Math.min(parseInt(searchParams.get('limit') || '12'), 50) // Cap at 50

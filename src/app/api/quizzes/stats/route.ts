@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
 
-const supabase = createServiceClient()
-
 // GET - Fetch quiz statistics (questions count, attempt stats) for public quizzes
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createServiceClient()
     const { searchParams } = new URL(request.url)
     const quizIds = searchParams.get('quizIds')?.split(',') || []
     

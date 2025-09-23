@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
 
-const supabase = createServiceClient()
-
 // GET - Fetch single public quiz with questions for taking
 export async function GET(request: NextRequest) {
   // Extract quiz ID from URL pathname
@@ -15,6 +13,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Quiz ID is required' }, { status: 400 })
     }
 
+    const supabase = createServiceClient()
     logger.info('Public quiz details fetch requested', { quizId })
 
     // Fetch quiz and questions in parallel - optimized for quiz taking
