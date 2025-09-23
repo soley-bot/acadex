@@ -4,6 +4,7 @@ import HonestSection from '@/components/HonestSection'
 import { Section } from '@/components/ui/Layout'
 import { Metadata } from 'next'
 import { generateOrganizationSchema, generateWebsiteSchema } from '@/lib/schema'
+// import ClientHomeWrapper from '@/components/ClientHomeWrapper'
 
 export const metadata: Metadata = {
   title: 'Acadex - Master Your IELTS Score with Targeted Quizzes',

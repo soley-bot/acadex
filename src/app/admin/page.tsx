@@ -8,8 +8,6 @@ import { H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Container, Section, Grid } from '@/components/ui/Layout'
 import { logger } from '@/lib/logger'
 import Icon from '@/components/ui/Icon'
-import { useDashboardPerformance } from '@/lib/adminPerformanceSystem'
-
 interface DashboardStats {
   totalUsers: number
   totalCourses: number
@@ -21,14 +19,6 @@ interface DashboardStats {
 
 export default function AdminDashboard() {
   const router = useRouter()
-  
-  // Performance monitoring
-  const { 
-    metrics, 
-    logPerformanceReport, 
-    isSlowComponent, 
-    performanceScore 
-  } = useDashboardPerformance()
   
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
@@ -48,43 +38,30 @@ export default function AdminDashboard() {
 
       logger.info('Fetching dashboard statistics', { component: 'AdminDashboard' })
 
-      // Fetch all stats in parallel with timeout
-      const timeout = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout after 15 seconds')), 15000)
-      )
-
-      const dataPromise = Promise.all([
-        supabase.from('users').select('id').limit(1000),
-        supabase.from('courses').select('id, price, is_published').limit(1000),
-        supabase.from('quizzes').select('id').limit(1000),
-        supabase.from('quiz_attempts').select('id').limit(1000)
+      // Use COUNT queries for much better performance
+      const [usersCount, coursesData, quizzesCount, attemptsCount] = await Promise.all([
+        supabase.from('users').select('*', { count: 'exact', head: true }),
+        supabase.from('courses').select('price, is_published'),
+        supabase.from('quizzes').select('*', { count: 'exact', head: true }),
+        supabase.from('quiz_attempts').select('*', { count: 'exact', head: true })
       ])
 
-      const [usersResult, coursesResult, quizzesResult, attemptsResult] = await Promise.race([
-        dataPromise,
-        timeout
-      ]) as any[]
+      // Handle potential errors
+      if (usersCount.error) throw usersCount.error
+      if (coursesData.error) throw coursesData.error
+      if (quizzesCount.error) throw quizzesCount.error
+      if (attemptsCount.error) throw attemptsCount.error
 
-      // Handle potential errors in results
-      if (usersResult.error) throw usersResult.error
-      if (coursesResult.error) throw coursesResult.error
-      if (quizzesResult.error) throw quizzesResult.error
-      if (attemptsResult.error) throw attemptsResult.error
-
-      const users = usersResult.data || []
-      const courses = coursesResult.data || []
-      const quizzes = quizzesResult.data || []
-      const attempts = attemptsResult.data || []
-
-      // Calculate revenue from courses
+      // Calculate revenue and published courses from actual data
+      const courses = coursesData.data || []
       const totalRevenue = courses.reduce((sum: number, course: any) => sum + (Number(course.price) || 0), 0)
       const publishedCourses = courses.filter((course: any) => course.is_published).length
 
       const newStats = {
-        totalUsers: users.length,
+        totalUsers: usersCount.count || 0,
         totalCourses: courses.length,
-        totalQuizzes: quizzes.length,
-        totalAttempts: attempts.length,
+        totalQuizzes: quizzesCount.count || 0,
+        totalAttempts: attemptsCount.count || 0,
         totalRevenue,
         publishedCourses
       }

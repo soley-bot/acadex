@@ -1,13 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart3, TrendingUp, Users, BookOpen, Brain, DollarSign, Download, RefreshCw, Calendar, Filter } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
-import { useErrorHandler } from '@/lib/errorHandler'
-import { adminCache } from '@/lib/admin-cache'
-import { useDebounce } from '@/lib/performance'
 
 interface AnalyticsData {
   totalUsers: number
@@ -70,15 +67,17 @@ export default function AdminAnalytics() {
     totalRevenue: 0,
     newUsersThisMonth: 0
   })
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false) // Start false to prevent flash
   const [error, setError] = useState<string | null>(null)
   const [selectedTimeRange, setSelectedTimeRange] = useState('30 days')
   const [refreshing, setRefreshing] = useState(false)
-
-  const { handleError } = useErrorHandler()
-
-  // Debounce time range changes to prevent excessive API calls
-  const debouncedTimeRange = useDebounce(selectedTimeRange, 300)
+  const [mounted, setMounted] = useState(false)
+  const timeRangeRef = useRef('30 days')
+  
+  // Update ref when selectedTimeRange changes
+  useEffect(() => {
+    timeRangeRef.current = selectedTimeRange
+  }, [selectedTimeRange])
 
   // Memoize formatted values for performance
   const formattedAnalytics = useMemo(() => ({
@@ -91,25 +90,14 @@ export default function AdminAnalytics() {
       : 'No new users'
   }), [analytics])
 
-  const fetchAnalytics = useCallback(async (forceRefresh = false) => {
+  const fetchAnalytics = useCallback(async () => {
     const startTime = performance.now()
     
     try {
       setLoading(true)
       setError(null)
 
-      // Check cache first (unless forcing refresh)
-      if (!forceRefresh) {
-        const cachedData = adminCache.get<AnalyticsData>('admin:analytics')
-        if (cachedData) {
-          setAnalytics(cachedData)
-          setLoading(false)
-          logger.performance('analytics-cache-hit', performance.now() - startTime)
-          return
-        }
-      }
-
-      logger.apiCall('/admin/analytics', 'GET', { timeRange: debouncedTimeRange })
+      logger.apiCall('/admin/analytics', 'GET', { timeRange: timeRangeRef.current })
 
       // Calculate date range for filtering
       const now = new Date()
@@ -189,8 +177,6 @@ export default function AdminAnalytics() {
         newUsersThisMonth: newUsers
       }
 
-      // Cache the results for 5 minutes
-      adminCache.set('admin:analytics', analyticsData, 5 * 60 * 1000)
       setAnalytics(analyticsData)
       
       logger.performance('analytics-fetch', performance.now() - startTime)
@@ -199,29 +185,49 @@ export default function AdminAnalytics() {
         totalCourses: analyticsData.totalCourses 
       })
 
-    } catch (err) {
-      const appError = handleError(err, { component: 'AdminAnalytics', action: 'fetchAnalytics' })
-      setError(appError.message)
+    } catch (err: any) {
+      setError(err.message || 'Failed to load analytics data')
       logger.error('Failed to fetch analytics', { error: err })
     } finally {
       setLoading(false)
       setRefreshing(false)
     }
-  }, [handleError, debouncedTimeRange])
+  }, []) // Make fetchAnalytics stable by removing dependencies
 
   // Refresh handler with loading state
   const handleRefresh = useCallback(async () => {
     setRefreshing(true)
-    await fetchAnalytics(true) // Force refresh
+    await fetchAnalytics()
   }, [fetchAnalytics])
 
-  // Effect to fetch data on mount and time range changes
+  // Effect to handle mounting and prevent flashing - only run once!
   useEffect(() => {
-    fetchAnalytics()
-  }, [fetchAnalytics])
+    let isMounted = true
+    setMounted(true)
+    
+    // Small delay to prevent flash, then start loading
+    const timer = setTimeout(() => {
+      if (isMounted) {
+        setLoading(true)
+        fetchAnalytics()
+      }
+    }, 100)
+    
+    return () => {
+      isMounted = false
+      clearTimeout(timer)
+    }
+  }, [fetchAnalytics]) // fetchAnalytics is now stable
 
-  // Loading skeleton component
-  if (loading && !refreshing) {
+  // Separate effect for selectedTimeRange changes
+  useEffect(() => {
+    if (mounted) {
+      fetchAnalytics()
+    }
+  }, [selectedTimeRange, mounted, fetchAnalytics])
+
+  // Show loading skeleton only if we haven't mounted yet or during initial load
+  if (!mounted || (loading && !mounted)) {
     return (
       <div className="container-mobile py-4 sm:py-8">
         <div className="animate-pulse">
@@ -266,13 +272,14 @@ export default function AdminAnalytics() {
   }
   
   return (
-    <div className="container-mobile py-4 sm:py-8 space-y-6 sm:space-y-8">
-      {/* Header Section - Mobile First */}
-      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-          <p className="text-gray-600 mt-1">Monitor platform performance and growth</p>
-        </div>
+    <div className="min-h-screen bg-gray-50"> {/* Ensure consistent background */}
+      <div className="container-mobile py-4 sm:py-8 space-y-6 sm:space-y-8">
+        {/* Header Section - Mobile First */}
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+            <p className="text-gray-600 mt-1">Monitor platform performance and growth</p>
+          </div>
         
         {/* Action Controls - Responsive Stack */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
@@ -480,6 +487,7 @@ export default function AdminAnalytics() {
           </CardContent>
         </Card>
       </div>
+    </div>
     </div>
   )
 }

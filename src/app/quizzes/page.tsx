@@ -15,6 +15,10 @@ import { quizDifficulties } from '@/lib/quizConstants'
 import { Badge } from '@/components/ui/badge'
 import { TextInput } from '@/components/ui/FormInputs'
 import { usePublicQuizzes, usePublicQuizCategories } from '@/hooks/usePublicQuizzes'
+// Temporarily disabled to isolate layout issue
+// import { useMemoryMonitor } from '@/lib/memory-optimization'
+// import { useEnhancedWebVitals } from '@/lib/safe-web-vitals'
+import { useDebounce } from '@/lib/performance'
 
 interface PaginationData {
   page: number
@@ -25,6 +29,14 @@ interface PaginationData {
 }
 
 export default function QuizzesPageWithReactQuery() {
+  // Temporarily disabled performance monitoring to isolate layout issue
+  // const memoryStats = useMemoryMonitor('QuizzesPage')
+  // useEnhancedWebVitals((report) => {
+  //   if (process.env.NODE_ENV === 'development' && report.metric === 'LCP') {
+  //     console.info(`✅ Quizzes Page Performance: ${report.metric} = ${report.value.toFixed(0)}ms`)
+  //   }
+  // })
+
   // Filter and pagination state
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
@@ -33,15 +45,18 @@ export default function QuizzesPageWithReactQuery() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   const itemsPerPage = 9
 
-  // Memoized filters for React Query
+  // Optimized search with reduced debounce (safe optimization)
+  const optimizedSearchTerm = useDebounce(searchTerm, 150) // Reduced from 300ms to 150ms
+
+  // Memoized filters for React Query (using optimized search with fallback)
   const filters = useMemo(() => ({
-    search: searchTerm.trim(),
+    search: (optimizedSearchTerm || searchTerm).trim(), // Fallback to original if optimization fails
     category: selectedCategory,
     difficulty: selectedDifficulty,
     published: true, // Only show published quizzes on public page
     page: currentPage,
     limit: itemsPerPage
-  }), [searchTerm, selectedCategory, selectedDifficulty, currentPage])
+  }), [optimizedSearchTerm, searchTerm, selectedCategory, selectedDifficulty, currentPage])
 
   // Optimized React Query hooks - using dedicated public API endpoints!
   const { 
@@ -69,9 +84,9 @@ export default function QuizzesPageWithReactQuery() {
     hasMore: currentPage < totalPages
   }
 
-  // Event handlers
+  // Event handlers (using optimized search)
   const handleSearchChange = (value: string) => {
-    setSearchTerm(value)
+    setSearchTerm(value) // The debounced version will automatically update
     setCurrentPage(1) // Reset to first page on search
   }
 

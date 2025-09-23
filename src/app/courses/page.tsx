@@ -18,8 +18,19 @@ import {
   GraduationCap,
   MessageCircle
 } from 'lucide-react'
+// Temporarily disabled to isolate layout issue
+// import { useMemoryMonitor } from '@/lib/memory-optimization'
+// import { useEnhancedWebVitals } from '@/lib/safe-web-vitals'
 
 export default function CoursesPage() {
+  // Temporarily disabled to isolate layout issue
+  // const memoryStats = useMemoryMonitor('CoursesPage')
+  // useEnhancedWebVitals((report) => {
+  //   if (process.env.NODE_ENV === 'development' && report.metric === 'LCP') {
+  //     console.info(`📚 Courses Performance: ${report.value.toFixed(0)}ms`)
+  //   }
+  // })
+
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedLevel, setSelectedLevel] = useState<string>('all')
