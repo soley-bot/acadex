@@ -1,398 +1,312 @@
-/**
- * Security Dashboard Component
- * Admin-only dashboard for viewing security metrics and audit logs
- */
-
 'use client'
 
-import { logger } from '@/lib/logger'
-import { useState, useEffect, useCallback } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
-import { SecurityAudit } from '@/lib/security-audit'
-import { SECURITY_CONFIG } from '@/lib/security-config'
-import { 
-  Shield, 
-  AlertTriangle, 
-  Activity, 
-  Users, 
-  Eye,
-  Download,
-  RefreshCw,
-  Clock,
-  TrendingUp
-} from 'lucide-react'
+/**
+ * Enhanced Security Dashboard Component
+ * Real-time security monitoring and testing interface
+ */
 
-interface SecurityMetrics {
-  totalEvents: number
-  eventsByType: Record<string, number>
-  eventsBySeverity: Record<string, number>
-  topIPs: Array<{ ip: string; count: number }>
-  recentCritical: any[]
+import React, { useState, useEffect } from 'react'
+import { securityMonitor, SecurityEvent, SecurityMetrics } from '@/lib/security-monitor'
+import { securityTester, SecurityTestSuite } from '@/lib/security-tester'
+import { Shield, AlertTriangle, Activity, RefreshCw, Play } from 'lucide-react'
+
+interface SecurityDashboardProps {
+  className?: string
 }
 
-export default function SecurityDashboard() {
-  const { user, isAdmin } = useAuth()
+export function SecurityDashboard({ className = '' }: SecurityDashboardProps) {
   const [metrics, setMetrics] = useState<SecurityMetrics | null>(null)
-  const [recentEvents, setRecentEvents] = useState<any[]>([])
-  const [timeRange, setTimeRange] = useState(24)
-  const [eventType, setEventType] = useState<string>('all')
-  const [loading, setLoading] = useState(true)
+  const [recentEvents, setRecentEvents] = useState<SecurityEvent[]>([])
+  const [testResults, setTestResults] = useState<SecurityTestSuite[]>([])
+  const [isRunningTests, setIsRunningTests] = useState(false)
+  const [selectedTab, setSelectedTab] = useState<'overview' | 'events' | 'tests'>('overview')
 
-  const loadSecurityData = useCallback(() => {
-    setLoading(true)
-    
-    try {
-      const metricsData = SecurityAudit.getMetrics(timeRange)
-      setMetrics(metricsData)
-      
-      const eventsData = SecurityAudit.getRecentEvents(50, eventType === 'all' ? undefined : eventType as any)
-      setRecentEvents(eventsData)
-    } catch (error) {
-      logger.error('Failed to load security data:', error)
-    }
-    
-    setLoading(false)
-  }, [timeRange, eventType])
-
+  // Load initial data
   useEffect(() => {
-    if (isAdmin()) {
-      loadSecurityData()
-    }
-  }, [loadSecurityData, isAdmin])
+    loadMetrics()
+    loadRecentEvents()
+    
+    // Set up real-time updates
+    const unsubscribe = securityMonitor.subscribe((event) => {
+      loadMetrics()
+      loadRecentEvents()
+    })
 
-  // Redirect non-admin users
-  if (!isAdmin()) {
-    return (
-      <div className="p-6">
-        <div className="bg-primary/5 border border-destructive/30 rounded-md p-4">
-          <div className="flex">
-            <AlertTriangle className="h-5 w-5 text-red-400" />
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Access Denied</h3>
-              <p className="text-sm text-red-700 mt-1">
-                This page requires administrator privileges.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return unsubscribe
+  }, [])
+
+  const loadMetrics = () => {
+    setMetrics(securityMonitor.getMetrics())
   }
 
-  const handleExport = () => {
-    const csvData = SecurityAudit.exportEvents('csv')
-    const blob = new Blob([csvData], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `security-events-${new Date().toISOString().split('T')[0]}.csv`
-    link.click()
-    URL.revokeObjectURL(url)
+  const loadRecentEvents = () => {
+    setRecentEvents(securityMonitor.getEvents({ limit: 10 }))
+  }
+
+  const runSecurityTests = async () => {
+    setIsRunningTests(true)
+    try {
+      const results = await securityTester.runAllTests()
+      setTestResults(results)
+    } catch (error) {
+      console.error('Failed to run security tests:', error)
+    } finally {
+      setIsRunningTests(false)
+    }
   }
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'text-primary bg-destructive/20'
-      case 'high': return 'text-orange-600 bg-orange-100'
-      case 'medium': return 'text-yellow-600 bg-yellow-100'
-      case 'low': return 'text-green-600 bg-green-100'
-      default: return 'text-gray-600 bg-muted/40'
+      case 'critical': return 'text-red-600 bg-red-50'
+      case 'high': return 'text-orange-600 bg-orange-50'
+      case 'medium': return 'text-yellow-600 bg-yellow-50'
+      case 'low': return 'text-blue-600 bg-blue-50'
+      default: return 'text-gray-600 bg-gray-50'
     }
   }
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'auth': return <Users className="w-4 h-4" />
-      case 'access': return <Shield className="w-4 h-4" />
-      case 'admin': return <Eye className="w-4 h-4" />
-      case 'error': return <AlertTriangle className="w-4 h-4" />
-      case 'data': return <Activity className="w-4 h-4" />
-      default: return <Activity className="w-4 h-4" />
+  const getTestStatusColor = (status: string) => {
+    switch (status) {
+      case 'passed': return 'text-green-600 bg-green-50'
+      case 'failed': return 'text-red-600 bg-red-50'
+      case 'warning': return 'text-yellow-600 bg-yellow-50'
+      default: return 'text-gray-600 bg-gray-50'
     }
-  }
-
-  if (loading) {
-    return (
-      <div className="p-6">
-        <div className="flex items-center justify-center">
-          <RefreshCw className="w-6 h-6 animate-spin text-secondary" />
-          <span className="ml-2">Loading security data...</span>
-        </div>
-      </div>
-    )
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className={`bg-white rounded-lg shadow-lg ${className}`}>
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-            <Shield className="w-6 h-6 mr-2 text-secondary" />
-            Security Dashboard
-          </h1>
-          <p className="text-gray-600 mt-1">Monitor security events and system health</p>
+      <div className="border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center space-x-3">
+          <Shield className="h-6 w-6 text-blue-600" />
+          <h2 className="text-xl font-semibold text-gray-900">Security Dashboard</h2>
         </div>
-        
-        <div className="flex items-center space-x-4">
-          <select
-            value={timeRange}
-            onChange={(e) => setTimeRange(Number(e.target.value))}
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm"
-          >
-            <option value={1}>Last Hour</option>
-            <option value={24}>Last 24 Hours</option>
-            <option value={168}>Last Week</option>
-            <option value={720}>Last Month</option>
-          </select>
-          
-          <button
-            onClick={handleExport}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </button>
-          
-          <button
-            onClick={loadSecurityData}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-secondary hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </button>
-        </div>
+        <p className="text-sm text-gray-600 mt-1">
+          Real-time security monitoring and testing
+        </p>
       </div>
 
-      {/* Metrics Overview */}
-      {metrics && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow border">
-            <div className="flex items-center">
-              <Activity className="w-8 h-8 text-secondary" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Total Events</p>
-                <p className="text-2xl font-bold text-gray-900">{metrics.totalEvents}</p>
-              </div>
-            </div>
-          </div>
+      {/* Tab Navigation */}
+      <div className="border-b border-gray-200">
+        <nav className="flex px-6">
+          {[
+            { id: 'overview', label: 'Overview', icon: Activity },
+            { id: 'events', label: 'Security Events', icon: AlertTriangle },
+            { id: 'tests', label: 'Security Tests', icon: Shield }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setSelectedTab(tab.id as any)}
+              className={`flex items-center space-x-2 py-4 px-4 border-b-2 font-medium text-sm ${
+                selectedTab === tab.id
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <tab.icon className="h-4 w-4" />
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </nav>
+      </div>
 
-          <div className="bg-white p-6 rounded-lg shadow border">
-            <div className="flex items-center">
-              <AlertTriangle className="w-8 h-8 text-primary" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Critical Events</p>
-                <p className="text-2xl font-bold text-gray-900">{metrics.eventsBySeverity.critical || 0}</p>
+      {/* Content */}
+      <div className="p-6">
+        {selectedTab === 'overview' && (
+          <div className="space-y-6">
+            {/* Metrics Overview */}
+            {metrics && (
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600">{metrics.totalEvents}</div>
+                  <div className="text-sm text-blue-800">Total Events (24h)</div>
+                </div>
+                <div className="bg-red-50 p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-red-600">{metrics.criticalEvents}</div>
+                  <div className="text-sm text-red-800">Critical Events</div>
+                </div>
+                <div className="bg-orange-50 p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-orange-600">{metrics.authFailures}</div>
+                  <div className="text-sm text-orange-800">Auth Failures</div>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-purple-600">{metrics.injectionAttempts}</div>
+                  <div className="text-sm text-purple-800">Injection Attempts</div>
+                </div>
+                <div className="bg-yellow-50 p-4 rounded-lg">
+                  <div className="text-2xl font-bold text-yellow-600">{metrics.rateLimitViolations}</div>
+                  <div className="text-sm text-yellow-800">Rate Limit Violations</div>
+                </div>
               </div>
-            </div>
-          </div>
+            )}
 
-          <div className="bg-white p-6 rounded-lg shadow border">
-            <div className="flex items-center">
-              <TrendingUp className="w-8 h-8 text-green-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Auth Events</p>
-                <p className="text-2xl font-bold text-gray-900">{metrics.eventsByType.auth || 0}</p>
-              </div>
+            {/* Quick Actions */}
+            <div className="flex gap-4">
+              <button
+                onClick={runSecurityTests}
+                disabled={isRunningTests}
+                className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+              >
+                <Play className="h-4 w-4" />
+                <span>{isRunningTests ? 'Running Tests...' : 'Run Security Tests'}</span>
+              </button>
+              <button
+                onClick={loadMetrics}
+                className="flex items-center space-x-2 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
+              >
+                <RefreshCw className="h-4 w-4" />
+                <span>Refresh Metrics</span>
+              </button>
             </div>
-          </div>
 
-          <div className="bg-white p-6 rounded-lg shadow border">
-            <div className="flex items-center">
-              <Shield className="w-8 h-8 text-purple-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Access Events</p>
-                <p className="text-2xl font-bold text-gray-900">{metrics.eventsByType.access || 0}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Critical Events Alert */}
-      {metrics?.recentCritical && metrics.recentCritical.length > 0 && (
-        <div className="bg-primary/5 border border-destructive/30 rounded-md p-4">
-          <div className="flex">
-            <AlertTriangle className="h-5 w-5 text-red-400" />
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">
-                {metrics.recentCritical.length} Critical Security Event(s) Detected
-              </h3>
-              <div className="mt-2 text-sm text-red-700">
-                <ul className="list-disc space-y-1 ml-5">
-                  {metrics.recentCritical.slice(0, 3).map((event, index) => (
-                    <li key={index}>
-                      {event.action} - {new Date(event.timestamp).toLocaleString()}
-                    </li>
+            {/* Recent Events Summary */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Security Events</h3>
+              {recentEvents.length > 0 ? (
+                <div className="space-y-2">
+                  {recentEvents.slice(0, 5).map((event) => (
+                    <div key={event.id} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded">
+                      <div className="flex items-center space-x-3">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(event.severity)}`}>
+                          {event.severity.toUpperCase()}
+                        </span>
+                        <span className="text-sm font-medium">{event.type.replace('_', ' ').toUpperCase()}</span>
+                        {event.userId && (
+                          <span className="text-xs text-gray-600">User: {event.userId}</span>
+                        )}
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {event.timestamp.toLocaleTimeString()}
+                      </span>
+                    </div>
                   ))}
-                </ul>
-              </div>
+                </div>
+              ) : (
+                <div className="text-gray-600 text-center py-4">No recent security events</div>
+              )}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Events by Type Chart */}
-      {metrics && (
-        <div className="bg-white p-6 rounded-lg shadow border">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Events by Type</h3>
-          <div className="space-y-3">
-            {Object.entries(metrics.eventsByType).map(([type, count]) => (
-              <div key={type} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  {getTypeIcon(type)}
-                  <span className="ml-2 text-sm font-medium text-gray-900 capitalize">{type}</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-32 bg-muted/60 rounded-full h-2 mr-3">
-                    <div
-                      className="bg-secondary h-2 rounded-full"
-                      style={{ width: `${(count / metrics.totalEvents) * 100}%` }}
-                    ></div>
+        {selectedTab === 'events' && (
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Security Events</h3>
+              <button
+                onClick={loadRecentEvents}
+                className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 text-sm"
+              >
+                <RefreshCw className="h-4 w-4" />
+                <span>Refresh</span>
+              </button>
+            </div>
+            
+            {recentEvents.length > 0 ? (
+              <div className="space-y-3">
+                {recentEvents.map((event) => (
+                  <div key={event.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityColor(event.severity)}`}>
+                            {event.severity.toUpperCase()}
+                          </span>
+                          <span className="font-medium">{event.type.replace('_', ' ').toUpperCase()}</span>
+                          {event.resolved && (
+                            <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
+                              RESOLVED
+                            </span>
+                          )}
+                        </div>
+                        
+                        <div className="text-sm text-gray-600 space-y-1">
+                          {event.userId && <div>User ID: {event.userId}</div>}
+                          {event.endpoint && <div>Endpoint: {event.endpoint}</div>}
+                          {event.ip && <div>IP: {event.ip}</div>}
+                          {event.userAgent && <div>User Agent: {event.userAgent}</div>}
+                        </div>
+                        
+                        {Object.keys(event.details).length > 0 && (
+                          <div className="mt-2 text-xs text-gray-500">
+                            <details>
+                              <summary className="cursor-pointer">Details</summary>
+                              <pre className="mt-1 bg-gray-50 p-2 rounded text-xs overflow-x-auto">
+                                {JSON.stringify(event.details, null, 2)}
+                              </pre>
+                            </details>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="text-xs text-gray-500 ml-4">
+                        {event.timestamp.toLocaleString()}
+                      </div>
+                    </div>
                   </div>
-                  <span className="text-sm text-gray-500">{count}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Top IPs */}
-      {metrics?.topIPs && metrics.topIPs.length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow border">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Top IP Addresses</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    IP Address
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Event Count
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {metrics.topIPs.map((ip, index) => (
-                  <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {ip.ip}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {ip.count}
-                    </td>
-                  </tr>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-600">
+                No security events recorded
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Recent Events */}
-      <div className="bg-white p-6 rounded-lg shadow border">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium text-gray-900">Recent Security Events</h3>
-          <select
-            value={eventType}
-            onChange={(e) => setEventType(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm"
-          >
-            <option value="all">All Types</option>
-            <option value="auth">Authentication</option>
-            <option value="access">Access Control</option>
-            <option value="admin">Admin Actions</option>
-            <option value="error">Errors</option>
-            <option value="data">Data Operations</option>
-          </select>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Time
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Type
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Action
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Severity
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  User
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  IP
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {recentEvents.slice(0, 20).map((event, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <div className="flex items-center">
-                      <Clock className="w-4 h-4 text-gray-400 mr-2" />
-                      {new Date(event.timestamp).toLocaleString()}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      {getTypeIcon(event.type)}
-                      <span className="ml-2 text-sm text-gray-900 capitalize">{event.type}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {event.action}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getSeverityColor(event.severity)}`}>
-                      {event.severity}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {event.userEmail || 'Unknown'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {event.ip || 'Unknown'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        {selectedTab === 'tests' && (
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Security Tests</h3>
+              <button
+                onClick={runSecurityTests}
+                disabled={isRunningTests}
+                className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+              >
+                <Play className="h-4 w-4" />
+                <span>{isRunningTests ? 'Running...' : 'Run Tests'}</span>
+              </button>
+            </div>
 
-      {/* Security Configuration */}
-      <div className="bg-white p-6 rounded-lg shadow border">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Current Security Configuration</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h4 className="font-medium text-gray-900 mb-2">Authentication</h4>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li>Max login attempts: {SECURITY_CONFIG.auth.maxLoginAttempts}</li>
-              <li>Lockout duration: {SECURITY_CONFIG.auth.lockoutDuration / 60000} minutes</li>
-              <li>Password min length: {SECURITY_CONFIG.auth.passwordMinLength}</li>
-              <li>Strong password required: {SECURITY_CONFIG.auth.requireStrongPassword ? 'Yes' : 'No'}</li>
-            </ul>
+            {testResults.length > 0 ? (
+              <div className="space-y-4">
+                {testResults.map((suite, index) => (
+                  <div key={index} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium text-gray-900">{suite.name}</h4>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${getTestStatusColor(suite.overallStatus)}`}>
+                        {suite.overallStatus.toUpperCase()}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {suite.results.map((result, resultIndex) => (
+                        <div key={resultIndex} className="flex items-center justify-between py-1">
+                          <div className="flex items-center space-x-3">
+                            <span className={result.passed ? 'text-green-600' : 'text-red-600'}>
+                              {result.passed ? '✓' : '✗'}
+                            </span>
+                            <span className="text-sm">{result.testName}</span>
+                          </div>
+                          <span className={`px-2 py-1 rounded text-xs ${getSeverityColor(result.severity)}`}>
+                            {result.severity.toUpperCase()}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-600">
+                No test results available. Run security tests to see results.
+              </div>
+            )}
           </div>
-          
-          <div>
-            <h4 className="font-medium text-gray-900 mb-2">Rate Limiting</h4>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li>API requests: {SECURITY_CONFIG.rateLimit.api.general.requests}/min</li>
-              <li>Auth requests: {SECURITY_CONFIG.rateLimit.api.auth.requests}/15min</li>
-              <li>Admin requests: {SECURITY_CONFIG.rateLimit.api.admin.requests}/min</li>
-            </ul>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   )
 }
+
+export default SecurityDashboard
