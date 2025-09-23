@@ -8,7 +8,7 @@ export interface QuizProgress {
   quizId: string
   userId: string
   attemptId: string
-  answers: Record<string, any>
+  answers: Record<string, string | number | boolean | string[] | number[]>
   currentQuestionIndex: number
   startTime: string
   timeLeft: number
@@ -26,8 +26,23 @@ export interface UserPreferences {
 
 export interface CachedQuizData {
   quizId: string
-  quiz: any
-  questions: any[]
+  quiz: {
+    id: string
+    title: string
+    description?: string
+    category?: string
+    difficulty?: string
+    time_limit?: number
+  }
+  questions: Array<{
+    id: string
+    question: string
+    question_type: string
+    options: string[] | Array<{left: string; right: string}>
+    correct_answer?: string | number | number[]
+    explanation?: string
+    points?: number
+  }>
   cachedAt: string
   expiresAt: string
 }
@@ -213,7 +228,12 @@ class ClientStorage {
   // QUIZ DATA CACHING
   // ========================================
 
-  cacheQuizData(quizId: string, quiz: any, questions: any[], ttlMinutes: number = 30): void {
+  cacheQuizData(
+    quizId: string, 
+    quiz: CachedQuizData['quiz'], 
+    questions: CachedQuizData['questions'], 
+    ttlMinutes: number = 30
+  ): void {
     try {
       const cachedData: CachedQuizData = {
         quizId,
@@ -229,7 +249,7 @@ class ClientStorage {
     }
   }
 
-  getCachedQuizData(quizId: string): { quiz: any; questions: any[] } | null {
+  getCachedQuizData(quizId: string): Pick<CachedQuizData, 'quiz' | 'questions'> | null {
     try {
       const cached = sessionStorage.getItem(`quiz_cache_${quizId}`)
       if (cached) {

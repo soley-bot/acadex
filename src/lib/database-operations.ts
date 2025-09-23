@@ -160,7 +160,32 @@ export async function getCourses(filters?: {
   return data || []
 }
 
-export async function getCourseWithModulesAndLessons(courseId: string): Promise<Course & { modules: any[] }> {
+interface ModuleWithContent {
+  id: string
+  title: string
+  description?: string
+  order_index: number
+  course_id: string
+  is_published: boolean
+  created_at: string
+  updated_at: string
+  course_lessons: Array<{
+    id: string
+    module_id: string
+    title: string
+    description?: string
+    content?: string
+    video_url?: string
+    duration_minutes: number
+    order_index: number
+    is_published: boolean
+    is_free_preview: boolean
+    created_at: string
+    updated_at: string
+  }>
+}
+
+export async function getCourseWithModulesAndLessons(courseId: string): Promise<Course & { modules: ModuleWithContent[] }> {
   // Get course details
   const { data: course, error: courseError } = await supabase
     .from('courses')
@@ -326,6 +351,18 @@ export async function updateUserProfile(userId: string, updates: Partial<User>) 
   return data
 }
 
+interface EnrollmentRecord {
+  progress?: number
+  completed_at?: string | null
+  enrolled_at?: string
+}
+
+interface QuizAttemptRecord {
+  score?: number
+  total_questions?: number
+  completed_at?: string
+}
+
 // Analytics and reporting
 export async function getCourseAnalytics(courseId: string) {
   // Get enrollment stats
@@ -349,10 +386,13 @@ export async function getCourseAnalytics(courseId: string) {
 
   if (quizError) throw quizError
 
-  const totalEnrollments = enrollments?.length || 0
-  const completedEnrollments = Array.isArray(enrollments) ? enrollments.filter((e: { completed_at?: any }) => e.completed_at)?.length || 0 : 0
-  const avgProgress = Array.isArray(enrollments) && totalEnrollments > 0 ? enrollments.reduce((sum: number, e: { progress?: number }) => sum + (e.progress || 0), 0) / totalEnrollments : 0
-  const avgQuizScore = Array.isArray(quizAttempts) && quizAttempts.length > 0 ? quizAttempts.reduce((sum: number, a: { score?: number; total_questions?: number }) => sum + ((a.score || 0) / (a.total_questions || 1) * 100), 0) / quizAttempts.length : 0
+  const enrollmentData = enrollments as EnrollmentRecord[]
+  const attemptData = quizAttempts as QuizAttemptRecord[]
+
+  const totalEnrollments = enrollmentData?.length || 0
+  const completedEnrollments = Array.isArray(enrollmentData) ? enrollmentData.filter((e) => e.completed_at)?.length || 0 : 0
+  const avgProgress = Array.isArray(enrollmentData) && totalEnrollments > 0 ? enrollmentData.reduce((sum, e) => sum + (e.progress || 0), 0) / totalEnrollments : 0
+  const avgQuizScore = Array.isArray(attemptData) && attemptData.length > 0 ? attemptData.reduce((sum, a) => sum + ((a.score || 0) / (a.total_questions || 1) * 100), 0) / attemptData.length : 0
 
   return {
     totalEnrollments,
@@ -360,7 +400,7 @@ export async function getCourseAnalytics(courseId: string) {
     completionRate: totalEnrollments > 0 ? (completedEnrollments / totalEnrollments) * 100 : 0,
     avgProgress,
     avgQuizScore,
-    enrollmentTrend: enrollments?.map((e: any) => ({
+    enrollmentTrend: enrollmentData?.map((e) => ({
       date: e.enrolled_at,
       count: 1
     })) || []
