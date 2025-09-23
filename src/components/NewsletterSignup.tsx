@@ -10,8 +10,8 @@ export function NewsletterSignup() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!mounted) return // Prevent submission before hydration
-    // Handle newsletter signup
-    console.log('Newsletter signup:', email)
+    // SECURITY: Remove console.log to prevent email leakage in production
+    // console.log('Newsletter signup:', email) // REMOVED for security
   }
 
   return (

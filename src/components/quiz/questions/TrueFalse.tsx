@@ -7,8 +7,10 @@ interface TrueFalseProps {
   onValueChange: (value: boolean) => void
   disabled?: boolean
   showCorrect?: boolean
-  correctAnswer?: boolean
+  // SECURITY: Only pass correctAnswer in review mode
+  correctAnswer?: boolean | null
   className?: string
+  isReviewMode?: boolean
 }
 
 export function TrueFalse({
@@ -16,8 +18,9 @@ export function TrueFalse({
   onValueChange,
   disabled = false,
   showCorrect = false,
-  correctAnswer,
-  className
+  correctAnswer = null,
+  className,
+  isReviewMode = false
 }: TrueFalseProps) {
   const options = [
     { label: 'True', value: true },
@@ -28,9 +31,10 @@ export function TrueFalse({
     <div className={cn("space-y-2", className)}>
       {options.map((option) => {
         const isSelected = selectedValue === option.value
-        const isCorrect = correctAnswer === option.value
-        const shouldShowCorrect = showCorrect && isCorrect
-        const shouldShowIncorrect = showCorrect && isSelected && !isCorrect
+        // SECURITY: Only show correct answer in review mode
+        const isCorrect = isReviewMode && correctAnswer !== null ? correctAnswer === option.value : false
+        const shouldShowCorrect = showCorrect && isCorrect && isReviewMode
+        const shouldShowIncorrect = showCorrect && isSelected && !isCorrect && isReviewMode
 
         return (
           <label

@@ -8,9 +8,11 @@ interface FillBlankProps {
   onValueChange: (value: string) => void
   disabled?: boolean
   showCorrect?: boolean
-  correctAnswer?: string
+  // SECURITY: Only pass correctAnswer in review mode
+  correctAnswer?: string | null
   placeholder?: string
   className?: string
+  isReviewMode?: boolean
 }
 
 export function FillBlank({
@@ -18,12 +20,14 @@ export function FillBlank({
   onValueChange,
   disabled = false,
   showCorrect = false,
-  correctAnswer,
+  correctAnswer = null,
   placeholder = "Enter your answer...",
-  className
+  className,
+  isReviewMode = false
 }: FillBlankProps) {
-  const isCorrect = showCorrect && value === correctAnswer
-  const isIncorrect = showCorrect && value !== correctAnswer && value
+  // SECURITY: Only show correct answer in review mode
+  const isCorrect = isReviewMode && showCorrect && correctAnswer !== null && value === correctAnswer
+  const isIncorrect = isReviewMode && showCorrect && correctAnswer !== null && value !== correctAnswer && value
 
   return (
     <div className={cn("space-y-4", className)}>

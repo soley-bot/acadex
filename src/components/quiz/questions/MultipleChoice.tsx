@@ -8,8 +8,10 @@ interface MultipleChoiceProps {
   onValueChange: (value: number) => void
   disabled?: boolean
   showCorrect?: boolean
-  correctAnswer?: number
+  // SECURITY: Only pass correctAnswer in review mode, never during active quiz
+  correctAnswer?: number | null
   className?: string
+  isReviewMode?: boolean  // New prop to distinguish review from active quiz
 }
 
 export function MultipleChoice({
@@ -18,16 +20,18 @@ export function MultipleChoice({
   onValueChange,
   disabled = false,
   showCorrect = false,
-  correctAnswer,
-  className
+  correctAnswer = null,
+  className,
+  isReviewMode = false
 }: MultipleChoiceProps) {
   return (
     <div className={cn("space-y-2", className)}>
       {options.map((option, index) => {
         const isSelected = selectedValue === index
-        const isCorrect = correctAnswer === index
-        const shouldShowCorrect = showCorrect && isCorrect
-        const shouldShowIncorrect = showCorrect && isSelected && !isCorrect
+        // SECURITY: Only show correct answer in review mode
+        const isCorrect = isReviewMode && correctAnswer !== null ? correctAnswer === index : false
+        const shouldShowCorrect = showCorrect && isCorrect && isReviewMode
+        const shouldShowIncorrect = showCorrect && isSelected && !isCorrect && isReviewMode
 
         return (
           <label

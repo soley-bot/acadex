@@ -40,7 +40,19 @@ const sidebarItems = [
 
 export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) {
   const pathname = usePathname()
-  const { user, signOut } = useAuth()
+  const { user, signOut, isAdmin } = useAuth()
+
+  // CRITICAL SECURITY: Block access for non-admin users
+  if (!user || !isAdmin()) {
+    return (
+      <div className="w-64 glass flex flex-col h-full items-center justify-center p-4">
+        <div className="text-center">
+          <h2 className="text-lg font-semibold text-red-600 mb-2">Access Denied</h2>
+          <p className="text-sm text-gray-600">Admin privileges required</p>
+        </div>
+      </div>
+    )
+  }
 
   const handleSignOut = async () => {
     try {
