@@ -33,7 +33,7 @@ export interface QuizQuestionForTaking {
   id: string
   question: string
   question_type: string
-  options: any
+  options: string[] | Array<{left: string; right: string}>
   explanation?: string
   order_index: number
   points: number

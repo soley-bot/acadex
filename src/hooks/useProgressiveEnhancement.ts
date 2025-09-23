@@ -136,7 +136,7 @@ export function useOptimisticQuizSubmission() {
 }
 
 // Helper function to estimate quiz score optimistically
-function calculateEstimatedScore(answers: Record<string, any>): number {
+function calculateEstimatedScore(answers: Record<string, string | number | boolean | string[] | number[]>): number {
   // Simple estimation - in real app, you might have more sophisticated logic
   const totalQuestions = Object.keys(answers).length
   const answeredQuestions = Object.values(answers).filter(answer => 

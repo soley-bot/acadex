@@ -69,8 +69,10 @@ class CoursePreloadingService {
     if (error) throw error
 
     // Cache each course
-    courses?.forEach((course: any) => {
-      courseCache.set(`course:${course.id}`, course, ['courses', `course:${course.id}`])
+    courses?.forEach((course: { id: string }) => {
+      if (course?.id) {
+        courseCache.set(`course:${course.id}`, course, ['courses', `course:${course.id}`])
+      }
     })
   }
 
@@ -90,7 +92,7 @@ class CoursePreloadingService {
         .limit(5)
 
       if (relatedCourses) {
-        this.preloadCourses(relatedCourses.map((c: any) => c.id))
+        this.preloadCourses(relatedCourses.map((c: { id: string }) => c.id))
       }
     } catch (error) {
       logger.warn('Related course preloading failed:', error)

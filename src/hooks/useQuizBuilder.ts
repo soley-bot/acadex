@@ -141,7 +141,7 @@ export const useQuizBuilder = ({
 
   // Auto-save functionality
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout>()
-  const saveLockRef = useRef<Promise<any> | null>(null)
+  const saveLockRef = useRef<Promise<void> | null>(null)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [isDirty, setIsDirty] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -259,7 +259,7 @@ export const useQuizBuilder = ({
             .select('id, order_index')
             .eq('quiz_id', stateToSave.quiz.id)
 
-          const existingIds = new Set(existingQuestions?.map((q: any) => q.id) || [])
+          const existingIds = new Set(existingQuestions?.map((q: { id: string }) => q.id) || [])
           
           // Separate into updates and inserts
           const questionsToUpdate = questionsToUpsert.filter(q => q.id && existingIds.has(q.id))

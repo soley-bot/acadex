@@ -53,7 +53,7 @@ const safeLocalStorage = {
 interface Question {
   id: string
   question: string
-  options: any[]
+  options: string[] | Array<{left: string; right: string}>
   correct_answer: string | number | number[]
   explanation?: string
   question_type: 'multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay' | 'matching' | 'ordering'
@@ -62,14 +62,16 @@ interface Question {
   media_type?: 'image' | 'audio' | 'video'
 }
 
+export type SafeAnswerType = string | number | boolean | string[] | number[] | Record<string, number>
+
 interface UseQuizProgressReturn {
-  answers: Record<string, any>
+  answers: Record<string, SafeAnswerType>
   currentQuestionIndex: number
   timeLeft: number
   quizStarted: boolean
   quizAttemptId: string | null
   startQuiz: () => void
-  handleAnswerChange: (questionId: string, answer: any) => void
+  handleAnswerChange: (questionId: string, answer: SafeAnswerType) => void
   handleQuestionNavigation: (index: number) => void
   handleNextQuestion: () => void
   handlePreviousQuestion: () => void
@@ -81,7 +83,7 @@ export function useQuizProgress(
   questions: Question[]
 ): UseQuizProgressReturn {
   const { user } = useAuth()
-  const [answers, setAnswers] = useState<Record<string, any>>({})
+  const [answers, setAnswers] = useState<Record<string, SafeAnswerType>>({})
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [timeLeft, setTimeLeft] = useState(0)
   const [quizStarted, setQuizStarted] = useState(false)
@@ -200,7 +202,7 @@ export function useQuizProgress(
     safeLocalStorage.removeItem(`quiz-${quiz.id}-answers`)
   }, [quiz, user])
 
-  const handleAnswerChange = useCallback((questionId: string, answer: any) => {
+  const handleAnswerChange = useCallback((questionId: string, answer: SafeAnswerType) => {
     setAnswers(prev => ({
       ...prev,
       [questionId]: answer

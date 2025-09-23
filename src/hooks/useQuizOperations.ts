@@ -5,12 +5,13 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { logger } from '@/lib/logger'
 import { useQuizContext, QuizFormData, ValidationError } from '@/contexts/QuizContext'
+import { QuizQuestion } from '@/lib/supabase'
 
 // Enhanced validation with better error messages
 export function useQuizValidation() {
   const { state, dispatch } = useQuizContext()
 
-  const validateQuizForm = useCallback((formData: QuizFormData, questions: any[]): ValidationError[] => {
+  const validateQuizForm = useCallback((formData: QuizFormData, questions: QuizQuestion[]): ValidationError[] => {
     const errors: ValidationError[] = []
 
     // Basic form validation

@@ -4,7 +4,7 @@ import { Quiz } from '@/lib/supabase'
 interface Question {
   id: string
   question: string
-  options: any[]
+  options: string[] | Array<{left: string; right: string}>
   correct_answer: string | number | number[]
   explanation?: string
   question_type: 'multiple_choice' | 'single_choice' | 'true_false' | 'fill_blank' | 'essay' | 'matching' | 'ordering'
