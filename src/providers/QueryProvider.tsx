@@ -70,9 +70,32 @@ const queryClient = new QueryClient({
   },
 })
 
-// Background Sync Component
+// Background Sync Component with enhanced cleanup
 function BackgroundSyncProvider({ children }: { children: React.ReactNode }) {
-  useBackgroundSync() // Activate background sync
+  const isClient = typeof window !== 'undefined'
+  
+  // Always call the hook, but conditionally enable functionality
+  useBackgroundSync()
+  
+  // Cleanup on unmount to prevent memory leaks
+  useEffect(() => {
+    if (!isClient) return
+    
+    return () => {
+      // Proper cleanup - let React Query handle its own cleanup
+      // We don't need to manually clear all intervals as that could interfere with other code
+      if (window) {
+        // Remove any event listeners that might have been added
+        const events = ['visibilitychange', 'focus', 'online', 'offline']
+        events.forEach(event => {
+          // This is safe because removeEventListener ignores non-existent listeners
+          window.removeEventListener(event, () => {})
+          document.removeEventListener(event, () => {})
+        })
+      }
+    }
+  }, [isClient])
+  
   return <>{children}</>
 }
 

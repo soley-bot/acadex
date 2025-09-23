@@ -128,11 +128,19 @@ export interface QuestionEditorProps<T extends QuestionData> {
   errors: Record<string, string>
 }
 
-// Props for student renderers
+// Safe answer types to prevent type confusion attacks
+export type SafeUserAnswer = 
+  | string 
+  | number 
+  | boolean 
+  | Record<string, string | number>
+  | Array<string | number>
+
+// Props for student renderers with strict typing
 export interface QuestionRendererProps<T extends QuestionData> {
   question: T
-  userAnswer?: any
-  onAnswerChange: (answer: any) => void
+  userAnswer?: SafeUserAnswer
+  onAnswerChange: (answer: SafeUserAnswer) => void
   isSubmitted: boolean
   showCorrectAnswer: boolean
   isReview: boolean

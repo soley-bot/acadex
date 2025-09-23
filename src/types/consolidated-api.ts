@@ -298,23 +298,48 @@ export interface AdminBulkOperationResponse extends BaseAdminResponse {
 // ==============================================
 
 /**
- * Type guard to check if a response is paginated
+ * Safe type guard to check if a response is paginated
+ * Prevents type confusion attacks by validating all required properties
  */
 export function isPaginatedResponse<T>(
-  response: any
+  response: unknown
 ): response is PaginatedAdminResponse<T> {
-  return response && 
-         typeof response === 'object' && 
-         'data' in response && 
-         'pagination' in response &&
-         Array.isArray(response.data)
+  if (!response || typeof response !== 'object') {
+    return false
+  }
+  
+  const obj = response as Record<string, unknown>
+  
+  // Explicit boolean checks to satisfy TypeScript
+  const hasValidSuccess = typeof obj.success === 'boolean'
+  const hasValidData = Array.isArray(obj.data)
+  const hasPagination = obj.pagination && typeof obj.pagination === 'object' && obj.pagination !== null
+  
+  if (!hasValidSuccess || !hasValidData || !hasPagination) {
+    return false
+  }
+  
+  const pagination = obj.pagination as Record<string, unknown>
+  const hasValidPaginationFields = (
+    typeof pagination.page === 'number' &&
+    typeof pagination.limit === 'number' &&
+    typeof pagination.total === 'number' &&
+    typeof pagination.totalPages === 'number'
+  )
+  
+  return hasValidPaginationFields
 }
 
 /**
- * Type guard to check if a response is successful
+ * Safe type guard to check if a response is successful
+ * Validates response structure before type assertion
  */
 export function isSuccessfulResponse(
-  response: any
+  response: unknown
 ): response is BaseAdminResponse & { success: true } {
-  return response && response.success === true
+  return (
+    response !== null &&
+    typeof response === 'object' &&
+    (response as Record<string, unknown>).success === true
+  )
 }
