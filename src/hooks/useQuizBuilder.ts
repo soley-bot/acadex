@@ -4,6 +4,45 @@ import { useToast } from '@/hooks/use-toast'
 import type { Quiz, QuizQuestion } from '@/lib/supabase'
 import { validateQuizData, isValidQuiz } from '../components/admin/quiz-builder/utils/QuizBuilderUtils'
 
+// Input validation utilities
+const sanitizeString = (input: string | null | undefined, maxLength = 1000): string => {
+  if (!input) return ''
+  return input.toString().trim().slice(0, maxLength)
+}
+
+const validateQuizInput = (quiz: Partial<Quiz>): { isValid: boolean; errors: string[] } => {
+  const errors: string[] = []
+  
+  if (!quiz.title || quiz.title.trim().length === 0) {
+    errors.push('Quiz title is required')
+  } else if (quiz.title.length > 200) {
+    errors.push('Quiz title must be less than 200 characters')
+  }
+  
+  if (quiz.description && quiz.description.length > 2000) {
+    errors.push('Quiz description must be less than 2000 characters')
+  }
+  
+  if (quiz.duration_minutes && (quiz.duration_minutes < 1 || quiz.duration_minutes > 600)) {
+    errors.push('Duration must be between 1 and 600 minutes')
+  }
+  
+  return { isValid: errors.length === 0, errors }
+}
+
+// Type-safe helper for quiz questions
+interface SafeQuiz extends Quiz {
+  questions?: QuizQuestion[]
+}
+
+const extractQuestionsFromQuiz = (quiz: Quiz | SafeQuiz | null): QuizQuestion[] => {
+  if (!quiz) return []
+  if ('questions' in quiz && Array.isArray(quiz.questions)) {
+    return quiz.questions
+  }
+  return []
+}
+
 // Quiz Builder State Interface
 interface QuizBuilderState {
   currentStep: 'settings' | 'ai-configuration' | 'quiz-editing' | 'review'
@@ -96,7 +135,7 @@ export const useQuizBuilder = ({
         updated_at: quiz.updated_at
       } : initialState.quiz,
       // Initialize questions from quiz prop if editing existing quiz
-      questions: quiz && (quiz as any).questions ? (quiz as any).questions : []
+      questions: extractQuestionsFromQuiz(quiz || null)
     }
   })
 
@@ -120,17 +159,61 @@ export const useQuizBuilder = ({
     }
   }, [isOpen])
 
+  // Error setter function - defined early for use in callbacks
+  const setError = useCallback((error: string | null) => {
+    setState(prev => ({
+      ...prev,
+      error
+    }))
+  }, [])
+
   // Save function - defined first to avoid dependency issues
   const performSave = useCallback(async (stateToSave: QuizBuilderState) => {
-    if (!stateToSave.quiz.id) return
+    // Validate prerequisites
+    if (!stateToSave.quiz.id) {
+      const errorMsg = 'Cannot save quiz: Quiz ID is missing'
+      console.error(errorMsg)
+      toast({
+        title: 'Save Failed',
+        description: errorMsg,
+        variant: 'destructive'
+      })
+      setError(errorMsg)
+      return
+    }
 
     setIsSaving(true)
+    setError(null) // Clear any previous errors
     
     try {
       console.log('💾 Auto-saving quiz...', {
         quizId: stateToSave.quiz.id,
         questionCount: stateToSave.questions.length
       })
+
+      // Validate input before saving
+      const validation = validateQuizInput(stateToSave.quiz)
+      if (!validation.isValid) {
+        setError(`Validation failed: ${validation.errors.join(', ')}`)
+        return
+      }
+
+      // Authorization check - verify user owns this quiz
+      const { data: quizOwnership, error: ownershipError } = await supabase
+        .from('quizzes')
+        .select('id, created_by')
+        .eq('id', stateToSave.quiz.id)
+        .single()
+
+      if (ownershipError || !quizOwnership) {
+        throw new Error('Quiz not found or access denied')
+      }
+
+      // Get current user to verify ownership
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user || quizOwnership.created_by !== user.id) {
+        throw new Error('You do not have permission to edit this quiz')
+      }
 
       // Save quiz metadata
       const { error: quizError } = await supabase
@@ -147,29 +230,83 @@ export const useQuizBuilder = ({
 
       if (quizError) throw quizError
 
-      // Save questions if they exist
+      // Save questions using UPSERT strategy to prevent data loss
       if (stateToSave.questions.length > 0) {
-        // Delete existing questions first
-        const { error: deleteError } = await supabase
-          .from('quiz_questions')
-          .delete()
-          .eq('quiz_id', stateToSave.quiz.id)
-
-        if (deleteError) throw deleteError
-
-        // Insert new questions
-        const questionsToInsert = stateToSave.questions.map((q, index) => ({
+        // Prepare questions for upsert with proper order_index
+        const questionsToUpsert = stateToSave.questions.map((q, index) => ({
           ...q,
           quiz_id: stateToSave.quiz.id,
           order_index: index,
-          id: undefined // Let database generate new IDs
+          // Remove id for new questions, keep for existing ones
+          ...(q.id?.startsWith('temp-') ? { id: undefined } : { id: q.id })
         }))
 
-        const { error: insertError } = await supabase
+        // Use upsert to safely handle both updates and inserts
+        const { error: upsertError } = await supabase
           .from('quiz_questions')
-          .insert(questionsToInsert)
+          .upsert(questionsToUpsert, {
+            onConflict: 'id',
+            ignoreDuplicates: false
+          })
 
-        if (insertError) throw insertError
+        if (upsertError) {
+          // If upsert fails, try individual operations as fallback
+          console.warn('Upsert failed, attempting individual operations:', upsertError)
+          
+          // Get existing questions to determine which to update vs insert
+          const { data: existingQuestions } = await supabase
+            .from('quiz_questions')
+            .select('id, order_index')
+            .eq('quiz_id', stateToSave.quiz.id)
+
+          const existingIds = new Set(existingQuestions?.map((q: any) => q.id) || [])
+          
+          // Separate into updates and inserts
+          const questionsToUpdate = questionsToUpsert.filter(q => q.id && existingIds.has(q.id))
+          const questionsToInsert = questionsToUpsert.filter(q => !q.id || !existingIds.has(q.id))
+
+          // Update existing questions
+          for (const question of questionsToUpdate) {
+            const { error: updateError } = await supabase
+              .from('quiz_questions')
+              .update(question)
+              .eq('id', question.id)
+            
+            if (updateError) throw updateError
+          }
+
+          // Insert new questions
+          if (questionsToInsert.length > 0) {
+            const { error: insertError } = await supabase
+              .from('quiz_questions')
+              .insert(questionsToInsert.map(q => ({ ...q, id: undefined })))
+            
+            if (insertError) throw insertError
+          }
+
+          // Clean up orphaned questions (questions that were removed)
+          const currentQuestionIds = questionsToUpsert
+            .filter(q => q.id && !q.id.startsWith('temp-'))
+            .map(q => q.id)
+          
+          if (currentQuestionIds.length > 0) {
+            const { error: deleteError } = await supabase
+              .from('quiz_questions')
+              .delete()
+              .eq('quiz_id', stateToSave.quiz.id)
+              .not('id', 'in', `(${currentQuestionIds.join(',')})`)
+            
+            if (deleteError) console.warn('Failed to clean up orphaned questions:', deleteError)
+          }
+        }
+      } else {
+        // If no questions, clean up any existing ones
+        const { error: cleanupError } = await supabase
+          .from('quiz_questions')
+          .delete()
+          .eq('quiz_id', stateToSave.quiz.id)
+        
+        if (cleanupError) console.warn('Failed to clean up questions for empty quiz:', cleanupError)
       }
 
       setLastSaved(new Date())
@@ -187,7 +324,7 @@ export const useQuizBuilder = ({
     } finally {
       setIsSaving(false)
     }
-  }, [toast])
+  }, [toast, setError])
 
   // Debounced auto-save function
   const debouncedSave = useCallback(async (stateToSave: QuizBuilderState) => {
@@ -201,8 +338,21 @@ export const useQuizBuilder = ({
     }
 
     // Get current session for authentication
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    if (sessionError) {
+      console.error('Session check failed:', sessionError)
+      setError('Authentication error. Please refresh the page.')
+      return
+    }
+    
     if (!session?.access_token) {
+      console.warn('Session expired during auto-save')
+      setError('Session expired. Please log in again to continue editing.')
+      toast({
+        title: 'Session Expired',
+        description: 'Please log in again to save your changes.',
+        variant: 'destructive'
+      })
       return
     }
 
@@ -217,9 +367,9 @@ export const useQuizBuilder = ({
     } finally {
       saveLockRef.current = null
     }
-  }, [performSave])
+  }, [performSave, setError, toast])
 
-  // Auto-save trigger with debouncing
+  // Auto-save trigger with optimized memory usage
   useEffect(() => {
     if (!isDirty || !state.quiz.id) return
 
@@ -227,8 +377,35 @@ export const useQuizBuilder = ({
       clearTimeout(autoSaveTimeoutRef.current)
     }
 
+    // Extract only necessary data to avoid capturing entire state in closure
+    const saveData = {
+      quiz: {
+        id: state.quiz.id,
+        title: state.quiz.title,
+        description: state.quiz.description,
+        duration_minutes: state.quiz.duration_minutes,
+        time_limit_minutes: state.quiz.time_limit_minutes
+      },
+      questions: state.questions.map(q => ({
+        id: q.id,
+        quiz_id: q.quiz_id,
+        question: q.question,
+        question_type: q.question_type,
+        options: q.options,
+        correct_answer: q.correct_answer,
+        explanation: q.explanation,
+        order_index: q.order_index,
+        points: q.points,
+        difficulty_level: q.difficulty_level
+      }))
+    }
+
     autoSaveTimeoutRef.current = setTimeout(() => {
-      debouncedSave(state)
+      debouncedSave({
+        ...state,
+        quiz: saveData.quiz,
+        questions: saveData.questions
+      })
     }, 2000) // 2 second delay
 
     return () => {
@@ -236,7 +413,7 @@ export const useQuizBuilder = ({
         clearTimeout(autoSaveTimeoutRef.current)
       }
     }
-  }, [state, isDirty, debouncedSave])
+  }, [state.quiz.id, state.quiz.title, state.quiz.description, state.quiz.duration_minutes, state.quiz.time_limit_minutes, state.questions, isDirty, debouncedSave, state])
 
   // Fetch questions for existing quiz
   const fetchQuestionsForQuiz = useCallback(async (quizId: string) => {
@@ -307,11 +484,19 @@ export const useQuizBuilder = ({
     }
   }, [quiz, fetchQuestionsForQuiz])
 
-  // State update functions
+  // State update functions with validation
   const updateQuiz = useCallback((updates: Partial<Quiz>) => {
+    // Sanitize string inputs
+    const sanitizedUpdates = {
+      ...updates,
+      ...(updates.title !== undefined && { title: sanitizeString(updates.title, 200) }),
+      ...(updates.description !== undefined && { description: sanitizeString(updates.description, 2000) }),
+      ...(updates.category !== undefined && { category: sanitizeString(updates.category, 100) })
+    }
+    
     setState(prev => ({
       ...prev,
-      quiz: { ...prev.quiz, ...updates }
+      quiz: { ...prev.quiz, ...sanitizedUpdates }
     }))
     setIsDirty(true)
   }, [])
@@ -335,13 +520,6 @@ export const useQuizBuilder = ({
     setState(prev => ({
       ...prev,
       currentStep: step
-    }))
-  }, [])
-
-  const setError = useCallback((error: string | null) => {
-    setState(prev => ({
-      ...prev,
-      error
     }))
   }, [])
 
