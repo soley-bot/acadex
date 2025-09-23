@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createAuthenticatedClient } from '@/lib/api-auth'
+import { createAuthenticatedClient, verifyAuthentication } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
@@ -20,6 +20,22 @@ export async function POST(request: NextRequest) {
     }
     
     const supabase = createAuthenticatedClient(request)
+    
+    // Verify user is authenticated and matches the userId
+    try {
+      const authenticatedUser = await verifyAuthentication(supabase)
+      if (authenticatedUser.id !== userId) {
+        return NextResponse.json(
+          { error: 'Unauthorized: User ID mismatch' },
+          { status: 403 }
+        )
+      }
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
     
     // Save or update quiz progress
     const { data, error } = await supabase
@@ -80,6 +96,22 @@ export async function GET(request: NextRequest) {
     }
     
     const supabase = createAuthenticatedClient(request)
+    
+    // Verify user is authenticated and matches the userId
+    try {
+      const authenticatedUser = await verifyAuthentication(supabase)
+      if (authenticatedUser.id !== userId) {
+        return NextResponse.json(
+          { error: 'Unauthorized: User ID mismatch' },
+          { status: 403 }
+        )
+      }
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
     
     // Get saved quiz progress
     const { data, error } = await supabase

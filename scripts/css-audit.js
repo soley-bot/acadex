@@ -39,12 +39,26 @@ class CSSAuditor {
   }
 
   findDuplicateClasses(content) {
-    const classRegex = /\.([a-zA-Z][a-zA-Z0-9_-]*)/g;
+    // Remove all comments first to avoid false positives from examples in comments
+    const contentWithoutComments = content
+      .replace(/\/\*[\s\S]*?\*\//g, '') // Remove /* */ comments
+      .replace(/\/\/.*$/gm, ''); // Remove // comments
+    
+    // More precise regex - only match standalone class definitions with properties
+    const classDefinitionRegex = /\.([a-zA-Z][a-zA-Z0-9_-]*)\s*\{[^}]*[a-zA-Z-]+\s*:/g;
     const classes = new Map();
     let match;
     
-    while ((match = classRegex.exec(content)) !== null) {
+    while ((match = classDefinitionRegex.exec(contentWithoutComments)) !== null) {
       const className = match[1];
+      const fullMatch = match[0];
+      
+      // Skip if this looks like a selector list (contains commas before the brace)
+      const beforeBrace = fullMatch.split('{')[0];
+      if (beforeBrace.includes(',')) {
+        continue;
+      }
+      
       if (classes.has(className)) {
         classes.set(className, classes.get(className) + 1);
       } else {

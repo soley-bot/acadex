@@ -1,49 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAuthenticatedClient } from '@/lib/api-auth'
+import { withAdminAuth, createServiceClient } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
 
-// Verify admin authentication
-async function verifyAdminAuth(supabase: any) {
+export const POST = withAdminAuth(async (request: NextRequest) => {
   try {
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
-    if (authError || !user) {
-      logger.warn('Course modules API: No authenticated user found')
-      return { error: 'Unauthorized', user: null }
-    }
-
-    const { data: profile, error: profileError } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (profileError || !profile) {
-      logger.warn(`Course modules API: User profile not found: ${user.id}`)
-      return { error: 'User profile not found', user: null }
-    }
-
-    if (!['admin', 'instructor'].includes(profile.role)) {
-      logger.warn(`Course modules API: Access denied for user role: ${profile.role}`)
-      return { error: 'Access denied', user: null }
-    }
-
-    logger.info(`Course modules API: Admin access verified for user: ${user.id}, role: ${profile.role}`)
-    return { user, role: profile.role }
-  } catch (error) {
-    logger.error('Course modules API: Auth verification error:', error)
-    return { error: 'Authentication failed', user: null }
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const supabase = createAuthenticatedClient(request)
-    const authResult = await verifyAdminAuth(supabase)
-    
-    if (authResult.error) {
-      return NextResponse.json({ error: authResult.error }, { status: 401 })
-    }
+    const supabase = createServiceClient()
 
     const body = await request.json()
     const { courseId, modules } = body
@@ -129,4 +90,4 @@ export async function POST(request: NextRequest) {
     logger.error('Course modules API: Unexpected error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-}
+})

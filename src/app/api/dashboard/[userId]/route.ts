@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createAuthenticatedClient } from '@/lib/api-auth'
+import { createServiceClient } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
 
 export async function GET(
@@ -21,7 +21,7 @@ export async function GET(
       )
     }
     
-    const supabase = createAuthenticatedClient(request)
+    const supabase = createServiceClient()
     
     // Get user's quiz attempts and stats
     const { data: attempts, error: attemptsError } = await supabase
