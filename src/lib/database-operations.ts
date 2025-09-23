@@ -350,9 +350,9 @@ export async function getCourseAnalytics(courseId: string) {
   if (quizError) throw quizError
 
   const totalEnrollments = enrollments?.length || 0
-  const completedEnrollments = enrollments?.filter((e: any) => e.completed_at)?.length || 0
-  const avgProgress = enrollments?.reduce((sum: number, e: any) => sum + e.progress, 0) / totalEnrollments || 0
-  const avgQuizScore = quizAttempts?.reduce((sum: number, a: any) => sum + (a.score / a.total_questions * 100), 0) / (quizAttempts?.length || 1) || 0
+  const completedEnrollments = Array.isArray(enrollments) ? enrollments.filter((e: { completed_at?: any }) => e.completed_at)?.length || 0 : 0
+  const avgProgress = Array.isArray(enrollments) && totalEnrollments > 0 ? enrollments.reduce((sum: number, e: { progress?: number }) => sum + (e.progress || 0), 0) / totalEnrollments : 0
+  const avgQuizScore = Array.isArray(quizAttempts) && quizAttempts.length > 0 ? quizAttempts.reduce((sum: number, a: { score?: number; total_questions?: number }) => sum + ((a.score || 0) / (a.total_questions || 1) * 100), 0) / quizAttempts.length : 0
 
   return {
     totalEnrollments,
