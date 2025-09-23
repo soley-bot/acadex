@@ -11,6 +11,7 @@ import { formatDate } from '@/lib/date-utils'
 import Icon from '@/components/ui/Icon'
 import { useAuth } from '@/contexts/AuthContext'
 import { useAdminCourses } from '@/hooks/api'
+import { useAdminModals } from '@/hooks/admin/useAdminModals'
 
 // Optimized lib imports
 import { logger, authenticatedPost, type Course } from '@/lib'
@@ -73,12 +74,20 @@ export default function CoursesPage() {
   const courses = coursesData?.courses || []
   const pagination = coursesData?.pagination || { page: 1, limit: 50, total: 0, totalPages: 0 }
   
-  // Modal states  
-  const [deletingCourse, setDeletingCourse] = useState<Course | null>(null)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [showViewModal, setShowViewModal] = useState(false)
-  const [viewingCourse, setViewingCourse] = useState<Course | null>(null)
-  const [showCategoryManagement, setShowCategoryManagement] = useState(false)
+  // 🔄 CONSOLIDATED: All modal states managed by single hook (was 4 separate useState calls)
+  const { modalStates, modalData, actions } = useAdminModals<Course>()
+
+  // Destructure for easier access
+  const {
+    showDeleteModal,
+    showViewModal,
+    showCategoryManagement
+  } = modalStates
+
+  const {
+    deletingItem: deletingCourse,
+    viewingItem: viewingCourse
+  } = modalData
 
   // Handle search input change with concurrent rendering
   const handleSearchChange = (value: string) => {
@@ -130,19 +139,16 @@ export default function CoursesPage() {
   }
 
   const handleDeleteCourse = (course: Course) => {
-    setDeletingCourse(course)
-    setShowDeleteModal(true)
+    actions.openModal('showDeleteModal', course)
   }
 
   const handleViewCourse = (course: Course) => {
-    setViewingCourse(course)
-    setShowViewModal(true)
+    actions.openModal('showViewModal', course)
   }
 
   const handleDeleteSuccess = () => {
     refetch() // Refresh courses after successful deletion
-    setShowDeleteModal(false)
-    setDeletingCourse(null)
+    actions.closeModal('showDeleteModal')
   }
 
   const handleTogglePublish = async (course: Course) => {
@@ -250,7 +256,7 @@ export default function CoursesPage() {
                 <span className="hidden sm:inline">Create New Course</span>
               </button>
               <button
-                onClick={() => setShowCategoryManagement(true)}
+                onClick={() => actions.openModal('showCategoryManagement')}
                 className="bg-gray-700 border border-gray-600 hover:bg-gray-800 text-white px-6 py-3 sm:px-6 sm:py-4 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-semibold hover:shadow-md"
               >
                 <Icon name="settings" size={20} />
@@ -506,7 +512,7 @@ export default function CoursesPage() {
       <DeleteModal
         item={deletingCourse ? { id: deletingCourse.id, title: deletingCourse.title, type: 'course' } : null}
         isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
+        onClose={() => actions.closeModal('showDeleteModal')}
         onSuccess={handleDeleteSuccess}
       />
 
@@ -526,9 +532,9 @@ export default function CoursesPage() {
           student_count: viewingCourse.student_count
         } : null}
         isOpen={showViewModal}
-        onClose={() => setShowViewModal(false)}
+        onClose={() => actions.closeModal('showViewModal')}
         onEdit={() => {
-          setShowViewModal(false)
+          actions.closeModal('showViewModal')
           if (viewingCourse) {
             handleEditCourse(viewingCourse)
           }
@@ -537,7 +543,7 @@ export default function CoursesPage() {
 
       <CategoryManagement
         isOpen={showCategoryManagement}
-        onClose={() => setShowCategoryManagement(false)}
+        onClose={() => actions.closeModal('showCategoryManagement')}
         onCategoryCreated={() => {
           // Refresh courses when new categories are created
           refetch()

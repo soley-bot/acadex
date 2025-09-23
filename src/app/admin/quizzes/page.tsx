@@ -82,7 +82,7 @@ export default function AdminQuizzesPage() {
 
   // Destructure for easier access
   const {
-    showQuizForm,
+    showForm: showQuizForm,        // Keep local name for compatibility
     showDeleteModal,
     showViewModal,
     showCategoryManagement,
@@ -92,9 +92,9 @@ export default function AdminQuizzesPage() {
   } = modalStates
 
   const {
-    editingQuiz,
-    deletingQuiz,
-    viewingQuiz
+    editingItem: editingQuiz,      // Keep local name for compatibility
+    deletingItem: deletingQuiz,    // Keep local name for compatibility
+    viewingItem: viewingQuiz       // Keep local name for compatibility
   } = modalData
 
   // Refs for click outside
@@ -192,13 +192,13 @@ export default function AdminQuizzesPage() {
 
   // ===== OPTIMIZED EVENT HANDLERS =====
   const handleCreateQuiz = useCallback(() => {
-    actions.openModal('showQuizForm', null) // Clear editing quiz, open form
+    actions.openModal('showForm', null) // Clear editing quiz, open form
   }, [actions])
 
   const handleEditQuiz = useCallback((quiz: Quiz) => {
     // Prefetch quiz data for faster modal loading
     prefetchQuiz(quiz.id)
-    actions.openModal('showQuizForm', quiz) // Set editing quiz, open form
+    actions.openModal('showForm', quiz) // Set editing quiz, open form
   }, [prefetchQuiz, actions])
 
   const handleDeleteQuiz = useCallback((quiz: Quiz) => {
@@ -214,7 +214,7 @@ export default function AdminQuizzesPage() {
   const handleFormSuccess = useCallback(() => {
     // React Query will automatically refetch data
     refetch()
-    actions.closeModal('showQuizForm') // Closes modal and clears editingQuiz
+    actions.closeModal('showForm') // Closes modal and clears editingQuiz
   }, [refetch, actions])
 
   const handleDeleteSuccess = useCallback(() => {
@@ -473,7 +473,7 @@ export default function AdminQuizzesPage() {
         <QuizBuilderRouter
           quiz={editingQuiz}
           isOpen={showQuizForm}
-          onClose={() => actions.closeModal('showQuizForm')}
+          onClose={() => actions.closeModal('showForm')}
           onSuccess={handleFormSuccess}
         />
   

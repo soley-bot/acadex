@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Users, BookOpen, Calendar, Clock, Search, Filter, UserMinus, Eye, MoreHorizontal, TrendingUp, Award, Plus } from 'lucide-react'
 import { formatDate } from '@/lib/date-utils'
 import { useAdminEnrollments } from '@/hooks/api'
+import { useAdminModals } from '@/hooks/admin/useAdminModals'
 import type { Enrollment, Course, User } from '@/lib/supabase'
 import { ManualEnrollmentModal } from '@/components/admin/ManualEnrollmentModal'
 
@@ -42,9 +43,19 @@ export default function AdminEnrollmentsPage() {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'completed'>('all')
-  const [selectedEnrollment, setSelectedEnrollment] = useState<EnrollmentWithDetails | null>(null)
-  const [showEnrollmentModal, setShowEnrollmentModal] = useState(false)
-  const [showManualEnrollmentModal, setShowManualEnrollmentModal] = useState(false)
+  
+  // 🔄 CONSOLIDATED: All modal states managed by single hook (was 3 separate useState calls)
+  const { modalStates, modalData, actions } = useAdminModals<EnrollmentWithDetails>()
+
+  // Destructure for easier access  
+  const {
+    showViewModal: showEnrollmentModal,
+    showAddModal: showManualEnrollmentModal
+  } = modalStates
+
+  const {
+    viewingItem: selectedEnrollment
+  } = modalData
 
   // React Query hook for enrollments
   const { 
@@ -176,7 +187,7 @@ export default function AdminEnrollmentsPage() {
           </div>
           <div className="flex items-center space-x-4">
             <button
-              onClick={() => setShowManualEnrollmentModal(true)}
+              onClick={() => actions.openModal('showAddModal')}
               className="flex items-center space-x-2 px-4 py-2 bg-primary text-white hover:bg-secondary hover:text-black rounded-lg transition-colors"
             >
               <Plus className="w-4 h-4" />
@@ -354,8 +365,7 @@ export default function AdminEnrollmentsPage() {
                     <div className="flex items-center justify-end space-x-2">
                       <button
                         onClick={() => {
-                          setSelectedEnrollment(enrollment)
-                          setShowEnrollmentModal(true)
+                          actions.openModal('showViewModal', enrollment)
                         }}
                         className="text-secondary hover:text-blue-900 p-1 rounded-md hover:bg-primary/10"
                         title="View Details"
@@ -399,7 +409,7 @@ export default function AdminEnrollmentsPage() {
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-gray-900">Enrollment Details</h2>
                 <button
-                  onClick={() => setShowEnrollmentModal(false)}
+                  onClick={() => actions.closeModal('showViewModal')}
                   className="text-gray-400 hover:text-gray-600 text-xl"
                 >
                   ×
@@ -488,7 +498,7 @@ export default function AdminEnrollmentsPage() {
 
             <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
               <button
-                onClick={() => setShowEnrollmentModal(false)}
+                onClick={() => actions.closeModal('showViewModal')}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
               >
                 Close
@@ -496,7 +506,7 @@ export default function AdminEnrollmentsPage() {
               <button
                 onClick={() => {
                   handleUnenrollStudent(selectedEnrollment.id)
-                  setShowEnrollmentModal(false)
+                  actions.closeModal('showViewModal')
                 }}
                 className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
               >
@@ -510,7 +520,7 @@ export default function AdminEnrollmentsPage() {
       {/* Manual Enrollment Modal */}
       <ManualEnrollmentModal
         isOpen={showManualEnrollmentModal}
-        onClose={() => setShowManualEnrollmentModal(false)}
+        onClose={() => actions.closeModal('showAddModal')}
         onEnrollmentCreated={() => refetchEnrollments()}
       />
     </div>
