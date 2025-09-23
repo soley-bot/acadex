@@ -1,5 +1,6 @@
 "use client"
 
+import React, { memo } from "react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { MultipleChoice } from "../questions/MultipleChoice"
@@ -30,7 +31,7 @@ interface QuestionWrapperProps {
   className?: string
 }
 
-export function QuestionWrapper({
+export const QuestionWrapper = memo<QuestionWrapperProps>(({
   question,
   answer,
   onAnswerChange,
@@ -39,7 +40,7 @@ export function QuestionWrapper({
   showExplanation = false,
   disabled = false,
   className
-}: QuestionWrapperProps) {
+}) => {
   
   // Render the appropriate question component
   const renderQuestionContent = () => {
@@ -157,4 +158,6 @@ export function QuestionWrapper({
       </div>
     </div>
   )
-}
+})
+
+QuestionWrapper.displayName = 'QuestionWrapper'

@@ -1,16 +1,24 @@
 'use client'
 
-import React from 'react'
-import { motion, useInView } from 'framer-motion'
-import { useRef } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
+import { cn } from '@/lib/utils'
 
-// Simple, performance-optimized animation components
+// Lightweight animation components using CSS instead of framer-motion
 interface AnimatedDivProps {
   children: React.ReactNode
   className?: string
   variant?: 'fadeInUp' | 'fadeIn' | 'scaleIn' | 'slideInLeft' | 'slideInRight'
   delay?: number
   once?: boolean
+}
+
+// Static animation class mappings - no recreation on renders
+const animationClasses = {
+  fadeInUp: 'animate-[slideUp_0.4s_ease-out_forwards]',
+  fadeIn: 'animate-[fadeIn_0.4s_ease-out_forwards]',
+  scaleIn: 'animate-[scaleIn_0.4s_ease-out_forwards]',
+  slideInLeft: 'animate-[slideUp_0.4s_ease-out_forwards] translate-x-[-20px]',
+  slideInRight: 'animate-[slideUp_0.4s_ease-out_forwards] translate-x-[20px]'
 }
 
 export function AnimatedDiv({ 
@@ -20,62 +28,40 @@ export function AnimatedDiv({
   delay = 0,
   once = true 
 }: AnimatedDivProps) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once, amount: 0.1, margin: "0px 0px -50px 0px" })
+  const ref = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
+  const [hasAnimated, setHasAnimated] = useState(false)
 
-  // Simplified animation variants for better performance
-  const getVariantProps = (variant: string) => {
-    const baseDelay = delay
-    const baseDuration = 0.4 // Reduced from 0.6
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && (!hasAnimated || !once)) {
+          setTimeout(() => setIsVisible(true), delay)
+          if (once) setHasAnimated(true)
+        }
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    )
 
-    switch (variant) {
-      case 'fadeIn':
-        return {
-          initial: { opacity: 0 },
-          animate: isInView ? { opacity: 1 } : { opacity: 0 },
-          transition: { duration: baseDuration, delay: baseDelay }
-        }
-      case 'scaleIn':
-        return {
-          initial: { opacity: 0, scale: 0.95 },
-          animate: isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 },
-          transition: { duration: baseDuration, delay: baseDelay }
-        }
-      case 'slideInLeft':
-        return {
-          initial: { opacity: 0, x: -30 },
-          animate: isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 },
-          transition: { duration: baseDuration, delay: baseDelay }
-        }
-      case 'slideInRight':
-        return {
-          initial: { opacity: 0, x: 30 },
-          animate: isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 },
-          transition: { duration: baseDuration, delay: baseDelay }
-        }
-      default: // fadeInUp
-        return {
-          initial: { opacity: 0, y: 20 },
-          animate: isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
-          transition: { duration: baseDuration, delay: baseDelay }
-        }
-    }
-  }
-
-  const props = getVariantProps(variant)
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [delay, once, hasAnimated])
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      className={className}
-      {...props}
+      className={cn(
+        'opacity-0', // Start hidden
+        isVisible && animationClasses[variant],
+        className
+      )}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }
 
-// Optimized stagger container
+// Optimized stagger container using CSS
 interface StaggerContainerProps {
   children: React.ReactNode
   className?: string
@@ -83,32 +69,38 @@ interface StaggerContainerProps {
 }
 
 export function StaggerContainer({ children, className = '', once = true }: StaggerContainerProps) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once, amount: 0.1, margin: "0px 0px -50px 0px" })
+  const ref = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      className={className}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      variants={{
-        hidden: { opacity: 0 },
-        visible: {
-          opacity: 1,
-          transition: {
-            staggerChildren: 0.05, // Faster stagger
-            delayChildren: 0.05
-          }
-        }
-      }}
+      className={cn(
+        'stagger-container',
+        className,
+        isVisible && 'stagger-animate'
+      )}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }
 
-// Individual stagger items
+// Individual stagger items - now just a simple wrapper
 interface StaggerItemProps {
   children: React.ReactNode
   className?: string
@@ -116,23 +108,13 @@ interface StaggerItemProps {
 
 export function StaggerItem({ children, className = '' }: StaggerItemProps) {
   return (
-    <motion.div
-      className={className}
-      variants={{
-        hidden: { opacity: 0, y: 15 },
-        visible: { 
-          opacity: 1, 
-          y: 0,
-          transition: { duration: 0.3 }
-        }
-      }}
-    >
+    <div className={cn('opacity-0', className)}>
       {children}
-    </motion.div>
+    </div>
   )
 }
 
-// Lightweight floating element
+// Lightweight floating element using CSS
 export function FloatingElement({ 
   children, 
   className = '',
@@ -142,15 +124,20 @@ export function FloatingElement({
   className?: string
   intensity?: 'subtle' | 'medium' | 'strong'
 }) {
-  // Use CSS animation for better performance
+  const animationClass = intensity === 'subtle' 
+    ? 'hover:translate-y-[-2px]' 
+    : intensity === 'strong' 
+    ? 'hover:translate-y-[-6px]' 
+    : 'hover:translate-y-[-4px]'
+
   return (
-    <div className={`${className} animate-gentle-float`}>
+    <div className={cn('transition-transform duration-300 ease-out', animationClass, className)}>
       {children}
     </div>
   )
 }
 
-// Optimized hover scale
+// Simple hover scale using CSS transforms
 export function HoverScale({ 
   children, 
   className = '',
@@ -160,19 +147,16 @@ export function HoverScale({
   className?: string
   scale?: number
 }) {
+  const scaleClass = scale === 1.05 ? 'hover:scale-105' : scale === 1.03 ? 'hover:scale-[1.03]' : 'hover:scale-[1.02]'
+  
   return (
-    <motion.div
-      className={className}
-      whileHover={{ scale }}
-      whileTap={{ scale: scale - 0.01 }}
-      transition={{ duration: 0.15 }}
-    >
+    <div className={cn('transition-transform duration-150 active:scale-[0.98]', scaleClass, className)}>
       {children}
-    </motion.div>
+    </div>
   )
 }
 
-// Simple magnetic hover with CSS fallback
+// Simple magnetic hover with CSS
 export function MagneticHover({ 
   children, 
   className = '',
@@ -183,7 +167,7 @@ export function MagneticHover({
   strength?: number
 }) {
   return (
-    <div className={`${className} hover-lift`}>
+    <div className={cn('transition-transform duration-200 hover:translate-y-[-2px] hover:shadow-lg', className)}>
       {children}
     </div>
   )

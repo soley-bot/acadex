@@ -1,5 +1,6 @@
 "use client"
 
+import React, { memo } from "react"
 import { ArrowRight, CheckCircle2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -14,7 +15,7 @@ interface NavigationProps {
   className?: string
 }
 
-export function Navigation({
+export const Navigation = memo<NavigationProps>(({
   onPrevious,
   onNext,
   onSubmit,
@@ -23,7 +24,7 @@ export function Navigation({
   isLastQuestion = false,
   submitting = false,
   className
-}: NavigationProps) {
+}: NavigationProps) => {
   return (
     <div className={cn("flex items-center justify-between gap-3 sm:gap-4", className)}>
       {/* Previous Button - Match original design */}
@@ -89,4 +90,6 @@ export function Navigation({
       )}
     </div>
   )
-}
+})
+
+Navigation.displayName = 'Navigation'

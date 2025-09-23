@@ -103,22 +103,21 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
     const questionToDuplicate = state.questions[index];
     if (!questionToDuplicate) return;
     
-    const duplicatedQuestion: QuizQuestion = { 
+    const duplicated = { 
       ...questionToDuplicate, 
       id: `temp-${Date.now()}`,
       order_index: index + 1
     };
     const newQuestions = [
       ...state.questions.slice(0, index + 1), 
-      duplicatedQuestion, 
+      duplicated, 
       ...state.questions.slice(index + 1)
     ];
     updateQuestions(newQuestions);
   }, [state.questions, updateQuestions]);
 
   const handleRemoveQuestion = useCallback((index: number) => {
-    const newQuestions = state.questions.filter((_, i) => i !== index);
-    updateQuestions(newQuestions);
+    updateQuestions(state.questions.filter((_, i) => i !== index));
   }, [state.questions, updateQuestions]);
 
   const handleGenerateQuestions = useCallback(async () => {

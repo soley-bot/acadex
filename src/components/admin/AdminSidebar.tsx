@@ -7,35 +7,15 @@ import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
 
-const sidebarItems = [
-  {
-    title: 'Dashboard',
-    href: '/admin'
-  },
-  {
-    title: 'Users',
-    href: '/admin/users'
-  },
-  {
-    title: 'Courses',
-    href: '/admin/courses'
-  },
-  {
-    title: 'Enrollments',
-    href: '/admin/enrollments'
-  },
-  {
-    title: 'Quizzes',
-    href: '/admin/quizzes'
-  },
-  {
-    title: 'Analytics',
-    href: '/admin/analytics'
-  },
-  {
-    title: 'Settings',
-    href: '/admin/settings'
-  }
+// Static navigation items - no recreation on renders
+const navigationItems = [
+  { title: 'Dashboard', href: '/admin' },
+  { title: 'Users', href: '/admin/users' },
+  { title: 'Courses', href: '/admin/courses' },
+  { title: 'Enrollments', href: '/admin/enrollments' },
+  { title: 'Quizzes', href: '/admin/quizzes' },
+  { title: 'Analytics', href: '/admin/analytics' },
+  { title: 'Settings', href: '/admin/settings' }
 ]
 
 export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) {
@@ -111,7 +91,7 @@ export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) 
 
       <nav className="mt-6 flex-1">
         <div className="px-3 space-y-2">
-          {sidebarItems.map((item) => {
+          {navigationItems.map((item) => {
             const isActive = pathname === item.href
             
             return (
