@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { StandardQuizLayout } from '@/components/quiz/layouts/StandardQuizLayout';
+import { QuizErrorBoundary } from '@/components/ErrorBoundary';
 
 interface QuizTakingPageProps {
   params: Promise<{ id: string }>;
@@ -12,6 +13,11 @@ interface QuizTakingPageProps {
 export default function QuizTakingPage({ params }: QuizTakingPageProps) {
   const router = useRouter();
   const { user } = useAuth();
+  
+  // Refs for cleanup and abort control
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const isMountedRef = useRef(true);
   
   // State
   const [quizId, setQuizId] = useState<string | null>(null);
@@ -24,77 +30,42 @@ export default function QuizTakingPage({ params }: QuizTakingPageProps) {
   const [submitting, setSubmitting] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
 
-  // Resolve params
-  useEffect(() => {
-    params.then(({ id }) => setQuizId(id));
-  }, [params]);
-
-  // Load quiz data
-  useEffect(() => {
-    if (!quizId || !user) return;
-
-    const loadQuiz = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Fetch quiz data using the working API endpoint
-        const response = await fetch(`/api/quizzes/${quizId}`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch quiz');
-        }
-
-        const result = await response.json();
-        
-        if (result.success && result.quiz && result.questions) {
-          setQuiz(result.quiz);
-          setQuestions(result.questions);
-          
-          // Set timer if quiz has time limit
-          if (result.quiz.time_limit_minutes) {
-            setTimeLeft(result.quiz.time_limit_minutes * 60);
-          }
-        } else {
-          throw new Error(result.error || 'Failed to load quiz');
-        }
-      } catch (err) {
-        console.error('Error loading quiz:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load quiz');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadQuiz();
-  }, [quizId, user]);
-
-  // Handle answer changes
-  const handleAnswerChange = (questionId: string, answer: any) => {
-    setAnswers(prev => ({ ...prev, [questionId]: answer }));
-  };
-
-  // Navigation
-  const goNext = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
+  // Cleanup function
+  const cleanup = useCallback(() => {
+    isMountedRef.current = false;
+    
+    // Abort any ongoing requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
     }
-  };
-
-  const goPrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
+    
+    // Clear timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
-  };
+  }, []);
 
-  // Submit quiz
-  const submitQuiz = async () => {
-    if (submitting) return;
+  // Cleanup on unmount
+  useEffect(() => {
+    return cleanup;
+  }, [cleanup]);
+
+  // Submit quiz with proper error handling and cleanup
+  const submitQuiz = useCallback(async () => {
+    if (submitting || !isMountedRef.current) return;
     
     setSubmitting(true);
+    
     try {
+      // Create abort controller for submit request
+      const submitController = new AbortController();
+      
       // Calculate score (simple version)
       let score = 0;
+      const totalPoints = questions.reduce((sum, question) => sum + (question.points || 1), 0);
+      
       questions.forEach(question => {
         const userAnswer = answers[question.id];
         if (question.question_type === 'multiple_choice') {
@@ -104,30 +75,202 @@ export default function QuizTakingPage({ params }: QuizTakingPageProps) {
         }
       });
 
-      // Submit to API (simplified)
+      // Submit to API with abort signal
       const response = await fetch('/api/quiz-progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: submitController.signal,
         body: JSON.stringify({
           quiz_id: quizId,
           answers,
           score,
           total_questions: questions.length,
+          total_points: totalPoints,
+          time_taken: quiz?.time_limit_minutes ? (quiz.time_limit_minutes * 60) - timeLeft : 0
         }),
       });
 
-      if (response.ok) {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Failed to submit quiz`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to submit quiz');
+      }
+
+      // Only navigate if component is still mounted
+      if (isMountedRef.current) {
+        // Clear timer before navigation
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        
         router.push(`/quizzes/${quizId}/results`);
-      } else {
-        throw new Error('Failed to submit quiz');
       }
     } catch (err) {
+      // Only handle error if not aborted and component is mounted
+      if (!isMountedRef.current) return;
+      
+      if (err instanceof Error && err.name === 'AbortError') {
+        console.log('Quiz submission aborted');
+        return;
+      }
+      
       console.error('Error submitting quiz:', err);
-      setError('Failed to submit quiz');
+      setError('Failed to submit quiz. Please try again.');
     } finally {
-      setSubmitting(false);
+      if (isMountedRef.current) {
+        setSubmitting(false);
+      }
     }
-  };
+  }, [submitting, questions, answers, quizId, quiz?.time_limit_minutes, timeLeft, router]);
+
+  // Resolve params with proper error handling
+  useEffect(() => {
+    let mounted = true;
+    
+    params.then(({ id }) => {
+      if (mounted && isMountedRef.current) {
+        setQuizId(id);
+      }
+    }).catch((err) => {
+      if (mounted && isMountedRef.current) {
+        console.error('Error resolving params:', err);
+        setError('Invalid quiz URL');
+        setLoading(false);
+      }
+    });
+    
+    return () => {
+      mounted = false;
+    };
+  }, [params]);
+
+  // Load quiz data with proper cleanup and error handling
+  useEffect(() => {
+    if (!quizId || !user || !isMountedRef.current) return;
+
+    const loadQuiz = async () => {
+      try {
+        // Abort previous request if any
+        if (abortControllerRef.current) {
+          abortControllerRef.current.abort();
+        }
+        
+        // Create new abort controller
+        abortControllerRef.current = new AbortController();
+        
+        if (!isMountedRef.current) return;
+        
+        setLoading(true);
+        setError(null);
+
+        // Fetch quiz data with abort signal
+        const response = await fetch(`/api/quizzes/${quizId}`, {
+          signal: abortControllerRef.current.signal,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: Failed to fetch quiz`);
+        }
+
+        const result = await response.json();
+        
+        // Check if component is still mounted before setting state
+        if (!isMountedRef.current) return;
+        
+        if (result.success && result.quiz && result.questions) {
+          setQuiz(result.quiz);
+          setQuestions(result.questions);
+          
+          // Set timer if quiz has time limit
+          if (result.quiz.time_limit_minutes && result.quiz.time_limit_minutes > 0) {
+            const timeInSeconds = result.quiz.time_limit_minutes * 60;
+            setTimeLeft(timeInSeconds);
+            
+            // Start timer with cleanup
+            timerRef.current = setInterval(() => {
+              if (!isMountedRef.current) {
+                if (timerRef.current) {
+                  clearInterval(timerRef.current);
+                  timerRef.current = null;
+                }
+                return;
+              }
+              
+              setTimeLeft(prev => {
+                if (prev <= 1) {
+                  // Auto-submit when time runs out
+                  submitQuiz();
+                  return 0;
+                }
+                return prev - 1;
+              });
+            }, 1000);
+          }
+        } else {
+          throw new Error(result.error || 'Failed to load quiz data');
+        }
+      } catch (err) {
+        // Only handle error if not aborted and component is mounted
+        if (!isMountedRef.current) return;
+        
+        if (err instanceof Error && err.name === 'AbortError') {
+          console.log('Quiz loading aborted');
+          return;
+        }
+        
+        console.error('Error loading quiz:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load quiz');
+      } finally {
+        if (isMountedRef.current) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadQuiz();
+
+    // Cleanup function for this effect
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [quizId, user, submitQuiz]);
+
+  // Handle answer changes with validation
+  const handleAnswerChange = useCallback((questionId: string, answer: any) => {
+    if (!isMountedRef.current) return;
+    
+    setAnswers(prev => ({ ...prev, [questionId]: answer }));
+  }, []);
+
+  // Navigation with bounds checking
+  const goNext = useCallback(() => {
+    if (!isMountedRef.current) return;
+    
+    setCurrentQuestionIndex(prev => {
+      const newIndex = Math.min(prev + 1, questions.length - 1);
+      return newIndex;
+    });
+  }, [questions.length]);
+
+  const goPrevious = useCallback(() => {
+    if (!isMountedRef.current) return;
+    
+    setCurrentQuestionIndex(prev => Math.max(prev - 1, 0));
+  }, []);
 
   // Loading state
   if (loading) {
@@ -195,17 +338,19 @@ export default function QuizTakingPage({ params }: QuizTakingPageProps) {
 
   // Main quiz interface using StandardQuizLayout
   return (
-    <StandardQuizLayout
-      questions={questions}
-      currentQuestionIndex={currentQuestionIndex}
-      answers={answers}
-      timeLeft={timeLeft}
-      showTimer={timeLeft > 0}
-      onAnswerChange={handleAnswerChange}
-      onPrevious={goPrevious}
-      onNext={goNext}
-      onSubmit={submitQuiz}
-      submitting={submitting}
-    />
+    <QuizErrorBoundary>
+      <StandardQuizLayout
+        questions={questions}
+        currentQuestionIndex={currentQuestionIndex}
+        answers={answers}
+        timeLeft={timeLeft}
+        showTimer={timeLeft > 0}
+        onAnswerChange={handleAnswerChange}
+        onPrevious={goPrevious}
+        onNext={goNext}
+        onSubmit={submitQuiz}
+        submitting={submitting}
+      />
+    </QuizErrorBoundary>
   );
 }

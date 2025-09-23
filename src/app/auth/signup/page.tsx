@@ -26,6 +26,9 @@ function EnhancedSignupForm() {
   const [passwordValid, setPasswordValid] = useState(false)
   const [passwordFieldFocused, setPasswordFieldFocused] = useState(false)
   const [step, setStep] = useState(1) // Multi-step form
+  const [lastAttempt, setLastAttempt] = useState<number>(0)
+  const [attemptCount, setAttemptCount] = useState<number>(0)
+  const [isRateLimited, setIsRateLimited] = useState<boolean>(false)
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -70,6 +73,23 @@ function EnhancedSignupForm() {
       return
     }
 
+    // Rate limiting protection - max 3 attempts per 10 minutes for signup
+    const now = Date.now()
+    const rateLimitWindow = 10 * 60 * 1000 // 10 minutes
+    
+    if (attemptCount >= 3 && (now - lastAttempt) < rateLimitWindow) {
+      const timeLeft = Math.ceil((rateLimitWindow - (now - lastAttempt)) / 60000)
+      setError(`Too many signup attempts. Please try again in ${timeLeft} minutes.`)
+      setIsRateLimited(true)
+      return
+    }
+    
+    // Reset attempt count if rate limit window has passed
+    if ((now - lastAttempt) > rateLimitWindow) {
+      setAttemptCount(0)
+      setIsRateLimited(false)
+    }
+
     if (!canSubmit()) {
       setError('Please fill in all fields correctly')
       return
@@ -78,9 +98,18 @@ function EnhancedSignupForm() {
     setLoading(true)
     setError('')
 
-    const { error } = await signUp(formData.email, formData.password, formData.name)
+    // Sanitize inputs to prevent XSS
+    const sanitizedName = formData.name.trim().replace(/<[^>]*>/g, '')
+    const sanitizedEmail = formData.email.trim().toLowerCase()
+    const sanitizedPassword = formData.password.trim()
+
+    const { error } = await signUp(sanitizedEmail, sanitizedPassword, sanitizedName)
     
     if (error) {
+      // Track failed attempts for rate limiting
+      setAttemptCount(prev => prev + 1)
+      setLastAttempt(now)
+      
       // Enhanced error messages
       if (error.includes('User already registered')) {
         setError('An account with this email already exists. Try signing in instead.')
@@ -93,18 +122,34 @@ function EnhancedSignupForm() {
       }
       setLoading(false)
     } else {
+      // Reset on successful signup
+      setAttemptCount(0)
+      setLastAttempt(0)
       // Success - redirect to dashboard
       router.push('/dashboard')
     }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Sanitize input to prevent XSS
+    const { name, value } = e.target
+    let sanitizedValue = value.replace(/<[^>]*>/g, '') // Remove HTML tags
+    
+    // Additional sanitization for name field
+    if (name === 'name') {
+      sanitizedValue = sanitizedValue.replace(/[^\w\s\-\.]/g, '') // Allow only alphanumeric, spaces, hyphens, dots
+    }
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: sanitizedValue
     })
     // Clear error when user starts typing
     if (error) setError('')
+    // Clear rate limit when user starts typing after being rate limited
+    if (isRateLimited && (Date.now() - lastAttempt) > 60000) { // 1 minute grace period
+      setIsRateLimited(false)
+    }
   }
 
   const benefits = [

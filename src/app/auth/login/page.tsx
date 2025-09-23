@@ -21,6 +21,9 @@ function EnhancedLoginForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [lastAttempt, setLastAttempt] = useState<number>(0)
+  const [attemptCount, setAttemptCount] = useState<number>(0)
+  const [isRateLimited, setIsRateLimited] = useState<boolean>(false)
 
   // Handle redirect if already logged in
   useEffect(() => {
@@ -55,33 +58,82 @@ function EnhancedLoginForm() {
   }
 
   const validatePassword = (password: string) => {
-    return {
-      isValid: password.length >= 6,
-      message: password.length >= 6 ? 'Password looks good' : 'Password must be at least 6 characters'
+    // Strengthen password requirements for production security
+    const minLength = password.length >= 8
+    const hasUpperCase = /[A-Z]/.test(password)
+    const hasLowerCase = /[a-z]/.test(password)
+    const hasNumbers = /\d/.test(password)
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+    
+    const isValid = minLength && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar
+    
+    if (!minLength) {
+      return { isValid: false, message: 'Password must be at least 8 characters long' }
     }
+    if (!hasUpperCase) {
+      return { isValid: false, message: 'Password must contain at least one uppercase letter' }
+    }
+    if (!hasLowerCase) {
+      return { isValid: false, message: 'Password must contain at least one lowercase letter' }
+    }
+    if (!hasNumbers) {
+      return { isValid: false, message: 'Password must contain at least one number' }
+    }
+    if (!hasSpecialChar) {
+      return { isValid: false, message: 'Password must contain at least one special character' }
+    }
+    
+    return { isValid: true, message: 'Strong password' }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Rate limiting protection - max 5 attempts per 15 minutes
+    const now = Date.now()
+    const rateLimitWindow = 15 * 60 * 1000 // 15 minutes
+    
+    if (attemptCount >= 5 && (now - lastAttempt) < rateLimitWindow) {
+      const timeLeft = Math.ceil((rateLimitWindow - (now - lastAttempt)) / 60000)
+      setError(`Too many failed attempts. Please try again in ${timeLeft} minutes.`)
+      setIsRateLimited(true)
+      return
+    }
+    
+    // Reset attempt count if rate limit window has passed
+    if ((now - lastAttempt) > rateLimitWindow) {
+      setAttemptCount(0)
+      setIsRateLimited(false)
+    }
+    
     setLoading(true)
     setError('')
 
+    // Sanitize inputs to prevent XSS
+    const sanitizedEmail = formData.email.trim().toLowerCase()
+    const sanitizedPassword = formData.password.trim()
+
     // Basic validation
-    if (!validateEmail(formData.email).isValid) {
+    if (!validateEmail(sanitizedEmail).isValid) {
       setError('Please enter a valid email address')
       setLoading(false)
       return
     }
 
-    if (!validatePassword(formData.password).isValid) {
-      setError('Password must be at least 6 characters long')
+    if (!validatePassword(sanitizedPassword).isValid) {
+      const passwordValidation = validatePassword(sanitizedPassword)
+      setError(passwordValidation.message)
       setLoading(false)
       return
     }
 
-    const { error } = await signIn(formData.email, formData.password)
+    const { error } = await signIn(sanitizedEmail, sanitizedPassword)
     
     if (error) {
+      // Track failed attempts for rate limiting
+      setAttemptCount(prev => prev + 1)
+      setLastAttempt(now)
+      
       // Enhanced error messages
       if (error.includes('Invalid login credentials')) {
         setError('Email or password is incorrect. Please check your credentials and try again.')
@@ -92,18 +144,30 @@ function EnhancedLoginForm() {
       } else {
         setError(error)
       }
+    } else {
+      // Reset on successful login
+      setAttemptCount(0)
+      setLastAttempt(0)
     }
     
     setLoading(false)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Sanitize input to prevent XSS
+    const { name, value } = e.target
+    const sanitizedValue = value.replace(/<[^>]*>/g, '').trim() // Remove HTML tags
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: sanitizedValue
     })
     // Clear error when user starts typing
     if (error) setError('')
+    // Clear rate limit when user starts typing after being rate limited
+    if (isRateLimited && (Date.now() - lastAttempt) > 60000) { // 1 minute grace period
+      setIsRateLimited(false)
+    }
   }
 
   const handleGoogleLogin = async () => {

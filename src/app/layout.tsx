@@ -7,6 +7,7 @@ import { QueryProvider } from '@/providers/QueryProvider'
 import { ConditionalLayout } from '@/components/ConditionalLayout'
 import { ClientWrapper } from '@/components/ClientWrapper'
 import CoreWebVitalsMonitor from '@/components/CoreWebVitalsMonitor'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 // ShadCN Toast Notifications
 import { Toaster } from '@/components/ui/toaster'
@@ -99,15 +100,17 @@ html {
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <CoreWebVitalsMonitor />
-        <QueryProvider>
-          <AuthProvider>
-            <ClientWrapper>
-              <ConditionalLayout>
-                {children}
-              </ConditionalLayout>
-            </ClientWrapper>
-          </AuthProvider>
-        </QueryProvider>
+        <ErrorBoundary showDetails={process.env.NODE_ENV === 'development'}>
+          <QueryProvider>
+            <AuthProvider>
+              <ClientWrapper>
+                <ConditionalLayout>
+                  {children}
+                </ConditionalLayout>
+              </ClientWrapper>
+            </AuthProvider>
+          </QueryProvider>
+        </ErrorBoundary>
         <Toaster />
       </body>
     </html>

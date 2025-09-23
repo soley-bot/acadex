@@ -54,8 +54,7 @@ export const metadata: Metadata = {
 }
 
 export default function Home() {
-  // Temporarily disable structured data to debug the error
-  /*
+  // Generate structured data with enhanced error handling
   let schemas: any[] = []
   
   try {
@@ -64,23 +63,37 @@ export default function Home() {
 
     // Filter out any null/undefined schema objects and validate them
     const candidateSchemas = [organizationSchema, websiteSchema].filter(schema => {
-      return schema && 
-             typeof schema === 'object' && 
-             schema['@context'] && 
-             typeof schema['@context'] === 'string'
+      try {
+        return schema && 
+               typeof schema === 'object' && 
+               schema['@context'] && 
+               typeof schema['@context'] === 'string' &&
+               schema['@type'] &&
+               typeof schema['@type'] === 'string'
+      } catch (err) {
+        console.warn('Invalid schema object detected:', err)
+        return false
+      }
     })
     
-    schemas = candidateSchemas
+    // Additional validation to ensure schemas are JSON serializable
+    schemas = candidateSchemas.filter(schema => {
+      try {
+        JSON.stringify(schema)
+        return true
+      } catch (err) {
+        console.warn('Schema not JSON serializable:', err)
+        return false
+      }
+    })
   } catch (error) {
     console.error('Error generating schemas:', error)
     schemas = []
   }
-  */
 
   return (
     <>
-      {/* Structured Data - temporarily disabled for debugging */}
-      {/*
+      {/* Structured Data with error handling */}
       {schemas.length > 0 && (
         <script
           type="application/ld+json"
@@ -89,7 +102,6 @@ export default function Home() {
           }}
         />
       )}
-      */}
       
       <main className="min-h-screen">
         <Hero />

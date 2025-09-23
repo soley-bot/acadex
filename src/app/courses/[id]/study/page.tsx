@@ -10,6 +10,7 @@ import { CourseSidebar } from '@/components/course/CourseSidebar'
 import { LessonContent } from '@/components/course/LessonContent'
 import { logger } from '@/lib/logger'
 import { ContextualBackButton } from '@/components/navigation/ContextualBackButton'
+import { CourseErrorBoundary } from '@/components/ErrorBoundary'
 
 interface ModuleWithContent extends CourseModule {
   course_lessons: (CourseLesson & {
@@ -468,58 +469,60 @@ export default function CourseStudyPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background relative">
-      
-      {/* Mobile-Only Contextual Back Navigation Overlay */}
-      <div className="lg:hidden absolute top-4 left-4 z-50">
-        <ContextualBackButton
-          href="/courses"
-          label="Back to Courses"
-        />
-      </div>
+    <CourseErrorBoundary>
+      <div className="h-screen flex flex-col bg-background relative">
+        
+        {/* Mobile-Only Contextual Back Navigation Overlay */}
+        <div className="lg:hidden absolute top-4 left-4 z-50">
+          <ContextualBackButton
+            href="/courses"
+            label="Back to Courses"
+          />
+        </div>
 
-      {/* Course Header */}
-      <CourseHeader
-        course={course}
-        progress={calculateOverallProgress()}
-        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-        isSidebarOpen={isSidebarOpen}
-      />
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Course Sidebar */}
-        <CourseSidebar
-          modules={modules}
-          currentLesson={currentLesson}
-          expandedModules={expandedModules}
-          onToggleModule={handleToggleModule}
-          onSelectLesson={handleSelectLesson}
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
+        {/* Course Header */}
+        <CourseHeader
+          course={course}
+          progress={calculateOverallProgress()}
+          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+          isSidebarOpen={isSidebarOpen}
         />
 
-        {/* Lesson Content */}
-        <main className="flex-1 overflow-hidden">
-          {currentLesson ? (
-            <LessonContent
-              lesson={currentLesson}
-              onNext={handleNextLesson}
-              onPrevious={handlePreviousLesson}
-              onComplete={handleCompleteLesson}
-              hasNext={hasNextLesson()}
-              hasPrevious={hasPreviousLesson()}
-            />
-          ) : (
-            <div className="h-full flex items-center justify-center">
-              <div className="text-center">
-                <h2 className="text-xl font-semibold text-foreground mb-2">Select a Lesson</h2>
-                <p className="text-muted-foreground">Choose a lesson from the sidebar to begin studying.</p>
+        {/* Main Content Area */}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Course Sidebar */}
+          <CourseSidebar
+            modules={modules}
+            currentLesson={currentLesson}
+            expandedModules={expandedModules}
+            onToggleModule={handleToggleModule}
+            onSelectLesson={handleSelectLesson}
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+          />
+
+          {/* Lesson Content */}
+          <main className="flex-1 overflow-hidden">
+            {currentLesson ? (
+              <LessonContent
+                lesson={currentLesson}
+                onNext={handleNextLesson}
+                onPrevious={handlePreviousLesson}
+                onComplete={handleCompleteLesson}
+                hasNext={hasNextLesson()}
+                hasPrevious={hasPreviousLesson()}
+              />
+            ) : (
+              <div className="h-full flex items-center justify-center">
+                <div className="text-center">
+                  <h2 className="text-xl font-semibold text-foreground mb-2">Select a Lesson</h2>
+                  <p className="text-muted-foreground">Choose a lesson from the sidebar to begin studying.</p>
+                </div>
               </div>
-            </div>
-          )}
-        </main>
+            )}
+          </main>
+        </div>
       </div>
-    </div>
+    </CourseErrorBoundary>
   )
 }
