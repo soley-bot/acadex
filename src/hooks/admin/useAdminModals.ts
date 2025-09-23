@@ -8,9 +8,11 @@
 import { useState, useCallback, useMemo } from 'react'
 
 export interface ModalStates {
-  showQuizForm: boolean
+  showForm: boolean           // Generic form modal (was showQuizForm)
+  showQuizForm: boolean       // Backward compatibility - deprecated
   showDeleteModal: boolean  
   showViewModal: boolean
+  showAddModal: boolean       // New: for Add operations
   showCategoryManagement: boolean
   showAnalytics: boolean
   showBulkOperations: boolean
@@ -18,6 +20,13 @@ export interface ModalStates {
 }
 
 export interface ModalData<T = any> {
+  // Generic field names
+  editingItem: T | null       // Generic editing item
+  deletingItem: T | null      // Generic deleting item  
+  viewingItem: T | null       // Generic viewing item
+  addingItem: boolean         // Tracks if in adding mode
+  
+  // Backward compatibility - deprecated
   editingQuiz: T | null
   deletingQuiz: T | null
   viewingQuiz: T | null
@@ -32,9 +41,11 @@ export interface ModalActions {
 }
 
 const initialModalStates: ModalStates = {
-  showQuizForm: false,
+  showForm: false,
+  showQuizForm: false,        // Backward compatibility - deprecated
   showDeleteModal: false,
   showViewModal: false, 
+  showAddModal: false,        // New: for Add operations
   showCategoryManagement: false,
   showAnalytics: false,
   showBulkOperations: false,
@@ -42,6 +53,13 @@ const initialModalStates: ModalStates = {
 }
 
 const initialModalData: ModalData = {
+  // Generic field names
+  editingItem: null,
+  deletingItem: null,
+  viewingItem: null,
+  addingItem: false,
+  
+  // Backward compatibility - deprecated
   editingQuiz: null,
   deletingQuiz: null,
   viewingQuiz: null
@@ -54,28 +72,75 @@ export const useAdminModals = <T = any>() => {
   const openModal = useCallback((modalName: keyof ModalStates, data?: T) => {
     setModalStates(prev => ({ ...prev, [modalName]: true }))
     
+    // Handle backward compatibility for showQuizForm
+    if (modalName === 'showQuizForm') {
+      setModalStates(prev => ({ ...prev, showForm: true }))
+    }
+    if (modalName === 'showForm') {
+      setModalStates(prev => ({ ...prev, showQuizForm: true }))
+    }
+    
     // Set associated data based on modal type
     if (data) {
-      if (modalName === 'showQuizForm') {
-        setModalData(prev => ({ ...prev, editingQuiz: data }))
+      if (modalName === 'showQuizForm' || modalName === 'showForm') {
+        setModalData(prev => ({ 
+          ...prev, 
+          editingItem: data,
+          editingQuiz: data  // Backward compatibility
+        }))
       } else if (modalName === 'showDeleteModal') {
-        setModalData(prev => ({ ...prev, deletingQuiz: data }))
+        setModalData(prev => ({ 
+          ...prev, 
+          deletingItem: data,
+          deletingQuiz: data  // Backward compatibility
+        }))
       } else if (modalName === 'showViewModal') {
-        setModalData(prev => ({ ...prev, viewingQuiz: data }))
+        setModalData(prev => ({ 
+          ...prev, 
+          viewingItem: data,
+          viewingQuiz: data  // Backward compatibility
+        }))
       }
+    }
+    
+    // Handle add modal (no data, just set adding flag)
+    if (modalName === 'showAddModal') {
+      setModalData(prev => ({ ...prev, addingItem: true }))
     }
   }, [])
 
   const closeModal = useCallback((modalName: keyof ModalStates) => {
     setModalStates(prev => ({ ...prev, [modalName]: false }))
     
-    // Clear associated data when closing
+    // Handle backward compatibility for showQuizForm
     if (modalName === 'showQuizForm') {
-      setModalData(prev => ({ ...prev, editingQuiz: null }))
+      setModalStates(prev => ({ ...prev, showForm: false }))
+    }
+    if (modalName === 'showForm') {
+      setModalStates(prev => ({ ...prev, showQuizForm: false }))
+    }
+    
+    // Clear associated data when closing
+    if (modalName === 'showQuizForm' || modalName === 'showForm') {
+      setModalData(prev => ({ 
+        ...prev, 
+        editingItem: null,
+        editingQuiz: null  // Backward compatibility
+      }))
     } else if (modalName === 'showDeleteModal') {
-      setModalData(prev => ({ ...prev, deletingQuiz: null }))
+      setModalData(prev => ({ 
+        ...prev, 
+        deletingItem: null,
+        deletingQuiz: null  // Backward compatibility
+      }))
     } else if (modalName === 'showViewModal') {
-      setModalData(prev => ({ ...prev, viewingQuiz: null }))
+      setModalData(prev => ({ 
+        ...prev, 
+        viewingItem: null,
+        viewingQuiz: null  // Backward compatibility
+      }))
+    } else if (modalName === 'showAddModal') {
+      setModalData(prev => ({ ...prev, addingItem: false }))
     }
   }, [])
 

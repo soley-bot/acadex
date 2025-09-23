@@ -9,13 +9,26 @@ import EditUserModal from '@/components/admin/EditUserModal'
 import DeleteUserModal from '@/components/admin/DeleteUserModal'
 import Icon from '@/components/ui/Icon'
 import { formatDate } from '@/lib/date-utils'
+import { useAdminModals } from '@/hooks/admin/useAdminModals'
 
 export default function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('all')
-  const [showAddUser, setShowAddUser] = useState(false)
-  const [editingUser, setEditingUser] = useState<User | null>(null)
-  const [deletingUser, setDeletingUser] = useState<User | null>(null)
+  
+  // 🔄 CONSOLIDATED: All modal states managed by single hook (was 3 separate useState calls)
+  const { modalStates, modalData, actions } = useAdminModals<User>()
+
+  // Destructure for easier access
+  const {
+    showAddModal,
+    showForm: showEditUser,
+    showDeleteModal
+  } = modalStates
+
+  const {
+    editingItem: editingUser,
+    deletingItem: deletingUser
+  } = modalData
 
   // React Query hook for users
   const { 
@@ -29,11 +42,11 @@ export default function AdminUsers() {
   const error = usersError ? 'Failed to fetch users' : null
 
   const handleEditUser = (user: User) => {
-    setEditingUser(user)
+    actions.openModal('showForm', user)
   }
 
   const handleDeleteUser = async (user: User) => {
-    setDeletingUser(user)
+    actions.openModal('showDeleteModal', user)
   }
 
   const filteredUsers = users.filter(user => {
@@ -96,7 +109,7 @@ export default function AdminUsers() {
             <p className="text-muted-foreground mt-1">Manage and monitor all platform users</p>
           </div>
           <button 
-            onClick={() => setShowAddUser(true)}
+            onClick={() => actions.openModal('showAddModal')}
             className="btn btn-default flex items-center gap-2"
           >
             <Icon name="add" size={16} color="white" />
@@ -290,9 +303,9 @@ export default function AdminUsers() {
 
       {/* Add User Modal */}
       <AddUserModal 
-        isOpen={showAddUser}
+        isOpen={showAddModal}
         onClose={() => {
-          setShowAddUser(false)
+          actions.closeModal('showAddModal')
         }}
         onUserAdded={() => {
           refetchUsers()
@@ -301,9 +314,9 @@ export default function AdminUsers() {
 
       {/* Edit User Modal */}
       <EditUserModal 
-        isOpen={!!editingUser}
+        isOpen={showEditUser}
         onClose={() => {
-          setEditingUser(null)
+          actions.closeModal('showForm')
         }}
         onUserUpdated={() => {
           refetchUsers()
@@ -313,9 +326,9 @@ export default function AdminUsers() {
 
       {/* Delete User Modal */}
       <DeleteUserModal 
-        isOpen={!!deletingUser}
+        isOpen={showDeleteModal}
         onClose={() => {
-          setDeletingUser(null)
+          actions.closeModal('showDeleteModal')
         }}
         onUserDeleted={() => {
           refetchUsers()
