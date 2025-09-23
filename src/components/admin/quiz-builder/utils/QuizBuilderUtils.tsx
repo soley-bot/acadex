@@ -1,5 +1,6 @@
 import React from 'react'
-import { Alert, Text, Button, Stack } from '@mantine/core'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react'
 
 // Type guard functions for safe casting
@@ -172,37 +173,34 @@ export class QuizBuilderErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <Alert 
-          icon={<IconAlertTriangle size={16} />} 
-          color="red" 
-          variant="filled"
-          style={{ margin: '20px' }}
-        >
-          <Stack gap="md">
-            <div>
-              <Text size="lg" fw={600} mb="xs">
+        <Alert className="m-5">
+          <IconAlertTriangle size={16} />
+          <AlertDescription className="space-y-4">
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">
                 Quiz Builder Error
-              </Text>
-              <Text size="sm">
+              </h3>
+              <p className="text-sm text-muted-foreground">
                 Something went wrong while building your quiz. This is usually a temporary issue.
-              </Text>
+              </p>
             </div>
             
             {this.state.error && (
-              <Text size="xs" c="red.1" style={{ fontFamily: 'monospace' }}>
+              <p className="text-xs text-red-600 font-mono">
                 {this.state.error.message}
-              </Text>
+              </p>
             )}
             
             <Button
-              variant="white"
-              leftSection={<IconRefresh size={16} />}
+              variant="outline"
               onClick={this.handleRetry}
               size="sm"
+              className="mt-4"
             >
+              <IconRefresh size={16} className="mr-2" />
               Try Again
             </Button>
-          </Stack>
+          </AlertDescription>
         </Alert>
       )
     }
@@ -213,30 +211,11 @@ export class QuizBuilderErrorBoundary extends React.Component<
 
 // Loading fallback component
 export const QuizBuilderLoadingFallback = ({ message = "Loading..." }: { message?: string }) => (
-  <div style={{ 
-    display: 'flex', 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    padding: '40px 20px',
-    minHeight: '200px'
-  }}>
-    <Stack align="center" gap="md">
-      <div style={{
-        width: '32px',
-        height: '32px',
-        border: '3px solid #e0e7ff',
-        borderTop: '3px solid #3b82f6',
-        borderRadius: '50%',
-        animation: 'spin 1s linear infinite'
-      }} />
-      <Text size="sm" c="dimmed">{message}</Text>
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
-    </Stack>
+  <div className="flex items-center justify-center p-10 min-h-[200px]">
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-8 h-8 border-3 border-slate-200 border-t-blue-500 rounded-full animate-spin" />
+      <p className="text-sm text-muted-foreground">{message}</p>
+    </div>
   </div>
 )
 

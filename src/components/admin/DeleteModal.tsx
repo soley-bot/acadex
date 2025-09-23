@@ -5,7 +5,7 @@ import { AlertTriangle, Trash2, Loader2, Users, FileText, X } from 'lucide-react
 import { supabase } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 
-interface EnhancedDeleteModalProps {
+interface DeleteModalProps {
   item: {
     id: string
     title: string
@@ -24,7 +24,7 @@ interface UsageInfo {
   lessons?: number
 }
 
-export function EnhancedDeleteModal({ item, isOpen, onClose, onSuccess }: EnhancedDeleteModalProps) {
+export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalProps) {
   const [loading, setLoading] = useState(false)
   const [checkingUsage, setCheckingUsage] = useState(false)
   const [error, setError] = useState<string | null>(null)

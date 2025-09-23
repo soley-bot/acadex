@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Pagination } from '@/components/ui/Pagination'
-import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
+import { DeleteModal } from '@/components/admin/DeleteModal'
 import { CourseViewModal } from '@/components/admin/CourseViewModal'
 import { formatDate } from '@/lib/date-utils'
 import Icon from '@/components/ui/Icon'
@@ -75,7 +75,7 @@ export default function CoursesPage() {
   
   // Modal states  
   const [deletingCourse, setDeletingCourse] = useState<Course | null>(null)
-  const [showEnhancedDeleteModal, setShowEnhancedDeleteModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
   const [viewingCourse, setViewingCourse] = useState<Course | null>(null)
   const [showCategoryManagement, setShowCategoryManagement] = useState(false)
@@ -131,7 +131,7 @@ export default function CoursesPage() {
 
   const handleDeleteCourse = (course: Course) => {
     setDeletingCourse(course)
-    setShowEnhancedDeleteModal(true)
+    setShowDeleteModal(true)
   }
 
   const handleViewCourse = (course: Course) => {
@@ -141,7 +141,7 @@ export default function CoursesPage() {
 
   const handleDeleteSuccess = () => {
     refetch() // Refresh courses after successful deletion
-    setShowEnhancedDeleteModal(false)
+    setShowDeleteModal(false)
     setDeletingCourse(null)
   }
 
@@ -503,10 +503,10 @@ export default function CoursesPage() {
       )}
 
       {/* Modals */}
-      <EnhancedDeleteModal
+      <DeleteModal
         item={deletingCourse ? { id: deletingCourse.id, title: deletingCourse.title, type: 'course' } : null}
-        isOpen={showEnhancedDeleteModal}
-        onClose={() => setShowEnhancedDeleteModal(false)}
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
         onSuccess={handleDeleteSuccess}
       />
 

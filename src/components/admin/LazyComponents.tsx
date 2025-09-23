@@ -30,8 +30,8 @@ const CategoryManagementComponent = dynamic(
   }
 )
 
-const EnhancedQuestionCreationComponent = dynamic(
-  () => import('@/components/admin/EnhancedQuestionCreation').then(mod => ({ default: mod.EnhancedQuestionCreation })),
+const QuestionCreationComponent = dynamic(
+  () => import('@/components/admin/QuestionCreation').then(mod => ({ default: mod.QuestionCreation })),
   {
     loading: () => (
       <div className="flex items-center justify-center p-8">
@@ -106,14 +106,14 @@ export const LazyComponents = {
     </Suspense>
   ),
 
-  EnhancedQuestionCreation: (props: any) => (
+  QuestionCreation: (props: any) => (
     <Suspense fallback={
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         <span className="ml-3 text-gray-600">Loading Question Editor...</span>
       </div>
     }>
-      <EnhancedQuestionCreationComponent {...props} />
+      <QuestionCreationComponent {...props} />
     </Suspense>
   ),
 
@@ -155,7 +155,7 @@ export const LazyComponents = {
 export {
   CourseFormComponent,
   CategoryManagementComponent,
-  EnhancedQuestionCreationComponent,
+  QuestionCreationComponent,
   QuizBuilderComponent,
   QuizAnalyticsComponent,
   SecurityDashboardComponent

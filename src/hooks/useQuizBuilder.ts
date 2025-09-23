@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import { notifications } from '@mantine/notifications'
+import { useToast } from '@/hooks/use-toast'
 import type { Quiz, QuizQuestion } from '@/lib/supabase'
 import { validateQuizData, isValidQuiz } from '../components/admin/quiz-builder/utils/QuizBuilderUtils'
 
@@ -64,6 +64,8 @@ export const useQuizBuilder = ({
   onSuccess,
   onClose
 }: UseQuizBuilderProps) => {
+  const { toast } = useToast()
+  
   // Core state management
   const [state, setState] = useState<QuizBuilderState>(() => {
     console.log('🎯 Initializing quiz builder state')
@@ -114,37 +116,8 @@ export const useQuizBuilder = ({
     }
   }, [isOpen])
 
-  // Debounced auto-save function
-  const debouncedSave = useCallback(async (stateToSave: QuizBuilderState) => {
-    if (!stateToSave.quiz.id || stateToSave.questions.length === 0) {
-      return
-    }
-
-    // Wait for any existing save operation to complete
-    if (saveLockRef.current) {
-      await saveLockRef.current
-    }
-
-    // Get current session for authentication
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session?.access_token) {
-      return
-    }
-
-    // Create save promise and store it
-    const savePromise = performSave(stateToSave)
-    saveLockRef.current = savePromise
-
-    try {
-      await savePromise
-    } catch (error) {
-      console.error('Auto-save failed:', error)
-    } finally {
-      saveLockRef.current = null
-    }
-  }, [])
-
-  const performSave = async (stateToSave: QuizBuilderState) => {
+  // Save function - defined first to avoid dependency issues
+  const performSave = useCallback(async (stateToSave: QuizBuilderState) => {
     if (!stateToSave.quiz.id) return
 
     setIsSaving(true)
@@ -202,15 +175,45 @@ export const useQuizBuilder = ({
 
     } catch (error) {
       console.error('❌ Auto-save failed:', error)
-      notifications.show({
+      toast({
         title: 'Auto-save Failed',
-        message: 'Your changes may not be saved. Please save manually.',
-        color: 'red'
+        description: 'Your changes may not be saved. Please save manually.',
+        variant: 'destructive'
       })
     } finally {
       setIsSaving(false)
     }
-  }
+  }, [toast])
+
+  // Debounced auto-save function
+  const debouncedSave = useCallback(async (stateToSave: QuizBuilderState) => {
+    if (!stateToSave.quiz.id || stateToSave.questions.length === 0) {
+      return
+    }
+
+    // Wait for any existing save operation to complete
+    if (saveLockRef.current) {
+      await saveLockRef.current
+    }
+
+    // Get current session for authentication
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.access_token) {
+      return
+    }
+
+    // Create save promise and store it
+    const savePromise = performSave(stateToSave)
+    saveLockRef.current = savePromise
+
+    try {
+      await savePromise
+    } catch (error) {
+      console.error('Auto-save failed:', error)
+    } finally {
+      saveLockRef.current = null
+    }
+  }, [performSave])
 
   // Auto-save trigger with debouncing
   useEffect(() => {
@@ -340,10 +343,10 @@ export const useQuizBuilder = ({
     const validation = validateQuizData(state.quiz, state.questions)
     
     if (!validation.isValid) {
-      notifications.show({
+      toast({
         title: 'Validation Error',
-        message: validation.errors.join(', '),
-        color: 'red'
+        description: validation.errors.join(', '),
+        variant: 'destructive'
       })
       return false
     }
@@ -354,34 +357,34 @@ export const useQuizBuilder = ({
       // Implementation would go here
       await debouncedSave(state)
       
-      notifications.show({
+      toast({
         title: 'Success',
-        message: 'Quiz saved successfully!',
-        color: 'green'
+        description: 'Quiz saved successfully!',
+        variant: 'default'
       })
       
       return true
     } catch (error) {
       console.error('Save failed:', error)
-      notifications.show({
+      toast({
         title: 'Error',
-        message: 'Failed to save quiz',
-        color: 'red'
+        description: 'Failed to save quiz',
+        variant: 'destructive'
       })
       return false
     } finally {
       setState(prev => ({ ...prev, isSaving: false }))
     }
-  }, [state, debouncedSave])
+  }, [state, debouncedSave, toast])
 
   const publishQuiz = useCallback(async () => {
     const validation = validateQuizData(state.quiz, state.questions)
     
     if (!validation.isValid) {
-      notifications.show({
+      toast({
         title: 'Cannot Publish',
-        message: 'Please fix all validation errors before publishing',
-        color: 'red'
+        description: 'Please fix all validation errors before publishing',
+        variant: 'destructive'
       })
       return false
     }
@@ -401,10 +404,10 @@ export const useQuizBuilder = ({
 
       if (error) throw error
 
-      notifications.show({
+      toast({
         title: 'Success',
-        message: 'Quiz published successfully!',
-        color: 'green'
+        description: 'Quiz published successfully!',
+        variant: 'default'
       })
 
       onSuccess()
@@ -412,16 +415,16 @@ export const useQuizBuilder = ({
       
     } catch (error) {
       console.error('Publish failed:', error)
-      notifications.show({
+      toast({
         title: 'Error',
-        message: 'Failed to publish quiz',
-        color: 'red'
+        description: 'Failed to publish quiz',
+        variant: 'destructive'
       })
       return false
     } finally {
       setState(prev => ({ ...prev, isPublishing: false }))
     }
-  }, [state, saveQuiz, onSuccess])
+  }, [state, saveQuiz, onSuccess, toast])
 
   return {
     // State

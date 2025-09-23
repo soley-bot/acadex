@@ -44,26 +44,51 @@ class CSSAuditor {
       .replace(/\/\*[\s\S]*?\*\//g, '') // Remove /* */ comments
       .replace(/\/\/.*$/gm, ''); // Remove // comments
     
-    // More precise regex - only match standalone class definitions with properties
-    const classDefinitionRegex = /\.([a-zA-Z][a-zA-Z0-9_-]*)\s*\{[^}]*[a-zA-Z-]+\s*:/g;
-    const classes = new Map();
+    // Better approach: find actual CSS class definitions by looking for full class blocks
+    const classBlocks = [];
+    const classRegex = /\.([a-zA-Z][a-zA-Z0-9_-]*)\s*\{/g;
     let match;
     
-    while ((match = classDefinitionRegex.exec(contentWithoutComments)) !== null) {
+    while ((match = classRegex.exec(contentWithoutComments)) !== null) {
       const className = match[1];
-      const fullMatch = match[0];
+      const startPos = match.index;
       
-      // Skip if this looks like a selector list (contains commas before the brace)
-      const beforeBrace = fullMatch.split('{')[0];
-      if (beforeBrace.includes(',')) {
-        continue;
+      // Find the matching closing brace for this class
+      let braceCount = 0;
+      let endPos = match.index + match[0].length;
+      let foundProperties = false;
+      
+      for (let i = endPos; i < contentWithoutComments.length; i++) {
+        const char = contentWithoutComments[i];
+        if (char === '{') braceCount++;
+        if (char === '}') {
+          if (braceCount === 0) {
+            endPos = i;
+            break;
+          }
+          braceCount--;
+        }
+        
+        // Check if this block contains actual CSS properties (not just other selectors)
+        if (!foundProperties && char === ':' && !contentWithoutComments.substring(match.index, i).includes('{')) {
+          foundProperties = true;
+        }
       }
       
-      if (classes.has(className)) {
-        classes.set(className, classes.get(className) + 1);
-      } else {
-        classes.set(className, 1);
+      // Only count as a class definition if it contains actual properties
+      const blockContent = contentWithoutComments.substring(startPos, endPos + 1);
+      const hasProperties = /[a-zA-Z-]+\s*:\s*[^;]+;/.test(blockContent);
+      
+      if (hasProperties) {
+        classBlocks.push({ className, content: blockContent });
       }
+    }
+    
+    // Count duplicates
+    const classes = new Map();
+    for (const block of classBlocks) {
+      const count = classes.get(block.className) || 0;
+      classes.set(block.className, count + 1);
     }
     
     // Find duplicates
@@ -85,8 +110,28 @@ class CSSAuditor {
   }
 
   findImportantUsage(content) {
-    const importantMatches = content.match(/!important/g);
-    this.importantUsage = importantMatches ? importantMatches.length : 0;
+    const importantRegex = /[^}]*!important[^}]*/g;
+    let match;
+    let count = 0;
+    
+    while ((match = importantRegex.exec(content)) !== null) {
+      const context = match[0];
+      
+      // Skip !important usage in accessibility contexts
+      const isAccessibilityRelated = 
+        context.includes('prefers-contrast: high') ||
+        context.includes('prefers-reduced-motion') ||
+        context.includes('high-contrast') ||
+        context.includes('screen-reader') ||
+        context.includes('focus') ||
+        context.includes('aria-');
+      
+      if (!isAccessibilityRelated) {
+        count++;
+      }
+    }
+    
+    this.importantUsage = count;
   }
 
   analyzeFileSize(content) {

@@ -10,9 +10,9 @@ import { QuestionTypeDropdown } from './QuestionTypeDropdown'
 import { StepLoadingFallback } from '../ProgressiveLoading'
 
 // Lazy load the enhanced question creation component
-const LazyEnhancedQuestionCreation = lazy(() => 
-  import('../../EnhancedQuestionCreation').then(module => ({
-    default: module.EnhancedQuestionCreation
+const LazyQuestionCreation = lazy(() => 
+  import('../../QuestionCreation').then(module => ({
+    default: module.QuestionCreation
   }))
 )
 
@@ -63,7 +63,7 @@ export const QuestionCreationInterface = memo<QuestionCreationInterfaceProps>(({
           centered
         >
           <Suspense fallback={<StepLoadingFallback step="quiz-editing" />}>
-            <LazyEnhancedQuestionCreation
+            <LazyQuestionCreation
               topic={quizData?.title || ''}
               category={quizData?.category || ''}
               difficulty={quizData?.difficulty as any || 'intermediate'}

@@ -1,9 +1,13 @@
-import { Modal, Container, Tabs, Group, Button, Alert, Paper, Stack, Text, Badge } from '@mantine/core'
 import { IconX, IconDeviceFloppy, IconLoader2, IconAlertCircle, IconBook, IconList } from '@tabler/icons-react'
 import { useCourseFormPerformance } from '@/lib/adminPerformanceSystem'
 import { useCourseForm } from './hooks/useCourseForm'
 import { BasicInfoStep } from './steps/BasicInfoStep'
 import type { CourseFormProps } from './types'
+import { BaseModal } from '@/components/ui/BaseModal'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 
 export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = false }: CourseFormProps) {
   const {
@@ -60,97 +64,131 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
   }
 
   const content = (
-    <Container size="lg">
-      <Stack gap="lg">
+    <div className="max-w-4xl mx-auto">
+      <div className="flex flex-col gap-6">
         {/* Header */}
-        <Paper p="md" withBorder radius="lg">
-          <Group justify="space-between" align="center">
+        <Card className="p-4 border rounded-lg">
+          <div className="flex justify-between items-center">
             <div>
-              <Text size="xl" fw="bold">
+              <h2 className="text-xl font-bold">
                 {course ? 'Edit Course' : 'Create New Course'}
-              </Text>
+              </h2>
               {totalLessons > 0 && (
-                <Group gap="xs" mt="xs">
-                  <Badge variant="light" color="blue">
+                <div className="flex gap-2 mt-2">
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-800">
                     {totalLessons} lessons
                   </Badge>
-                  <Badge variant="light" color="green">
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">
                     {Math.round(totalDurationMinutes / 60)}h {totalDurationMinutes % 60}m
                   </Badge>
-                </Group>
+                </div>
               )}
             </div>
-            <Group gap="sm">
+            <div className="flex gap-2">
               {!embedded && (
-                <Button variant="outline" onClick={onClose} leftSection={<IconX size="1rem" />}>
+                <Button variant="outline" onClick={onClose}>
+                  <IconX className="w-4 h-4 mr-2" />
                   Cancel
                 </Button>
               )}
               <Button
                 onClick={handleSubmit}
-                loading={isLoading}
-                disabled={hasValidationErrors}
-                leftSection={<IconDeviceFloppy size="1rem" />}
+                disabled={isLoading || hasValidationErrors}
+                className="disabled:opacity-50"
               >
+                {isLoading ? (
+                  <IconLoader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <IconDeviceFloppy className="w-4 h-4 mr-2" />
+                )}
                 {course ? 'Update Course' : 'Create Course'}
               </Button>
-            </Group>
-          </Group>
-        </Paper>
+            </div>
+          </div>
+        </Card>
 
         {/* Error/Success Messages */}
         {error && (
-          <Alert color="red" icon={<IconAlertCircle size="1rem" />} onClose={() => setError(null)}>
-            {error}
+          <Alert className="border-red-200 bg-red-50">
+            <IconAlertCircle className="w-4 h-4" />
+            <AlertDescription className="text-red-800">
+              {error}
+            </AlertDescription>
           </Alert>
         )}
 
         {successMessage && (
-          <Alert color="green" onClose={() => setSuccessMessage(null)}>
-            {successMessage}
+          <Alert className="border-green-200 bg-green-50">
+            <AlertDescription className="text-green-800">
+              {successMessage}
+            </AlertDescription>
           </Alert>
         )}
 
         {mutationError && (
-          <Alert color="red" icon={<IconAlertCircle size="1rem" />}>
-            {mutationError.message}
+          <Alert className="border-red-200 bg-red-50">
+            <IconAlertCircle className="w-4 h-4" />
+            <AlertDescription className="text-red-800">
+              {mutationError.message}
+            </AlertDescription>
           </Alert>
         )}
 
         {/* Performance Alert */}
         {isSlowComponent && (
-          <Alert color="yellow" icon={<IconAlertCircle size="1rem" />}>
-            Performance warning: Form is responding slowly (Score: {performanceScore}/100)
+          <Alert className="border-yellow-200 bg-yellow-50">
+            <IconAlertCircle className="w-4 h-4" />
+            <AlertDescription className="text-yellow-800">
+              Performance warning: Form is responding slowly (Score: {performanceScore}/100)
+            </AlertDescription>
           </Alert>
         )}
 
         {/* Form Tabs */}
-        <Tabs value={activeTab} onChange={(value) => setActiveTab(value as 'basic' | 'modules')}>
-          <Tabs.List>
-            <Tabs.Tab value="basic" leftSection={<IconBook size="1rem" />}>
+        <div className="w-full">
+          <div className="flex border-b border-gray-200 mb-6">
+            <button
+              onClick={() => setActiveTab('basic')}
+              className={`flex items-center gap-2 px-4 py-2 border-b-2 font-medium text-sm ${
+                activeTab === 'basic'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <IconBook className="w-4 h-4" />
               Basic Info
-            </Tabs.Tab>
-            <Tabs.Tab value="modules" leftSection={<IconList size="1rem" />}>
+            </button>
+            <button
+              onClick={() => setActiveTab('modules')}
+              className={`flex items-center gap-2 px-4 py-2 border-b-2 font-medium text-sm ${
+                activeTab === 'modules'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <IconList className="w-4 h-4" />
               Modules & Lessons
-            </Tabs.Tab>
-          </Tabs.List>
+            </button>
+          </div>
 
-          <Tabs.Panel value="basic" pt="lg">
-            <BasicInfoStep
-              formData={formData}
-              onFieldChange={handleFieldChange}
-              hasValidationErrors={hasValidationErrors}
-            />
-          </Tabs.Panel>
+          <div>
+            {activeTab === 'basic' && (
+              <BasicInfoStep
+                formData={formData}
+                onFieldChange={handleFieldChange}
+                hasValidationErrors={hasValidationErrors}
+              />
+            )}
 
-          <Tabs.Panel value="modules" pt="lg">
-            <Paper p="xl" withBorder radius="lg">
-              <Text>Module management coming soon...</Text>
-            </Paper>
-          </Tabs.Panel>
-        </Tabs>
-      </Stack>
-    </Container>
+            {activeTab === 'modules' && (
+              <Card className="p-8 border rounded-lg">
+                <p className="text-gray-600">Module management coming soon...</p>
+              </Card>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   )
 
   if (embedded) {
@@ -158,15 +196,13 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
   }
 
   return (
-    <Modal
-      opened={isOpen}
+    <BaseModal
+      isOpen={isOpen}
       onClose={onClose}
+      title={course ? 'Edit Course' : 'Create New Course'}
       size="xl"
-      centered
-      overlayProps={{ opacity: 0.55, blur: 3 }}
-      closeButtonProps={{ 'aria-label': 'Close course form' }}
     >
       {content}
-    </Modal>
+    </BaseModal>
   )
 }

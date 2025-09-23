@@ -15,7 +15,7 @@ import {
   Alert
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { notifications } from '@mantine/notifications'
+import { useToast } from '@/hooks/use-toast'
 import { IconRocket, IconRobotFace, IconAlertTriangle } from '@tabler/icons-react'
 
 // Define local types (will eventually be moved to shared types file)
@@ -60,6 +60,8 @@ export const AIConfigurationStep = memo<AIConfigurationStepProps>(({
   onGenerateQuestions,
   isGenerating
 }) => {
+  const { toast } = useToast()
+  
   // Mantine form with validation
   const form = useForm<FormValues>({
     initialValues: {
@@ -87,11 +89,10 @@ export const AIConfigurationStep = memo<AIConfigurationStepProps>(({
     if (!validation.hasErrors) {
       onGenerateQuestions()
     } else {
-      notifications.show({
+      toast({
         title: 'Validation Error',
-        message: 'Please fix the form errors before generating questions',
-        color: 'red',
-        icon: <IconAlertTriangle size={16} />
+        description: 'Please fix the form errors before generating questions',
+        variant: 'destructive'
       })
     }
   }

@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { Stepper } from '@mantine/core'
+import { cn } from '@/lib/utils'
 import { 
   IconSettings, 
   IconRobotFace, 
@@ -21,6 +21,29 @@ const stepMapping = {
 
 const stepNames = ['settings', 'ai-configuration', 'quiz-editing', 'review']
 
+const steps = [
+  {
+    name: 'Settings',
+    description: 'Basic quiz information',
+    icon: IconSettings
+  },
+  {
+    name: 'AI Config', 
+    description: 'Generate questions with AI',
+    icon: IconRobotFace
+  },
+  {
+    name: 'Questions',
+    description: 'Edit and refine questions',
+    icon: IconEdit
+  },
+  {
+    name: 'Review',
+    description: 'Final review and publish', 
+    icon: IconCheck
+  }
+]
+
 export const StepIndicator = memo<StepIndicatorProps>(({ 
   currentStep, 
   onStepClick 
@@ -35,47 +58,64 @@ export const StepIndicator = memo<StepIndicatorProps>(({
   }
 
   return (
-    <Stepper
-      active={activeStep}
-      onStepClick={handleStepClick}
-      allowNextStepsSelect={false}
-      size="md"
-      radius="md"
-      completedIcon={<IconCheck size={18} />}
-      styles={{
-        step: {
-          cursor: 'pointer',
-          transition: 'all 0.2s ease'
-        },
-        stepIcon: {
-          borderWidth: 2
-        }
-      }}
-    >
-      <Stepper.Step
-        label="Settings"
-        description="Basic quiz information"
-        icon={<IconSettings size={18} />}
-      />
-      
-      <Stepper.Step
-        label="AI Config"
-        description="Generate questions with AI"
-        icon={<IconRobotFace size={18} />}
-      />
-      
-      <Stepper.Step
-        label="Questions"
-        description="Edit and refine questions"
-        icon={<IconEdit size={18} />}
-      />
-      
-      <Stepper.Step
-        label="Review"
-        description="Final review and publish"
-        icon={<IconCheck size={18} />}
-      />
-    </Stepper>
+    <div className="flex items-center justify-between w-full max-w-3xl mx-auto p-4">
+      {steps.map((step, index) => {
+        const Icon = step.icon
+        const isActive = index === activeStep
+        const isCompleted = index < activeStep
+        
+        return (
+          <div key={index} className="flex flex-col items-center relative flex-1">
+            {/* Connector line */}
+            {index < steps.length - 1 && (
+              <div 
+                className={cn(
+                  "absolute top-6 left-1/2 w-full h-0.5 -translate-y-1/2 z-0",
+                  isCompleted ? "bg-blue-500" : "bg-gray-200"
+                )}
+                style={{ 
+                  left: '50%',
+                  width: 'calc(100% - 24px)',
+                  marginLeft: '12px'
+                }}
+              />
+            )}
+            
+            {/* Step circle */}
+            <button
+              onClick={() => handleStepClick(index)}
+              className={cn(
+                "relative z-10 w-12 h-12 rounded-full border-2 flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105",
+                isActive 
+                  ? "bg-blue-500 border-blue-500 text-white" 
+                  : isCompleted
+                    ? "bg-green-500 border-green-500 text-white"
+                    : "bg-white border-gray-300 text-gray-400 hover:border-gray-400"
+              )}
+            >
+              {isCompleted ? (
+                <IconCheck size={18} />
+              ) : (
+                <Icon size={18} />
+              )}
+            </button>
+            
+            {/* Step labels */}
+            <div className="mt-3 text-center">
+              <p className={cn(
+                "text-sm font-medium",
+                isActive ? "text-blue-600" : isCompleted ? "text-green-600" : "text-gray-500"
+              )}>
+                {step.name}
+              </p>
+              <p className="text-xs text-gray-400 mt-1 max-w-[120px]">
+                {step.description}
+              </p>
+            </div>
+          </div>
+        )
+      })}
+    </div>
   )
 })
 

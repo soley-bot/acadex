@@ -32,7 +32,7 @@ interface QuestionCreationOption {
   features: string[]
 }
 
-interface EnhancedQuestionCreationProps {
+interface QuestionCreationProps {
   topic?: string
   category?: string
   difficulty?: 'beginner' | 'intermediate' | 'advanced'
@@ -41,14 +41,14 @@ interface EnhancedQuestionCreationProps {
   onClose: () => void
 }
 
-export function EnhancedQuestionCreation({
+export function QuestionCreation({
   topic = '',
   category = 'general',
   difficulty = 'intermediate',
   existingQuestions,
   onCreateQuestion,
   onClose
-}: EnhancedQuestionCreationProps) {
+}: QuestionCreationProps) {
   const [activeMethod, setActiveMethod] = useState<'selection' | 'ai' | 'template' | 'manual'>('selection')
   const [selectedQuestionType, setSelectedQuestionType] = useState<string>('')
   const enhancedQuestionCreationEnabled = useFeatureFlag('ENHANCED_QUESTION_CREATION')

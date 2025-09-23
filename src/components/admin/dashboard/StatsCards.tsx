@@ -1,13 +1,15 @@
 /**
  * Reusable Statistics Cards Component
  * Eliminates duplicate Card patterns for dashboard statistics display
- * Now using Mantine UI components for better design
+ * Now using ShadCN UI components for better design
  * 
  * Replaces 4+ duplicate Card variant='interactive' patterns with single component
  */
 
 import React from 'react'
-import { Paper, Text, Group, ThemeIcon, Stack, Badge, rem, SimpleGrid } from '@mantine/core'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 export interface StatCardData {
   id: string
@@ -28,51 +30,65 @@ interface StatsCardsProps {
   className?: string
 }
 
+const getThemeColors = (theme: string) => {
+  const colors = {
+    blue: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+    green: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300', 
+    orange: 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
+    violet: 'bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300',
+    red: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+  }
+  return colors[theme as keyof typeof colors] || colors.blue
+}
+
 export const StatsCards: React.FC<StatsCardsProps> = ({
   stats,
   className = ""
 }) => {
   return (
-    <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md" className={className}>
+    <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4", className)}>
       {stats.map(({ id, label, value, description, icon: Icon, colorTheme, trend }) => (
-        <Paper key={id} p="lg" radius="md" withBorder shadow="sm" style={{ cursor: 'pointer' }}
-               className="hover:shadow-lg transition-shadow">
-          <Stack gap="md">
-            <Group justify="space-between" align="flex-start">
-              <Stack gap="xs" flex={1}>
-                <Text size="sm" c="dimmed" fw={500}>
-                  {label}
-                </Text>
-                <Text size="xl" fw={700}>
-                  {value}
-                </Text>
-                <Text size="xs" c="dimmed">
-                  {description}
-                </Text>
-              </Stack>
-              
-              <ThemeIcon size="lg" variant="light" color={colorTheme}>
-                <Icon size="1.5rem" />
-              </ThemeIcon>
-            </Group>
+        <Card key={id} className="cursor-pointer hover:shadow-lg transition-all duration-200 border">
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="flex justify-between items-start">
+                <div className="flex-1 space-y-1">
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {label}
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {value}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {description}
+                  </p>
+                </div>
+                
+                <div className={cn(
+                  "p-2 rounded-lg",
+                  getThemeColors(colorTheme)
+                )}>
+                  <Icon size={24} />
+                </div>
+              </div>
 
-            {trend && (
-              <Group gap="xs">
-                <Badge 
-                  color={trend.isPositive ? 'green' : 'red'} 
-                  variant="light" 
-                  size="sm"
-                >
-                  {trend.isPositive ? '+' : ''}{trend.value}%
-                </Badge>
-                <Text size="xs" c="dimmed">
-                  {trend.label}
-                </Text>
-              </Group>
-            )}
-          </Stack>
-        </Paper>
+              {trend && (
+                <div className="flex items-center gap-2">
+                  <Badge 
+                    variant={trend.isPositive ? "default" : "destructive"}
+                    className="text-xs"
+                  >
+                    {trend.isPositive ? '+' : ''}{trend.value}%
+                  </Badge>
+                  <p className="text-xs text-muted-foreground">
+                    {trend.label}
+                  </p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       ))}
-    </SimpleGrid>
+    </div>
   )
 }

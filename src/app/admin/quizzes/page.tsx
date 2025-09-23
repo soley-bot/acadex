@@ -14,7 +14,7 @@ import { QuizViewModal } from '@/components/admin/QuizViewModal'
 import { CategoryManagement } from '@/components/admin/CategoryManagement'
 import { QuizAnalytics } from '@/components/admin/QuizAnalytics'
 import { AdminQuizCard } from '@/components/admin/AdminQuizCard'
-import { EnhancedDeleteModal } from '@/components/admin/EnhancedDeleteModal'
+import { DeleteModal } from '@/components/admin/DeleteModal'
 import { BulkOperations } from '@/components/admin/BulkOperations'
 import { StatsCards, type StatCardData } from '@/components/admin/dashboard/StatsCards'
 import { QuizActionsToolbar } from '@/components/admin/dashboard/QuizActionsToolbar'
@@ -477,7 +477,7 @@ export default function AdminQuizzesPage() {
           onSuccess={handleFormSuccess}
         />
   
-        <EnhancedDeleteModal
+        <DeleteModal
           item={deletingQuiz ? { id: deletingQuiz.id, title: deletingQuiz.title, type: 'quiz' as const } : null}
           isOpen={showDeleteModal}
           onClose={() => actions.closeModal('showDeleteModal')}
