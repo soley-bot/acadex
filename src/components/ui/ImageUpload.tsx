@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import React, { useState, useRef, useCallback, useEffect, memo } from 'react'
 import { Upload, X, Image as ImageIcon, Loader2, ImagePlay } from 'lucide-react'
 import Image from 'next/image'
 import { logger } from '@/lib/logger'
@@ -16,7 +16,7 @@ interface ImageUploadProps {
   context?: 'quiz' | 'course' | 'lesson' | 'general'  // Add context prop
 }
 
-export function ImageUpload({
+export const ImageUpload = memo<ImageUploadProps>(({
   value,
   onChange,
   onFileUpload,
@@ -24,7 +24,7 @@ export function ImageUpload({
   className = '',
   placeholder = 'Upload an image or enter URL',
   context = 'general'
-}: ImageUploadProps) {
+}) => {
   const [uploading, setUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const [urlInput, setUrlInput] = useState(value || '')
@@ -245,4 +245,6 @@ export function ImageUpload({
       />
     </div>
   )
-}
+})
+
+ImageUpload.displayName = 'ImageUpload'

@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode } from 'react'
+import React, { memo } from 'react'
 import { X } from 'lucide-react'
 
 interface BaseModalProps {
@@ -9,13 +9,14 @@ interface BaseModalProps {
   title: string
   subtitle?: string
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
-  headerIcon?: ReactNode
+  headerIcon?: React.ReactNode
   headerGradient?: 'blue' | 'purple' | 'red' | 'green' | 'orange' | 'gray'
-  children: ReactNode
-  footer?: ReactNode
+  children: React.ReactNode
+  footer?: React.ReactNode
   preventClose?: boolean
 }
 
+// Static mappings - no recreation on renders
 const sizeClasses = {
   sm: 'max-w-md',
   md: 'max-w-lg', 
@@ -33,7 +34,7 @@ const gradientClasses = {
   gray: 'bg-gradient-to-r from-gray-600 to-slate-600'
 }
 
-export function BaseModal({ 
+export const BaseModal = memo<BaseModalProps>(({ 
   isOpen, 
   onClose, 
   title, 
@@ -44,7 +45,7 @@ export function BaseModal({
   children, 
   footer,
   preventClose = false
-}: BaseModalProps) {
+}) => {
   if (!isOpen) return null
 
   return (
@@ -92,4 +93,6 @@ export function BaseModal({
       </div>
     </div>
   )
-}
+})
+
+BaseModal.displayName = 'BaseModal'

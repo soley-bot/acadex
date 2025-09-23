@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { memo, useMemo } from 'react'
 import { cn } from '@/lib/utils'
 
 interface DashboardGridProps {
@@ -16,27 +16,31 @@ interface DashboardGridProps {
   gap?: number
 }
 
-export function DashboardGrid({
+export const DashboardGrid = memo<DashboardGridProps>(({
   children,
   className,
   cols = { default: 1, md: 2, lg: 3 },
   gap = 6
-}: DashboardGridProps) {
-  const gridClasses = [
-    `gap-${gap}`,
-    cols.default && `grid-cols-${cols.default}`,
-    cols.sm && `sm:grid-cols-${cols.sm}`,
-    cols.md && `md:grid-cols-${cols.md}`,
-    cols.lg && `lg:grid-cols-${cols.lg}`,
-    cols.xl && `xl:grid-cols-${cols.xl}`
-  ].filter(Boolean).join(' ')
+}) => {
+  const gridClasses = useMemo(() => {
+    return [
+      `gap-${gap}`,
+      cols.default && `grid-cols-${cols.default}`,
+      cols.sm && `sm:grid-cols-${cols.sm}`,
+      cols.md && `md:grid-cols-${cols.md}`,
+      cols.lg && `lg:grid-cols-${cols.lg}`,
+      cols.xl && `xl:grid-cols-${cols.xl}`
+    ].filter(Boolean).join(' ')
+  }, [gap, cols.default, cols.sm, cols.md, cols.lg, cols.xl])
 
   return (
     <div className={cn("grid", gridClasses, className)}>
       {children}
     </div>
   )
-}
+})
+
+DashboardGrid.displayName = 'DashboardGrid'
 
 interface DashboardSectionProps {
   title?: string
@@ -46,13 +50,13 @@ interface DashboardSectionProps {
   headerActions?: React.ReactNode
 }
 
-export function DashboardSection({
+export const DashboardSection = memo<DashboardSectionProps>(({
   title,
   description,
   children,
   className,
   headerActions
-}: DashboardSectionProps) {
+}) => {
   return (
     <section className={cn("space-y-6", className)}>
       {(title || description || headerActions) && (
@@ -79,4 +83,6 @@ export function DashboardSection({
       {children}
     </section>
   )
-}
+})
+
+DashboardSection.displayName = 'DashboardSection'

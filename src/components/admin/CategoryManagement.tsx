@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, memo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus, Edit, Trash2, Save, X, Palette } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -24,7 +24,20 @@ interface CategoryManagementProps {
   onCategoryCreated?: () => void
 }
 
-export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: CategoryManagementProps) {
+// Static arrays - no recreation on renders
+const colorOptions = [
+  '#6366f1', '#3b82f6', '#10b981', '#f59e0b', 
+  '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16',
+  '#f97316', '#ec4899', '#64748b', '#059669'
+]
+
+const iconOptions = [
+  'folder', 'book', 'edit', 'bookmark', 'mic', 
+  'pen-tool', 'book-open', 'headphones', 'message-circle',
+  'briefcase', 'graduation-cap', 'star', 'target', 'award'
+]
+
+export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClose, onCategoryCreated }) => {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -37,19 +50,7 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
     type: 'general' as 'general' | 'quiz' | 'course'
   })
 
-  const colorOptions = [
-    '#6366f1', '#3b82f6', '#10b981', '#f59e0b', 
-    '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16',
-    '#f97316', '#ec4899', '#64748b', '#059669'
-  ]
-
-  const iconOptions = [
-    'folder', 'book', 'edit', 'bookmark', 'mic', 
-    'pen-tool', 'book-open', 'headphones', 'message-circle',
-    'briefcase', 'graduation-cap', 'star', 'target', 'award'
-  ]
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       setLoading(true)
       
@@ -86,13 +87,13 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     if (isOpen) {
       fetchCategories()
     }
-  }, [isOpen])
+  }, [isOpen, fetchCategories])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -408,4 +409,6 @@ export function CategoryManagement({ isOpen, onClose, onCategoryCreated }: Categ
       </div>
     </div>
   )
-}
+})
+
+CategoryManagement.displayName = 'CategoryManagement'
