@@ -4,14 +4,31 @@ import { logger } from '@/lib/logger'
 import { supabase, Course, Quiz, User, Enrollment, CourseModule, CourseLesson } from './supabase'
 import { validateCourseData, validateQuiz, prepareCourseForDatabase, COURSE_FIELDS, QUIZ_FIELDS } from './database-types'
 
+// Enhanced database operation with proper error handling
+async function executeWithTimeout<T>(
+  operation: Promise<T>, 
+  timeoutMs: number = 10000,
+  operationName: string = 'Database operation'
+): Promise<T> {
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`${operationName} timed out after ${timeoutMs}ms`))
+    }, timeoutMs)
+  })
+
+  try {
+    return await Promise.race([operation, timeoutPromise])
+  } catch (error) {
+    logger.error(`${operationName} failed:`, error)
+    throw error
+  }
+}
+
 // Course operations
 export async function createCourse(courseData: Partial<Course>): Promise<Course> {
-  logger.debug('📊 [DB_CREATE] Starting course creation with data:', courseData)
-  logger.debug('📊 [DB_CREATE] Title value:', JSON.stringify(courseData.title))
-  logger.debug('📊 [DB_CREATE] Title type:', typeof courseData.title)
+  logger.info('📊 [DB_CREATE] Starting course creation')
   
   const { errors } = validateCourseData(courseData)
-  logger.debug('📊 [DB_CREATE] Validation errors:', errors)
   
   if (errors.length > 0) {
     logger.error('❌ [DB_CREATE] Validation failed:', errors)
@@ -19,41 +36,34 @@ export async function createCourse(courseData: Partial<Course>): Promise<Course>
   }
 
   const preparedData = prepareCourseForDatabase(courseData)
-  logger.debug('📊 [DB_CREATE] Prepared data:', preparedData)
-  logger.debug('📊 [DB_CREATE] Prepared title:', JSON.stringify(preparedData.title))
   
-  // Add timeout wrapper to prevent hanging
-  logger.debug('📊 [DB_CREATE] Starting database operation with 15 second timeout...')
-  const createPromise = supabase
-    .from('courses')
-    .insert(preparedData)
-    .select(COURSE_FIELDS.join(','))
-    .single()
-
-  const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(() => {
-      logger.error('⏰ [DB_CREATE] Database operation timed out after 15 seconds')
-      reject(new Error('Database operation timed out - please try again'))
-    }, 15000)
-  })
-
   try {
-    const { data, error } = await Promise.race([createPromise, timeoutPromise]) as any
+    const createOperation = supabase
+      .from('courses')
+      .insert(preparedData)
+      .select(COURSE_FIELDS.join(','))
+      .single()
 
-    logger.debug('📊 [DB_CREATE] Database response - error:', error)
-    logger.debug('📊 [DB_CREATE] Database response - data:', data)
+    const result = await executeWithTimeout(
+      createOperation, 
+      10000, 
+      'Course creation'
+    ) as any
+
+    const { data, error } = result
 
     if (error) {
       logger.error('❌ [DB_CREATE] Database error:', error)
       throw error
     }
+    
     if (!data) {
       logger.error('❌ [DB_CREATE] No data returned')
       throw new Error('No data returned from course creation')
     }
     
     const course = data as unknown as Course
-    logger.debug('✅ [DB_CREATE] Course created successfully:', course.id)
+    logger.info('✅ [DB_CREATE] Course created successfully:', course.id)
     return course
   } catch (error) {
     logger.error('❌ [DB_CREATE] Create operation failed:', error)

@@ -2,21 +2,35 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
 
+// Input validation helper
+function validateQuizId(quizId: string | undefined): string {
+  if (!quizId || typeof quizId !== 'string') {
+    throw new Error('Invalid quiz ID')
+  }
+  
+  // Validate UUID format to prevent injection
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+  if (!uuidRegex.test(quizId)) {
+    throw new Error('Invalid quiz ID format')
+  }
+  
+  return quizId
+}
+
 // GET - Fetch single public quiz with questions for taking
 export async function GET(request: NextRequest) {
   // Extract quiz ID from URL pathname
   const url = new URL(request.url)
-  const quizId = url.pathname.split('/').pop()
+  const rawQuizId = url.pathname.split('/').pop()
   
   try {
-    if (!quizId) {
-      return NextResponse.json({ error: 'Quiz ID is required' }, { status: 400 })
-    }
+    const quizId = validateQuizId(rawQuizId)
 
     const supabase = createServiceClient()
     logger.info('Public quiz details fetch requested', { quizId })
 
     // Fetch quiz and questions in parallel - optimized for quiz taking
+    // CRITICAL FIX: Remove correct_answer from public API response
     const [quizResult, questionsResult] = await Promise.all([
       supabase
         .from('quizzes')
@@ -39,7 +53,8 @@ export async function GET(request: NextRequest) {
           passage_source,
           passage_audio_url,
           word_count,
-          estimated_read_time
+          estimated_read_time,
+          time_limit_minutes
         `)
         .eq('id', quizId)
         .eq('is_published', true) // Only published quizzes for public access
@@ -52,7 +67,6 @@ export async function GET(request: NextRequest) {
           question,
           question_type,
           options,
-          correct_answer,
           explanation,
           order_index,
           points,
@@ -85,15 +99,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Quiz is not published' }, { status: 404 })
     }
 
-    // Update total_questions if it's incorrect
-    if (quiz.total_questions !== questions.length) {
-      await supabase
-        .from('quizzes')
-        .update({ total_questions: questions.length })
-        .eq('id', quizId)
-      
-      quiz.total_questions = questions.length
-    }
+    // REMOVED: No side effects in GET requests - move to separate endpoint
+    // if (quiz.total_questions !== questions.length) {
+    //   await supabase.from('quizzes').update({ total_questions: questions.length }).eq('id', quizId)
+    // }
 
     logger.info('Public quiz details fetch completed', { 
       quizId, 
@@ -109,7 +118,7 @@ export async function GET(request: NextRequest) {
 
   } catch (error: any) {
     logger.error('Public quiz details API error', { 
-      quizId,
+      quizId: rawQuizId,
       error: error.message 
     })
     
