@@ -349,10 +349,22 @@ export class APISecurityMiddleware {
 }
 
 // Cleanup interval for rate limiting (run every 5 minutes)
+// Store interval reference for proper cleanup
+let rateLimitCleanupInterval: NodeJS.Timeout | null = null
+
 if (typeof globalThis !== 'undefined') {
-  setInterval(() => {
+  rateLimitCleanupInterval = setInterval(() => {
     APISecurityMiddleware.cleanupRateLimit()
   }, 5 * 60 * 1000)
+
+  // Cleanup on process exit to prevent memory leaks
+  if (typeof process !== 'undefined') {
+    process.on('exit', () => {
+      if (rateLimitCleanupInterval) {
+        clearInterval(rateLimitCleanupInterval)
+      }
+    })
+  }
 }
 
 // Convenience functions for common use cases

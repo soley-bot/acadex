@@ -192,6 +192,7 @@ export function useBackgroundSyncStatus() {
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle')
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null)
   const [pendingChanges, setPendingChanges] = useState(0)
+  const statusTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   
   const startSync = useCallback(() => {
     setSyncStatus('syncing')
@@ -204,8 +205,22 @@ export function useBackgroundSyncStatus() {
       setPendingChanges(0)
     }
     
+    // Clear any existing timeout
+    if (statusTimeoutRef.current) {
+      clearTimeout(statusTimeoutRef.current)
+    }
+    
     // Reset to idle after showing status
-    setTimeout(() => setSyncStatus('idle'), 2000)
+    statusTimeoutRef.current = setTimeout(() => setSyncStatus('idle'), 2000)
+  }, [])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (statusTimeoutRef.current) {
+        clearTimeout(statusTimeoutRef.current)
+      }
+    }
   }, [])
   
   const addPendingChange = useCallback(() => {

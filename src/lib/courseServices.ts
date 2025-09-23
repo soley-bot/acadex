@@ -22,9 +22,13 @@ class CoursePreloadingService {
   private preloadQueue: Set<string> = new Set()
   private batchSize = 10
   private batchDelay = 100 // ms
+  private processingTimeouts = new Set<NodeJS.Timeout>()
+  private isDestroyed = false
 
   // Preload courses for better UX
   async preloadCourses(courseIds: string[]) {
+    if (this.isDestroyed) return
+    
     const uncachedIds = courseIds.filter(id => !courseCache.get(`course:${id}`))
     
     if (uncachedIds.length === 0) return
@@ -32,12 +36,13 @@ class CoursePreloadingService {
     // Add to queue
     uncachedIds.forEach(id => this.preloadQueue.add(id))
 
-    // Process queue in batches
-    setTimeout(() => this.processBatch(), this.batchDelay)
+    // Process queue in batches with timeout tracking
+    const timeout = setTimeout(() => this.processBatch(), this.batchDelay)
+    this.processingTimeouts.add(timeout)
   }
 
   private async processBatch() {
-    if (this.preloadQueue.size === 0) return
+    if (this.isDestroyed || this.preloadQueue.size === 0) return
 
     const batch = Array.from(this.preloadQueue).slice(0, this.batchSize)
     this.preloadQueue = new Set([...this.preloadQueue].slice(this.batchSize))
@@ -48,10 +53,18 @@ class CoursePreloadingService {
       logger.warn('Batch preload failed:', error)
     }
 
-    // Continue processing if more items in queue
-    if (this.preloadQueue.size > 0) {
-      setTimeout(() => this.processBatch(), this.batchDelay)
+    // Continue processing if more items in queue and not destroyed
+    if (this.preloadQueue.size > 0 && !this.isDestroyed) {
+      const timeout = setTimeout(() => this.processBatch(), this.batchDelay)
+      this.processingTimeouts.add(timeout)
     }
+  }
+
+  destroy() {
+    this.isDestroyed = true
+    this.processingTimeouts.forEach(timeout => clearTimeout(timeout))
+    this.processingTimeouts.clear()
+    this.preloadQueue.clear()
   }
 
   private async batchLoadCourses(courseIds: string[]) {
@@ -358,4 +371,11 @@ export const courseUtils = {
       logger.warn('Failed to warm up popular courses:', error)
     }
   }
+}
+
+// Cleanup on page unload to prevent memory leaks
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    coursePreloader.destroy()
+  })
 }
