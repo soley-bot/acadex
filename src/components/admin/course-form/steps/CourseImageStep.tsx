@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useState } from 'react'
+import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -118,10 +119,13 @@ export const CourseImageStep = memo<CourseImageStepProps>(({
           </Button>
         </div>
         <div className="relative">
-          <img
-            src={image.url || (image.file ? URL.createObjectURL(image.file) : undefined)}
-            alt={image.alt_text}
+          <Image
+            src={image.url || (image.file ? URL.createObjectURL(image.file) : '/placeholder-image.jpg')}
+            alt={image.alt_text || 'Course image'}
+            width={400}
+            height={120}
             className="w-full h-30 object-cover rounded-md"
+            unoptimized={!!image.file} // Don't optimize blob URLs from files
           />
           {image.upload_progress !== undefined && image.upload_progress < 100 && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-md">
