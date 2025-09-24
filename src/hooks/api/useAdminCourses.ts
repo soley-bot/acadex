@@ -2,7 +2,7 @@
  * Admin course-related hooks using React Query for optimized caching
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { logger, supabase } from '@/lib'
+import { logger, getAuthHeaders } from '@/lib'
 import type { AdminCoursesResponse, Course } from '@/types'
 
 // Category type definition
@@ -11,19 +11,6 @@ interface Category {
   name: string
   description?: string
   created_at?: string
-}
-
-// Auth helper
-async function getAuthHeaders() {
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
-    throw new Error('Authentication required')
-  }
-  
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${session.access_token}`
-  }
 }
 
 /**

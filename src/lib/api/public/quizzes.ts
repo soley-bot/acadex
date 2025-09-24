@@ -1,14 +1,24 @@
-import { supabase } from '../supabase'
-import type { QuizAttempt } from '../supabase'
+import { supabase } from '../../supabase'
+import type { QuizAttempt } from '../../supabase'
+import type { 
+  QuizFilters, 
+  ServiceResponse,
+  Quiz,
+  QuizWithQuestions
+} from '../shared'
 
-export const quizAPI = {
+export const publicQuizAPI = {
   // Get paginated published quizzes
-  async getQuizzes(filters?: { 
-    category?: string; 
-    difficulty?: string; 
-    page?: number; 
-    limit?: number 
-  }) {
+  async getQuizzes(filters?: QuizFilters): Promise<ServiceResponse<{
+    data: Quiz[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+      hasMore: boolean;
+    };
+  }>> {
     const page = filters?.page || 1
     const limit = filters?.limit || 12
     const from = (page - 1) * limit
@@ -48,20 +58,22 @@ export const quizAPI = {
     })) || []
     
     return { 
-      data: transformedData, 
-      error, 
-      pagination: {
-        page,
-        limit,
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / limit),
-        hasMore: (count || 0) > to + 1
-      }
+      data: error ? null : {
+        data: transformedData, 
+        pagination: {
+          page,
+          limit,
+          total: count || 0,
+          totalPages: Math.ceil((count || 0) / limit),
+          hasMore: (count || 0) > to + 1
+        }
+      },
+      error: error || null
     }
   },
 
   // Get single quiz with questions
-  async getQuizWithQuestions(id: string) {
+  async getQuizWithQuestions(id: string): Promise<ServiceResponse<QuizWithQuestions | null>> {
     const { data: quiz, error: quizError } = await supabase
       .from('quizzes')
       .select(`
@@ -92,7 +104,12 @@ export const quizAPI = {
       .eq('is_published', true)
       .single()
 
-    if (quizError) return { data: null, error: quizError }
+    if (quizError) {
+      return { 
+        data: null, 
+        error: quizError 
+      }
+    }
 
     const { data: questions, error: questionsError } = await supabase
       .from('quiz_questions')
@@ -125,28 +142,47 @@ export const quizAPI = {
       .eq('quiz_id', id)
       .order('order_index')
 
+    if (questionsError) {
+      return { 
+        data: null, 
+        error: questionsError 
+      }
+    }
+
     return { 
       data: quiz ? { ...quiz, questions } : null, 
-      error: questionsError 
+      error: null 
     }
   },
 
   // Create quiz attempt
-  async createQuizAttempt(attempt: Omit<QuizAttempt, 'id' | 'completed_at'>) {
+  async createQuizAttempt(attempt: Omit<QuizAttempt, 'id' | 'completed_at'>): Promise<ServiceResponse<QuizAttempt>> {
     const { data, error } = await supabase
       .from('quiz_attempts')
       .insert(attempt)
       .select()
       .single()
 
-    return { data, error }
+    return { 
+      data, 
+      error: error || null
+    }
   },
 
   // Get user's quiz attempts
   async getUserQuizAttempts(userId: string, filters?: {
     page?: number;
     limit?: number;
-  }) {
+  }): Promise<ServiceResponse<{
+    data: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+      hasMore: boolean;
+    };
+  }>> {
     const page = filters?.page || 1
     const limit = filters?.limit || 10
     const from = (page - 1) * limit
@@ -167,26 +203,36 @@ export const quizAPI = {
       .range(from, to)
 
     return { 
-      data, 
-      error, 
-      pagination: {
-        page,
-        limit,
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / limit),
-        hasMore: (count || 0) > to + 1
-      }
+      data: error ? null : {
+        data: data || [], 
+        pagination: {
+          page,
+          limit,
+          total: count || 0,
+          totalPages: Math.ceil((count || 0) / limit),
+          hasMore: (count || 0) > to + 1
+        }
+      },
+      error: error || null
     }
   },
 
   // Get quiz statistics
-  async getQuizStats(quizId: string) {
+  async getQuizStats(quizId: string): Promise<ServiceResponse<{
+    totalAttempts: number;
+    averageScore: number;
+  }>> {
     const { data, error } = await supabase
       .from('quiz_attempts')
       .select('score, total_questions')
       .eq('quiz_id', quizId)
 
-    if (error) return { data: null, error }
+    if (error) {
+      return { 
+        data: null, 
+        error: error 
+      }
+    }
 
     const attempts = data.length
     const avgScore = attempts > 0 
@@ -202,3 +248,6 @@ export const quizAPI = {
     }
   }
 }
+
+// Legacy export for backward compatibility (will be removed later)
+export const quizAPI = publicQuizAPI

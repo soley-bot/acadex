@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { getQuizResults } from '@/lib/database'
+import { quizAPI } from '@/lib/api'
+const { getUserQuizAttempts: getQuizResults } = quizAPI
 import { useAuth } from '@/contexts/AuthContext'
 import { H1, H2, H3, H4, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -45,13 +46,14 @@ export default function QuizResultsPage() {
     const fetchResults = async () => {
       try {
         setLoading(true)
-        const { data, error: fetchError } = await getQuizResults(params.resultId as string)
+        const response = await getQuizResults(params.resultId as string)
         
-        if (fetchError) {
+        if (response.error) {
           setError('Failed to load quiz results')
-          logger.error('Error fetching quiz results:', fetchError)
+          logger.error('Error fetching quiz results:', response.error)
         } else {
-          setResults(data)
+          const resultData = Array.isArray(response.data) ? response.data[0] : response.data?.data?.[0] || null
+          setResults(resultData)
         }
       } catch (err) {
         logger.error('Error fetching quiz results:', err)

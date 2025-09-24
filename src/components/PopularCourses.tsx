@@ -3,7 +3,7 @@
 import { logger } from '@/lib/logger'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { courseAPI } from '@/lib/database'
+import { courseAPI } from '@/lib/api'
 import type { Course } from '@/lib/supabase'
 import { CourseImage } from '@/components/ui/image'
 import { Card, CardContent } from '@/components/ui/card'

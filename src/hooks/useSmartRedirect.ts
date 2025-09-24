@@ -5,7 +5,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef } from 'react';
-import { cacheUtils, withCache } from '@/lib/smartCache';
+import { cacheUtils, withCache } from '@/lib/cache-utils';
 
 interface RedirectOptions {
   replace?: boolean;

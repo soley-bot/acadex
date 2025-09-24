@@ -282,3 +282,55 @@ export class BatchProcessor<T, R> {
     }
   }
 }
+
+// ==============================================
+// QUERY PERFORMANCE MONITORING (Legacy)
+// ==============================================
+
+import { logger } from '@/lib/logger'
+
+export class QueryPerformance {
+  private static measurements: Record<string, number[]> = {}
+
+  static async measure<T>(queryName: string, queryFn: () => Promise<T>): Promise<T> {
+    const start = Date.now()
+    try {
+      const result = await queryFn()
+      const duration = Date.now() - start
+      
+      if (!this.measurements[queryName]) {
+        this.measurements[queryName] = []
+      }
+      this.measurements[queryName].push(duration)
+
+      // Log slow queries
+      if (duration > 1000) {
+        logger.warn(`🐌 Slow query: ${queryName} took ${duration}ms`)
+      }
+
+      return result
+    } catch (error) {
+      const duration = Date.now() - start
+      logger.error(`❌ Query failed: ${queryName} after ${duration}ms`, error)
+      throw error
+    }
+  }
+
+  static getStats() {
+    const stats: Record<string, { avg: number, count: number, max: number }> = {}
+    
+    Object.entries(this.measurements).forEach(([query, times]) => {
+      stats[query] = {
+        avg: Math.round(times.reduce((a, b) => a + b, 0) / times.length),
+        count: times.length,
+        max: Math.max(...times)
+      }
+    })
+
+    return stats
+  }
+
+  static clearStats() {
+    this.measurements = {}
+  }
+}

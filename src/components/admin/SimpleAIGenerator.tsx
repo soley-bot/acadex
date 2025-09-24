@@ -51,7 +51,7 @@ export function SimpleAIGenerator({ onQuizGenerated }: SimpleAIGeneratorProps) {
     setSuccess('')
 
     try {
-      const response = await fetch('/api/simple-ai-generation', {
+      const response = await fetch('/api/admin/generate-simple-quiz', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -5,7 +5,7 @@
 'use client'
 
 import { forwardRef } from 'react'
-import { SUPPORTED_LANGUAGES, QUIZ_SUBJECTS, DIFFICULTY_LEVELS, QUESTION_TYPES, QUESTION_COUNT_OPTIONS } from '@/lib/quiz-constants'
+import { SUPPORTED_LANGUAGES, QUIZ_SUBJECTS, DIFFICULTY_LEVELS, QUESTION_TYPES, QUESTION_COUNT_OPTIONS } from '@/lib/quiz-constants-unified'
 
 interface LanguageSelectorProps {
   value: string

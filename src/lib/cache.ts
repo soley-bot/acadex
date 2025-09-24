@@ -519,6 +519,64 @@ export const cacheDebug = {
 // 7. CLEANUP ON APP UNMOUNT
 // ==============================================
 
+// ==============================================
+// LEGACY DATABASE CACHE (compatibility)
+// ==============================================
+
+interface LegacyCacheItem<T> {
+  data: T
+  timestamp: number
+  ttl: number
+}
+
+class LegacyDatabaseCache {
+  private cache = new Map<string, LegacyCacheItem<any>>()
+  private readonly DEFAULT_TTL = 5 * 60 * 1000
+
+  set<T>(key: string, data: T, ttl = this.DEFAULT_TTL) {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl
+    })
+  }
+
+  get<T>(key: string): T | null {
+    const item = this.cache.get(key)
+    if (!item) return null
+
+    if (Date.now() - item.timestamp > item.ttl) {
+      this.cache.delete(key)
+      return null
+    }
+
+    return item.data
+  }
+
+  clear() {
+    this.cache.clear()
+    if (typeof window !== 'undefined') {
+      const keys = Object.keys(sessionStorage)
+      keys.forEach(key => {
+        if (key.startsWith('quiz-') || key.startsWith('course-') || key.startsWith('dashboard-')) {
+          sessionStorage.removeItem(key)
+        }
+      })
+    }
+  }
+
+  delete(key: string) {
+    this.cache.delete(key)
+  }
+
+  // Expose for CacheStatus component
+  get size() {
+    return this.cache.size
+  }
+}
+
+export const dbCache = new LegacyDatabaseCache()
+
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeunload', () => {
     courseCache.destroy()

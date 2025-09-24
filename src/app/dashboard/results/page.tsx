@@ -18,7 +18,8 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { getUserQuizAttempts } from '@/lib/database'
+import { quizAPI } from '@/lib/api'
+const { getUserQuizAttempts } = quizAPI
 
 interface QuizAttempt {
   id: string
@@ -60,13 +61,15 @@ export default function AllResultsPage() {
     const fetchAllResults = async () => {
       try {
         setLoading(true)
-        const { data, error: fetchError, pagination: paginationData } = await getUserQuizAttempts(user.id, { limit: 10, page: currentPage })
+        const response = await getUserQuizAttempts(user.id, { limit: 10, page: currentPage })
         
-        if (fetchError) {
+        if (response.error) {
           setError('Failed to load quiz results')
-          logger.error('Error fetching quiz attempts:', fetchError)
+          logger.error('Error fetching quiz attempts:', response.error)
         } else {
-          setQuizAttempts((data || []) as QuizAttempt[])
+          const responseData = Array.isArray(response.data) ? response.data : response.data?.data || []
+          const paginationData = Array.isArray(response.data) ? null : response.data?.pagination
+          setQuizAttempts(responseData as QuizAttempt[])
           if (paginationData) {
             setPagination(paginationData)
           }

@@ -1,13 +1,12 @@
 // Re-export all API modules for backward compatibility and easy access
 export { userAPI } from './users'
 export { courseAPI } from './courses'
-export { quizAPI } from './quizzes'
+export { quizAPI } from './public/quizzes'
 export { enrollmentAPI } from './enrollments'
-export { authAPI } from './auth'
 
 // Legacy exports for backward compatibility
 import { courseAPI } from './courses'
-import { quizAPI } from './quizzes'
+import { quizAPI } from './public/quizzes'
 import { supabase } from '../supabase'
 import { logger } from '../logger'
 

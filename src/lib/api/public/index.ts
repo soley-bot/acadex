@@ -1,0 +1,1 @@
+export { publicQuizAPI, quizAPI } from './quizzes'

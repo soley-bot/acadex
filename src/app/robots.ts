@@ -14,7 +14,6 @@ export default function robots(): MetadataRoute.Robots {
         '/create-admin',
         '/unauthorized',
         '/test-*',
-        '/optimized-search',
         '/profile',
         '/progress',
       ],

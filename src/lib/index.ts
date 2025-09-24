@@ -24,6 +24,7 @@ export type {
 
 // Authentication
 export { 
+  getAuthHeaders,
   authenticatedGet, 
   authenticatedPost, 
   authenticatedPut, 
@@ -43,8 +44,8 @@ export { uploadImage } from './imageUpload'
 export { getHeroImage } from './imageMapping'
 
 // Constants
-export { quizDifficulties, quizCategories } from './quizConstants'
+export { quizDifficulties, quizCategories } from './quiz-constants-unified'
 export { levels, statuses } from './courseConstants'
 
-// Cache utilities (if still used)
-export { cacheUtils, withCache } from './smartCache'
+// Cache utilities (consolidated)
+export { cacheUtils, withCache } from './cache-utils'

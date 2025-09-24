@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { useBackgroundSync } from '@/hooks/useAdvancedCaching'
+import { useBackgroundSync } from '@/hooks/useConsolidatedCaching'
 
 // Create a client with advanced configuration
 const queryClient = new QueryClient({

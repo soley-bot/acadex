@@ -4,7 +4,7 @@ import React, { Suspense, useState } from 'react'
 import { Loader2, ChevronDown, ChevronRight, CheckCircle, AlertTriangle, Trash2 } from 'lucide-react'
 import { QuestionData, QuestionEditorProps, MultipleChoiceData, TrueFalseData, FillBlankData, EssayData, MatchingData, OrderingData } from '@/types/question-types'
 import type { QuizQuestion } from '@/lib/supabase'
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 // Helper function to convert QuizQuestion to QuestionData
 function convertQuizQuestionToQuestionData(quizQuestion: QuizQuestion): QuestionData {

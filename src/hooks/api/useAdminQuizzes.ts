@@ -2,21 +2,8 @@
  * Admin quiz-related hooks using React Query for optimized caching
  */
 import { useQuery } from '@tanstack/react-query'
-import { logger, supabase, type Quiz } from '@/lib'
+import { logger, getAuthHeaders, type Quiz } from '@/lib'
 import type { AdminQuizzesResponse } from '@/types'
-
-// Auth helper
-async function getAuthHeaders() {
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
-    throw new Error('Authentication required')
-  }
-  
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${session.access_token}`
-  }
-}
 
 /**
  * Fetch admin quizzes with pagination and caching

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { enrollmentAPI } from '@/lib/database'
+import { enrollmentAPI } from '@/lib/api'
 import type { EnrolledCourse } from '@/types/dashboard'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'

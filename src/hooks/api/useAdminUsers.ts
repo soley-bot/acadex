@@ -2,21 +2,8 @@
  * Admin user and enrollment management hooks
  */
 import { useQuery } from '@tanstack/react-query'
-import { supabase } from '@/lib'
+import { getAuthHeaders } from '@/lib'
 import type { UserRole } from '@/types'
-
-// Auth helper
-async function getAuthHeaders() {
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
-    throw new Error('Authentication required')
-  }
-  
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${session.access_token}`
-  }
-}
 
 // Type definitions
 interface PaginationMeta {

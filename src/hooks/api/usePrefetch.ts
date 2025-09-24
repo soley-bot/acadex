@@ -2,20 +2,7 @@
  * Prefetch utilities for performance optimization
  */
 import { useQueryClient } from '@tanstack/react-query'
-import { supabase } from '@/lib'
-
-// Auth helper
-async function getAuthHeaders() {
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
-    throw new Error('Authentication required')
-  }
-  
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${session.access_token}`
-  }
-}
+import { getAuthHeaders } from '@/lib'
 
 /**
  * Prefetch quiz data for faster navigation

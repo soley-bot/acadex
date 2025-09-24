@@ -6,7 +6,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { logger } from '@/lib/logger'
-import { cacheKeys } from '@/hooks/useAdvancedCaching'
+import { cacheKeys } from '@/hooks/useConsolidatedCaching'
 
 // ==============================================
 // OPTIMISTIC UI UPDATES

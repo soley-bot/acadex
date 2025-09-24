@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, memo } from 'react'
 import Image from 'next/image'
-import { Icons } from './icons'
+import { Book, Puzzle, User, Target } from 'lucide-react'
 
 interface ImageWithFallbackProps {
   src: string | null | undefined
@@ -29,10 +29,10 @@ const ImagePlaceholder: React.FC<{
   className?: string
 }> = ({ type, width, height, className }) => {
   const iconMap = {
-    course: Icons.Book,
-    quiz: Icons.Puzzle,
-    user: Icons.User,
-    generic: Icons.Target
+    course: Book,
+    quiz: Puzzle,
+    user: User,
+    generic: Target
   }
   
   const IconComponent = iconMap[type]

@@ -37,6 +37,14 @@ export async function createAuthHeaders(additionalHeaders: Record<string, string
 }
 
 /**
+ * Alias for createAuthHeaders for backward compatibility and consistency
+ * Used by React Query hooks throughout the application
+ */
+export async function getAuthHeaders(): Promise<HeadersInit> {
+  return createAuthHeaders()
+}
+
+/**
  * Make an authenticated API request
  */
 export async function authenticatedFetch(

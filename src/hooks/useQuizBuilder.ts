@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
 import type { Quiz, QuizQuestion } from '@/lib/supabase'
 import { validateQuizData, isValidQuiz } from '../components/admin/quiz-builder/utils/QuizBuilderUtils'
+import { adminQuizAPI } from '@/lib/api/admin'
 
 // Input validation utilities
 const sanitizeString = (input: string | null | undefined, maxLength = 1000): string => {
@@ -198,115 +199,104 @@ export const useQuizBuilder = ({
         return
       }
 
-      // Authorization check - verify user owns this quiz
-      const { data: quizOwnership, error: ownershipError } = await supabase
-        .from('quizzes')
-        .select('id, created_by')
-        .eq('id', stateToSave.quiz.id)
-        .single()
-
-      if (ownershipError || !quizOwnership) {
-        throw new Error('Quiz not found or access denied')
-      }
-
-      // Get current user to verify ownership
+      // Get current user for authorization
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user || quizOwnership.created_by !== user.id) {
-        throw new Error('You do not have permission to edit this quiz')
+      if (!user) {
+        throw new Error('User not authenticated')
       }
 
-      // Save quiz metadata
-      const { error: quizError } = await supabase
-        .from('quizzes')
-        .update({
+      // Save quiz metadata using admin API (includes ownership verification)
+      const quizUpdateResult = await adminQuizAPI.updateQuiz(
+        stateToSave.quiz.id!,
+        {
           title: stateToSave.quiz.title,
           description: stateToSave.quiz.description,
           duration_minutes: stateToSave.quiz.duration_minutes,
           time_limit_minutes: stateToSave.quiz.time_limit_minutes,
-          total_questions: stateToSave.questions.length,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', stateToSave.quiz.id)
+          total_questions: stateToSave.questions.length
+        },
+        user.id
+      )
 
-      if (quizError) throw quizError
+      if (quizUpdateResult.error) {
+        throw new Error(quizUpdateResult.error.message || 'Failed to update quiz')
+      }
 
-      // Save questions using UPSERT strategy to prevent data loss
+      // Save questions using admin API for better error handling and consistency
       if (stateToSave.questions.length > 0) {
-        // Prepare questions for upsert with proper order_index
-        const questionsToUpsert = stateToSave.questions.map((q, index) => ({
-          ...q,
-          quiz_id: stateToSave.quiz.id,
-          order_index: index,
-          // Remove id for new questions, keep for existing ones
-          ...(q.id?.startsWith('temp-') ? { id: undefined } : { id: q.id })
-        }))
+        // Use individual operations for better error tracking and handling
+        // This gives us better error handling and logging
+        const existingQuestions = await adminQuizAPI.getQuizForEditing(stateToSave.quiz.id!)
+        const existingQuestionIds = new Set(
+          existingQuestions.data?.questions?.map(q => q.id) || []
+        )
 
-        // Use upsert to safely handle both updates and inserts
-        const { error: upsertError } = await supabase
-          .from('quiz_questions')
-          .upsert(questionsToUpsert, {
-            onConflict: 'id',
-            ignoreDuplicates: false
-          })
-
-        if (upsertError) {
-          // If upsert fails, try individual operations as fallback
-          console.warn('Upsert failed, attempting individual operations:', upsertError)
-          
-          // Get existing questions to determine which to update vs insert
-          const { data: existingQuestions } = await supabase
-            .from('quiz_questions')
-            .select('id, order_index')
-            .eq('quiz_id', stateToSave.quiz.id)
-
-          const existingIds = new Set(existingQuestions?.map((q: { id: string }) => q.id) || [])
-          
-          // Separate into updates and inserts
-          const questionsToUpdate = questionsToUpsert.filter(q => q.id && existingIds.has(q.id))
-          const questionsToInsert = questionsToUpsert.filter(q => !q.id || !existingIds.has(q.id))
-
-          // Update existing questions
-          for (const question of questionsToUpdate) {
-            const { error: updateError } = await supabase
-              .from('quiz_questions')
-              .update(question)
-              .eq('id', question.id)
-            
-            if (updateError) throw updateError
+        // Process each question individually for better error tracking
+        for (let i = 0; i < stateToSave.questions.length; i++) {
+          const question = stateToSave.questions[i]
+          const questionData = {
+            ...question,
+            quiz_id: stateToSave.quiz.id,
+            order_index: i
           }
 
-          // Insert new questions
-          if (questionsToInsert.length > 0) {
-            const { error: insertError } = await supabase
-              .from('quiz_questions')
-              .insert(questionsToInsert.map(q => ({ ...q, id: undefined })))
-            
-            if (insertError) throw insertError
+          try {
+            if (question.id && !question.id.startsWith('temp-') && existingQuestionIds.has(question.id)) {
+              // Update existing question
+              const updateResult = await adminQuizAPI.updateQuestion(question.id, questionData, user.id)
+              if (updateResult.error) {
+                console.warn('Failed to update question:', question.id, updateResult.error)
+              }
+            } else {
+              // Add new question (remove temp id)
+              const { id, ...questionWithoutId } = questionData
+              const addResult = await adminQuizAPI.addQuestionToQuiz(
+                stateToSave.quiz.id!, 
+                questionWithoutId, 
+                user.id
+              )
+              if (addResult.error) {
+                console.warn('Failed to add question:', addResult.error)
+              }
+            }
+          } catch (error) {
+            console.warn('Error processing question:', error)
           }
+        }
 
-          // Clean up orphaned questions (questions that were removed)
-          const currentQuestionIds = questionsToUpsert
-            .filter(q => q.id && !q.id.startsWith('temp-'))
-            .map(q => q.id)
-          
-          if (currentQuestionIds.length > 0) {
-            const { error: deleteError } = await supabase
-              .from('quiz_questions')
-              .delete()
-              .eq('quiz_id', stateToSave.quiz.id)
-              .not('id', 'in', `(${currentQuestionIds.join(',')})`)
-            
-            if (deleteError) console.warn('Failed to clean up orphaned questions:', deleteError)
+        // Clean up orphaned questions (questions that were removed from the current set)
+        if (existingQuestions.data?.questions) {
+          const currentQuestionIds = new Set(
+            stateToSave.questions
+              .filter(q => q.id && !q.id.startsWith('temp-'))
+              .map(q => q.id)
+          )
+
+          for (const existingQuestion of existingQuestions.data.questions) {
+            if (!currentQuestionIds.has(existingQuestion.id)) {
+              try {
+                const deleteResult = await adminQuizAPI.deleteQuestion(existingQuestion.id, user.id)
+                if (deleteResult.error) {
+                  console.warn('Failed to delete orphaned question:', existingQuestion.id, deleteResult.error)
+                }
+              } catch (error) {
+                console.warn('Error deleting orphaned question:', existingQuestion.id, error)
+              }
+            }
           }
         }
       } else {
         // If no questions, clean up any existing ones
-        const { error: cleanupError } = await supabase
-          .from('quiz_questions')
-          .delete()
-          .eq('quiz_id', stateToSave.quiz.id)
-        
-        if (cleanupError) console.warn('Failed to clean up questions for empty quiz:', cleanupError)
+        const existingQuestions = await adminQuizAPI.getQuizForEditing(stateToSave.quiz.id!)
+        if (existingQuestions.data?.questions) {
+          for (const question of existingQuestions.data.questions) {
+            try {
+              await adminQuizAPI.deleteQuestion(question.id, user.id)
+            } catch (error) {
+              console.warn('Failed to clean up question:', question.id, error)
+            }
+          }
+        }
       }
 
       setLastSaved(new Date())
@@ -420,19 +410,23 @@ export const useQuizBuilder = ({
     try {
       console.log('🔄 Fetching questions for quiz:', quizId)
       
-      const { data: questions, error } = await supabase
-        .from('quiz_questions')
-        .select('*')
-        .eq('quiz_id', quizId)
-        .order('order_index')
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('User not authenticated')
+      }
 
-      if (error) throw error
+      const result = await adminQuizAPI.getQuizForEditing(quizId)
+      
+      if (result.error) {
+        throw new Error(result.error.message || 'Failed to fetch quiz')
+      }
 
-      console.log('📊 Fetched questions:', { count: questions?.length || 0 })
+      const questions = result.data?.questions || []
+      console.log('📊 Fetched questions:', { count: questions.length })
 
       setState(prev => ({
         ...prev,
-        questions: questions || []
+        questions: questions
       }))
 
     } catch (error) {

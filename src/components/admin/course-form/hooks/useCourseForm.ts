@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useCourseMutations } from '@/lib/cachedOperations'
+import { useCourseMutations } from '@/lib/cached-operations'
 import { quizAPI } from '@/lib/api'
 import type { EnhancedCourseData, ModuleData, LessonData, QuizOption, TabType } from '../types'
 import type { Course } from '@/lib/supabase'
@@ -71,11 +71,12 @@ export function useCourseForm(course?: Course) {
       try {
         // Load available quizzes
         const quizzes = await quizAPI.getQuizzes()
-        const quizOptions = quizzes.data?.map((quiz: any) => ({
+        const quizData = Array.isArray(quizzes.data) ? quizzes.data : quizzes.data?.data || []
+        const quizOptions = quizData.map((quiz: any) => ({
           id: quiz.id,
           title: quiz.title,
           description: quiz.description
-        })) || []
+        }))
         setAvailableQuizzes(quizOptions)
 
         // Load course data if editing

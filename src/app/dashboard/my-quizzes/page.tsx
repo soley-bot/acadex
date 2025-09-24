@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { getUserQuizAttempts, quizAPI } from '@/lib/database'
+import { quizAPI } from '@/lib/api'
+const { getUserQuizAttempts } = quizAPI
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -61,13 +62,16 @@ export default function MyQuizzesPage() {
       const attemptsResponse = await getUserQuizAttempts(user.id, { limit: 10 })
       
       // Transform attempts data first so we can use it later
-      let transformedAttempts: QuizAttempt[] = []
+      let transformedAttempts: any[] = []
       
       if (attemptsResponse.error) {
         setError('Failed to load quiz attempts. Please try again.')
       } else {
         // Transform the data to match our interface - using real database values
-        transformedAttempts = attemptsResponse.data?.map((attempt: any) => {
+        const attemptsData = Array.isArray(attemptsResponse.data) 
+          ? attemptsResponse.data 
+          : attemptsResponse.data?.data || []
+        transformedAttempts = attemptsData.map((attempt: any) => {
           // Calculate percentage with proper bounds (0-100)
           let calculatedPercentage = attempt.percentage || 0
           

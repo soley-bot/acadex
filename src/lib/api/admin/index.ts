@@ -1,0 +1,1 @@
+export { adminQuizAPI } from './quizzes'
