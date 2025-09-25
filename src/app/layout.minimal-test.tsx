@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import CleanErrorBoundary from '../components/ErrorBoundary.clean'
+import ErrorBoundary from '../components/ErrorBoundary'
 import { SimpleToaster } from '../components/SimpleToaster'
-import { CleanQueryProvider } from '@/providers/QueryProvider.clean'
+import { QueryProvider } from '@/providers/QueryProvider'
 
 // Global styles  
 import './globals.css'
@@ -22,12 +22,12 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </head>
       <body className="font-sans antialiased">
-        <CleanErrorBoundary>
-          <CleanQueryProvider>
-            <div>Testing Clean ErrorBoundary + Clean QueryProvider</div>
+        <ErrorBoundary>
+          <QueryProvider>
+            <div>Testing ErrorBoundary + QueryProvider</div>
             {children}
-          </CleanQueryProvider>
-        </CleanErrorBoundary>
+          </QueryProvider>
+        </ErrorBoundary>
         <SimpleToaster />
       </body>
     </html>

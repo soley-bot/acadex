@@ -363,10 +363,7 @@ export default function QuizzesPageWithReactQuery() {
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
-                totalItems={totalQuizzes}
-                itemsPerPage={itemsPerPage}
                 onPageChange={setCurrentPage}
-                isLoading={isLoading}
               />
             </div>
           )}

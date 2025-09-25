@@ -243,7 +243,10 @@ export function BulkOperations<T>({
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <Checkbox
-                  checked={someSelected ? 'indeterminate' : allSelected}
+                  checked={allSelected}
+                  ref={(el) => {
+                    if (el) el.indeterminate = someSelected && !allSelected
+                  }}
                   onCheckedChange={handleSelectAll}
                   aria-label={allSelected ? 'Deselect all' : 'Select all'}
                 />

@@ -330,7 +330,7 @@ export const CourseContentStep = memo<CourseContentStepProps>(({
                                   onValueChange={(value) => updateLesson(moduleIndex, lessonIndex, { quiz_id: value || undefined })}
                                 >
                                   <SelectTrigger className="w-48 text-sm">
-                                    <SelectValue placeholder="Attach quiz" />
+                                    <SelectValue>Attach quiz</SelectValue>
                                   </SelectTrigger>
                                   <SelectContent>
                                     {availableQuizzes.map((quiz) => (

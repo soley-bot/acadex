@@ -164,7 +164,7 @@ export const CourseBasicInfoStep = memo<CourseBasicInfoStepProps>(({
               onValueChange={(value) => form.setValue('category', value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select category" />
+                <SelectValue>Select category</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {categories.map((category) => (
@@ -186,7 +186,7 @@ export const CourseBasicInfoStep = memo<CourseBasicInfoStepProps>(({
               onValueChange={(value) => form.setValue('level', value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select level" />
+                <SelectValue>Select level</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {levels.map((level) => (

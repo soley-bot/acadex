@@ -200,7 +200,6 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
       isOpen={isOpen}
       onClose={onClose}
       title={course ? 'Edit Course' : 'Create New Course'}
-      size="xl"
     >
       {content}
     </BaseModal>

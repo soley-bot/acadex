@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { courseAPI } from '@/lib/api'
 import type { Course } from '@/lib/supabase'
-import { CourseImage } from '@/components/ui/image'
+import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Container, Section, Grid, Flex } from '@/components/ui/Layout'
 import { BlobBackground } from '@/components/ui/BlobBackground'
@@ -192,11 +192,12 @@ export default function PopularCourses() {
               <Card key={course.id} variant="glass" className="group hover:shadow-2xl transition-all duration-300 overflow-hidden hover:-translate-y-2">
                 {/* Course Image */}
                 <div className="h-48 relative overflow-hidden">
-                  <CourseImage
-                    src={course.image_url}
+                  <Image
+                    src={course.image_url || '/images/course-placeholder.jpg'}
                     alt={course.title}
-                    size="medium"
-                    className="w-full h-full group-hover:scale-105 transition-transform duration-300"
+                    width={400}
+                    height={300}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full text-sm font-bold shadow-lg text-gray-800">
                     {course.level}

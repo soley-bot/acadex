@@ -83,14 +83,19 @@ export function OrderingEditor({ question, onChange, onRemove, isValid, errors }
 
       <CardContent className="space-y-4">
         {/* Question Text */}
-        <FormField label="Question Text (English)" error={errors.question}>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Question Text (English)
+            {errors.question && <span className="text-red-600 ml-1">*</span>}
+          </label>
           <TextareaInput
             value={question.question || ''}
-            onChange={(value) => onChange({ question: value })}
+            onChange={(e) => onChange({ question: e.target.value })}
             placeholder="Enter the question text..."
             className={errors.question ? 'border-red-300' : ''}
           />
-        </FormField>
+          {errors.question && <p className="text-sm text-red-600 mt-1">{errors.question}</p>}
+        </div>
 
         {/* Items to Order */}
         <div className="space-y-4">
@@ -142,7 +147,7 @@ export function OrderingEditor({ question, onChange, onRemove, isValid, errors }
                   <TextInput
                     placeholder={`Enter item ${index + 1}...`}
                     value={item.content}
-                    onChange={(value) => updateItem(index, value)}
+                    onChange={(e) => updateItem(index, e.target.value)}
                   />
                 </div>
 
@@ -180,23 +185,28 @@ export function OrderingEditor({ question, onChange, onRemove, isValid, errors }
         </div>
 
         {/* Points */}
-        <FormField label="Points" error={errors.points}>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Points
+            {errors.points && <span className="text-red-600 ml-1">*</span>}
+          </label>
           <TextInput
             type="number"
             placeholder="Enter points for this question"
             value={question.points?.toString() || ''}
-            onChange={(value) => onChange({ points: parseInt(value) || 0 })}
+            onChange={(e) => onChange({ points: parseInt(e.target.value) || 0 })}
           />
-        </FormField>
+          {errors.points && <p className="text-sm text-red-600 mt-1">{errors.points}</p>}
+        </div>
 
-        {/* Explanation */}
-        <FormField label="Explanation (Optional)">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Explanation (Optional)</label>
           <TextareaInput
             placeholder="Explain why this order is correct..."
             value={question.explanation || ''}
-            onChange={(value) => onChange({ explanation: value })}
+            onChange={(e) => onChange({ explanation: e.target.value })}
           />
-        </FormField>
+        </div>
       </CardContent>
     </Card>
   )

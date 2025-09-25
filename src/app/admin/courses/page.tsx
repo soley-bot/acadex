@@ -463,7 +463,7 @@ export default function CoursesPage() {
       {/* Empty State - Enhanced design */}
       {filteredCourses.length === 0 && !loading && (
         <div className="mt-12">
-          <Card variant="base" size="xl" className="border-2 border-dashed border-muted bg-muted/30">
+          <Card variant="base" size="lg" className="border-2 border-dashed border-muted bg-muted/30">
             <CardContent className="p-12">
               <div className="text-center">
                 <div className="bg-muted/60 p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
@@ -499,8 +499,6 @@ export default function CoursesPage() {
               <Pagination
                 currentPage={pagination.page}
                 totalPages={pagination.totalPages}
-                totalItems={pagination.total}
-                itemsPerPage={pagination.limit}
                 onPageChange={handlePageChange}
               />
             </CardContent>

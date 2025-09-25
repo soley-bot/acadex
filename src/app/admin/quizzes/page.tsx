@@ -460,8 +460,6 @@ export default function AdminQuizzesPage() {
               <Pagination
                 currentPage={pagination.page}
                 totalPages={pagination.totalPages}
-                totalItems={pagination.total}
-                itemsPerPage={pagination.limit}
                 onPageChange={handlePageChange}
               />
             </CardContent>

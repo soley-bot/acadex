@@ -61,14 +61,15 @@ export const FillBlankEditor = memo<FillBlankEditorProps>(({
 
       <CardContent className="space-y-4">
         {/* Question Text */}
-        <FormField label="Question Text">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Question Text</label>
           <TextareaInput
             value={question.question}
             onChange={(value) => updateQuestion('question', value)}
             placeholder="Enter the text with blanks marked as [BLANK] or ___"
             className="font-mono"
           />
-        </FormField>
+        </div>
 
         {/* Correct Answers */}
         <div className="space-y-3">

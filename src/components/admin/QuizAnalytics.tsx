@@ -224,27 +224,6 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
       isOpen={isOpen}
       onClose={onClose}
       title="Quiz Analytics"
-      subtitle="Comprehensive insights into quiz performance"
-      size="2xl"
-      headerIcon={<BarChart3 size={24} color="white" />}
-      headerGradient="blue"
-      footer={
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            Data shown for {timeRange === '7d' ? 'last 7 days' : timeRange === '30d' ? 'last 30 days' : timeRange === '90d' ? 'last 90 days' : 'all time'}
-          </div>
-          <select
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value as any)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all">All time</option>
-          </select>
-        </div>
-      }
     >
           {loading ? (
             <div className="flex items-center justify-center py-20">

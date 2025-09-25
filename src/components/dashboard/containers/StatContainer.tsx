@@ -3,7 +3,7 @@
 import React from 'react'
 import { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { ContentContainer } from '@/components/ui/CardVariants'
+import { Card } from '@/components/ui/card'
 
 interface StatContainerProps {
   title: string

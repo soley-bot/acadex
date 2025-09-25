@@ -107,16 +107,7 @@ export const QuizFiltersSection: React.FC<QuizFiltersSectionProps> = ({
                 )}
               </div>
               
-              <DropdownMenu 
-                open={showCategoryDropdown}
-                onOpenChange={(open) => {
-                  if (open) {
-                    onToggleCategoryDropdown()
-                  } else {
-                    onCloseCategoryDropdown()
-                  }
-                }}
-              >
+              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
@@ -177,7 +168,7 @@ export const QuizFiltersSection: React.FC<QuizFiltersSectionProps> = ({
                 disabled={isPending}
               >
                 <SelectTrigger className="w-38">
-                  <SelectValue placeholder="All Levels" />
+                  <SelectValue>All Levels</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {difficultiesData.map(({ value, label }) => (

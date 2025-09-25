@@ -137,7 +137,7 @@ export default function QuizResultsPage() {
           <BodyLG className="text-gray-700 mb-8">{scoreMessage.message}</BodyLG>
           
           {/* Stats Grid */}
-          <Grid cols={3} gap="md" className="max-w-3xl mx-auto">
+          <Grid cols={3} className="max-w-3xl mx-auto">
             <Card variant="base" className="text-center p-6">
               <div className="text-3xl font-bold text-success mb-2">
                 {results.correct_answers}
@@ -233,7 +233,7 @@ export default function QuizResultsPage() {
           <H3 className="text-gray-900 mb-4">Tips for Improvement</H3>
           <BodyMD className="text-gray-700 mb-8">Enhance your learning journey with these proven strategies</BodyMD>
           
-          <Grid cols={2} gap="lg" className="max-w-4xl mx-auto">
+          <Grid cols={2} className="max-w-4xl mx-auto">
             <div className="text-left">
               <H4 className="text-secondary mb-4">Learning Strategies</H4>
               <div className="space-y-3">

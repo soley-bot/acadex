@@ -184,7 +184,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Statistics Grid */}
-        <Grid cols={4} gap="lg" className="mb-8">
+        <Grid cols={4} className="mb-8">
           {dashboardCards.map((stat) => (
             <Card key={stat.title} variant="base" className="text-center p-6 hover:shadow-lg transition-all duration-300">
               <div className={`inline-block p-3 ${stat.bgColor} rounded-xl mb-4`}>
@@ -198,7 +198,7 @@ export default function AdminDashboard() {
         </Grid>
 
         {/* Additional Dashboard Content */}
-        <Grid cols={2} gap="lg">
+        <Grid cols={2}>
           <Card variant="base" className="shadow-lg">
             <CardHeader>
               <CardTitle className="font-bold flex items-center">
