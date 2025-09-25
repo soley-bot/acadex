@@ -15,7 +15,7 @@ const Logo = React.forwardRef<HTMLDivElement, LogoProps>(
     return (
       <div
         ref={ref}
-        className={`font-bold text-blue-600 ${sizes[size]} ${className}`}
+        className={`font-bold text-primary ${sizes[size]} ${className}`}
         {...props}
       >
         ACADEX

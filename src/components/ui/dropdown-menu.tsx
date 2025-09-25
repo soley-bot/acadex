@@ -50,7 +50,7 @@ const DropdownMenuTrigger = React.forwardRef<HTMLButtonElement, DropdownMenuTrig
     return (
       <button
         ref={ref}
-        className={`inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 ${className}`}
+        className={`inline-flex justify-center w-full rounded-md border border-border shadow-sm px-4 py-2 bg-background text-sm font-medium text-foreground hover:bg-muted focus-ring ${className}`}
         onClick={handleClick}
         {...props}
       >
@@ -96,7 +96,7 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
     return (
       <div
         ref={ref}
-        className={`absolute ${alignmentClasses[align]} mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 ${className}`}
+        className={`absolute ${alignmentClasses[align]} mt-2 w-56 rounded-md shadow-lg bg-background border border-border z-50 ${className}`}
         {...props}
       >
         <div className="py-1">{children}</div>
@@ -122,7 +122,7 @@ const DropdownMenuItem = React.forwardRef<HTMLButtonElement, DropdownMenuItemPro
       // When asChild is true, return children as-is (assuming it's a valid React element)
       return React.cloneElement(children as React.ReactElement, {
         ref,
-        className: `block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${className}`,
+        className: `block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted focus-ring ${className}`,
         onClick: handleClick,
         ...props
       })
@@ -131,7 +131,7 @@ const DropdownMenuItem = React.forwardRef<HTMLButtonElement, DropdownMenuItemPro
     return (
       <button
         ref={ref}
-        className={`block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${className}`}
+        className={`block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted focus-ring ${className}`}
         onClick={handleClick}
         {...props}
       >
@@ -143,13 +143,13 @@ const DropdownMenuItem = React.forwardRef<HTMLButtonElement, DropdownMenuItemPro
 
 const DropdownMenuSeparator = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className = "", ...props }, ref) => (
-    <div ref={ref} className={`-mx-1 my-1 h-px bg-gray-200 ${className}`} {...props} />
+    <div ref={ref} className={`-mx-1 my-1 h-px bg-border ${className}`} {...props} />
   )
 )
 
 const DropdownMenuLabel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className = "", ...props }, ref) => (
-    <div ref={ref} className={`px-2 py-1.5 text-sm font-semibold text-gray-900 ${className}`} {...props} />
+    <div ref={ref} className={`px-2 py-1.5 text-sm font-semibold text-foreground ${className}`} {...props} />
   )
 )
 
@@ -157,7 +157,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<HTMLButtonElement, React.Butto
   ({ className = "", children, checked, onCheckedChange, ...props }, ref) => (
     <button
       ref={ref}
-      className={`flex items-center w-full px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 ${className}`}
+      className={`flex items-center w-full px-2 py-1.5 text-sm text-foreground hover:bg-muted focus-ring ${className}`}
       onClick={() => onCheckedChange?.(!checked)}
       {...props}
     >

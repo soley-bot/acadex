@@ -20,7 +20,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
       success: "border-success focus:border-success focus:ring-success focus:ring-offset-2 focus:outline-none focus:ring-2"
     }
 
-    const baseClasses = "flex h-10 w-full rounded-md bg-white px-3 py-2 text-sm text-foreground ring-offset-white disabled:cursor-not-allowed disabled:opacity-50 transition-colors cursor-pointer"
+    const baseClasses = "flex h-10 w-full rounded-md bg-background px-3 py-2 text-sm text-foreground ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 transition-colors cursor-pointer"
 
     return (
       <select
@@ -59,7 +59,7 @@ const SelectTrigger = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
   ({ className = "", children, ...props }, ref) => (
     <div
       ref={ref}
-      className={`flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-gray-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={`flex h-10 w-full items-center justify-between rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
       {...props}
     >
       {children}

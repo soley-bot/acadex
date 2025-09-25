@@ -33,6 +33,8 @@
   --success-foreground: 0 0% 98%;
   --warning: 38 92% 50%;
   --warning-foreground: 240 10% 3.9%;
+  --info: 199 89% 48%;
+  --info-foreground: 0 0% 98%;
   --radius: 0.5rem;
   
   /* Z-Index Scale - Consolidated */

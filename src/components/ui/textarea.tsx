@@ -20,7 +20,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       vertical: 'resize-y'
     }
 
-    const baseClasses = "flex min-h-20 w-full rounded-md bg-white px-3 py-2 text-sm text-foreground ring-offset-white placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+    const baseClasses = "flex min-h-20 w-full rounded-md bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
     
     return (
       <textarea

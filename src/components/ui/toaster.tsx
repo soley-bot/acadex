@@ -18,15 +18,15 @@ const Toast: React.FC<ToastProps> = ({
   variant = 'default' 
 }) => {
   const typeStyles = {
-    success: 'bg-green-600 text-white',
-    error: 'bg-red-600 text-white',
-    warning: 'bg-yellow-600 text-white',
-    info: 'bg-blue-600 text-white'
+    success: 'bg-success text-success-foreground',
+    error: 'bg-destructive text-destructive-foreground',
+    warning: 'bg-warning text-warning-foreground',
+    info: 'bg-info text-info-foreground'
   }
 
   const variantStyles = {
-    default: 'bg-blue-600 text-white',
-    destructive: 'bg-red-600 text-white'
+    default: 'bg-primary text-primary-foreground',
+    destructive: 'bg-destructive text-destructive-foreground'
   }
 
   const finalStyle = variant === 'destructive' ? variantStyles.destructive : typeStyles[type]
