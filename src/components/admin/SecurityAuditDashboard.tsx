@@ -143,7 +143,7 @@ const SecurityAuditDashboard: React.FC<SecurityAuditDashboardProps> = ({ classNa
           {['overview', 'audit-items', 'penetration', 'recommendations'].map((view) => (
             <Button
               key={view}
-              variant={selectedView === view ? 'default' : 'outline'}
+              variant={selectedView === view ? 'secondary' : 'outline'}
               size="sm"
               onClick={() => setSelectedView(view)}
             >
