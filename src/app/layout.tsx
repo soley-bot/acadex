@@ -1,28 +1,18 @@
 import type { Metadata } from 'next'
-import { GeistSans } from 'geist/font/sans'
-import { GeistMono } from 'geist/font/mono'
-import { Inter } from 'next/font/google'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { QueryProvider } from '@/providers/QueryProvider'
-import { ConditionalLayout } from '@/components/ConditionalLayout'
-import { ClientWrapper } from '@/components/ClientWrapper'
-import CoreWebVitalsMonitor from '@/components/CoreWebVitalsMonitor'
 import ErrorBoundary from '@/components/ErrorBoundary'
-
-// ShadCN Toast Notifications
 import { Toaster } from '@/components/ui/toaster'
+import { ConditionalLayout } from '@/components/ConditionalLayout'
+import { AppInitializer } from '@/components/AppInitializer'
+import { ClientWrapper } from '@/components/ClientWrapper'
+
 
 // Design System CSS
 import '@/styles/design-tokens.css'
 
 // Global styles
 import './globals.css'
-
-const inter = Inter({ 
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-})
 
 export const metadata: Metadata = {
   title: 'Acadex - Learn & Practice',
@@ -89,25 +79,18 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#dc2626" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-        <style>{`
-html {
-  font-family: ${inter.style.fontFamily}, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-  --font-sans: ${GeistSans.variable};
-  --font-mono: ${GeistMono.variable};
-  --font-inter: ${inter.style.fontFamily};
-}
-        `}</style>
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
-        <CoreWebVitalsMonitor />
-        <ErrorBoundary showDetails={process.env.NODE_ENV === 'development'}>
+      <body className="font-sans antialiased">
+        <ErrorBoundary>
           <QueryProvider>
             <AuthProvider>
-              <ClientWrapper>
-                <ConditionalLayout>
-                  {children}
-                </ConditionalLayout>
-              </ClientWrapper>
+              <AppInitializer>
+                <ClientWrapper>
+                  <ConditionalLayout>
+                    {children}
+                  </ConditionalLayout>
+                </ClientWrapper>
+              </AppInitializer>
             </AuthProvider>
           </QueryProvider>
         </ErrorBoundary>

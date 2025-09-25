@@ -1,4 +1,5 @@
 import { logger } from './logger'
+import { ErrorHandler } from './errorHandler'
 import { AIServiceFactory, BaseAIService } from './ai-services'
 import { PromptBuilder, ResponseParser, FormatConverter } from './ai-quiz-generator'
 
@@ -196,14 +197,11 @@ export class SimpleAIQuizGenerator {
       }
 
     } catch (error: any) {
-      logger.error('Simple quiz generation failed', { 
-        error: error.message,
-        stack: error.stack
-      })
+      const formattedError = ErrorHandler.handleError(error, 'simple-ai-quiz-generator.generateSimpleQuiz')
 
       return {
         success: false,
-        error: `Quiz generation failed: ${error.message}`
+        error: formattedError.message
       }
     }
   }
@@ -234,5 +232,4 @@ export class SimpleAIQuizGenerator {
   }
 }
 
-// Note: For client-side usage, use the API endpoint /api/simple-ai-generation
 // The SimpleAIQuizGenerator class should only be instantiated on the server side

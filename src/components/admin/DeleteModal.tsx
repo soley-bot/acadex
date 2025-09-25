@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { AlertTriangle, Trash2, Loader2, Users, FileText, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
+import { useLoadingState, useSubmissionState } from '@/hooks/useAsyncState'
 
 interface DeleteModalProps {
   item: {
@@ -25,17 +26,18 @@ interface UsageInfo {
 }
 
 export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalProps) {
-  const [loading, setLoading] = useState(false)
-  const [checkingUsage, setCheckingUsage] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  // 🔄 CONSOLIDATED: Replaced duplicate loading states with unified hooks
+  const { loading: checkingUsage, error: usageError, withLoading } = useLoadingState()
+  const { isSubmitting, error, setError, handleSubmission } = useSubmissionState()
+  
   const [usageInfo, setUsageInfo] = useState<UsageInfo>({})
   const [deleteOption, setDeleteOption] = useState<'cascade' | 'clean' | ''>('')
 
   const checkUsage = useCallback(async () => {
     if (!item) return
 
-    setCheckingUsage(true)
-    try {
+    // 🔄 CONSOLIDATED: Using unified loading pattern
+    await withLoading(async () => {
       if (item.type === 'quiz') {
         // Check quiz attempts and questions
         const [attemptsResult, questionsResult] = await Promise.all([
@@ -63,12 +65,8 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
           lessons: totalLessons
         })
       }
-    } catch (err) {
-      logger.error('Error checking usage:', err)
-    } finally {
-      setCheckingUsage(false)
-    }
-  }, [item])
+    })
+  }, [item, withLoading])
 
   useEffect(() => {
     if (isOpen && item) {
@@ -76,68 +74,44 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
       setDeleteOption('')
       checkUsage()
     }
-  }, [isOpen, item, checkUsage])
+  }, [isOpen, item, checkUsage, setError])
 
-  const handleCascadeDelete = async () => {
-    if (!item) return
-
-    setLoading(true)
-    setError(null)
-
-    try {
+  const handleCascadeDelete = useCallback(() => {
+    if (!item) return;
+    handleSubmission(async () => {
       if (item.type === 'quiz') {
-        // Delete quiz attempts first, then quiz (questions will cascade)
-        await supabase.from('quiz_attempts').delete().eq('quiz_id', item.id)
-        await supabase.from('quizzes').delete().eq('id', item.id)
+        await supabase.from('quiz_attempts').delete().eq('quiz_id', item.id);
+        await supabase.from('quizzes').delete().eq('id', item.id);
       } else if (item.type === 'course') {
-        // Delete enrollments and lesson progress first, then course (modules/lessons will cascade)
-        const [, ] = await Promise.all([
-          supabase.from('enrollments').delete().eq('course_id', item.id),
-          supabase.from('lesson_progress').delete().eq('course_id', item.id)
-        ])
-        await supabase.from('courses').delete().eq('id', item.id)
-      }
-
-      onSuccess()
-      onClose()
-    } catch (err: any) {
-      logger.error('Error deleting item:', err)
-      setError(err.message || 'Failed to delete item')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleCleanDelete = async () => {
-    if (!item) return
-
-    setLoading(true)
-    setError(null)
-
-    try {
-      if (item.type === 'quiz') {
-        // Remove all quiz attempts
-        await supabase.from('quiz_attempts').delete().eq('quiz_id', item.id)
-        setUsageInfo(prev => ({ ...prev, attempts: 0 }))
-      } else if (item.type === 'course') {
-        // Remove all enrollments and lesson progress
         await Promise.all([
           supabase.from('enrollments').delete().eq('course_id', item.id),
           supabase.from('lesson_progress').delete().eq('course_id', item.id)
-        ])
-        setUsageInfo(prev => ({ ...prev, enrollments: 0 }))
+        ]);
+        await supabase.from('courses').delete().eq('id', item.id);
       }
+    }, () => {
+      onSuccess();
+      onClose();
+    });
+  }, [item, handleSubmission, onSuccess, onClose]);
 
-      // Recheck usage
-      await checkUsage()
-      setDeleteOption('')
-    } catch (err: any) {
-      logger.error('Error cleaning item:', err)
-      setError(err.message || 'Failed to clean item')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const handleCleanDelete = useCallback(() => {
+    if (!item) return;
+    handleSubmission(async () => {
+      if (item.type === 'quiz') {
+        await supabase.from('quiz_attempts').delete().eq('quiz_id', item.id);
+        setUsageInfo(prev => ({ ...prev, attempts: 0 }));
+      } else if (item.type === 'course') {
+        await Promise.all([
+          supabase.from('enrollments').delete().eq('course_id', item.id),
+          supabase.from('lesson_progress').delete().eq('course_id', item.id)
+        ]);
+        setUsageInfo(prev => ({ ...prev, enrollments: 0 }));
+      }
+      await checkUsage();
+      setDeleteOption('');
+    });
+  }, [item, handleSubmission, checkUsage]);
 
   const canDelete = item?.type === 'quiz' 
     ? (usageInfo.attempts || 0) === 0
@@ -323,10 +297,10 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
             {hasUsage && deleteOption === 'clean' && (
               <button
                 onClick={handleCleanDelete}
-                disabled={loading}
+                disabled={isSubmitting}
                 className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 font-medium disabled:opacity-50 flex items-center gap-2"
               >
-                {loading ? (
+                {isSubmitting ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   'Remove Data'
@@ -336,10 +310,10 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
             
             <button
               onClick={deleteOption === 'cascade' ? handleCascadeDelete : canDelete ? handleCascadeDelete : undefined}
-              disabled={loading || (hasUsage && !deleteOption)}
+              disabled={isSubmitting || (hasUsage && !deleteOption)}
               className="px-4 py-2 bg-primary text-secondary rounded-lg hover:bg-primary/90 font-medium disabled:opacity-50 flex items-center gap-2"
             >
-              {loading ? (
+              {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <>

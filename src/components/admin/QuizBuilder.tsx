@@ -70,7 +70,13 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
   } = useQuizBuilder({ quiz, isOpen, onSuccess, onClose });
 
   // Handler adapters to map hook functions to component handlers
-  const handleQuizUpdate = updateQuiz;
+  const handleQuizUpdate = useCallback((updates: Partial<Quiz>) => {
+    updateQuiz(updates);
+  }, [updateQuiz]);
+
+  const handleAIConfigUpdate = useCallback((config: any) => {
+    updateAIConfig(config);
+  }, [updateAIConfig]);
   
   const handleQuestionUpdate = useCallback((index: number, updates: Partial<QuizQuestion>) => {
     const updatedQuestions = state.questions.map((q, i) => 
@@ -151,7 +157,7 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
             <Suspense fallback={<QuizBuilderLoadingFallback />}>
               <LazyAIConfigurationStep
                 aiConfig={state.aiConfig}
-                onConfigUpdate={updateAIConfig}
+                onConfigUpdate={handleAIConfigUpdate}
                 onGenerateQuestions={handleGenerateQuestions}
                 isGenerating={state.isGenerating}
               />
@@ -210,7 +216,7 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
     validation.isValid,
     validation.errors,
     handleQuizUpdate,
-    updateAIConfig,
+    handleAIConfigUpdate,
     handleGenerateQuestions,
     handleQuestionUpdate,
     handleAddQuestion,
@@ -235,9 +241,9 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
   return (
     <QuizBuilderErrorBoundary>
       <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-7xl h-[90vh] flex flex-col overflow-hidden">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-[85vh] flex flex-col overflow-hidden">
           {/* Compact Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/50">
             <div className="flex items-center gap-4">
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">Quiz Builder Clean</h2>
@@ -253,7 +259,7 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
           </div>
 
           {/* Progress Steps */}
-          <div className="px-6 py-3 bg-white border-b border-gray-100">
+          <div className="px-4 py-2 bg-white border-b border-gray-100">
             <div className="flex items-center justify-between">
               {steps.map((step, index) => (
                 <div
@@ -300,25 +306,38 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
             </div>
           )}
 
-          {/* Main Content Area */}
-          <div className="flex-1 flex min-h-0">
-            {/* Left Content - Main Step */}
-            <div className="flex-1 flex flex-col min-h-0 pr-6 pl-6">
-              <div className="flex-1 overflow-y-auto py-6">
-                {renderCurrentStep}
+          {/* Main Content Area - Adaptive Layout */}
+          <div className="flex-1 flex flex-col min-h-0">
+            {/* Compact Quiz Summary Header - Always visible */}
+            <div className="px-4 py-2 bg-gray-50/50 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="text-sm font-medium text-gray-900">
+                    {state.quiz.title || 'New Quiz'}
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-gray-600">
+                    <span>{state.questions.length} questions</span>
+                    <span>•</span>
+                    <span>{state.quiz.category || 'No category'}</span>
+                    <span>•</span>
+                    <span>{state.quiz.duration_minutes || 0} min</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {isSaving ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Right Sidebar - Quiz Summary */}
-            <div className="w-80 flex-shrink-0 border-l pl-6 space-y-6 overflow-y-auto py-6 pr-6">
-              <QuizSummaryCard
-                quiz={state.quiz}
-                questions={state.questions}
-                onSave={handleSave}
-                onPublish={handlePublish}
-                isSaving={isSaving}
-                isPublishing={state.isPublishing}
-              />
+            {/* Main Content - Full Width */}
+            <div className="flex-1 overflow-y-auto px-4 py-4">
+              {renderCurrentStep}
             </div>
           </div>
         </div>

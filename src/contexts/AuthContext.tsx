@@ -37,17 +37,56 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // During SSR, immediately set loading to false since we can't have auth
   const [user, setUser] = useState<User | null>(null)
   const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [initializing, setInitializing] = useState(true)
+  const [loading, setLoading] = useState(typeof window === 'undefined' ? false : true)
+  const [initializing, setInitializing] = useState(typeof window === 'undefined' ? false : true)
+  const [isClient, setIsClient] = useState(false)
+
+  // SSR safety - only run auth logic on client
+  useEffect(() => {
+    setIsClient(true)
+    // Reset loading state when client-side mounts
+    if (typeof window !== 'undefined') {
+      setLoading(true)
+      setInitializing(true)
+    }
+  }, [])
+
+  // Emergency timeout to prevent infinite loading
+  useEffect(() => {
+    const emergencyTimeout = setTimeout(() => {
+      if (loading) {
+        console.warn('AuthProvider: Emergency timeout triggered - forcing load completion')
+        setLoading(false)
+        setInitializing(false)
+      }
+    }, 3000) // 3 seconds max
+
+    return () => clearTimeout(emergencyTimeout)
+  }, [loading])
 
   useEffect(() => {
+    // Only run auth initialization on client-side
+    if (!isClient) return
+    
     let mounted = true
+    let timeoutId: NodeJS.Timeout
 
     // Get initial session with timeout
     const initializeAuth = async () => {
       console.log('AuthContext: Starting auth initialization...')
+      
+      // Set a maximum timeout for initialization
+      timeoutId = setTimeout(() => {
+        if (mounted && loading) {
+          console.warn('AuthContext: Initialization timeout - forcing completion')
+          setLoading(false)
+          setInitializing(false)
+        }
+      }, 5000) // 5 second maximum timeout
+
       try {
         // Get session with better error handling
         const { data: { session }, error } = await supabase.auth.getSession()
@@ -72,10 +111,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session?.user) {
           setSupabaseUser(session.user)
           
-          // Try to get user profile
+          // Try to get user profile with timeout
           try {
             console.log('AuthContext: Fetching user profile...')
-            const userResult = await userAPI.getCurrentUser()
+            
+            // Create a timeout promise
+            const timeoutPromise = new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('User profile fetch timeout')), 3000)
+            )
+            
+            const userResult = await Promise.race([
+              userAPI.getCurrentUser(),
+              timeoutPromise
+            ]) as any
+            
             console.log('AuthContext: User API result:', userResult)
 
             if (userResult?.data && mounted) {
@@ -129,6 +178,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } finally {
         if (mounted) {
           console.log('AuthContext: Initialization complete, setting loading false')
+          clearTimeout(timeoutId)
           setLoading(false)
           setInitializing(false)
         }
@@ -197,9 +247,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       mounted = false
+      clearTimeout(timeoutId)
       subscription.unsubscribe()
     }
-  }, [initializing])
+  }, [isClient, initializing, loading]) // Dependencies for auth initialization
 
   // Remove the separate getInitialSession function as it's now inline
 

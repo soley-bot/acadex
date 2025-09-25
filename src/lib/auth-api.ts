@@ -4,6 +4,7 @@
  */
 
 import { supabase } from './supabase'
+import { ErrorHandler } from './errorHandler'
 
 /**
  * Get the current access token from Supabase session
@@ -13,7 +14,7 @@ export async function getAccessToken(): Promise<string | null> {
     const { data: { session } } = await supabase.auth.getSession()
     return session?.access_token || null
   } catch (error) {
-    console.error('Error getting access token:', error)
+    ErrorHandler.handleError(error, 'auth-api.getAccessToken')
     return null
   }
 }
@@ -290,7 +291,7 @@ export const courseAPI = {
       console.log('✅ Course updated successfully via courseAPI')
       return result
     } catch (error) {
-      console.error('❌ courseAPI.updateCourse error:', error)
+      ErrorHandler.handleError(error, 'courseAPI.updateCourse')
       throw error
     }
   },

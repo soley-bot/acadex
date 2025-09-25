@@ -5,7 +5,7 @@ import { Suspense } from 'react'
 
 // Dynamic imports for heavy admin components - Week 2 Day 4 optimization
 const CourseFormComponent = dynamic(
-  () => import('@/components/admin/CourseForm').then(mod => ({ default: mod.CourseForm })),
+  () => import('@/components/admin/course-form/CourseForm').then(mod => ({ default: mod.CourseForm })),
   {
     loading: () => (
       <div className="flex items-center justify-center p-8">

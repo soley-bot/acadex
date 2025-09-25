@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { useCategories } from '@/hooks/useCategories'
 
 interface QuizSettingsStepProps {
   quiz: Partial<Quiz>
@@ -27,7 +28,8 @@ const formSchema = z.object({
     .max(300, 'Duration cannot exceed 300 minutes'),
   time_limit_minutes: z.number().nullable().optional(),
   category: z.string().min(1, 'Please select a category'),
-  difficulty: z.enum(['beginner', 'intermediate', 'advanced'])
+  difficulty: z.enum(['beginner', 'intermediate', 'advanced']),
+  image_url: z.string().url().optional().or(z.literal('').transform(() => undefined))
 }).refine((data) => {
   if (data.time_limit_minutes && data.duration_minutes && data.time_limit_minutes < data.duration_minutes) {
     return false
@@ -49,6 +51,9 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
   isValid = true,
   errors = []
 }) => {
+  // Fetch categories from database
+  const { categories, isLoading: categoriesLoading, error: categoriesError } = useCategories()
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,38 +69,46 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
   // Watch form values for real-time updates
   const watchedValues = form.watch()
   
-  // Update parent when form values change
+  // Update parent when form values change, but avoid infinite loops
+  const prevValuesRef = React.useRef<FormValues>()
   React.useEffect(() => {
-    onQuizUpdate({
+    const currentValues = {
       title: watchedValues.title,
       description: watchedValues.description,
       duration_minutes: watchedValues.duration_minutes,
       time_limit_minutes: watchedValues.time_limit_minutes,
       category: watchedValues.category,
       difficulty: watchedValues.difficulty
-    })
-  }, [watchedValues, onQuizUpdate])
+    }
+    
+    // Only update if values actually changed
+    if (!prevValuesRef.current || JSON.stringify(prevValuesRef.current) !== JSON.stringify(currentValues)) {
+      prevValuesRef.current = currentValues
+      onQuizUpdate(currentValues)
+    }
+  }, [watchedValues.title, watchedValues.description, watchedValues.duration_minutes, 
+      watchedValues.time_limit_minutes, watchedValues.category, watchedValues.difficulty, onQuizUpdate])
 
   const showTimeLimitWarning = watchedValues.time_limit_minutes && 
     watchedValues.duration_minutes && 
     watchedValues.time_limit_minutes < watchedValues.duration_minutes
 
   return (
-    <Card className="p-6 border rounded-lg">
-      <div className="flex flex-col gap-6">
+    <Card className="p-4 border rounded-lg">
+      <div className="flex flex-col gap-4">
         {/* Header */}
         <div className="flex items-center gap-2">
-          <IconTarget size={20} className="text-blue-600" />
-          <h3 className="text-lg font-semibold">Quiz Settings</h3>
+          <IconTarget size={18} className="text-blue-600" />
+          <h3 className="text-base font-semibold">Quiz Settings</h3>
         </div>
 
         {/* Error Display */}
         {errors.length > 0 && (
-          <Alert className="border-red-200 bg-red-50">
+          <Alert className="border-red-200 bg-red-50 py-2">
             <AlertDescription>
               <div className="flex flex-col gap-1">
                 {errors.map((error, index) => (
-                  <span key={index} className="text-sm text-red-800">{error}</span>
+                  <span key={index} className="text-xs text-red-800">{error}</span>
                 ))}
               </div>
             </AlertDescription>
@@ -104,11 +117,11 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
 
         {/* Form */}
         <div className="flex flex-col gap-4">
-          {/* Basic Info Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Compact 3-column grid for primary fields */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Quiz Title <span className="text-red-500">*</span>
+                Title <span className="text-red-500">*</span>
               </label>
               <Input
                 placeholder="Enter quiz title"
@@ -116,7 +129,7 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
                 className={form.formState.errors.title ? 'border-red-500' : ''}
               />
               {form.formState.errors.title && (
-                <p className="text-red-500 text-sm mt-1">{form.formState.errors.title.message}</p>
+                <p className="text-red-500 text-xs mt-1">{form.formState.errors.title.message}</p>
               )}
             </div>
             
@@ -130,61 +143,28 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
                   form.formState.errors.category ? 'border-red-500' : 'border-gray-300'
                 }`}
               >
-                <option value="">Select category</option>
-                <option value="ielts">IELTS</option>
-                <option value="toefl">TOEFL</option>
-                <option value="english">English</option>
-                <option value="business">Business English</option>
-                <option value="grammar">Grammar</option>
-                <option value="vocabulary">Vocabulary</option>
-                <option value="listening">Listening</option>
-                <option value="reading">Reading</option>
-                <option value="writing">Writing</option>
-                <option value="speaking">Speaking</option>
-                <option value="general">General English</option>
-                <option value="test-prep">Test Preparation</option>
+                <option value="">
+                  {categoriesLoading ? 'Loading categories...' : 'Select category'}
+                </option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.slug}>
+                    {category.name}
+                  </option>
+                ))}
               </select>
               {form.formState.errors.category && (
-                <p className="text-red-500 text-sm mt-1">{form.formState.errors.category.message}</p>
+                <p className="text-red-500 text-xs mt-1">{form.formState.errors.category.message}</p>
               )}
-            </div>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <Textarea
-              placeholder="Enter quiz description"
-              rows={3}
-              {...form.register('description')}
-            />
-          </div>
-
-          {/* Timing & Difficulty Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                📝 Expected Duration (minutes) <span className="text-red-500">*</span>
-              </label>
-              <Input
-                type="number"
-                placeholder="10"
-                min="1"
-                max="300"
-                {...form.register('duration_minutes', { valueAsNumber: true })}
-                className={form.formState.errors.duration_minutes ? 'border-red-500' : ''}
-              />
-              <p className="text-xs text-gray-500 mt-1">Estimated time students need (shown before they start)</p>
-              {form.formState.errors.duration_minutes && (
-                <p className="text-red-500 text-sm mt-1">{form.formState.errors.duration_minutes.message}</p>
+              {categoriesError && (
+                <p className="text-amber-600 text-xs mt-1">
+                  ⚠ Using fallback categories - {categoriesError}
+                </p>
               )}
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Difficulty Level <span className="text-red-500">*</span>
+                Difficulty <span className="text-red-500">*</span>
               </label>
               <select
                 {...form.register('difficulty')}
@@ -197,36 +177,115 @@ export const QuizSettingsStep = memo<QuizSettingsStepProps>(({
             </div>
           </div>
 
-          {/* Time Limit */}
+          {/* Description - Optimized textarea sizing */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              ⏰ Time Limit (minutes) - Optional
+              Description (Optional)
             </label>
-            <Input
-              type="number"
-              placeholder="Leave empty for no time limit"
-              min="1"
-              max="600"
-              {...form.register('time_limit_minutes', { 
-                valueAsNumber: true,
-                setValueAs: (value) => value === '' ? null : Number(value)
-              })}
+            <Textarea
+              placeholder="Enter quiz description"
+              rows={2}
+              className="resize-none"
+              {...form.register('description')}
             />
-            <p className="text-xs text-gray-500 mt-1">Hard deadline - Quiz auto-submits when time expires</p>
-            {form.formState.errors.time_limit_minutes && (
-              <p className="text-red-500 text-sm mt-1">{form.formState.errors.time_limit_minutes.message}</p>
-            )}
           </div>
 
-          {/* Warning Alert */}
-          {showTimeLimitWarning && (
-            <Alert className="border-orange-200 bg-orange-50">
-              <IconAlertTriangle className="w-4 h-4" />
-              <AlertDescription className="text-orange-800">
-                ⚠️ Warning: Time limit is shorter than expected duration!
-              </AlertDescription>
-            </Alert>
-          )}
+          {/* Smart field grouping - related timing/scoring controls together */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Time Limit <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <Input
+                  type="number"
+                  placeholder="30"
+                  min="1"
+                  max="300"
+                  {...form.register('duration_minutes', { valueAsNumber: true })}
+                  className={form.formState.errors.duration_minutes ? 'border-red-500' : ''}
+                />
+                <span className="absolute right-3 top-2 text-sm text-gray-500">minutes</span>
+              </div>
+              {form.formState.errors.duration_minutes && (
+                <p className="text-red-500 text-xs mt-1">{form.formState.errors.duration_minutes.message}</p>
+              )}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Max Attempts
+              </label>
+              <div className="relative">
+                <Input
+                  type="number"
+                  placeholder="3"
+                  min="1"
+                  max="10"
+                  className="pr-12"
+                  // Note: This would need to be added to the schema and form if needed
+                />
+                <span className="absolute right-3 top-2 text-sm text-gray-500">tries</span>
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Passing Score
+              </label>
+              <div className="relative">
+                <Input
+                  type="number"
+                  placeholder="70"
+                  min="1"
+                  max="100"
+                  className="pr-6"
+                  // Note: This would need to be added to the schema and form if needed
+                />
+                <span className="absolute right-3 top-2 text-sm text-gray-500">%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Optional Reading Passage */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Reading Passage (Optional)
+            </label>
+            <Textarea
+              placeholder="Enter reading passage if this quiz requires one"
+              rows={3}
+              className="resize-none"
+              // Note: This would need to be added to the schema and form if needed
+            />
+          </div>
+
+          {/* Consolidated validation - single status bar at bottom */}
+          <div className="bg-gray-50 border rounded-lg p-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {isValid ? (
+                  <>
+                    <span className="text-green-600">✓</span>
+                    <span className="text-sm font-medium text-green-700">Settings Complete</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-amber-600">⚠</span>
+                    <span className="text-sm font-medium text-amber-700">
+                      {errors.length} field{errors.length !== 1 ? 's' : ''} need attention
+                    </span>
+                  </>
+                )}
+              </div>
+              {showTimeLimitWarning && (
+                <div className="flex items-center gap-1 text-xs text-orange-600">
+                  <IconAlertTriangle className="w-3 h-3" />
+                  <span>Time limit warning</span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </Card>

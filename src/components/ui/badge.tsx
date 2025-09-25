@@ -1,30 +1,28 @@
-'use client'
+import * as React from "react"
 
-import React from 'react'
-
-interface BadgeProps {
-  children: React.ReactNode
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary'
-  className?: string
+interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'secondary' | 'destructive' | 'outline'
 }
 
-export const Badge: React.FC<BadgeProps> = ({ 
-  children, 
-  variant = 'default', 
-  className = '' 
-}) => {
-  const baseClasses = 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium'
-  
-  const variantClasses = {
-    default: 'bg-secondary/10 text-secondary',
-    destructive: 'bg-destructive/20 text-red-800',
-    outline: 'border border-gray-300 text-gray-700',
-    secondary: 'bg-muted/40 text-gray-800'
+const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
+  ({ className = "", variant = 'default', ...props }, ref) => {
+    const variants = {
+      default: "bg-blue-600 text-white",
+      secondary: "bg-gray-600 text-white",
+      destructive: "bg-red-600 text-white",
+      outline: "border border-gray-300 text-gray-700"
+    }
+
+    return (
+      <div
+        ref={ref}
+        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors ${variants[variant]} ${className}`}
+        {...props}
+      />
+    )
   }
-  
-  return (
-    <span className={`${baseClasses} ${variantClasses[variant]} ${className}`}>
-      {children}
-    </span>
-  )
-}
+)
+
+Badge.displayName = "Badge"
+
+export { Badge }

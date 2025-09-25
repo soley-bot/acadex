@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useReducer, ReactNode, useMemo } from 'react'
 import { Quiz, QuizQuestion } from '@/lib/supabase'
+import { UnifiedValidationError } from '@/types/validation'
 
 // Enhanced types for better type safety
 export interface QuizFormData {
@@ -17,11 +18,8 @@ export interface QuizFormData {
   time_limit_type: 'quiz' | 'question' | 'none'
 }
 
-export interface ValidationError {
-  field: string
-  message: string
-  questionIndex?: number
-}
+// Type alias for backward compatibility
+export type ValidationError = UnifiedValidationError
 
 interface QuizState {
   // Form state

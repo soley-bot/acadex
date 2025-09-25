@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card'
 
 // Dynamic import for heavy CourseForm component - Week 2 Day 4 optimization
 const CourseForm = dynamic(
-  () => import('@/components/admin/CourseForm').then(mod => ({ default: mod.CourseForm })),
+  () => import('@/components/admin/course-form/CourseForm').then(mod => ({ default: mod.CourseForm })),
   {
     loading: () => (
       <div className="flex items-center justify-center p-8 min-h-[400px]">

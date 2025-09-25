@@ -16,14 +16,23 @@ interface State {
   hasError: boolean
   error?: Error
   errorInfo?: ErrorInfo
+  isDevelopment: boolean
 }
 
 class ErrorBoundary extends Component<Props, State> {
   public state: State = {
-    hasError: false
+    hasError: false,
+    isDevelopment: false
   }
 
-  public static getDerivedStateFromError(error: Error): State {
+  public componentDidMount() {
+    // Safely determine development mode after component mounts
+    this.setState({
+      isDevelopment: process.env.NODE_ENV === 'development'
+    })
+  }
+
+  public static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error }
   }
 
@@ -77,7 +86,7 @@ class ErrorBoundary extends Component<Props, State> {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Show error details in development */}
-              {this.props.showDetails && process.env.NODE_ENV === 'development' && this.state.error && (
+              {(this.props.showDetails ?? this.state.isDevelopment) && this.state.error && (
                 <div className="text-xs text-gray-600 bg-gray-100 p-3 rounded">
                   <strong>Error:</strong> {this.state.error.message}
                   {this.state.errorInfo && (

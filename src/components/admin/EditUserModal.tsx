@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { X, User, Mail, UserCheck, Loader2 } from 'lucide-react'
 import { User as UserType } from '@/lib/supabase'
+import { useSubmissionState } from '@/hooks/useAsyncState'
 
 interface EditUserModalProps {
   isOpen: boolean
@@ -17,8 +18,9 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: 
     email: '',
     role: 'student'
   })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  
+  // 🔄 CONSOLIDATED: Replaced duplicate loading/error state with unified hook
+  const { isSubmitting, error, success, handleSubmission, clearMessages } = useSubmissionState()
 
   useEffect(() => {
     if (user) {
@@ -34,10 +36,8 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: 
     e.preventDefault()
     if (!user) return
     
-    setLoading(true)
-    setError(null)
-
-    try {
+    // 🔄 CONSOLIDATED: Using unified submission handling
+    const success = await handleSubmission(async () => {
       // Call our API route to update the user
       const response = await fetch(`/api/admin/users/${user.id}`, {
         method: 'PUT',
@@ -53,14 +53,12 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: 
         throw new Error(result.error || 'Failed to update user')
       }
 
-      // Close modal and refresh list
+      return result
+    }, () => {
+      // On success callback
       onUserUpdated()
       onClose()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update user')
-    } finally {
-      setLoading(false)
-    }
+    })
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -177,10 +175,10 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }: 
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={isSubmitting}
               className="flex-1 bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
             >
-              {loading ? (
+              {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Updating...

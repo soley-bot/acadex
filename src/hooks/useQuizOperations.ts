@@ -16,42 +16,42 @@ export function useQuizValidation() {
 
     // Basic form validation
     if (!formData.title.trim()) {
-      errors.push({ field: 'title', message: 'Quiz title is required' })
+      errors.push({ field: 'title', message: 'Quiz title is required', severity: 'error' })
     } else if (formData.title.length < 3) {
-      errors.push({ field: 'title', message: 'Quiz title must be at least 3 characters long' })
+      errors.push({ field: 'title', message: 'Quiz title must be at least 3 characters long', severity: 'error' })
     } else if (formData.title.length > 100) {
-      errors.push({ field: 'title', message: 'Quiz title must be less than 100 characters' })
+      errors.push({ field: 'title', message: 'Quiz title must be less than 100 characters', severity: 'error' })
     }
 
     if (!formData.description.trim()) {
-      errors.push({ field: 'description', message: 'Quiz description is required' })
+      errors.push({ field: 'description', message: 'Quiz description is required', severity: 'error' })
     } else if (formData.description.length < 10) {
-      errors.push({ field: 'description', message: 'Description must be at least 10 characters long' })
+      errors.push({ field: 'description', message: 'Description must be at least 10 characters long', severity: 'error' })
     }
 
     if (!formData.category.trim()) {
-      errors.push({ field: 'category', message: 'Category is required' })
+      errors.push({ field: 'category', message: 'Category is required', severity: 'error' })
     }
 
     if (formData.duration_minutes < 1) {
-      errors.push({ field: 'duration_minutes', message: 'Duration must be at least 1 minute' })
+      errors.push({ field: 'duration_minutes', message: 'Duration must be at least 1 minute', severity: 'error' })
     } else if (formData.duration_minutes > 480) {
-      errors.push({ field: 'duration_minutes', message: 'Duration cannot exceed 8 hours (480 minutes)' })
+      errors.push({ field: 'duration_minutes', message: 'Duration cannot exceed 8 hours (480 minutes)', severity: 'error' })
     }
 
     if (formData.passing_score < 0 || formData.passing_score > 100) {
-      errors.push({ field: 'passing_score', message: 'Passing score must be between 0 and 100' })
+      errors.push({ field: 'passing_score', message: 'Passing score must be between 0 and 100', severity: 'error' })
     }
 
     if (formData.max_attempts < 0) {
-      errors.push({ field: 'max_attempts', message: 'Max attempts cannot be negative' })
+      errors.push({ field: 'max_attempts', message: 'Max attempts cannot be negative', severity: 'error' })
     }
 
     // Questions validation
     if (questions.length === 0) {
-      errors.push({ field: 'questions', message: 'At least one question is required' })
+      errors.push({ field: 'questions', message: 'At least one question is required', severity: 'error' })
     } else if (questions.length > 100) {
-      errors.push({ field: 'questions', message: 'Cannot have more than 100 questions per quiz' })
+      errors.push({ field: 'questions', message: 'Cannot have more than 100 questions per quiz', severity: 'error' })
     }
 
     // Individual question validation
@@ -60,6 +60,7 @@ export function useQuizValidation() {
         errors.push({
           field: 'question',
           message: 'Question text is required',
+          severity: 'error',
           questionIndex: index
         })
       }
@@ -71,6 +72,7 @@ export function useQuizValidation() {
             errors.push({
               field: 'options',
               message: 'Multiple choice questions need at least 2 options',
+              severity: 'error',
               questionIndex: index
             })
           }
@@ -80,6 +82,7 @@ export function useQuizValidation() {
             errors.push({
               field: 'options',
               message: 'At least 2 options must have text',
+              severity: 'error',
               questionIndex: index
             })
           }
@@ -88,6 +91,7 @@ export function useQuizValidation() {
             errors.push({
               field: 'correct_answer',
               message: 'Please select a valid correct answer',
+              severity: 'error',
               questionIndex: index
             })
           }
@@ -98,6 +102,7 @@ export function useQuizValidation() {
             errors.push({
               field: 'correct_answer',
               message: 'Please select True or False',
+              severity: 'error',
               questionIndex: index
             })
           }
@@ -109,6 +114,7 @@ export function useQuizValidation() {
             errors.push({
               field: 'correct_answer_text',
               message: 'Correct answer text is required for this question type',
+              severity: 'error',
               questionIndex: index
             })
           }
@@ -119,6 +125,7 @@ export function useQuizValidation() {
             errors.push({
               field: 'options',
               message: 'Matching questions need at least 2 pairs',
+              severity: 'error',
               questionIndex: index
             })
           }
@@ -129,6 +136,7 @@ export function useQuizValidation() {
             errors.push({
               field: 'options',
               message: 'Ordering questions need at least 2 items',
+              severity: 'error',
               questionIndex: index
             })
           }
@@ -140,6 +148,7 @@ export function useQuizValidation() {
         errors.push({
           field: 'points',
           message: 'Points must be between 1 and 10',
+          severity: 'error',
           questionIndex: index
         })
       }

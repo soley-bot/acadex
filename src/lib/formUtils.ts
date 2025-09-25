@@ -4,6 +4,7 @@
 
 import React from 'react'
 import { logger } from './logger'
+import { FormValidator, ValidationRules } from './formValidation'
 
 export interface ValidationRule {
   required?: boolean
@@ -20,63 +21,8 @@ export interface FormField {
   error?: string
 }
 
-export class FormValidator {
-  /**
-   * Validate a single field
-   */
-  static validateField(field: FormField): string | null {
-    const { value, rules } = field
-    
-    if (!rules) return null
-
-    // Required validation
-    if (rules.required && (!value || (typeof value === 'string' && !value.trim()))) {
-      return `${field.name} is required`
-    }
-
-    // Skip other validations if field is empty and not required
-    if (!value && !rules.required) return null
-
-    // String validations
-    if (typeof value === 'string') {
-      if (rules.minLength && value.length < rules.minLength) {
-        return `${field.name} must be at least ${rules.minLength} characters`
-      }
-
-      if (rules.maxLength && value.length > rules.maxLength) {
-        return `${field.name} must be no more than ${rules.maxLength} characters`
-      }
-
-      if (rules.pattern && !rules.pattern.test(value)) {
-        return `${field.name} format is invalid`
-      }
-    }
-
-    // Custom validation
-    if (rules.custom) {
-      const customError = rules.custom(value)
-      if (customError) return customError
-    }
-
-    return null
-  }
-
-  /**
-   * Validate multiple fields
-   */
-  static validateForm(fields: FormField[]): Record<string, string> {
-    const errors: Record<string, string> = {}
-
-    fields.forEach(field => {
-      const error = this.validateField(field)
-      if (error) {
-        errors[field.name] = error
-      }
-    })
-
-    return errors
-  }
-}
+// FormValidator class moved to formValidation.ts for better organization and feature completeness
+// Import { FormValidator } from './formValidation' if you need validation utilities
 
 /**
  * Common validation rules
@@ -129,6 +75,9 @@ export const validationRules = {
 
 /**
  * React hook for form state management
+ * 
+ * @deprecated For new development, consider using useUnifiedForm from '@/hooks/useUnifiedForm' 
+ * which provides auto-save, better validation, and unified error handling
  */
 export function useFormState<T extends Record<string, any>>(
   initialState: T,
@@ -150,16 +99,16 @@ export function useFormState<T extends Record<string, any>>(
   const validateForm = (): boolean => {
     if (!validationConfig) return true
 
-    const fields: FormField[] = Object.entries(validationConfig).map(([name, rules]) => ({
-      name,
-      value: formData[name],
-      rules
-    }))
+    // Convert FormField format to ValidationRules format for the consolidated validator
+    const rules: ValidationRules = {}
+    Object.entries(validationConfig).forEach(([name, rule]) => {
+      rules[name] = rule
+    })
 
-    const formErrors = FormValidator.validateForm(fields)
-    setErrors(formErrors)
+    const validationResult = FormValidator.validateForm(formData, rules)
+    setErrors(validationResult.errors)
 
-    return Object.keys(formErrors).length === 0
+    return validationResult.isValid
   }
 
   const handleSubmit = async (

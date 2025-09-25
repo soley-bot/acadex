@@ -62,13 +62,6 @@ const nextConfig = {
       ]
     }
 
-    // Disable problematic optimizations in development
-    if (dev && !isServer) {
-      // Prevent webpack from corrupting JavaScript output
-      config.optimization.splitChunks = false
-      config.optimization.minimize = false
-    }
-
     return config
   },
 

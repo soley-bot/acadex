@@ -3,19 +3,11 @@
 
 import { useState, useEffect } from 'react'
 import { QuizQuestion } from '@/lib/supabase'
+import { UnifiedValidationError, UnifiedValidationResult } from '@/types/validation'
 
-export interface ValidationError {
-  field: string
-  message: string
-  severity: 'error' | 'warning'
-  questionIndex?: number
-}
-
-export interface QuizValidationResult {
-  isValid: boolean
-  errors: ValidationError[]
-  warnings: ValidationError[]
-}
+// Type aliases for backward compatibility
+export type ValidationError = UnifiedValidationError
+export type QuizValidationResult = UnifiedValidationResult
 
 export const useQuizValidation = () => {
   const validateQuestion = (question: QuizQuestion): ValidationError[] => {

@@ -12,9 +12,13 @@ import {
   Target,
   Clock,
   User,
-  Infinity
+  Infinity,
+  ImageIcon
 } from 'lucide-react'
 import type { Quiz } from '@/lib/supabase'
+import { ImageUpload } from '@/components/ui/ImageUpload'
+import { uploadImage } from '@/lib/imageUpload'
+import { useToast } from '@/hooks/use-toast'
 
 interface QuizSettingsFormProps {
   quiz: Partial<Quiz>
@@ -32,6 +36,7 @@ export const QuizSettingsForm = memo<QuizSettingsFormProps>(({
   onUpdate,
   errors = {}
 }) => {
+  const { toast } = useToast()
   const handleTitleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     onUpdate({ title: event.target.value })
   }, [onUpdate])
@@ -50,6 +55,33 @@ export const QuizSettingsForm = memo<QuizSettingsFormProps>(({
     const value = event.target.value
     const numValue = value === '' ? 10 : parseInt(value) || 10
     onUpdate({ duration_minutes: numValue })
+  }, [onUpdate])
+
+  const handleImageUpload = useCallback(async (file: File): Promise<string> => {
+    try {
+      const result = await uploadImage(file, 'quiz-images', 'thumbnails')
+      if (result.success && result.url) {
+        toast({
+          title: 'Image uploaded successfully',
+          description: 'Quiz thumbnail has been updated.',
+        })
+        return result.url
+      } else {
+        throw new Error(result.error || 'Upload failed')
+      }
+    } catch (error) {
+      console.error('Quiz image upload error:', error)
+      toast({
+        title: 'Upload failed',
+        description: error instanceof Error ? error.message : 'Failed to upload image',
+        variant: 'destructive'
+      })
+      throw error
+    }
+  }, [toast])
+
+  const handleImageChange = useCallback((url: string | null) => {
+    onUpdate({ image_url: url })
   }, [onUpdate])
 
   return (
@@ -100,6 +132,32 @@ export const QuizSettingsForm = memo<QuizSettingsFormProps>(({
             {errors.description && (
               <p className="text-sm text-red-600">{errors.description}</p>
             )}
+          </div>
+
+          {/* Quiz Image */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <ImageIcon className="h-4 w-4 text-gray-600" />
+              <Label className="text-sm font-medium">
+                Quiz Thumbnail
+              </Label>
+              <Badge variant="outline" className="text-xs">
+                Optional
+              </Badge>
+            </div>
+            <div className="space-y-3">
+              <ImageUpload
+                value={quiz.image_url}
+                onChange={handleImageChange}
+                onFileUpload={handleImageUpload}
+                context="quiz"
+                placeholder="Upload a thumbnail image or enter image URL"
+                className="max-w-md"
+              />
+              <p className="text-xs text-gray-600">
+                Add a thumbnail image that will be displayed in quiz listings. Recommended size: 400x300px or similar aspect ratio.
+              </p>
+            </div>
           </div>
 
           {/* Duration and Time Settings */}

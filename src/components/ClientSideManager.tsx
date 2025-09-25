@@ -94,3 +94,5 @@ export function ClientSideManager({ children }: ClientSideManagerProps) {
     </>
   )
 }
+
+export default ClientSideManager

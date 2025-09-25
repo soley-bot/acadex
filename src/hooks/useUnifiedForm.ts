@@ -8,10 +8,10 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { logger } from '@/lib/logger'
 import { useAuth } from '@/contexts/AuthContext'
+import { UnifiedValidationError } from '@/types/validation'
 
-export interface ValidationError {
-  field: string
-  message: string
+// Type alias for backward compatibility - map index to questionIndex
+export type ValidationError = Omit<UnifiedValidationError, 'questionIndex'> & {
   index?: number
 }
 

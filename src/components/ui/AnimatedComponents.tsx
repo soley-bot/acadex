@@ -1,174 +1,86 @@
-'use client'
+"use client"
 
-import React, { useRef, useEffect, useState } from 'react'
-import { cn } from '@/lib/utils'
+import * as React from "react"
 
-// Lightweight animation components using CSS instead of framer-motion
-interface AnimatedDivProps {
+interface AnimatedDivProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
-  className?: string
-  variant?: 'fadeInUp' | 'fadeIn' | 'scaleIn' | 'slideInLeft' | 'slideInRight'
+  variant?: 'fadeInUp' | 'slideInRight' | 'scaleIn' | 'fadeIn'
   delay?: number
-  once?: boolean
 }
 
-// Static animation class mappings - no recreation on renders
-const animationClasses = {
-  fadeInUp: 'animate-[slideUp_0.4s_ease-out_forwards]',
-  fadeIn: 'animate-[fadeIn_0.4s_ease-out_forwards]',
-  scaleIn: 'animate-[scaleIn_0.4s_ease-out_forwards]',
-  slideInLeft: 'animate-[slideUp_0.4s_ease-out_forwards] translate-x-[-20px]',
-  slideInRight: 'animate-[slideUp_0.4s_ease-out_forwards] translate-x-[20px]'
-}
-
-export function AnimatedDiv({ 
-  children, 
-  className = '', 
-  variant = 'fadeInUp', 
-  delay = 0,
-  once = true 
-}: AnimatedDivProps) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
-  const [hasAnimated, setHasAnimated] = useState(false)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && (!hasAnimated || !once)) {
-          setTimeout(() => setIsVisible(true), delay)
-          if (once) setHasAnimated(true)
-        }
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
-    )
-
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [delay, once, hasAnimated])
-
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        'opacity-0', // Start hidden
-        isVisible && animationClasses[variant],
-        className
-      )}
+const AnimatedDiv = React.forwardRef<HTMLDivElement, AnimatedDivProps>(
+  ({ children, className = "", variant, delay, ...props }, ref) => (
+    <div 
+      ref={ref} 
+      className={`transition-all duration-300 ${className}`} 
+      style={{ transitionDelay: delay ? `${delay}s` : undefined }}
+      {...props}
     >
       {children}
     </div>
   )
-}
+)
 
-// Optimized stagger container using CSS
-interface StaggerContainerProps {
+interface StaggerContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
-  className?: string
-  once?: boolean
 }
 
-export function StaggerContainer({ children, className = '', once = true }: StaggerContainerProps) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
+const StaggerContainer = React.forwardRef<HTMLDivElement, StaggerContainerProps>(
+  ({ children, className = "", ...props }, ref) => (
+    <div ref={ref} className={`space-y-4 ${className}`} {...props}>
+      {children}
+    </div>
+  )
+)
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.1 }
-    )
+interface StaggerItemProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode
+}
 
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [])
-
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        'stagger-container',
-        className,
-        isVisible && 'stagger-animate'
-      )}
+const StaggerItem = React.forwardRef<HTMLDivElement, StaggerItemProps>(
+  ({ children, className = "", ...props }, ref) => (
+    <div 
+      ref={ref} 
+      className={`transition-all duration-300 ease-out hover:transform hover:translate-y-1 ${className}`} 
+      {...props}
     >
       {children}
     </div>
   )
-}
+)
 
-// Individual stagger items - now just a simple wrapper
-interface StaggerItemProps {
+interface HoverScaleProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
-  className?: string
-}
-
-export function StaggerItem({ children, className = '' }: StaggerItemProps) {
-  return (
-    <div className={cn('opacity-0', className)}>
-      {children}
-    </div>
-  )
-}
-
-// Lightweight floating element using CSS
-export function FloatingElement({ 
-  children, 
-  className = '',
-  intensity = 'medium' 
-}: { 
-  children: React.ReactNode
-  className?: string
-  intensity?: 'subtle' | 'medium' | 'strong'
-}) {
-  const animationClass = intensity === 'subtle' 
-    ? 'hover:translate-y-[-2px]' 
-    : intensity === 'strong' 
-    ? 'hover:translate-y-[-6px]' 
-    : 'hover:translate-y-[-4px]'
-
-  return (
-    <div className={cn('transition-transform duration-300 ease-out', animationClass, className)}>
-      {children}
-    </div>
-  )
-}
-
-// Simple hover scale using CSS transforms
-export function HoverScale({ 
-  children, 
-  className = '',
-  scale = 1.02 
-}: { 
-  children: React.ReactNode
-  className?: string
   scale?: number
-}) {
-  const scaleClass = scale === 1.05 ? 'hover:scale-105' : scale === 1.03 ? 'hover:scale-[1.03]' : 'hover:scale-[1.02]'
-  
-  return (
-    <div className={cn('transition-transform duration-150 active:scale-[0.98]', scaleClass, className)}>
-      {children}
-    </div>
-  )
 }
 
-// Simple magnetic hover with CSS
-export function MagneticHover({ 
-  children, 
-  className = '',
-  strength = 8 
-}: { 
-  children: React.ReactNode
-  className?: string
-  strength?: number
-}) {
-  return (
-    <div className={cn('transition-transform duration-200 hover:translate-y-[-2px] hover:shadow-lg', className)}>
-      {children}
-    </div>
-  )
-}
+const HoverScale = React.forwardRef<HTMLDivElement, HoverScaleProps>(
+  ({ children, className = "", scale = 1.05, ...props }, ref) => {
+    const handleMouseEnter = React.useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+      e.currentTarget.style.transform = `scale(${scale})`
+    }, [scale])
+    
+    const handleMouseLeave = React.useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+      e.currentTarget.style.transform = 'scale(1)'
+    }, [])
+
+    return (
+      <div 
+        ref={ref} 
+        className={`transition-transform duration-200 ${className}`}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        {...props}
+      >
+        {children}
+      </div>
+    )
+  }
+)
+
+AnimatedDiv.displayName = "AnimatedDiv"
+StaggerContainer.displayName = "StaggerContainer"
+StaggerItem.displayName = "StaggerItem"
+HoverScale.displayName = "HoverScale"
+
+export { AnimatedDiv, StaggerContainer, StaggerItem, HoverScale }

@@ -7,6 +7,7 @@ import { IconRocket, IconAlertTriangle } from '@tabler/icons-react'
 import { calculateQuizStats } from '../utils/QuizBuilderUtils'
 import type { Quiz, QuizQuestion } from '@/lib/supabase'
 import { QuestionCreationInterface } from './QuestionCreationInterface'
+import { InlineQuestionEditor } from './InlineQuestionEditorClean'
 
 interface QuizQuestionsProps {
   questions: QuizQuestion[]
@@ -98,36 +99,35 @@ export const QuizQuestions = memo<QuizQuestionsProps>(({
   }, [quizData, questions])
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h3 className="text-lg font-semibold">Quiz Questions</h3>
-          <Badge variant={questions.length > 0 ? 'secondary' : 'outline'}>
-            {questions.length} {questions.length === 1 ? 'question' : 'questions'}
-          </Badge>
-        </div>
+    <Card className="p-4 border rounded-lg">
+      <div className="flex flex-col gap-4">
+        {/* Optimized Header with inline controls */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h3 className="text-base font-semibold">Quiz Questions</h3>
+            <Badge variant="outline" className="text-xs">
+              {questions.length} questions
+            </Badge>
+            {onGenerateAI && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleGenerateAI}
+                disabled={isGenerating}
+                className="flex items-center gap-1 text-xs"
+              >
+                <IconRocket size={12} />
+                {isGenerating ? 'Generating...' : 'Generate More'}
+              </Button>
+            )}
+          </div>
 
-        <div className="flex items-center gap-3">
-          {onGenerateAI && (
-            <Button
-              variant="default"
-              onClick={handleGenerateAI}
-              disabled={isGenerating}
-              className="bg-gradient-to-r from-violet-500 to-indigo-600 text-white hover:from-violet-600 hover:to-indigo-700 flex items-center gap-2"
-            >
-              <IconRocket size={16} />
-              {isGenerating ? 'Generating...' : 'Generate with AI'}
-            </Button>
-          )}
-          
           <QuestionCreationInterface 
             onCreateQuestion={onAdd} 
             quizData={quizData}
             existingQuestions={questions}
           />
         </div>
-      </div>
 
       {/* Validation Summary */}
       {invalidQuestions.length > 0 && (
@@ -166,93 +166,44 @@ export const QuizQuestions = memo<QuizQuestionsProps>(({
       ) : (
         <div className="space-y-4">
           {questionsWithValidation.map(({ question, errors, index }) => (
-            <Card 
-              key={index} 
-              className={`border ${errors.length > 0 ? 'border-red-300 shadow-red-100' : 'border-gray-200'}`}
-            >
-              <CardContent className="space-y-3 p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs">
-                      #{index + 1}
-                    </Badge>
-                    <Badge variant="outline">
-                      {question.question_type.replace('_', ' ')}
-                    </Badge>
-                    {question.points && (
-                      <Badge variant="outline" className="text-green-700 border-green-300">
-                        {question.points} pts
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => onDuplicate(index)}
-                    >
-                      Duplicate
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => onRemove(index)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-
-                <p className="text-sm line-clamp-2">
-                  {question.question || 'No question text'}
-                </p>
-
-                {errors.length > 0 && (
-                  <Alert className="border-red-200 bg-red-50 p-3">
-                    <IconAlertTriangle className="w-3 h-3" />
-                    <AlertDescription>
-                      <p className="text-xs">{errors.join(', ')}</p>
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </CardContent>
-            </Card>
+            <InlineQuestionEditor
+              key={index}
+              question={question}
+              questionIndex={index}
+              errors={errors}
+              onUpdate={onUpdate}
+              onDuplicate={onDuplicate}
+              onRemove={onRemove}
+            />
           ))}
         </div>
       )}
 
-      {/* Summary Stats */}
-      {questions.length > 0 && (
-        <Card className="border border-gray-200 bg-gray-50">
-          <CardContent className="p-4">
-            <div className="grid grid-cols-4 gap-6">
-              <div className="text-center">
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Total Questions</p>
-                <p className="text-sm font-medium">{questions.length}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Valid</p>
-                <p className="text-sm font-medium text-green-600">{validQuestions.length}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Need Attention</p>
-                <p className={`text-sm font-medium ${invalidQuestions.length > 0 ? 'text-orange-600' : 'text-green-600'}`}>
-                  {invalidQuestions.length}
-                </p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Total Points</p>
-                <p className="text-sm font-medium">
-                  {quizStats.totalPoints}
-                </p>
-              </div>
+        {/* Compact stats footer - essential metrics in single row */}
+        {questions.length > 0 && (
+          <div className="grid grid-cols-4 gap-4 p-3 bg-gray-50 border rounded-lg text-center">
+            <div>
+              <div className="text-sm font-medium">{questions.length}</div>
+              <div className="text-xs text-gray-600">Total</div>
             </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+            <div>
+              <div className="text-sm font-medium text-green-600">{validQuestions.length}</div>
+              <div className="text-xs text-gray-600">Valid</div>
+            </div>
+            <div>
+              <div className={`text-sm font-medium ${invalidQuestions.length > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+                {invalidQuestions.length}
+              </div>
+              <div className="text-xs text-gray-600">Issues</div>
+            </div>
+            <div>
+              <div className="text-sm font-medium text-blue-600">{quizStats.totalPoints}</div>
+              <div className="text-xs text-gray-600">Points Total</div>
+            </div>
+          </div>
+        )}
+      </div>
+    </Card>
   )
 })
 

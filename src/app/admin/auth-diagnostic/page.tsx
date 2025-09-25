@@ -3,12 +3,15 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
+import { useLoadingState } from '@/hooks/useAsyncState'
 
 export default function AuthDiagnosticPage() {
   const { user, supabaseUser, loading } = useAuth()
   const [sessionInfo, setSessionInfo] = useState<any>(null)
   const [apiTestResult, setApiTestResult] = useState<any>(null)
-  const [apiLoading, setApiLoading] = useState(false)
+  
+  // 🔄 CONSOLIDATED: Replaced duplicate loading state with unified hook
+  const { loading: apiLoading, withLoading } = useLoadingState()
 
   useEffect(() => {
     checkSession()
@@ -31,8 +34,8 @@ export default function AuthDiagnosticPage() {
   }
 
   const testApiAuth = async () => {
-    setApiLoading(true)
-    try {
+    // 🔄 CONSOLIDATED: Using unified loading pattern
+    const result = await withLoading(async () => {
       // Test the diagnostic API
       const response = await fetch('/api/admin/auth-diagnostic', {
         method: 'GET',
@@ -43,53 +46,40 @@ export default function AuthDiagnosticPage() {
       })
 
       const result = await response.json()
-      setApiTestResult({
+      return {
         status: response.status,
         success: result.success,
         data: result
-      })
-    } catch (error: any) {
-      setApiTestResult({
-        error: error.message
-      })
-    } finally {
-      setApiLoading(false)
+      }
+    })
+    
+    if (result) {
+      setApiTestResult(result)
     }
   }
 
   const testWithAuthHeader = async () => {
-    setApiLoading(true)
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      
+    await withLoading(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
-        setApiTestResult({ error: 'No access token available' })
-        return
+        setApiTestResult({ error: 'No access token available', method: 'Authorization Header' });
+        return;
       }
-
       const response = await fetch('/api/admin/auth-diagnostic', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`
         }
-      })
-
-      const result = await response.json()
+      });
+      const result = await response.json();
       setApiTestResult({
         status: response.status,
         success: result.success,
         data: result,
         method: 'Authorization Header'
-      })
-    } catch (error: any) {
-      setApiTestResult({
-        error: error.message,
-        method: 'Authorization Header'
-      })
-    } finally {
-      setApiLoading(false)
-    }
+      });
+    });
   }
 
   if (loading) {

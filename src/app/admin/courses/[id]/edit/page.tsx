@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Save, Eye, Loader2 } from 'lucide-react'
-import { CourseForm } from '@/components/admin/CourseForm'
+import { CourseForm } from '@/components/admin/course-form/CourseForm'
 import { supabase } from '@/lib/supabase'
 import type { Course } from '@/lib/supabase'
 

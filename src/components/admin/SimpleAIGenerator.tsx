@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { Brain, Loader2, Sparkles, Target, CheckCircle, X } from 'lucide-react'
 import { FrontendQuizData, QuestionType } from '@/lib/simple-ai-quiz-generator'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { SUPPORTED_LANGUAGES, DIFFICULTY_LEVELS, type DifficultyLevel } from '@/lib/quiz-constants-unified'
+import { ErrorHandler } from '@/lib/errorHandler'
 
 interface SimpleAIGeneratorProps {
   onQuizGenerated: (quiz: FrontendQuizData) => void
@@ -18,22 +20,13 @@ const questionTypeLabels = {
   ordering: 'Ordering'
 }
 
-const languageOptions = [
-  { code: 'english', name: 'English' },
-  { code: 'khmer', name: 'Khmer (ភាសាខ្មែរ)' },
-  { code: 'spanish', name: 'Spanish' },
-  { code: 'french', name: 'French' },
-  { code: 'chinese', name: 'Chinese' },
-  { code: 'japanese', name: 'Japanese' }
-]
-
 export function SimpleAIGenerator({ onQuizGenerated }: SimpleAIGeneratorProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [topic, setTopic] = useState('')
   const [subject, setSubject] = useState('General Knowledge')
   const [questionCount, setQuestionCount] = useState(5)
-  const [difficulty, setDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>('intermediate')
+  const [difficulty, setDifficulty] = useState<DifficultyLevel>('intermediate')
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<QuestionType[]>(['multiple_choice', 'true_false'])
   const [language, setLanguage] = useState('english')
   const [explanationLanguage, setExplanationLanguage] = useState('english')
@@ -81,7 +74,8 @@ export function SimpleAIGenerator({ onQuizGenerated }: SimpleAIGeneratorProps) {
         setError(result.error || 'Failed to generate quiz')
       }
     } catch (err: any) {
-      setError(`Generation failed: ${err.message}`)
+      const formattedError = ErrorHandler.formatError(err)
+      setError(formattedError.message)
     } finally {
       setGenerating(false)
     }
@@ -198,12 +192,12 @@ export function SimpleAIGenerator({ onQuizGenerated }: SimpleAIGeneratorProps) {
             </label>
             <select
               value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value as any)}
+              onChange={(e) => setDifficulty(e.target.value as DifficultyLevel)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
+              {DIFFICULTY_LEVELS.map(level => (
+                <option key={level.value} value={level.value}>{level.label}</option>
+              ))}
             </select>
           </div>
           
@@ -216,7 +210,7 @@ export function SimpleAIGenerator({ onQuizGenerated }: SimpleAIGeneratorProps) {
               onChange={(e) => setLanguage(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
-              {languageOptions.map(lang => (
+              {SUPPORTED_LANGUAGES.map(lang => (
                 <option key={lang.code} value={lang.code}>{lang.name}</option>
               ))}
             </select>
@@ -233,7 +227,7 @@ export function SimpleAIGenerator({ onQuizGenerated }: SimpleAIGeneratorProps) {
             onChange={(e) => setExplanationLanguage(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
           >
-            {languageOptions.map(lang => (
+            {SUPPORTED_LANGUAGES.map(lang => (
               <option key={lang.code} value={lang.code}>{lang.name}</option>
             ))}
           </select>

@@ -1,6 +1,7 @@
 // Hook to load full course data including modules and lessons
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Course } from '@/lib/supabase'
+import { useAsyncState } from './useAsyncState'
 
 interface EnhancedCourse extends Course {
   course_modules?: Array<{
@@ -21,35 +22,28 @@ interface EnhancedCourse extends Course {
 }
 
 export function useEnhancedCourse(courseId?: string) {
-  const [course, setCourse] = useState<EnhancedCourse | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  // 🔄 CONSOLIDATED: Replaced duplicate loading/error state with unified hook
+  const { data: course, loading, error, execute } = useAsyncState<EnhancedCourse>()
+
+  const loadCourse = useCallback(async (id: string) => {
+    // 🔄 CONSOLIDATED: Using unified async execution
+    await execute(async () => {
+      const response = await fetch(`/api/admin/courses/enhanced?id=${id}`)
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to load course')
+      }
+      
+      return result.data
+    })
+  }, [execute])
 
   useEffect(() => {
     if (courseId) {
       loadCourse(courseId)
     }
-  }, [courseId])
-
-  const loadCourse = async (id: string) => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      const response = await fetch(`/api/admin/courses/enhanced?id=${id}`)
-      const result = await response.json()
-      
-      if (result.success) {
-        setCourse(result.data)
-      } else {
-        setError(result.error || 'Failed to load course')
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to load course')
-    } finally {
-      setLoading(false)
-    }
-  }
+  }, [courseId, loadCourse])
 
   return { course, loading, error, refetch: () => courseId && loadCourse(courseId) }
 }

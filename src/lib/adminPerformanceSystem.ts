@@ -246,7 +246,7 @@ export function trackBundleSize(componentName: string, size: number) {
 // Preloading strategies for admin components
 export const preloadAdminComponents = () => {
   const componentsToPreload = [
-    () => import('@/components/admin/CourseForm'),
+    () => import('@/components/admin/course-form/CourseForm'),
     () => import('@/components/admin/CategoryManagement')
   ]
   
