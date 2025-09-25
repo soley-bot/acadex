@@ -186,3 +186,4 @@ export function CourseViewModal({ course, isOpen, onClose, onEdit }: CourseViewM
     </div>
   )
 }
+

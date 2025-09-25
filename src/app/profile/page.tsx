@@ -115,7 +115,7 @@ export default function ProfilePage() {
   ]
 
   return (
-    <Section className="min-h-screen relative overflow-hidden" background="gradient">
+    <Section className="min-h-screen relative overflow-hidden" background="accent">
       <Container className="py-8 pt-28">
         
         {/* Contextual Back Navigation */}
@@ -127,7 +127,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Header */}
-        <Card variant="glass" className="mb-12 text-center">
+        <Card variant="elevated" className="mb-12 text-center">
           <CardContent className="p-12">
             <div className="inline-block p-4 bg-primary rounded-2xl mb-6 text-white">
               <Icon name="user" size={32} color="current" />
@@ -137,11 +137,11 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        <Card variant="glass">
+        <Card variant="elevated">
           <form onSubmit={handleSubmit}>
             <CardContent className="p-8 space-y-8">
             {/* Basic Information */}
-            <Card variant="base" className="bg-background/60 border-border">
+            <Card variant="default" className="bg-background/60 border-border">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                   <Icon name="edit" size={24} color="primary" />
@@ -204,7 +204,7 @@ export default function ProfilePage() {
             </Card>
 
             {/* Learning Preferences */}
-            <Card variant="base" className="bg-background/60 border-border">
+            <Card variant="default" className="bg-background/60 border-border">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                   <Icon name="target" size={24} color="primary" />
@@ -253,7 +253,7 @@ export default function ProfilePage() {
             </Card>
 
             {/* Profile Picture */}
-            <Card variant="base" className="bg-background/60 border-border">
+            <Card variant="default" className="bg-background/60 border-border">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                   <Icon name="camera" size={24} color="primary" />
@@ -289,7 +289,7 @@ export default function ProfilePage() {
 
             {/* Messages */}
             {message && (
-              <Card variant="base" className="bg-success/10 border-success border-2">
+              <Card variant="default" className="bg-success/10 border-success border-2">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3">
                     <Icon name="check-circle" size={24} color="success" />
@@ -300,7 +300,7 @@ export default function ProfilePage() {
             )}
 
             {error && (
-              <Card variant="base" className="bg-destructive/10 border-destructive border-2">
+              <Card variant="default" className="bg-destructive/10 border-destructive border-2">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3">
                     <Icon name="x-circle" size={24} color="error" />
@@ -344,3 +344,4 @@ export default function ProfilePage() {
     </Section>
   )
 }
+

@@ -373,7 +373,7 @@ export const InlineQuestionEditor = memo<InlineQuestionEditorProps>(({
                   Cancel
                 </Button>
                 <Button 
-                  variant="default"
+                  variant="secondary"
                   size="sm"
                   onClick={handleSaveEdit}
                   disabled={!editingQuestion}

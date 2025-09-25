@@ -117,7 +117,7 @@ export default function PopularCourses() {
     return (
       <Section 
         className="relative overflow-hidden py-16 md:py-20 lg:py-24"
-        background="gradient"
+        background="accent"
       >
         {/* Standardized Animated Background */}
         <BlobBackground variant="default" />
@@ -141,7 +141,7 @@ export default function PopularCourses() {
           {/* Loading Grid - Professional Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {[...Array(3)].map((_, i) => (
-              <Card key={i} variant="glass">
+              <Card key={i} variant="elevated">
                 <div className="h-48 bg-gray-200 animate-pulse rounded-t-2xl"></div>
                 <CardContent className="p-6">
                   <div className="h-6 bg-gray-200 animate-pulse rounded mb-3"></div>
@@ -164,7 +164,7 @@ export default function PopularCourses() {
   return (
     <Section 
       className="relative overflow-hidden py-16 md:py-20 lg:py-24"
-      background="gradient"
+      background="accent"
     >
       {/* Standardized Animated Background */}
       <BlobBackground variant="default" />
@@ -189,7 +189,7 @@ export default function PopularCourses() {
         {courses.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {courses.map((course) => (
-              <Card key={course.id} variant="glass" className="group hover:shadow-2xl transition-all duration-300 overflow-hidden hover:-translate-y-2">
+              <Card key={course.id} variant="elevated" className="group hover:shadow-2xl transition-all duration-300 overflow-hidden hover:-translate-y-2">
                 {/* Course Image */}
                 <div className="h-48 relative overflow-hidden">
                   <Image
@@ -267,7 +267,7 @@ export default function PopularCourses() {
           </div>
         ) : (
           <div className="text-center py-20">
-            <Card variant="glass" className="max-w-md mx-auto">
+            <Card variant="elevated" className="max-w-md mx-auto">
               <CardContent className="p-12">
                 <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
                   <BookOpen className="w-10 h-10 text-gray-400" />
@@ -284,3 +284,4 @@ export default function PopularCourses() {
     </Section>
   )
 }
+

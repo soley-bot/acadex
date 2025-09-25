@@ -343,3 +343,4 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
     </div>
   )
 }
+

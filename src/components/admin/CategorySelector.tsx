@@ -212,3 +212,4 @@ export const CategorySelector = memo(forwardRef<CategorySelectorRef, CategorySel
 
 // Add display name for debugging
 CategorySelector.displayName = 'CategorySelector'
+

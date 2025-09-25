@@ -84,9 +84,9 @@ export default function QuizResultsPage() {
 
   if (loading) {
     return (
-      <Section className="min-h-screen relative overflow-hidden" background="gradient">
+      <Section className="min-h-screen relative overflow-hidden" background="accent">
         <Container className="relative flex items-center justify-center py-20">
-          <Card variant="glass" className="text-center p-12">
+          <Card variant="elevated" className="text-center p-12">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary mx-auto mb-6"></div>
             <BodyLG className="text-gray-700 font-medium">Loading results...</BodyLG>
           </Card>
@@ -97,9 +97,9 @@ export default function QuizResultsPage() {
 
   if (error || !results) {
     return (
-      <Section className="min-h-screen relative overflow-hidden" background="gradient">
+      <Section className="min-h-screen relative overflow-hidden" background="accent">
         <Container className="relative max-w-2xl pt-32 text-center">
-          <Card variant="glass" className="p-12">
+          <Card variant="elevated" className="p-12">
             <div className="inline-block p-4 bg-destructive rounded-2xl mb-6">
               <Icon name="warning" size={32} color="white" />
             </div>
@@ -120,11 +120,11 @@ export default function QuizResultsPage() {
   const scoreMessage = getScoreMessage(results.score)
 
   return (
-    <Section className="min-h-screen relative overflow-hidden" background="gradient">
+    <Section className="min-h-screen relative overflow-hidden" background="accent">
       <Container className="relative max-w-6xl pt-20 pb-12">
 
         {/* Results Header */}
-        <Card variant="glass" className="text-center p-8 mb-8">
+        <Card variant="elevated" className="text-center p-8 mb-8">
           <div className="inline-block p-4 bg-success rounded-2xl mb-6">
             <Icon name="check" size={32} color="white" />
           </div>
@@ -138,19 +138,19 @@ export default function QuizResultsPage() {
           
           {/* Stats Grid */}
           <Grid cols={3} className="max-w-3xl mx-auto">
-            <Card variant="base" className="text-center p-6">
+            <Card variant="default" className="text-center p-6">
               <div className="text-3xl font-bold text-success mb-2">
                 {results.correct_answers}
               </div>
               <BodyMD className="text-gray-600 font-medium uppercase tracking-wide">Correct Answers</BodyMD>
             </Card>
-            <Card variant="base" className="text-center p-6">
+            <Card variant="default" className="text-center p-6">
               <div className="text-3xl font-bold text-gray-900 mb-2">
                 {results.total_questions}
               </div>
               <BodyMD className="text-gray-600 font-medium uppercase tracking-wide">Total Questions</BodyMD>
             </Card>
-            <Card variant="base" className="text-center p-6">
+            <Card variant="default" className="text-center p-6">
               <div className="text-3xl font-bold text-secondary mb-2">
                 {results.time_taken_minutes}
               </div>
@@ -160,7 +160,7 @@ export default function QuizResultsPage() {
         </Card>
 
         {/* Detailed Results */}
-        <Card variant="glass" className="mb-8">
+        <Card variant="elevated" className="mb-8">
           <CardHeader className="bg-secondary/10">
             <CardTitle className="flex items-center gap-3">
               <Icon name="chart" size={24} color="current" />
@@ -172,7 +172,7 @@ export default function QuizResultsPage() {
               {results.answers.map((answer, index) => (
                 <Card
                   key={index}
-                  variant="base"
+                  variant="default"
                   className={`p-6 border-2 ${
                     answer.is_correct 
                       ? 'border-green-300 bg-green-50/50' 
@@ -226,7 +226,7 @@ export default function QuizResultsPage() {
         </Card>
 
         {/* Tips for Improvement */}
-        <Card variant="glass" className="p-8 text-center">
+        <Card variant="elevated" className="p-8 text-center">
           <div className="inline-block p-4 bg-secondary rounded-2xl mb-6">
             <Icon name="lightbulb" size={32} color="white" />
           </div>

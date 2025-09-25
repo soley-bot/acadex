@@ -62,7 +62,7 @@ export default function Features() {
             return (
               <StaggerItem key={index}>
                 <HoverScale scale={1.03} className="group h-full">
-                  <Card variant="glass" className="p-6 h-full hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                  <Card variant="elevated" className="p-6 h-full hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
                     <CardContent className="p-0 space-y-4">
                       {/* Icon Container */}
                       <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center group-hover:bg-secondary transition-all duration-300 shadow-lg text-white">
@@ -87,3 +87,4 @@ export default function Features() {
     </section>
   )
 }
+

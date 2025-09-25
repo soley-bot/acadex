@@ -75,7 +75,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({
               {trend && (
                 <div className="flex items-center gap-2">
                   <Badge 
-                    variant={trend.isPositive ? "default" : "destructive"}
+                    variant={trend.isPositive ? "secondary" : "destructive"}
                     className="text-xs"
                   >
                     {trend.isPositive ? '+' : ''}{trend.value}%

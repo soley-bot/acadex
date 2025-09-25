@@ -304,3 +304,4 @@ export function SimpleAIGenerator({ onQuizGenerated }: SimpleAIGeneratorProps) {
     </Card>
   )
 }
+

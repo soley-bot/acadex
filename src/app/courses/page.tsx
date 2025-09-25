@@ -272,7 +272,7 @@ export default function CoursesPage() {
             {isLoading && courses.length === 0 ? (
               // Enhanced loading skeleton cards
               Array.from({ length: 6 }).map((_, index) => (
-                <Card key={index} variant="glass" className="overflow-hidden group hover:shadow-xl transition-all duration-300">
+                <Card key={index} variant="elevated" className="overflow-hidden group hover:shadow-xl transition-all duration-300">
                   <div className="h-48 bg-gradient-to-br from-primary/10 via-muted/30 to-secondary/10 animate-pulse relative">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                   </div>
@@ -301,7 +301,7 @@ export default function CoursesPage() {
               ))
             ) : (
               <div className="col-span-full text-center py-20">
-                <Card variant="glass" className="max-w-md mx-auto backdrop-blur-lg border-white/20 shadow-xl">
+                <Card variant="elevated" className="max-w-md mx-auto backdrop-blur-lg border-white/20 shadow-xl">
                   <CardContent className="p-12">
                     <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                       <BookOpen className="w-10 h-10 text-white" />
@@ -325,7 +325,7 @@ export default function CoursesPage() {
         {/* Pagination */}
         {pagination.totalPages > 1 && (
           <div className="flex justify-center">
-            <Card variant="glass">
+            <Card variant="elevated">
               <CardContent className="p-4">
                 <Pagination
                   currentPage={pagination.page}
@@ -342,3 +342,4 @@ export default function CoursesPage() {
   </div>
   )
 }
+

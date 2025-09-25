@@ -7,3 +7,4 @@ export function GlobalMobileNav() {
   // Each page now has its own contextual back buttons and navigation
   return null
 }
+

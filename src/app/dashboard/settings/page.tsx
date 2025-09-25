@@ -248,7 +248,7 @@ export default function SettingsPage() {
 
           <div className="space-y-6 md:space-y-8">
             {/* Notifications */}
-            <Card variant="base">
+            <Card variant="default">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Bell className="h-5 w-5" />
@@ -335,7 +335,7 @@ export default function SettingsPage() {
             </Card>
 
             {/* Preferences */}
-            <Card variant="base">
+            <Card variant="default">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Palette className="h-5 w-5" />
@@ -430,7 +430,7 @@ export default function SettingsPage() {
             </Card>
 
             {/* Privacy */}
-            <Card variant="base">
+            <Card variant="default">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Shield className="h-5 w-5" />
@@ -496,7 +496,7 @@ export default function SettingsPage() {
 
           {/* Save Button */}
           <div className="mt-8 flex justify-end">
-            <Button onClick={saveSettings} variant="default" size="lg" className="flex items-center gap-2">
+            <Button onClick={saveSettings} variant="secondary" size="lg" className="flex items-center gap-2">
               <Check className="h-4 w-4" />
               Save Settings
             </Button>
@@ -506,3 +506,4 @@ export default function SettingsPage() {
     </div>
   )
 }
+

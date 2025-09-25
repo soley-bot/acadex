@@ -80,7 +80,7 @@ export default function StudentDashboard() {
         )}
 
         <div className="flex-1 lg:ml-64 flex items-center justify-center">
-          <Card variant="glass" className="text-center p-12 max-w-md mx-auto">
+          <Card variant="elevated" className="text-center p-12 max-w-md mx-auto">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary mx-auto mb-6"></div>
             <BodyLG className="text-gray-700 font-medium">Loading dashboard...</BodyLG>
             <BodyMD className="text-gray-500 mt-2">Gathering your learning progress</BodyMD>
@@ -403,3 +403,4 @@ export default function StudentDashboard() {
     </div>
   )
 }
+

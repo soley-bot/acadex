@@ -84,9 +84,9 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <Section className="min-h-screen relative overflow-hidden" background="gradient">
+      <Section className="min-h-screen relative overflow-hidden" background="accent">
         <Container className="flex items-center justify-center min-h-screen">
-          <Card variant="glass" className="text-center p-12">
+          <Card variant="elevated" className="text-center p-12">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary mx-auto mb-6"></div>
             <BodyLG className="text-gray-700 font-medium">Loading dashboard...</BodyLG>
             <BodyMD className="text-gray-500 mt-2">Gathering latest statistics</BodyMD>
@@ -170,10 +170,10 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <Section className="min-h-screen relative overflow-hidden" background="gradient">
+    <Section className="min-h-screen relative overflow-hidden" background="accent">
       <Container className="py-8">
         {/* Header */}
-        <Card variant="glass" className="mb-8 text-center">
+        <Card variant="elevated" className="mb-8 text-center">
           <CardContent className="p-8">
             <div className="inline-block p-4 bg-primary rounded-2xl mb-6">
               <Icon name="chart" size={32} color="current" />
@@ -186,7 +186,7 @@ export default function AdminDashboard() {
         {/* Statistics Grid */}
         <Grid cols={4} className="mb-8">
           {dashboardCards.map((stat) => (
-            <Card key={stat.title} variant="base" className="text-center p-6 hover:shadow-lg transition-all duration-300">
+            <Card key={stat.title} variant="default" className="text-center p-6 hover:shadow-lg transition-all duration-300">
               <div className={`inline-block p-3 ${stat.bgColor} rounded-xl mb-4`}>
                 <Icon name={stat.icon as any} size={24} className={stat.color} />
               </div>
@@ -199,7 +199,7 @@ export default function AdminDashboard() {
 
         {/* Additional Dashboard Content */}
         <Grid cols={2}>
-          <Card variant="base" className="shadow-lg">
+          <Card variant="default" className="shadow-lg">
             <CardHeader>
               <CardTitle className="font-bold flex items-center">
                 <Icon name="activity" size={20} color="primary" className="mr-2" />

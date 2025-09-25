@@ -120,3 +120,4 @@ export function QueryProvider({ children }: QueryProviderProps) {
 }
 
 export { queryClient }
+

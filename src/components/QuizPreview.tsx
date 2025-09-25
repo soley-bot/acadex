@@ -60,7 +60,7 @@ export default function QuizPreview() {
   return (
     <Section 
       className="relative overflow-hidden py-16 md:py-20 lg:py-24"
-      background="gradient"
+      background="accent"
     >
       {/* Standardized Animated Background */}
       <BlobBackground variant="default" />
@@ -83,7 +83,7 @@ export default function QuizPreview() {
         {/* Stats Grid - Professional Card System */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-20">
           {stats.map((stat, index) => (
-            <Card key={index} variant="glass" className="text-center p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <Card key={index} variant="elevated" className="text-center p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
               <CardContent className="p-0">
                 <div className="text-3xl font-bold text-primary mb-3">{stat.value}</div>
                 <div className="text-lg font-semibold text-foreground mb-2">{stat.title}</div>
@@ -134,7 +134,7 @@ export default function QuizPreview() {
           </div>
 
           {/* Feature Preview - Professional Card */}
-          <Card variant="glass" className="p-8">
+          <Card variant="elevated" className="p-8">
             <CardContent className="p-0">
               <div className="text-center mb-8">
                 <div className="w-20 h-20 mx-auto mb-6 bg-secondary text-white rounded-full flex items-center justify-center shadow-lg">
@@ -186,7 +186,7 @@ export default function QuizPreview() {
 
         {/* Call to Action - Professional Card System */}
         <div className="text-center">
-          <Card variant="glass" className="p-12">
+          <Card variant="elevated" className="p-12">
             <CardContent className="p-0">
               <h2 className="text-3xl font-bold text-secondary mb-4">
                 Ready to Test Your Skills?
@@ -215,3 +215,4 @@ export default function QuizPreview() {
     </Section>
   )
 }
+

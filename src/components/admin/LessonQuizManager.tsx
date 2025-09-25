@@ -522,3 +522,4 @@ export function LessonQuizManager({ lessonId, lessonTitle, onQuizUpdated }: Less
     </div>
   )
 }
+

@@ -463,7 +463,7 @@ export default function CoursesPage() {
       {/* Empty State - Enhanced design */}
       {filteredCourses.length === 0 && !loading && (
         <div className="mt-12">
-          <Card variant="base" size="lg" className="border-2 border-dashed border-muted bg-muted/30">
+          <Card variant="default" size="lg" className="border-2 border-dashed border-muted bg-muted/30">
             <CardContent className="p-12">
               <div className="text-center">
                 <div className="bg-muted/60 p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center">
@@ -494,7 +494,7 @@ export default function CoursesPage() {
       {/* Pagination */}
       {pagination.totalPages > 1 && (
         <div className="mt-12 flex justify-center">
-          <Card variant="glass">
+          <Card variant="elevated">
             <CardContent className="p-4">
               <Pagination
                 currentPage={pagination.page}
@@ -550,3 +550,4 @@ export default function CoursesPage() {
     </div>
   )
 }
+

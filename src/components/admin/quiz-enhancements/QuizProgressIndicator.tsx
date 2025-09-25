@@ -340,3 +340,4 @@ function getSettingsDetails(formData: QuizData): string[] {
   
   return details
 }
+

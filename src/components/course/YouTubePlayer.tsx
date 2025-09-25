@@ -99,3 +99,4 @@ export function isValidYouTubeVideoId(videoId: string): boolean {
   
   return youtubePatterns.some(pattern => pattern.test(videoId))
 }
+

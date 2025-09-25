@@ -228,3 +228,4 @@ export function ErrorDisplay({ error, className = '' }: ErrorDisplayProps) {
     </div>
   )
 }
+

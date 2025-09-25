@@ -304,7 +304,7 @@ export default function MyQuizzesPage() {
             <div className="space-y-4">
               {quizAttempts.length > 0 ? (
                 quizAttempts.map((attempt) => (
-                  <Card key={attempt.id} variant="base">
+                  <Card key={attempt.id} variant="default">
                     <CardContent className="p-4 md:p-6">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div className="flex-1">
@@ -342,7 +342,7 @@ export default function MyQuizzesPage() {
                               <span className="sm:hidden">Details</span>
                             </Link>
                           </Button>
-                          <Button variant="default" size="sm" asChild>
+                          <Button variant="secondary" size="sm" asChild>
                             <Link href={`/quizzes/${attempt.quiz_id}/take`} className="flex items-center justify-center">
                               Retake
                             </Link>
@@ -353,14 +353,14 @@ export default function MyQuizzesPage() {
                   </Card>
                 ))
               ) : (
-                <Card variant="base">
+                <Card variant="default">
                   <CardContent className="p-12 text-center">
                     <Brain className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">No Quiz Attempts Yet</h3>
                     <p className="text-gray-600 mb-6 max-w-md mx-auto">
                       Start taking quizzes to track your progress and improve your skills.
                     </p>
-                    <Button variant="default" size="lg" asChild>
+                    <Button variant="secondary" size="lg" asChild>
                       <Link href="/quizzes">Take Your First Quiz</Link>
                     </Button>
                   </CardContent>
@@ -373,7 +373,7 @@ export default function MyQuizzesPage() {
           {activeTab === 'available' && (
             <div className="space-y-4">
               {availableQuizzes.map((quiz) => (
-                <Card key={quiz.id} variant="base">
+                <Card key={quiz.id} variant="default">
                   <CardContent className="p-4 md:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                       <div className="flex-1">
@@ -411,7 +411,7 @@ export default function MyQuizzesPage() {
                       </div>
                       
                       <div className="flex items-center sm:items-start">
-                        <Button variant="default" size="sm" asChild>
+                        <Button variant="secondary" size="sm" asChild>
                           <Link href={`/quizzes/${quiz.id}/take`} className="flex items-center gap-2">
                             <Play className="h-4 w-4" />
                             <span className="hidden sm:inline">{quiz.attempts > 0 ? 'Retake Quiz' : 'Start Quiz'}</span>

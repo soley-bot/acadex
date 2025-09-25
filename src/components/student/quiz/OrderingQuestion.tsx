@@ -238,7 +238,7 @@ export function OrderingQuestion({
   const isSentenceOrdering = avgWordLength < 8 && question.options.length <= 8
 
   return (
-    <Card variant="glass" className="p-6">
+        <Card variant="elevated" className="p-6">
       <CardContent className="space-y-6">
         {/* Instructions */}
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
@@ -332,3 +332,4 @@ export function OrderingQuestion({
     </Card>
   )
 }
+

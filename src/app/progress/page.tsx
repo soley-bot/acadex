@@ -264,7 +264,7 @@ export default function ProgressPage() {
           {/* Stats Overview */}
           {stats && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <Card variant="base">
+              <Card variant="default">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -276,7 +276,7 @@ export default function ProgressPage() {
                 </CardContent>
               </Card>
 
-              <Card variant="base">
+              <Card variant="default">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -288,7 +288,7 @@ export default function ProgressPage() {
                 </CardContent>
               </Card>
 
-              <Card variant="base">
+              <Card variant="default">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -300,7 +300,7 @@ export default function ProgressPage() {
                 </CardContent>
               </Card>
 
-              <Card variant="base">
+              <Card variant="default">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -316,7 +316,7 @@ export default function ProgressPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Course Progress */}
-            <Card variant="base">
+            <Card variant="default">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BookOpen className="h-5 w-5" />
@@ -360,7 +360,7 @@ export default function ProgressPage() {
             </Card>
 
             {/* Recent Quiz Results */}
-            <Card variant="base">
+            <Card variant="default">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Award className="h-5 w-5" />
@@ -400,3 +400,4 @@ export default function ProgressPage() {
     </div>
   )
 }
+

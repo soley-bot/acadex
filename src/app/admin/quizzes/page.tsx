@@ -309,7 +309,7 @@ export default function AdminQuizzesPage() {
         {/* Stats Cards Skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {[...Array(4)].map((_, i) => (
-            <Card key={i} variant="glass" className="animate-pulse">
+            <Card key={i} variant="elevated" className="animate-pulse">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -324,7 +324,7 @@ export default function AdminQuizzesPage() {
         </div>
 
         {/* Search and Filters Skeleton */}
-        <Card variant="glass" className="mb-8 animate-pulse">
+        <Card variant="elevated" className="mb-8 animate-pulse">
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="h-12 bg-gray-200 rounded-xl"></div>
@@ -338,7 +338,7 @@ export default function AdminQuizzesPage() {
         {/* Quizzes Grid Skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
-            <Card key={i} variant="base" className="animate-pulse">
+            <Card key={i} variant="default" className="animate-pulse">
               <CardContent className="p-6">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
                 <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
@@ -455,7 +455,7 @@ export default function AdminQuizzesPage() {
       {/* Pagination */}
       {pagination.totalPages > 1 && (
         <div className="mt-12 flex justify-center">
-          <Card variant="glass">
+          <Card variant="elevated">
             <CardContent className="p-4">
               <Pagination
                 currentPage={pagination.page}

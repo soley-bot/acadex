@@ -328,3 +328,4 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
     </div>
   )
 }
+

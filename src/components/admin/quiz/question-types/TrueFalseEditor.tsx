@@ -63,7 +63,7 @@ export const TrueFalseEditor = memo<TrueFalseEditorProps>(({
           <div className="flex gap-4">
             <Button
               type="button"
-              variant={question.correct_answer === true ? "default" : "outline"}
+              variant={question.correct_answer === true ? "secondary" : "outline"}
               onClick={() => setCorrectAnswer(true)}
               className="flex-1 h-12 text-lg"
             >
@@ -73,7 +73,7 @@ export const TrueFalseEditor = memo<TrueFalseEditorProps>(({
             
             <Button
               type="button"
-              variant={question.correct_answer === false ? "default" : "outline"}
+              variant={question.correct_answer === false ? "secondary" : "outline"}
               onClick={() => setCorrectAnswer(false)}
               className="flex-1 h-12 text-lg"
             >
@@ -131,3 +131,4 @@ export const TrueFalseEditor = memo<TrueFalseEditorProps>(({
 })
 
 TrueFalseEditor.displayName = 'TrueFalseEditor'
+

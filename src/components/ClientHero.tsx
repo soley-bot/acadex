@@ -71,7 +71,7 @@ export default function ClientHero() {
           {/* Right Column - Enhanced Visual Cards */}
           <AnimatedDiv variant="slideInRight" delay={0.4} className="order-1 lg:order-2">
             <HoverScale scale={1.02}>
-              <Card variant="glass" className="overflow-hidden transform hover:scale-[1.02] transition-all duration-500">
+              <Card variant="elevated" className="overflow-hidden transform hover:scale-[1.02] transition-all duration-500">
                 <CardContent className="p-0">
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <Image
@@ -110,7 +110,7 @@ export default function ClientHero() {
               { label: 'Practice Tests', value: '1000+', icon: '📝' }
             ].map((stat, i) => (
               <HoverScale key={i} scale={1.03} className="group h-full">
-                <Card variant="glass" className="p-6 h-full hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                <Card variant="elevated" className="p-6 h-full hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
                   <CardContent className="text-center p-0">
                     <div className="text-3xl mb-3 group-hover:scale-110 transition-transform duration-200">
                       {stat.icon}

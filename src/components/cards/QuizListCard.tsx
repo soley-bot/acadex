@@ -203,3 +203,4 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
 })
 
 QuizListCard.displayName = 'QuizListCard'
+

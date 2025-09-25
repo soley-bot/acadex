@@ -408,3 +408,4 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
     </BaseModal>
   )
 }
+

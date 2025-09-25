@@ -345,7 +345,7 @@ function EnhancedSignupForm() {
 
         {/* Right Side - Form */}
         <div className="w-full lg:w-1/2 lg:max-w-md">
-          <Card variant="glass" className="bg-white/80">
+          <Card variant="elevated" className="bg-white/80">
             <CardContent className="p-4 sm:p-6 lg:p-8">
             {/* Progress Bar */}
             <div className="mb-4 sm:mb-6 lg:mb-8">
@@ -555,3 +555,4 @@ export default function EnhancedSignupPage() {
     </div>
   )
 }
+

@@ -160,7 +160,7 @@ export default function MyCoursesPage() {
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">My Courses</h1>
               <p className="text-gray-600">Continue your learning journey</p>
             </div>
-            <Button variant="default" className="w-full sm:w-auto" asChild>
+            <Button variant="secondary" className="w-full sm:w-auto" asChild>
               <Link href="/courses" className="flex items-center justify-center gap-2">
                 <Search className="h-4 w-4" />
                 Browse More Courses
@@ -172,7 +172,7 @@ export default function MyCoursesPage() {
           {enrolledCourses.length > 0 ? (
             <div className="space-y-6">
               {enrolledCourses.map((course) => (
-                <Card key={course.id} variant="base">
+                <Card key={course.id} variant="default">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
@@ -223,7 +223,7 @@ export default function MyCoursesPage() {
 
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                      <Button variant="default" size="sm" asChild>
+                      <Button variant="secondary" size="sm" asChild>
                         <Link href={`/courses/${course.id}/study`} className="flex items-center justify-center gap-2">
                           <Play className="h-4 w-4" />
                           Continue Learning
@@ -250,14 +250,14 @@ export default function MyCoursesPage() {
               ))}
             </div>
           ) : (
-            <Card variant="base">
+            <Card variant="default">
               <CardContent className="p-12 text-center">
                 <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">No Courses Enrolled</h3>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
                   You haven&apos;t enrolled in any courses yet. Browse our course catalog to start your learning journey.
                 </p>
-                <Button variant="default" size="lg" asChild>
+                <Button variant="secondary" size="lg" asChild>
                   <Link href="/courses" className="flex items-center gap-2">
                     <Search className="h-5 w-5" />
                     Browse Course Catalog
@@ -271,3 +271,4 @@ export default function MyCoursesPage() {
     </div>
   )
 }
+

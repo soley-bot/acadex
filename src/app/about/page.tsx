@@ -111,7 +111,7 @@ export default function AboutPage() {
 
           {/* CTA Section */}
           <div className="text-center pt-12">
-            <Card variant="glass" className="max-w-2xl mx-auto p-8">
+            <Card variant="elevated" className="max-w-2xl mx-auto p-8">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Let&apos;s Build This Together</h2>
               <p className="text-lg text-gray-600 mb-8">
                 If you&apos;ve ever felt like you weren&apos;t good at learning, Acadex is here to prove you wrong. Start with a free quiz and feel the difference an educator-led approach can make.
@@ -132,3 +132,4 @@ export default function AboutPage() {
     </div>
   )
 }
+

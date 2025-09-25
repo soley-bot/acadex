@@ -109,7 +109,7 @@ export const MultipleChoiceEditor = memo<MultipleChoiceEditorProps>(({
               <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
                 <Button
                   type="button"
-                  variant={question.correct_answer === index ? "default" : "outline"}
+                  variant={question.correct_answer === index ? "secondary" : "outline"}
                   size="sm"
                   onClick={() => setCorrectAnswer(index)}
                   className="shrink-0"
@@ -213,3 +213,4 @@ export const MultipleChoiceEditor = memo<MultipleChoiceEditorProps>(({
 })
 
 MultipleChoiceEditor.displayName = 'MultipleChoiceEditor'
+

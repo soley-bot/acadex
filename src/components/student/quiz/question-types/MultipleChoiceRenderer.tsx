@@ -190,3 +190,4 @@ export const MultipleChoiceRenderer = memo<MultipleChoiceRendererProps>(({
 })
 
 MultipleChoiceRenderer.displayName = 'MultipleChoiceRenderer'
+

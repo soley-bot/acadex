@@ -16,7 +16,7 @@ export default function HonestSection() {
         <div className="max-w-4xl mx-auto text-center">
             {/* Unified Founder Story & Commitment Card */}
             <AnimatedDiv variant="fadeInUp" className="mb-16">
-              <Card variant="glass" className="p-8 md:p-12 lg:p-16">
+              <Card variant="elevated" className="p-8 md:p-12 lg:p-16">
                 <CardContent className="p-0 space-y-6">
                   <AnimatedDiv variant="scaleIn" delay={0.2}>
                     <div className="flex justify-center">
@@ -87,4 +87,5 @@ export default function HonestSection() {
     </section>
   )
 }
+
 

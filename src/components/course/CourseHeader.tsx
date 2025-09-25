@@ -145,3 +145,4 @@ export function CourseHeader({ course, progress, onToggleSidebar, isSidebarOpen 
     </header>
   )
 }
+

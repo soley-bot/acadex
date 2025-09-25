@@ -257,7 +257,7 @@ export default function AllResultsPage() {
             {/* Pagination */}
             {pagination.totalPages > 1 && (
               <div className="flex justify-center mt-6">
-                <Card variant="glass">
+                <Card variant="elevated">
                   <CardContent className="p-4">
                     <Pagination
                       currentPage={pagination.page}
@@ -274,3 +274,4 @@ export default function AllResultsPage() {
     </div>
   )
 }
+

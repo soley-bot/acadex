@@ -447,3 +447,4 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
     </div>
   )
 }
+

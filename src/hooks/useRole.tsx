@@ -64,3 +64,4 @@ export function withRoleProtection<T extends {}>(
     return <Component {...props} />
   }
 }
+

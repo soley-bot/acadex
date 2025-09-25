@@ -412,3 +412,4 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
 })
 
 CategoryManagement.displayName = 'CategoryManagement'
+

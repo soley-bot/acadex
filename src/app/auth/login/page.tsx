@@ -215,7 +215,7 @@ function EnhancedLoginForm() {
         </div>
 
         {/* Form Card */}
-        <Card variant="glass" className="bg-white/90">
+        <Card variant="elevated" className="bg-white/90">
           <CardContent className="p-6 lg:p-8">
             <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
             {/* Global Error */}
@@ -374,3 +374,4 @@ export default function EnhancedLoginPage() {
     </div>
   )
 }
+

@@ -42,7 +42,7 @@ interface BulkActionConfig {
   id: string
   label: string
   icon: React.ComponentType<{ className?: string }>
-  variant: 'default' | 'destructive' | 'outline' | 'secondary'
+  variant: 'primary' | 'secondary' | 'success' | 'destructive' | 'outline' | 'ghost' | 'link'
   requiresConfirmation: boolean
   confirmationTitle: string
   confirmationMessage: string
@@ -182,7 +182,7 @@ export function BulkOperations<T>({
       id: 'publish',
       label: 'Publish Selected',
       icon: Eye,
-      variant: 'default' as const,
+      variant: 'secondary' as const,
       requiresConfirmation: false,
       confirmationTitle: 'Publish Items',
       confirmationMessage: `Are you sure you want to publish ${selectedCount} ${itemType}?`
@@ -342,7 +342,7 @@ export function BulkOperations<T>({
                 Cancel
               </Button>
               <Button
-                variant={bulkActions.find(a => a.id === showConfirmation)?.variant || 'default'}
+                variant={bulkActions.find(a => a.id === showConfirmation)?.variant || 'secondary'}
                 onClick={pendingAction}
                 disabled={isLoading}
                 className="gap-2"

@@ -208,3 +208,4 @@ export default function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserMo
     </div>
   )
 }
+

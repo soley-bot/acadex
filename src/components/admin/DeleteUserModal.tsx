@@ -132,3 +132,4 @@ export default function DeleteUserModal({ isOpen, onClose, onUserDeleted, user }
     </div>
   )
 }
+

@@ -175,7 +175,7 @@ export function LessonContent({
 
         {/* Lesson Description */}
         {lesson.description && (
-          <Card variant="base">
+          <Card variant="default">
             <CardHeader>
               <CardTitle className="text-lg">Lesson Overview</CardTitle>
             </CardHeader>
@@ -187,7 +187,7 @@ export function LessonContent({
 
         {/* Lesson Content */}
         {lesson.content && (
-          <Card variant="base">
+          <Card variant="default">
             <CardHeader>
               <CardTitle className="text-lg">Content</CardTitle>
             </CardHeader>
@@ -199,7 +199,7 @@ export function LessonContent({
 
         {/* Resources Section */}
         {lesson.resources && lesson.resources.length > 0 && (
-          <Card variant="base">
+          <Card variant="default">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Download size={18} />
@@ -242,7 +242,7 @@ export function LessonContent({
 
         {/* Completion Section */}
         {!isCompleted ? (
-          <Card variant="base" className="border-primary/20 bg-primary/5">
+          <Card variant="default" className="border-primary/20 bg-primary/5">
             <CardContent className="p-6">
               <div className="text-center">
                 <h3 className="text-lg font-semibold text-foreground mb-2">
@@ -261,7 +261,7 @@ export function LessonContent({
             </CardContent>
           </Card>
         ) : (
-          <Card variant="base" className="border-success/20 bg-success/10">
+          <Card variant="default" className="border-success/20 bg-success/10">
             <CardContent className="p-6">
               <div className="text-center">
                 <CheckCircle className="w-12 h-12 text-success mx-auto mb-4" />
@@ -343,3 +343,4 @@ export function LessonContent({
     </div>
   )
 }
+

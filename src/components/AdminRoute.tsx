@@ -53,3 +53,4 @@ export default function AdminRoute({ children }: AdminRouteProps) {
   // User is admin - show admin content
   return <>{children}</>
 }
+

@@ -87,7 +87,7 @@ export default function QuizResultsPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
         <div className="max-w-2xl mx-auto px-4 flex items-center justify-center py-20">
-          <Card variant="glass" className="text-center p-12">
+          <Card variant="elevated" className="text-center p-12">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary mx-auto mb-6"></div>
             <p className="text-lg text-muted-foreground font-medium">Loading results...</p>
           </Card>
@@ -110,7 +110,7 @@ export default function QuizResultsPage() {
           </div>
 
           <div className="text-center">
-            <Card variant="glass" className="text-center p-12">
+            <Card variant="elevated" className="text-center p-12">
               <div className="w-16 h-16 bg-destructive rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <AlertTriangle className="w-8 h-8 text-white" />
               </div>
@@ -139,7 +139,7 @@ export default function QuizResultsPage() {
         </div>
 
         {/* Results Header - Mobile Optimized */}
-        <Card variant="glass" className="text-center p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
+        <Card variant="elevated" className="text-center p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
           <div className="w-12 h-12 sm:w-16 sm:h-16 bg-success rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
             <CheckCircle className="w-6 w-6 sm:w-8 sm:h-8 text-white" />
           </div>
@@ -153,7 +153,7 @@ export default function QuizResultsPage() {
           
           {/* Mobile-Optimized Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 max-w-4xl mx-auto">
-            <Card variant="base" className="text-center p-3 sm:p-4 md:p-6">
+            <Card variant="default" className="text-center p-3 sm:p-4 md:p-6">
               <div className="flex flex-col items-center mb-2">
                 <Target className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-success mb-1" />
                 <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-success">
@@ -165,7 +165,7 @@ export default function QuizResultsPage() {
               </div>
             </Card>
             
-            <Card variant="base" className="text-center p-3 sm:p-4 md:p-6">
+            <Card variant="default" className="text-center p-3 sm:p-4 md:p-6">
               <div className="flex flex-col items-center mb-2">
                 <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gray-700 mb-1" />
                 <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">
@@ -177,7 +177,7 @@ export default function QuizResultsPage() {
               </div>
             </Card>
             
-            <Card variant="base" className="text-center p-3 sm:p-4 md:p-6">
+            <Card variant="default" className="text-center p-3 sm:p-4 md:p-6">
               <div className="flex flex-col items-center mb-2">
                 <Clock className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-primary mb-1" />
                 <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-primary">
@@ -189,7 +189,7 @@ export default function QuizResultsPage() {
               </div>
             </Card>
             
-            <Card variant="base" className="text-center p-3 sm:p-4 md:p-6">
+            <Card variant="default" className="text-center p-3 sm:p-4 md:p-6">
               <div className="flex flex-col items-center mb-2">
                 <Award className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-secondary mb-1" />
                 <div className={`text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold ${getScoreColor(percentageScore)}`}>
@@ -204,7 +204,7 @@ export default function QuizResultsPage() {
         </Card>
 
         {/* Mobile-Optimized Detailed Results */}
-        <Card variant="glass" className="mb-6 sm:mb-8">
+        <Card variant="elevated" className="mb-6 sm:mb-8">
           <CardHeader className="bg-secondary/10 p-3 sm:p-4 md:p-6">
             <CardTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-lg md:text-xl">
               <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
@@ -244,7 +244,7 @@ export default function QuizResultsPage() {
         </Card>
 
         {/* Tips for Improvement */}
-        <Card variant="glass" className="p-8 text-center">
+        <Card variant="elevated" className="p-8 text-center">
           <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center mx-auto mb-6">
             <Lightbulb className="w-8 h-8 text-white" />
           </div>
