@@ -38,10 +38,10 @@ export function SaveStatus({ isAutoSaving, lastSaved, hasUnsavedChanges, classNa
   }
 
   const getStatusColor = () => {
-    if (isAutoSaving) return 'text-blue-600'
-    if (hasUnsavedChanges) return 'text-yellow-600'
-    if (lastSaved) return 'text-green-600'
-    return 'text-gray-500'
+    if (isAutoSaving) return 'text-info'
+    if (hasUnsavedChanges) return 'text-warning'
+    if (lastSaved) return 'text-success'
+    return 'text-muted-foreground'
   }
 
   return (
@@ -65,8 +65,8 @@ export function NetworkStatus({ isOnline, isReconnecting, className }: NetworkSt
     <div className={cn(
       'flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium',
       isOnline && isReconnecting 
-        ? 'bg-green-50 text-green-700 border border-green-200'
-        : 'bg-red-50 text-red-700 border border-red-200',
+        ? 'bg-success/10 text-success border border-success/20'
+        : 'bg-destructive/10 text-destructive border border-destructive/20',
       className
     )}>
       {isOnline ? (
@@ -101,16 +101,16 @@ export function ProgressRestoreNotification({
 
   return (
     <div className={cn(
-      'bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4 mx-3 sm:mx-0 sm:mb-6',
+      'bg-info/5 border border-info/20 rounded-xl p-4 mb-4 mx-3 sm:mx-0 sm:mb-6',
       className
     )}>
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 mt-0.5">
-          <Save className="h-5 w-5 text-blue-600" />
+          <Save className="h-5 w-5 text-info" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-blue-900 mb-1">Previous Progress Found</h3>
-          <p className="text-sm text-blue-700 leading-relaxed">
+          <h3 className="text-sm font-semibold text-info-foreground mb-1">Previous Progress Found</h3>
+          <p className="text-sm text-info leading-relaxed">
             We found quiz progress saved {formatDateTime(lastSaved)}. Would you like to continue where you left off?
           </p>
           
@@ -118,7 +118,7 @@ export function ProgressRestoreNotification({
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4">
             <button
               onClick={onRestore}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-200 active:scale-95 touch-manipulation shadow-sm hover:shadow-md"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-lg transition-all duration-200 active:scale-95 touch-manipulation shadow-sm hover:shadow-md"
               style={{ touchAction: 'manipulation' }}
             >
               <CheckCircle className="h-4 w-4" />

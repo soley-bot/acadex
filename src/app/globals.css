@@ -1,8 +1,7 @@
 /* ============================================================================
-   ACADEX MINIMAL GLOBAL STYLES - Optimized v4.0
+   ACADEX - PURE TAILWIND APPROACH
    ============================================================================
-   Reduced from 700+ lines to ~150 lines
-   Component-specific styles moved to individual components
+   Minimal global styles - Let Tailwind handle everything
    ============================================================================ */
 
 @tailwind base;
@@ -10,165 +9,89 @@
 @tailwind utilities;
 
 /* ============================================================================
-   CSS CUSTOM PROPERTIES - Essential Design Tokens Only
-   ============================================================================ */
-:root {
-  /* Core Theme Colors */
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --primary: 244 75% 58%;
-  --primary-hover: 244 75% 53%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 265 63% 51%;
-  --secondary-hover: 265 63% 46%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 5% 41%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 244 75% 58%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --success: 142 76% 36%;
-  --success-foreground: 0 0% 98%;
-  --warning: 38 92% 50%;
-  --warning-foreground: 240 10% 3.9%;
-  --info: 199 89% 48%;
-  --info-foreground: 0 0% 98%;
-  --radius: 0.5rem;
-  
-  /* Z-Index Scale - Consolidated */
-  --z-base: 0;
-  --z-docked: 10;
-  --z-dropdown: 1000;
-  --z-sticky: 1020;
-  --z-banner: 1030;
-  --z-overlay: 1040;
-  --z-modal: 1050;
-  --z-popover: 1060;
-  --z-skiplink: 1070;
-  --z-toast: 1080;
-  --z-tooltip: 1090;
-}
-
-/* Dark Theme */
-.dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --primary: 244 75% 68%;
-  --primary-hover: 244 75% 63%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 70%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 244 75% 68%;
-  --destructive: 0 62.8% 30.6%;
-}
-
-/* ============================================================================
-   BASE LAYER - Essential HTML Element Styles
+   ESSENTIAL BASE STYLES ONLY
    ============================================================================ */
 @layer base {
+  :root {
+    /* Your Branding Colors */
+    --primary: 244 75% 58%; /* #4f46e5 - Acadex Purple */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
+    --secondary: 265 63% 51%; /* #6d28d9 - Acadex Violet */
+    --secondary-foreground: 0 0% 100%; /* White text on secondary */
+    
+    /* Base Theme Colors */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 5% 41%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 244 75% 58%; /* Same as primary */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 240 10% 3.9%;
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 98%;
+    --radius: 0.5rem;
+  }
+
   * {
     @apply border-border;
   }
   
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight text-foreground;
-  }
-  
-  /* Skip Links for Accessibility */
-  .skip-link {
-    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 
-           focus:px-4 focus:py-2 focus:bg-background focus:text-foreground 
-           focus:border focus:rounded focus:z-50;
+    @apply font-semibold tracking-tight;
   }
 }
 
 /* ============================================================================
-   UTILITIES LAYER - Essential Utilities Not in Tailwind
+   COMPONENT LAYER - Only for shadcn/ui customizations
    ============================================================================ */
-@layer utilities {
-  /* Text Balance (not in Tailwind) */
-  .text-balance {
-    text-wrap: balance;
+@layer components {
+  /* shadcn/ui dropdown menu fixes */
+  [data-radix-popper-content-wrapper] {
+    @apply z-[9999] !important;
   }
   
-  /* Z-Index Utilities */
-  .z-base { z-index: var(--z-base); }
-  .z-docked { z-index: var(--z-docked); }
-  .z-dropdown { z-index: var(--z-dropdown); }
-  .z-sticky { z-index: var(--z-sticky); }
-  .z-banner { z-index: var(--z-banner); }
-  .z-overlay { z-index: var(--z-overlay); }
-  .z-modal { z-index: var(--z-modal); }
-  .z-popover { z-index: var(--z-popover); }
-  .z-skiplink { z-index: var(--z-skiplink); }
-  .z-toast { z-index: var(--z-toast); }
-  .z-tooltip { z-index: var(--z-tooltip); }
-  
-  /* Scrollbar Hide (common pattern) */
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+  /* Mobile navigation utilities */
+  .mobile-menu-backdrop {
+    @apply fixed inset-0 bg-black/60 backdrop-blur-sm;
+    z-index: 99998 !important;
   }
   
-  /* Fluid Typography (essential responsive text) */
-  .text-fluid-sm { @apply text-sm md:text-base; }
-  .text-fluid-base { @apply text-base md:text-lg; }
-  .text-fluid-lg { @apply text-lg md:text-xl; }
-  .text-fluid-xl { @apply text-xl md:text-2xl; }
-  .text-fluid-2xl { @apply text-2xl md:text-3xl lg:text-4xl; }
+  .mobile-menu {
+    @apply fixed top-16 w-72 max-h-[calc(100vh-4rem)] bg-white rounded-l-2xl shadow-2xl overflow-auto transition-all duration-300;
+    z-index: 99999 !important;
+  }
   
-  /* Common Focus Ring */
-  .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 
-           focus-visible:ring-ring focus-visible:ring-offset-2;
+  .mobile-menu-open {
+    @apply right-0 opacity-100;
   }
-}
-
-/* ============================================================================
-   ANIMATION KEYFRAMES - Minimal Essential Animations
-   ============================================================================ */
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slide-up {
-  from { 
-    opacity: 0;
-    transform: translate3d(0, 20px, 0);
+  
+  .mobile-menu-closed {
+    @apply -right-72 opacity-0;
   }
-  to { 
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
+  
+  .header-fixed {
+    @apply fixed top-0 w-full bg-white/95 backdrop-blur-md border-b border-gray-200/30 shadow-lg;
+    z-index: 100000 !important;
   }
 }
 
 /* ============================================================================
    ACCESSIBILITY & PERFORMANCE
    ============================================================================ */
-/* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .focus-ring:focus-visible {
-    outline-width: 3px !important;
   }
 }

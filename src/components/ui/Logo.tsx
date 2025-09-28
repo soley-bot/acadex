@@ -1,4 +1,5 @@
 import * as React from "react"
+import Image from "next/image"
 
 interface LogoProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: 'sm' | 'md' | 'lg'
@@ -7,18 +8,27 @@ interface LogoProps extends React.HTMLAttributes<HTMLDivElement> {
 const Logo = React.forwardRef<HTMLDivElement, LogoProps>(
   ({ className = "", size = 'md', ...props }, ref) => {
     const sizes = {
-      sm: "text-lg",
-      md: "text-2xl",
-      lg: "text-4xl"
+      sm: { width: 32, height: 28 },
+      md: { width: 40, height: 35 },
+      lg: { width: 48, height: 42 }
     }
+
+    const { width, height } = sizes[size]
 
     return (
       <div
         ref={ref}
-        className={`font-bold text-primary ${sizes[size]} ${className}`}
+        className={`flex items-center ${className}`}
         {...props}
       >
-        ACADEX
+        <Image
+          src="/logo.svg"
+          alt="Acadex Logo"
+          width={width}
+          height={height}
+          className="object-contain"
+          priority
+        />
       </div>
     )
   }

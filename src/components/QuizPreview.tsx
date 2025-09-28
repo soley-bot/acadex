@@ -174,8 +174,8 @@ export default function QuizPreview() {
                   </div>
                 </div>
                 
-                <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-sm text-green-800">
+                <div className="mt-6 p-4 bg-success/10 border border-success/20 rounded-lg">
+                  <p className="text-sm text-success">
                     <strong>Correct!</strong> Present perfect uses &quot;have/has + past participle&quot; for actions starting in the past and continuing to the present.
                   </p>
                 </div>

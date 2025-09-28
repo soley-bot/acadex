@@ -279,11 +279,11 @@ export function MatchingQuestion({
               
               const strokeColor = showCorrectAnswer 
                 ? connection.isCorrect === true 
-                  ? '#22c55e' 
+                  ? 'hsl(var(--success))' 
                   : connection.isCorrect === false 
-                  ? '#ef4444' 
-                  : '#3b82f6'
-                : '#3b82f6'
+                  ? 'hsl(var(--destructive))' 
+                  : 'hsl(var(--primary))'
+                : 'hsl(var(--primary))'
               
               return (
                 <g key={`connection-${index}`}>

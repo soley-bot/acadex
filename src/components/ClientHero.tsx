@@ -8,86 +8,119 @@ import { AnimatedDiv, StaggerContainer, StaggerItem, HoverScale } from '@/compon
 
 export default function ClientHero() {
   return (
-    <section className="bg-white py-20 lg:py-32">
-      <div className="container mx-auto px-4 md:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-          {/* Left Column - Content */}
-          <div className="order-2 lg:order-1 text-center lg:text-left">
-            <StaggerContainer>
-              <StaggerItem>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-                  Practice IELTS with
-                  <span className="block text-primary">Unlimited Quizzes</span>
-                </h1>
-              </StaggerItem>
-              
-              <StaggerItem>
-                <p className="text-xl text-gray-600 mb-10 leading-relaxed max-w-lg mx-auto lg:mx-0">
-                  Access hundreds of practice questions across all IELTS sections. 
-                  Learn at your own pace with instant feedback.
-                </p>
-              </StaggerItem>
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Video Background */}
+      <div className="absolute inset-0 z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/videos/herovideo.mp4" type="video/mp4" />
+        </video>
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/40"></div>
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent"></div>
+      </div>
 
-              {/* Single Primary CTA */}
-              <StaggerItem>
-                <div className="flex flex-col sm:flex-row justify-center lg:justify-start items-center gap-4">
+      {/* Content */}
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
+        <div className="max-w-4xl">
+          <StaggerContainer>
+            {/* Badge */}
+            <StaggerItem>
+              <AnimatedDiv variant="fadeInUp" delay={0.2}>
+                <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white px-4 py-2 rounded-full text-sm font-medium mb-8">
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                  Master IELTS with Expert Practice
+                </div>
+              </AnimatedDiv>
+            </StaggerItem>
+
+            {/* Main Headline */}
+            <StaggerItem>
+              <AnimatedDiv variant="fadeInUp" delay={0.4}>
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
+                  Boost Your IELTS
+                  <span className="block bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    Score Faster
+                  </span>
+                </h1>
+              </AnimatedDiv>
+            </StaggerItem>
+
+            {/* Description */}
+            <StaggerItem>
+              <AnimatedDiv variant="fadeInUp" delay={0.6}>
+                <p className="text-xl md:text-2xl text-white/90 mb-10 leading-relaxed max-w-2xl">
+                  Access hundreds of targeted practice questions. Get instant feedback. 
+                  Focus on what matters most for your score.
+                </p>
+              </AnimatedDiv>
+            </StaggerItem>
+
+            {/* CTA Buttons */}
+            <StaggerItem>
+              <AnimatedDiv variant="fadeInUp" delay={0.8}>
+                <div className="flex flex-col sm:flex-row gap-4 mb-12">
                   <HoverScale scale={1.02}>
-                    <Link href="/auth" className="w-full sm:w-auto">
-                      <button className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white px-10 py-4 rounded-lg text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 min-w-[200px]">
-                        Start Free Today
+                    <Link href="/auth" className="group">
+                      <button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-2xl hover:shadow-primary/25 transition-all duration-300 flex items-center justify-center gap-2 min-w-[200px]">
+                        Get Started
+                        <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
                       </button>
                     </Link>
                   </HoverScale>
-                  <Link href="/quizzes" className="text-primary hover:text-primary/80 font-semibold transition-colors">
-                    Browse Quizzes →
-                  </Link>
-                </div>
-              </StaggerItem>
-
-              {/* Simple Feature List */}
-              <StaggerItem>
-                <div className="mt-12 flex flex-wrap justify-center lg:justify-start gap-6 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    No signup required for browsing
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    All IELTS sections covered
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    Instant results & feedback
-                  </div>
-                </div>
-              </StaggerItem>
-            </StaggerContainer>
-          </div>
-
-          {/* Right Column - Clean Image */}
-          <AnimatedDiv variant="slideInRight" delay={0.3} className="order-1 lg:order-2">
-            <div className="relative">
-              <div className="aspect-square overflow-hidden rounded-2xl shadow-2xl">
-                <Image
-                  src="/images/hero/learning-together.jpg"
-                  alt="Students learning IELTS together"
-                  fill
-                  className="object-cover"
-                  priority
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-              </div>
-              
-              {/* Simple Floating Element */}
-              <AnimatedDiv variant="fadeInUp" delay={0.8}>
-                <div className="absolute -bottom-6 -left-6 bg-white rounded-xl px-6 py-4 shadow-xl border border-gray-100">
-                  <div className="text-sm text-gray-600 mb-1">Practice Questions</div>
-                  <div className="text-2xl font-bold text-primary">500+</div>
+                  
+                  <HoverScale scale={1.02}>
+                    <Link href="/quizzes">
+                      <button className="bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 min-w-[200px]">
+                        Try Free Quiz
+                      </button>
+                    </Link>
+                  </HoverScale>
                 </div>
               </AnimatedDiv>
-            </div>
-          </AnimatedDiv>
+            </StaggerItem>
+
+            {/* Trust Indicators */}
+            <StaggerItem>
+              <AnimatedDiv variant="fadeInUp" delay={1.0}>
+                <div className="flex flex-wrap items-center gap-8 text-white/70">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span className="text-sm">500+ Practice Questions</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span className="text-sm">Instant Feedback</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span className="text-sm">All IELTS Sections</span>
+                  </div>
+                </div>
+              </AnimatedDiv>
+            </StaggerItem>
+          </StaggerContainer>
         </div>
+      </div>
+
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+        <AnimatedDiv variant="fadeInUp" delay={1.2}>
+          <div className="flex flex-col items-center gap-2 text-white/60">
+            <span className="text-sm font-medium">Scroll to explore</span>
+            <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+              <div className="w-1 h-3 bg-white/60 rounded-full animate-bounce mt-2"></div>
+            </div>
+          </div>
+        </AnimatedDiv>
       </div>
     </section>
   )

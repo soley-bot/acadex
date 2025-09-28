@@ -1,4 +1,4 @@
-import Hero from '@/components/Hero'
+import ClientHero from '@/components/ClientHero'
 import Features from '@/components/Features'
 import HonestSection from '@/components/HonestSection'
 import { Section } from '@/components/ui/Layout'
@@ -105,7 +105,7 @@ export default function Home() {
       )}
       
       <main className="min-h-screen">
-        <Hero />
+        <ClientHero />
         <Features />
         <HonestSection />
       </main>

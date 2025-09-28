@@ -4,8 +4,6 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Header from '@/components/Header'
 import { Footer } from '@/components/Footer'
-import { GlobalMobileNav } from '@/components/GlobalMobileNav'
-
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [isHydrated, setIsHydrated] = useState(false)
@@ -25,7 +23,6 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
           </main>
           <Footer />
         </div>
-        <GlobalMobileNav />
       </>
     )
   }
@@ -39,22 +36,18 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
     return (
       <>
         {children}
-        <GlobalMobileNav />
       </>
     )
   }
 
   return (
-    <>
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="pt-4">
-          {children}
-        </main>
-        <Footer />
-      </div>
-      <GlobalMobileNav />
-    </>
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main className="pt-4">
+        {children}
+      </main>
+      <Footer />
+    </div>
   )
 }
 

@@ -8,10 +8,7 @@ import { AppInitializer } from '@/components/AppInitializer'
 import { ClientWrapper } from '@/components/ClientWrapper'
 
 
-// Design System CSS
-import '@/styles/design-tokens.css'
-
-// Global styles
+// Global styles with consolidated design tokens
 import './globals.css'
 
 export const metadata: Metadata = {

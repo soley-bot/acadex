@@ -41,7 +41,7 @@ const StaggerItem = React.forwardRef<HTMLDivElement, StaggerItemProps>(
   ({ children, className = "", ...props }, ref) => (
     <div 
       ref={ref} 
-      className={`transition-all duration-300 ease-out hover:transform hover:translate-y-1 ${className}`} 
+      className={`transition-all duration-300 ease-out ${className}`} 
       {...props}
     >
       {children}
@@ -56,20 +56,10 @@ interface HoverScaleProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const HoverScale = React.forwardRef<HTMLDivElement, HoverScaleProps>(
   ({ children, className = "", scale = 1.05, ...props }, ref) => {
-    const handleMouseEnter = React.useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-      e.currentTarget.style.transform = `scale(${scale})`
-    }, [scale])
-    
-    const handleMouseLeave = React.useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-      e.currentTarget.style.transform = 'scale(1)'
-    }, [])
-
     return (
       <div 
         ref={ref} 
-        className={`transition-transform duration-200 ${className}`}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        className={`transition-all duration-200 hover:brightness-105 ${className}`}
         {...props}
       >
         {children}

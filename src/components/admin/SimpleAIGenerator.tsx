@@ -94,7 +94,7 @@ export function SimpleAIGenerator({ onQuizGenerated }: SimpleAIGeneratorProps) {
       <div className="space-y-3">
         <button
           onClick={() => setIsOpen(true)}
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors"
         >
           <Brain className="h-5 w-5" />
           Generate with AI
@@ -123,11 +123,11 @@ export function SimpleAIGenerator({ onQuizGenerated }: SimpleAIGeneratorProps) {
   }
 
   return (
-    <Card className="border-purple-200">
+    <Card className="border-primary/20">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-purple-600" />
+            <Sparkles className="h-5 w-5 text-primary" />
             <CardTitle className="text-lg">AI Quiz Generator</CardTitle>
           </div>
           <button
@@ -245,7 +245,7 @@ export function SimpleAIGenerator({ onQuizGenerated }: SimpleAIGeneratorProps) {
                 onClick={() => toggleQuestionType(type as QuestionType)}
                 className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
                   selectedQuestionTypes.includes(type as QuestionType)
-                    ? 'bg-purple-100 border-purple-300 text-purple-700'
+                    ? 'bg-primary/10 border-primary/30 text-primary'
                     : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                 }`}
               >
@@ -262,7 +262,7 @@ export function SimpleAIGenerator({ onQuizGenerated }: SimpleAIGeneratorProps) {
         <button
           onClick={handleGenerate}
           disabled={generating || !topic.trim() || selectedQuestionTypes.length === 0}
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white rounded-lg transition-colors"
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-primary hover:bg-primary/90 disabled:bg-gray-400 text-white rounded-lg transition-colors"
         >
           {generating ? (
             <>
