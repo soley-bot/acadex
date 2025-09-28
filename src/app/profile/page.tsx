@@ -24,7 +24,7 @@ interface UserProfile {
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { user, updateUser } = useAuth()
+  const { user, updateProfile } = useAuth()
   const [profile, setProfile] = useState<UserProfile>({
     name: '',
     email: '',
@@ -85,13 +85,7 @@ export default function ProfilePage() {
         logger.error('Error updating profile:', updateError)
       } else {
         setMessage('Profile updated successfully!')
-        // Update the user context with new data
-        if (updateUser) {
-          updateUser({
-            ...user!,
-            ...profile
-          })
-        }
+        // Profile is updated automatically by the updateProfile function
       }
     } catch (err) {
       logger.error('Error updating profile:', err)

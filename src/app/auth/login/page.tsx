@@ -176,9 +176,7 @@ function EnhancedLoginForm() {
     setError('')
     
     try {
-      const { error: signInError } = await signUp('', '', '', {
-        provider: 'google'
-      })
+      const { error: signInError } = await signUp('', '')
       
       if (signInError) {
         setError(signInError.message || 'Failed to sign in with Google')

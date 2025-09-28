@@ -187,9 +187,7 @@ function EnhancedSignupForm() {
     setError('')
     
     try {
-      const { error: signInError } = await signUp('', '', '', {
-        provider: 'google'
-      })
+      const { error: signInError } = await signUp('', '')
       
       if (signInError) {
         setError(signInError.message)

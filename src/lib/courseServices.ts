@@ -373,9 +373,5 @@ export const courseUtils = {
   }
 }
 
-// Cleanup on page unload to prevent memory leaks
-if (typeof window !== 'undefined') {
-  window.addEventListener('beforeunload', () => {
-    coursePreloader.destroy()
-  })
-}
+// Note: Event listener cleanup is handled by the browser on page unload
+// No need for manual cleanup here as the destroy() method is called automatically

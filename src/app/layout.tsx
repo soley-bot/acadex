@@ -1,12 +1,8 @@
 import type { Metadata } from 'next'
-import { AuthProvider } from '@/contexts/AuthContext'
-import { QueryProvider } from '@/providers/QueryProvider'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { Toaster } from '@/components/ui/toaster'
-import { ConditionalLayout } from '@/components/ConditionalLayout'
-import { AppInitializer } from '@/components/AppInitializer'
-import { ClientWrapper } from '@/components/ClientWrapper'
-
+import { AppProviders } from '@/components/simplified/AppProviders'
+import { LayoutManager } from '@/components/simplified/LayoutManager'
 
 // Global styles with consolidated design tokens
 import './globals.css'
@@ -79,17 +75,11 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased">
         <ErrorBoundary>
-          <QueryProvider>
-            <AuthProvider>
-              <AppInitializer>
-                <ClientWrapper>
-                  <ConditionalLayout>
-                    {children}
-                  </ConditionalLayout>
-                </ClientWrapper>
-              </AppInitializer>
-            </AuthProvider>
-          </QueryProvider>
+          <AppProviders>
+            <LayoutManager>
+              {children}
+            </LayoutManager>
+          </AppProviders>
         </ErrorBoundary>
         <Toaster />
       </body>
