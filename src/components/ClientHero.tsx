@@ -27,7 +27,7 @@ export default function ClientHero() {
       </div>
 
       {/* Content */}
-      <div className="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
         <div className="max-w-4xl">
           <StaggerContainer>
             {/* Badge */}
@@ -43,7 +43,7 @@ export default function ClientHero() {
             {/* Main Headline */}
             <StaggerItem>
               <AnimatedDiv variant="fadeInUp" delay={0.4}>
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
+                <h1 className="text-hero text-white mb-6">
                   Boost Your IELTS
                   <span className="block bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                     Score Faster
@@ -68,7 +68,7 @@ export default function ClientHero() {
                 <div className="flex flex-col sm:flex-row gap-4 mb-12">
                   <HoverScale scale={1.02}>
                     <Link href="/auth" className="group">
-                      <button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-2xl hover:shadow-primary/25 transition-all duration-300 flex items-center justify-center gap-2 min-w-[200px]">
+                      <button className="btn-primary text-lg px-8 py-4 shadow-2xl hover:shadow-primary/25 flex items-center justify-center gap-2 min-w-[200px]">
                         Get Started
                         <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -79,7 +79,7 @@ export default function ClientHero() {
                   
                   <HoverScale scale={1.02}>
                     <Link href="/quizzes">
-                      <button className="bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 min-w-[200px]">
+                      <button className="btn-outline border-white/20 text-white hover:bg-white hover:text-foreground text-lg px-8 py-4 backdrop-blur-sm min-w-[200px]">
                         Try Free Quiz
                       </button>
                     </Link>

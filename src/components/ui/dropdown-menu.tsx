@@ -96,10 +96,10 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
     return (
       <div
         ref={ref}
-        className={`absolute ${alignmentClasses[align]} mt-2 w-56 rounded-md shadow-lg bg-background border border-border z-50 ${className}`}
+        className={`absolute ${alignmentClasses[align]} top-full w-56 rounded-md shadow-lg bg-background border border-border z-50 ${className}`}
         {...props}
       >
-        <div className="py-1">{children}</div>
+        {children}
       </div>
     )
   }
@@ -122,7 +122,6 @@ const DropdownMenuItem = React.forwardRef<HTMLButtonElement, DropdownMenuItemPro
       // When asChild is true, return children as-is (assuming it's a valid React element)
       return React.cloneElement(children as React.ReactElement, {
         ref,
-        className: `block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted focus-ring ${className}`,
         onClick: handleClick,
         ...props
       })

@@ -48,7 +48,7 @@ export default function Header() {
 
   return (
     <header className="header-fixed">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
@@ -66,16 +66,16 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             <div className="flex items-center gap-8">
-              <Link href="/courses" className="text-foreground hover:text-primary font-bold transition-colors duration-200 text-sm md:text-base lg:text-lg">
+              <Link href="/courses" className="nav-link text-sm md:text-base lg:text-lg">
                 Courses
               </Link>
-              <Link href="/quizzes" className="text-foreground hover:text-primary font-bold transition-colors duration-200 text-sm md:text-base lg:text-lg">
+              <Link href="/quizzes" className="nav-link text-sm md:text-base lg:text-lg">
                 Quizzes
               </Link>
-              <Link href="/about" className="text-foreground hover:text-primary font-bold transition-colors duration-200 text-sm md:text-base lg:text-lg">
+              <Link href="/about" className="nav-link text-sm md:text-base lg:text-lg">
                 About
               </Link>
-              <Link href="/contact" className="text-foreground hover:text-primary font-bold transition-colors duration-200 text-sm md:text-base lg:text-lg">
+              <Link href="/contact" className="nav-link text-sm md:text-base lg:text-lg">
                 Contact
               </Link>
             </div>
@@ -96,47 +96,47 @@ export default function Header() {
                     <ChevronDown size={16} className="text-muted-foreground" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-200 rounded-lg shadow-lg p-1 mt-1">
+                <DropdownMenuContent align="end" className="w-56 bg-background border border-border rounded-lg shadow-lg py-2">
                   {/* User Info */}
-                  <div className="px-3 py-2 text-sm border-b border-gray-100">
-                    <div className="font-medium text-gray-900">{user.name || 'admin'}</div>
-                    <div className="text-xs text-gray-500 truncate">{user.email}</div>
+                  <div className="px-4 py-3 text-sm border-b border-border">
+                    <div className="font-medium text-foreground">{user.name || 'admin'}</div>
+                    <div className="text-xs text-muted-foreground truncate">{user.email}</div>
                   </div>
                   
-                  {/* Dashboard */}
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
-                      <Home size={16} className="mr-3" />
-                      Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  
-                  {/* Profile */}
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile" className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
-                      <User size={16} className="mr-3" />
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuSeparator />
-                  
-                  {/* Sign Out */}
-                  <DropdownMenuItem 
-                    onClick={handleSignOut} 
-                    className="flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer"
-                  >
-                    <ArrowRight size={16} className="mr-3" />
-                    Sign Out
-                  </DropdownMenuItem>
+                  <div className="py-1">
+                    {/* Dashboard */}
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard" className="flex items-center gap-3 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors w-full">
+                        <Home size={16} className="flex-shrink-0" />
+                        <span>Dashboard</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    
+                    {/* Profile */}
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="flex items-center gap-3 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors w-full">
+                        <User size={16} className="flex-shrink-0" />
+                        <span>Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    
+                    {/* Sign Out */}
+                    <DropdownMenuItem 
+                      onClick={handleSignOut} 
+                      className="flex items-center gap-3 px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors w-full"
+                    >
+                      <ArrowRight size={16} className="flex-shrink-0" />
+                      <span>Sign Out</span>
+                    </DropdownMenuItem>
+                  </div>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <>
-                <Link href="/auth/login" className="text-foreground hover:text-primary font-bold transition-colors duration-200 px-4 py-2 text-sm md:text-base lg:text-lg">
+                <Link href="/auth/login" className="nav-link px-4 py-2 text-sm md:text-base lg:text-lg">
                   Sign In
                 </Link>
-                <Link href="/auth/signup" className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-2 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                <Link href="/auth/signup" className="btn-primary transform hover:scale-105">
                   Get Started
                 </Link>
               </>
@@ -147,7 +147,7 @@ export default function Header() {
           <div className="md:hidden relative">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-muted transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="Toggle mobile menu"
             >
               <Menu 

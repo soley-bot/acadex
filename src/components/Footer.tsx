@@ -23,13 +23,13 @@ export function Footer() {
   const currentYear = 2025
 
   return (
-    <footer className="relative bg-white overflow-hidden">
+    <footer className="relative bg-background overflow-hidden">
       {/* Simplified Background Elements - Less intensive */}
       <div className="absolute top-0 left-1/4 w-64 h-64 bg-primary/3 rounded-full opacity-60"></div>
       <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-secondary/3 rounded-full opacity-60"></div>
       
       {/* Main Footer */}
-      <Container size="xl" className="relative py-16">
+      <div className="container-wide section-spacing">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="lg:col-span-1">
@@ -39,9 +39,9 @@ export function Footer() {
                 className="group-hover:scale-105 transition-transform duration-200" 
               />
               <span className="text-3xl font-black tracking-tight group-hover:scale-105 transition-transform duration-200">
-                <span className="text-black">ACAD</span>
-                <span className="text-[hsl(var(--primary))]">E</span>
-                <span className="text-black">X</span>
+                <span className="text-foreground">ACAD</span>
+                <span className="text-primary">E</span>
+                <span className="text-foreground">X</span>
               </span>
             </Link>
             <p className="text-muted-foreground mb-6 leading-relaxed">
@@ -121,34 +121,34 @@ export function Footer() {
             </ul>
           </div>
         </div>
-      </Container>
+      </div>
 
       {/* Newsletter Section */}
-      <div className="relative border-t border-gray-200">
-        <Container size="xl" className="py-12">
+      <div className="relative border-t border-border">
+        <div className="container-wide section-spacing-sm">
           <div className="text-center">
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-secondary mb-4">Get an Edge on the Exam</h2>
-            <p className="text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed text-sm md:text-base lg:text-lg">
+            <h2 className="text-section-title mb-4">Get an Edge on the Exam</h2>
+            <p className="text-section-subtitle mb-8 max-w-3xl mx-auto leading-relaxed">
               Get IELTS tips, mini-lessons, and updates on new Skill Packs — sent right to your inbox.
             </p>
             <NewsletterSignup />
           </div>
-        </Container>
+        </div>
       </div>
 
       {/* Bottom Footer */}
-      <div className="relative border-t border-gray-200">
-        <Container size="xl" className="py-8">
+      <div className="relative border-t border-border">
+        <div className="container-wide section-spacing-sm">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
             <div>
               <p className="text-muted-foreground font-medium text-center md:text-left">
                 © {currentYear} <span className="font-black tracking-tight">
-                  <span className="text-black">ACAD</span>
-                  <span className="text-[hsl(var(--primary))]">E</span>
-                  <span className="text-black">X</span>
+                  <span className="text-foreground">ACAD</span>
+                  <span className="text-primary">E</span>
+                  <span className="text-foreground">X</span>
                 </span>. All rights reserved.
                 <br className="sm:hidden" />
-                <span className="block sm:inline sm:ml-2">Made with <Heart size={16} className="inline text-red-500" /> in Cambodia. Powered by persistence.</span>
+                <span className="block sm:inline sm:ml-2">Made with <Heart size={16} className="inline text-destructive" /> in Cambodia. Powered by persistence.</span>
               </p>
             </div>
             <div className="flex items-center gap-4 flex-wrap justify-center">
@@ -159,14 +159,14 @@ export function Footer() {
                 <Link 
                   key={link.name}
                   href={link.href} 
-                  className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium text-sm"
+                  className="text-muted-foreground hover:text-primary transition-colors duration-200 font-medium text-sm"
                 >
                   {link.name}
                 </Link>
               ))}
             </div>
           </div>
-        </Container>
+        </div>
       </div>
     </footer>
   )

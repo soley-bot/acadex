@@ -6,20 +6,20 @@ import { AnimatedDiv, StaggerContainer, StaggerItem, HoverScale } from '@/compon
 
 export default function HonestSection() {
   return (
-    <section className="bg-white py-20">
-      <div className="container mx-auto px-4 md:px-6 lg:px-8">
+    <section className="bg-background section-spacing">
+      <div className="container-wide">
         <div className="max-w-4xl mx-auto">
           {/* About Section */}
           <div className="text-center mb-16">
-            <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mx-auto mb-8 text-white">
+            <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mx-auto mb-8 text-primary-foreground">
               <HeartHandshake size={32} />
             </div>
 
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <h2 className="text-section-title mb-6">
               Built by an Educator, For Students
             </h2>
 
-            <div className="prose prose-lg mx-auto text-gray-600">
+            <div className="prose prose-lg mx-auto text-muted-foreground">
               <p className="text-xl leading-relaxed">
                 Hi, I&apos;m Soley. I&apos;ve been teaching for over a decade and noticed the same pattern: 
                 students often know the material but struggle with exam-specific skills.
@@ -39,12 +39,12 @@ export default function HonestSection() {
           </div>
 
           {/* Simple CTA */}
-          <div className="text-center bg-gray-50 rounded-2xl p-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+          <div className="text-center bg-muted rounded-2xl p-12">
+            <h3 className="text-2xl font-bold text-foreground mb-4">
               Ready to Start Practicing?
             </h3>
             
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
               Join students who are improving their IELTS skills with focused, effective practice.
             </p>
             

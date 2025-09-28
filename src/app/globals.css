@@ -55,6 +55,71 @@
    COMPONENT LAYER - Only for shadcn/ui customizations
    ============================================================================ */
 @layer components {
+  /* Unified Layout System */
+  .section-spacing {
+    @apply py-12 lg:py-16;
+  }
+  
+  .section-spacing-sm {
+    @apply py-8 lg:py-12;
+  }
+  
+  .section-spacing-lg {
+    @apply py-16 lg:py-24;
+  }
+  
+  .container-unified {
+    @apply mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .container-wide {
+    @apply container-unified max-w-7xl;
+  }
+  
+  .container-content {
+    @apply container-unified max-w-4xl;
+  }
+  
+  /* Public Page Design System */
+  .btn-primary {
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary hover:bg-secondary/90 text-secondary-foreground px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl;
+  }
+  
+  .btn-outline {
+    @apply border border-primary text-primary hover:bg-primary hover:text-primary-foreground px-6 py-3 rounded-xl font-semibold transition-all duration-200;
+  }
+  
+  .nav-link {
+    @apply text-foreground hover:text-primary font-bold transition-colors duration-200;
+  }
+  
+  .card-elevated {
+    @apply bg-background border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+  
+  .text-hero {
+    @apply text-5xl md:text-6xl lg:text-7xl font-bold leading-tight;
+  }
+  
+  .text-section-title {
+    @apply text-3xl md:text-4xl font-bold text-foreground;
+  }
+  
+  .text-section-subtitle {
+    @apply text-xl text-muted-foreground;
+  }
+  
+  .grid-features {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+  }
+  
+  .grid-content {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center;
+  }
   /* shadcn/ui dropdown menu fixes */
   [data-radix-popper-content-wrapper] {
     @apply z-[9999] !important;
@@ -68,7 +133,7 @@
   
   .mobile-menu {
     @apply fixed top-16 w-72 max-h-[calc(100vh-4rem)] bg-white rounded-l-2xl shadow-2xl overflow-auto transition-all duration-300;
-    z-index: 99999 !important;
+    z-index: 1100;
   }
   
   .mobile-menu-open {
@@ -81,8 +146,15 @@
   
   .header-fixed {
     @apply fixed top-0 w-full bg-white/95 backdrop-blur-md border-b border-gray-200/30 shadow-lg;
-    z-index: 100000 !important;
+    z-index: 1000;
   }
+  
+  /* Unified z-index system */
+  .z-header { z-index: 1000; }
+  .z-dropdown { z-index: 1100; }
+  .z-modal { z-index: 1200; }
+  .z-toast { z-index: 1300; }
+  .z-tooltip { z-index: 1400; }
 }
 
 /* ============================================================================
