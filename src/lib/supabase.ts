@@ -8,37 +8,56 @@ function createSupabaseClient() {
   if (!supabaseUrl) {
     if (typeof window === 'undefined') {
       // During build/prerender, return a mock client that won't be used
+      console.warn('[Supabase] Missing NEXT_PUBLIC_SUPABASE_URL during build')
       return {} as any
     }
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
+    console.error('[Supabase] Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable. Please check your .env.local file.')
   }
 
   if (!supabaseAnonKey) {
     if (typeof window === 'undefined') {
       // During build/prerender, return a mock client that won't be used
+      console.warn('[Supabase] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY during build')
       return {} as any
     }
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
+    console.error('[Supabase] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable. Please check your .env.local file.')
   }
 
-  return createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
-      storageKey: 'acadex-auth-token',
-      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-      flowType: 'pkce'
-    },
-    global: {
-      headers: {
-        'x-application-name': 'Acadex'
+  try {
+    const client = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storageKey: 'acadex-auth-token',
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+        flowType: 'pkce'
+      },
+      global: {
+        headers: {
+          'x-application-name': 'Acadex'
+        }
+      },
+      db: {
+        schema: 'public'
       }
-    },
-    db: {
-      schema: 'public'
+    })
+    
+    if (typeof window !== 'undefined') {
+      console.log('[Supabase] Client initialized successfully')
     }
-  })
+    
+    return client
+  } catch (error) {
+    console.error('[Supabase] Failed to create client:', error)
+    if (typeof window === 'undefined') {
+      // During build, return mock client
+      return {} as any
+    }
+    throw error
+  }
 }
 
 export const supabase = createSupabaseClient()

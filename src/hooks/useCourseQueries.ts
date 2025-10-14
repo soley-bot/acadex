@@ -45,28 +45,34 @@ export function useOptimizedCourses(filters: CourseFilters = {}) {
   return useQuery({
     queryKey: COURSE_QUERY_KEYS.list(JSON.stringify(filters)),
     queryFn: async (): Promise<CoursesResponse> => {
-      let query = supabase
-        .from('courses')
-        .select(`
-          id,
-          title,
-          description,
-          image_url,
-          category,
-          level,
-          duration,
-          price,
-          status,
-          instructor_name,
-          rating,
-          student_count,
-          is_published,
-          is_free,
-          original_price,
-          created_at,
-          updated_at
-        `, { count: 'exact' })
-        .eq('is_published', true)
+      try {
+        // Check if Supabase client is available
+        if (!supabase || typeof supabase.from !== 'function') {
+          throw new Error('Supabase client is not properly initialized. Please check your environment variables.')
+        }
+
+        let query = supabase
+          .from('courses')
+          .select(`
+            id,
+            title,
+            description,
+            image_url,
+            category,
+            level,
+            duration,
+            price,
+            status,
+            instructor_name,
+            rating,
+            student_count,
+            is_published,
+            is_free,
+            original_price,
+            created_at,
+            updated_at
+          `, { count: 'exact' })
+          .eq('is_published', true)
 
       // Apply filters
       if (category && category !== 'all') {
@@ -89,24 +95,33 @@ export function useOptimizedCourses(filters: CourseFilters = {}) {
       // Order by created_at desc for consistent ordering
       query = query.order('created_at', { ascending: false })
 
-      const { data, error, count } = await query
+        const { data, error, count } = await query
 
-      if (error) {
-        throw new Error(error.message)
-      }
-
-      const total = count || 0
-      const totalPages = Math.ceil(total / limit)
-
-      return {
-        data: data || [],
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages,
-          hasMore: page < totalPages
+        if (error) {
+          console.error('Supabase query error:', error)
+          throw new Error(`Failed to fetch courses: ${error.message}`)
         }
+
+        const total = count || 0
+        const totalPages = Math.ceil(total / limit)
+
+        return {
+          data: data || [],
+          pagination: {
+            page,
+            limit,
+            total,
+            totalPages,
+            hasMore: page < totalPages
+          }
+        }
+      } catch (error) {
+        console.error('Error in useOptimizedCourses:', error)
+        // Re-throw with more context
+        if (error instanceof Error) {
+          throw error
+        }
+        throw new Error('An unexpected error occurred while fetching courses')
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -123,22 +138,35 @@ export function useOptimizedCategories() {
   return useQuery({
     queryKey: COURSE_QUERY_KEYS.categories(),
     queryFn: async (): Promise<string[]> => {
-      const { data, error } = await supabase
-        .from('courses')
-        .select('category')
-        .eq('is_published', true)
-        .not('category', 'is', null)
+      try {
+        // Check if Supabase client is available
+        if (!supabase || typeof supabase.from !== 'function') {
+          console.error('Supabase client not initialized in useOptimizedCategories')
+          return [] // Return empty array instead of throwing
+        }
 
-      if (error) {
-        throw new Error(error.message)
+        const { data, error } = await supabase
+          .from('courses')
+          .select('category')
+          .eq('is_published', true)
+          .not('category', 'is', null)
+
+        if (error) {
+          console.error('Error fetching categories:', error)
+          throw new Error(`Failed to fetch categories: ${error.message}`)
+        }
+
+        // Extract unique categories
+        const categories = [...new Set(
+          data?.map((course: any) => course.category).filter(Boolean) || []
+        )] as string[]
+
+        return categories.sort()
+      } catch (error) {
+        console.error('Error in useOptimizedCategories:', error)
+        // Don't fail the entire page if categories fail, just return empty
+        return []
       }
-
-      // Extract unique categories
-      const categories = [...new Set(
-        data?.map((course: any) => course.category).filter(Boolean) || []
-      )] as string[]
-
-      return categories.sort()
     },
     staleTime: 30 * 60 * 1000, // 30 minutes
     gcTime: 2 * 60 * 60 * 1000, // 2 hours
