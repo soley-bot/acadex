@@ -48,86 +48,48 @@ export default function CourseStudyPage() {
         return
       }
       
-      // Admin users can access any course without enrollment check
-      if (user.role === 'admin') {
-        setIsEnrolled(true)
-        
-        // Load course with modules and lessons
-        const courseData = await getCourseWithModulesAndLessons(params.id as string)
-        setCourse(courseData)
-        
-        // Load lesson progress for user (if any)
-        const { data: progressData } = await supabase
-          .from('lesson_progress')
-          .select('*')
-          .eq('user_id', user.id)
-        
-        // Process progress data
-        const progressMap = new Map()
-        progressData?.forEach((progress: LessonProgress) => {
-          progressMap.set(progress.lesson_id, progress)
-        })
-        
-        // Apply progress to lessons
-        const modulesWithProgress = courseData.modules.map((module: ModuleWithContent) => ({
-          ...module,
-          course_lessons: module.course_lessons.map((lesson: LessonWithProgress) => ({
-            ...lesson,
-            progress: progressMap.get(lesson.id)
-          }))
-        }))
-        
-        setModules(modulesWithProgress)
-        setExpandedModules(new Set(courseData.modules.map((m: CourseModule) => m.id)))
-        
-        // Set first lesson as current
-        const firstModule = modulesWithProgress[0]
-        if (firstModule?.course_lessons && firstModule.course_lessons.length > 0) {
-          const firstLesson = firstModule.course_lessons[0]
-          if (firstLesson) {
-            setCurrentLesson(firstLesson)
-          }
+      // Get session token for API authentication
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        router.push('/auth/login')
+        return
+      }
+
+      // Use API route instead of direct Supabase (fixes CORS on custom domains)
+      const response = await fetch(`/api/courses/${params.id}/study`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+      })
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          setError('You are not enrolled in this course.')
+        } else if (response.status === 404) {
+          setError('Course not found.')
+        } else {
+          setError('Failed to load course content. Please try again.')
         }
-        
         setLoading(false)
         return
       }
+
+      const data = await response.json()
       
-      // Regular enrollment check for non-admin users
-      const { data: enrollmentData, error: enrollmentError } = await supabase
-        .from('enrollments')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('course_id', params.id)
-        .single()
-      
-      if (enrollmentError) {
-        setError('You are not enrolled in this course.')
-        setLoading(false)
-        return
-      }
-      
-      setIsEnrolled(true)
-      setEnrollmentProgress(enrollmentData.progress || 0)
-      
-      // Load course with modules and lessons
-      const courseData = await getCourseWithModulesAndLessons(params.id as string)
-      setCourse(courseData)
-      
-      // Load lesson progress for user
-      const { data: progressData } = await supabase
-        .from('lesson_progress')
-        .select('*')
-        .eq('user_id', user.id)
+      setIsEnrolled(data.isEnrolled)
+      setEnrollmentProgress(data.enrollmentProgress || 0)
+      setCourse(data.course)
       
       // Process progress data
       const progressMap = new Map()
-      progressData?.forEach((progress: LessonProgress) => {
+      data.progress?.forEach((progress: LessonProgress) => {
         progressMap.set(progress.lesson_id, progress)
       })
       
       // Apply progress to lessons
-      const modulesWithProgress = courseData.modules.map((module: ModuleWithContent) => ({
+      const modulesWithProgress = data.modules.map((module: ModuleWithContent) => ({
         ...module,
         course_lessons: module.course_lessons.map((lesson: LessonWithProgress) => ({
           ...lesson,
@@ -136,7 +98,7 @@ export default function CourseStudyPage() {
       }))
       
       setModules(modulesWithProgress)
-      setExpandedModules(new Set(courseData.modules.map((m: CourseModule) => m.id)))
+      setExpandedModules(new Set(data.modules.map((m: CourseModule) => m.id)))
       
       // Set first lesson as current
       const firstModule = modulesWithProgress[0]
