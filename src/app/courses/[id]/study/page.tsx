@@ -12,6 +12,10 @@ import { logger } from '@/lib/logger'
 import { ContextualBackButton } from '@/components/navigation/ContextualBackButton'
 import { CourseErrorBoundary } from '@/components/ErrorBoundary'
 
+// Force dynamic rendering - this page requires authentication
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 interface ModuleWithContent extends CourseModule {
   course_lessons: (CourseLesson & {
     progress?: LessonProgress
