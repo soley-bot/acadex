@@ -1,10 +1,10 @@
 /**
- * Optimized course queries using direct Supabase calls
- * Similar to quiz queries for better performance
+ * Optimized course queries using API routes
+ * Uses server-side API calls to avoid CORS issues on custom domains
  */
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase' // Still needed for detail queries
 import type { Course } from '@/lib/supabase'
 
 // Query keys for consistency
@@ -46,73 +46,46 @@ export function useOptimizedCourses(filters: CourseFilters = {}) {
     queryKey: COURSE_QUERY_KEYS.list(JSON.stringify(filters)),
     queryFn: async (): Promise<CoursesResponse> => {
       try {
-        // Check if Supabase client is available
-        if (!supabase || typeof supabase.from !== 'function') {
-          throw new Error('Supabase client is not properly initialized. Please check your environment variables.')
+        // Use API route instead of direct Supabase client (fixes CORS on custom domains)
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: limit.toString(),
+        })
+        
+        if (category && category !== 'all') {
+          params.append('category', category)
+        }
+        
+        if (level && level !== 'all') {
+          params.append('level', level)
+        }
+        
+        if (search) {
+          params.append('search', search)
         }
 
-        let query = supabase
-          .from('courses')
-          .select(`
-            id,
-            title,
-            description,
-            image_url,
-            category,
-            level,
-            duration,
-            price,
-            status,
-            instructor_name,
-            rating,
-            student_count,
-            is_published,
-            is_free,
-            original_price,
-            created_at,
-            updated_at
-          `, { count: 'exact' })
-          .eq('is_published', true)
+        const response = await fetch(`/api/courses?${params.toString()}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
 
-      // Apply filters
-      if (category && category !== 'all') {
-        query = query.eq('category', category)
-      }
-
-      if (level && level !== 'all') {
-        query = query.eq('level', level)
-      }
-
-      if (search) {
-        query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
-      }
-
-      // Apply pagination
-      const from = (page - 1) * limit
-      const to = from + limit - 1
-      query = query.range(from, to)
-
-      // Order by created_at desc for consistent ordering
-      query = query.order('created_at', { ascending: false })
-
-        const { data, error, count } = await query
-
-        if (error) {
-          console.error('Supabase query error:', error)
-          throw new Error(`Failed to fetch courses: ${error.message}`)
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          throw new Error(errorData.error || `HTTP ${response.status}: Failed to fetch courses`)
         }
 
-        const total = count || 0
-        const totalPages = Math.ceil(total / limit)
+        const result = await response.json()
 
         return {
-          data: data || [],
-          pagination: {
+          data: result.data || [],
+          pagination: result.pagination || {
             page,
             limit,
-            total,
-            totalPages,
-            hasMore: page < totalPages
+            total: 0,
+            totalPages: 0,
+            hasMore: false
           }
         }
       } catch (error) {
@@ -132,36 +105,29 @@ export function useOptimizedCourses(filters: CourseFilters = {}) {
 }
 
 /**
- * Fetch course categories directly from Supabase
+ * Fetch course categories via API route (fixes CORS on custom domains)
  */
 export function useOptimizedCategories() {
   return useQuery({
     queryKey: COURSE_QUERY_KEYS.categories(),
     queryFn: async (): Promise<string[]> => {
       try {
-        // Check if Supabase client is available
-        if (!supabase || typeof supabase.from !== 'function') {
-          console.error('Supabase client not initialized in useOptimizedCategories')
+        // Use API route instead of direct Supabase client
+        const response = await fetch('/api/courses/categories', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          console.error('Error fetching categories:', errorData)
           return [] // Return empty array instead of throwing
         }
 
-        const { data, error } = await supabase
-          .from('courses')
-          .select('category')
-          .eq('is_published', true)
-          .not('category', 'is', null)
-
-        if (error) {
-          console.error('Error fetching categories:', error)
-          throw new Error(`Failed to fetch categories: ${error.message}`)
-        }
-
-        // Extract unique categories
-        const categories = [...new Set(
-          data?.map((course: any) => course.category).filter(Boolean) || []
-        )] as string[]
-
-        return categories.sort()
+        const result = await response.json()
+        return result.categories || []
       } catch (error) {
         console.error('Error in useOptimizedCategories:', error)
         // Don't fail the entire page if categories fail, just return empty
