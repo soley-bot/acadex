@@ -121,8 +121,8 @@ export default function CoursesPage() {
     totalStudents: courses.reduce((sum, c) => sum + (c.student_count || 0), 0)
   }
 
-  // Get unique categories
-  const categories = ['all', ...Array.from(new Set(courses.map(c => c.category)))]
+  // Get unique categories, filtering out null/undefined values
+  const categories = ['all', ...Array.from(new Set(courses.filter(c => c.category).map(c => c.category)))]
 
   const getStatusBadge = (isPublished: boolean) => {
     return isPublished 
@@ -238,9 +238,11 @@ export default function CoursesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-      {/* Header Section - Enhanced with better design */}
-      <div className="mb-8">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
+      {/* Add proper container padding */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Header Section - Enhanced with better design */}
+        <div className="mb-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0 flex-1">
               <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-2">Course Management</h1>
@@ -547,6 +549,7 @@ export default function CoursesPage() {
           refetch()
         }}
       />
+      </div>
     </div>
   )
 }

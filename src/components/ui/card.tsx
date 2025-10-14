@@ -1,7 +1,7 @@
 import * as React from "react"
 
 interface CardProps extends React.HTMLAttributes<HTMLElement> {
-  variant?: 'default' | 'elevated' | 'interactive' | 'outline'
+  variant?: 'default' | 'elevated' | 'interactive' | 'outline' | 'glass'
   size?: 'sm' | 'md' | 'lg'
   as?: 'div' | 'article' | 'section' | 'aside'
 }
@@ -12,7 +12,8 @@ const Card = React.forwardRef<HTMLElement, CardProps>(
       default: 'rounded-lg border border-border bg-background shadow-sm',
       elevated: 'rounded-lg border border-border bg-background shadow-lg hover:shadow-xl transition-shadow',
       interactive: 'rounded-lg border border-border bg-background shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-pointer',
-      outline: 'rounded-lg border border-border bg-transparent'
+      outline: 'rounded-lg border border-border bg-transparent',
+      glass: 'rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl transition-all duration-300'
     }
 
     const sizeStyles = {

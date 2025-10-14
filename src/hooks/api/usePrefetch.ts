@@ -16,7 +16,8 @@ export function usePrefetchQuiz() {
       queryFn: async () => {
         const headers = await getAuthHeaders()
         
-        const response = await fetch(`/api/admin/quizzes/${quizId}`, {
+        // Include questions when prefetching for editing
+        const response = await fetch(`/api/admin/quizzes/${quizId}?includeQuestions=true`, {
           method: 'GET',
           headers,
           credentials: 'include'

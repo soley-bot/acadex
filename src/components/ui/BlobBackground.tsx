@@ -1,60 +1,68 @@
-import * as React from "react"
+import React from 'react'
 
-interface BlobBackgroundProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'primary' | 'secondary' | 'accent' | 'muted' | 'default'
-  intensity?: 'subtle' | 'medium' | 'strong'
-  animated?: boolean
+interface BlobBackgroundProps {
+  variant?: 'default' | 'subtle' | 'vibrant'
+  className?: string
 }
 
-const BlobBackground = React.forwardRef<HTMLDivElement, BlobBackgroundProps>(
-  ({ className = "", variant = 'primary', intensity = 'medium', animated = true, ...props }, ref) => {
-    const variants = {
-      primary: "bg-gradient-to-br from-primary/5 via-background to-primary/10",
-      secondary: "bg-gradient-to-br from-secondary/5 via-background to-secondary/10", 
-      accent: "bg-gradient-to-br from-primary/10 via-background to-secondary/10",
-      muted: "bg-gradient-to-br from-muted/50 via-background to-muted",
-      default: "bg-gradient-to-br from-primary/5 via-background to-primary/10"
-    }
+/**
+ * Standardized animated blob background component
+ *
+ * Design System Standards:
+ * - Uses semantic colors: primary, secondary, warning from design system
+ * - Consistent sizing: 80x80, 64x64, 48x48 (following 4px/8dp grid)
+ * - Standard opacity levels: 20-30% for subtle backgrounds
+ * - Consistent animation timing: 7s with staggered delays
+ * - Professional positioning using design system spacing
+ */
+export function BlobBackground({ variant = 'default', className = '' }: BlobBackgroundProps) {
+  const variants = {
+    // Default: Marketing/landing pages - balanced visual impact
+    default: (
+      <>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-primary/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-warning/30 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-6000"></div>
+      </>
+    ),
 
-    const intensities = {
-      subtle: { primary: "primary/20", secondary: "secondary/20", opacity: "opacity-40" },
-      medium: { primary: "primary/30", secondary: "secondary/30", opacity: "opacity-60" },
-      strong: { primary: "primary/40", secondary: "secondary/40", opacity: "opacity-80" }
-    }
+    // Subtle: Functional pages - reduced visual distraction
+    subtle: (
+      <>
+        <div className="absolute -top-32 -right-32 w-64 h-64 bg-primary/20 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob"></div>
+        <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-secondary/15 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob animation-delay-3000"></div>
+        <div className="absolute top-32 left-32 w-48 h-48 bg-warning/20 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob animation-delay-6000"></div>
+      </>
+    ),
 
-    const currentIntensity = intensities[intensity]
-    const animationClasses = animated ? "animate-pulse" : ""
-
-    return (
-      <div
-        ref={ref}
-        className={`absolute inset-0 overflow-hidden ${variants[variant]} ${className}`}
-        {...props}
-        aria-hidden="true"
-      >
-        {/* Primary blob */}
-        <div 
-          className={`absolute -top-10 -right-10 w-72 h-72 bg-${currentIntensity.primary} rounded-full mix-blend-multiply filter blur-xl ${currentIntensity.opacity} ${animationClasses}`} 
-        />
-        
-        {/* Secondary blob */}
-        <div 
-          className={`absolute -bottom-8 -left-10 w-72 h-72 bg-${currentIntensity.secondary} rounded-full mix-blend-multiply filter blur-xl ${currentIntensity.opacity} ${animationClasses}`}
-          style={{ animationDelay: animated ? '1s' : '0s' }}
-        />
-        
-        {/* Additional accent blob for more visual interest */}
-        {intensity === 'strong' && (
-          <div 
-            className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-${currentIntensity.primary} rounded-full mix-blend-multiply filter blur-2xl opacity-20 ${animationClasses}`}
-            style={{ animationDelay: animated ? '2s' : '0s' }}
-          />
-        )}
-      </div>
+    // Vibrant: Interactive/engagement pages - high visual impact
+    vibrant: (
+      <>
+        <div className="absolute -top-48 -right-48 w-96 h-96 bg-primary/35 rounded-full mix-blend-multiply filter blur-xl opacity-80 animate-blob"></div>
+        <div className="absolute -bottom-48 -left-48 w-96 h-96 bg-secondary/25 rounded-full mix-blend-multiply filter blur-xl opacity-80 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-48 left-48 w-80 h-80 bg-warning/35 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-1/3 right-1/3 w-72 h-72 bg-primary/25 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-6000"></div>
+      </>
     )
   }
-)
 
-BlobBackground.displayName = "BlobBackground"
+  return (
+    <div className={`absolute inset-0 overflow-hidden ${className}`}>
+      {variants[variant]}
+    </div>
+  )
+}
 
-export { BlobBackground }
+/**
+ * Usage Examples:
+ *
+ * // Landing page sections
+ * <BlobBackground variant="default" />
+ *
+ * // Functional pages (dashboard, settings)
+ * <BlobBackground variant="subtle" />
+ *
+ * // Interactive experiences (quizzes, games)
+ * <BlobBackground variant="vibrant" />
+ */

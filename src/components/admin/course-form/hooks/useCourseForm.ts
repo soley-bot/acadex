@@ -30,7 +30,18 @@ export function useCourseForm(course?: Course) {
     modules: []
   })
 
+  const [initialFormData, setInitialFormData] = useState<EnhancedCourseData | null>(null)
+  const [isDirty, setIsDirty] = useState(false)
+
   const isLoading = isCreating || isUpdating || isSubmitting
+
+  // Track changes to determine if form is dirty
+  useEffect(() => {
+    if (initialFormData) {
+      const hasChanges = JSON.stringify(formData) !== JSON.stringify(initialFormData)
+      setIsDirty(hasChanges)
+    }
+  }, [formData, initialFormData])
 
   // Computed values
   const totalLessons = useMemo(() => {
@@ -81,7 +92,7 @@ export function useCourseForm(course?: Course) {
 
         // Load course data if editing
         if (course) {
-          setFormData({
+          const courseData = {
             title: course.title || '',
             description: course.description || '',
             instructor_name: course.instructor_name || user?.name || '',
@@ -93,7 +104,26 @@ export function useCourseForm(course?: Course) {
             is_published: course.is_published || false,
             learning_objectives: course.learning_objectives || [''],
             modules: [] // Will be loaded separately if needed
-          })
+          }
+          setFormData(courseData)
+          setInitialFormData(courseData) // Track initial state
+        } else {
+          // Set initial data for new course
+          const initialData = {
+            title: '',
+            description: '',
+            instructor_name: user?.name || '',
+            price: 0,
+            category: '',
+            level: 'beginner' as const,
+            duration: '',
+            image_url: '',
+            is_published: false,
+            learning_objectives: [''],
+            modules: []
+          }
+          setFormData(initialData)
+          setInitialFormData(initialData)
         }
       } catch (err) {
         setError('Failed to load initial data')
@@ -230,12 +260,13 @@ export function useCourseForm(course?: Course) {
     expandedModules,
     activeTab,
     isLoading,
-    
+    isDirty,
+
     // Computed values
     totalLessons,
     totalDurationMinutes,
     hasValidationErrors,
-    
+
     // Handlers
     setFormData,
     setError,
@@ -249,7 +280,7 @@ export function useCourseForm(course?: Course) {
     updateLesson,
     deleteLesson,
     toggleModuleExpanded,
-    
+
     // Mutations
     createCourse,
     updateCourse,

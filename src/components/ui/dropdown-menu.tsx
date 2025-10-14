@@ -14,10 +14,27 @@ const DropdownMenuContext = React.createContext<{
 
 const DropdownMenu: React.FC<DropdownMenuProps> = ({ children, className = "" }) => {
   const [open, setOpen] = React.useState(false)
+  const containerRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (open && containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setOpen(false)
+      }
+    }
+
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [open])
 
   return (
     <DropdownMenuContext.Provider value={{ open, setOpen }}>
-      <div className={`relative inline-block text-left ${className}`}>
+      <div ref={containerRef} className={`relative inline-block text-left ${className}`}>
         {children}
       </div>
     </DropdownMenuContext.Provider>
@@ -68,22 +85,6 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
   ({ className = "", children, align = 'end', ...props }, ref) => {
     const context = React.useContext(DropdownMenuContext)
     if (!context) throw new Error('DropdownMenuContent must be used within DropdownMenu')
-
-    React.useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-        if (ref && 'current' in ref && ref.current && !ref.current.contains(event.target as Node)) {
-          context.setOpen(false)
-        }
-      }
-
-      if (context.open) {
-        document.addEventListener('mousedown', handleClickOutside)
-      }
-
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside)
-      }
-    }, [context, ref])
 
     if (!context.open) return null
 

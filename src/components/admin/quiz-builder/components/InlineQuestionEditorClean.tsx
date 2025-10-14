@@ -355,7 +355,7 @@ export const InlineQuestionEditor = memo<InlineQuestionEditorProps>(({
 
   return (
     <Card className={`border ${errors.length > 0 ? 'border-red-300 shadow-red-100' : 'border-gray-200'}`}>
-      <CardContent className="p-4">
+      <CardContent className="p-5 sm:p-6">
         {isEditing ? (
           <div className="space-y-4">
             {/* Editing Header */}

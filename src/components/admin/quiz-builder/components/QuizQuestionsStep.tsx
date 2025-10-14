@@ -99,7 +99,7 @@ export const QuizQuestions = memo<QuizQuestionsProps>(({
   }, [quizData, questions])
 
   return (
-    <Card className="p-4 border rounded-lg">
+    <Card className="p-5 sm:p-6 border rounded-lg">
       <div className="flex flex-col gap-4">
         {/* Optimized Header with inline controls */}
         <div className="flex items-center justify-between">

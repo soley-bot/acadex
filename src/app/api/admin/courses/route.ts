@@ -161,15 +161,70 @@ export const PUT = withAdminAuth(async (request: NextRequest, user) => {
       }, { status: 400 })
     }
 
-    logger.info('Admin course update requested', { 
-      adminUserId: user.id, 
-      courseId: id 
+    // Whitelist of allowed fields for course updates
+    const allowedFields = [
+      'title',
+      'description',
+      'instructor_name',
+      'instructor_id',
+      'price',
+      'category',
+      'level',
+      'duration',
+      'image_url',
+      'is_published',
+      'updated_at'
+    ]
+
+    // Filter and validate update data
+    const validatedData: Record<string, any> = {}
+    const errors: string[] = []
+
+    for (const [key, value] of Object.entries(updateData)) {
+      if (!allowedFields.includes(key)) {
+        logger.warn('Attempted to update disallowed field', {
+          field: key,
+          adminUserId: user.id
+        })
+        continue // Skip disallowed fields
+      }
+
+      // Validate specific fields
+      if (key === 'title' && (!value || typeof value !== 'string' || value.trim().length < 3)) {
+        errors.push('Title must be at least 3 characters')
+      } else if (key === 'title' && typeof value === 'string' && value.length > 200) {
+        errors.push('Title must be less than 200 characters')
+      } else if (key === 'description' && value && typeof value === 'string' && value.length > 5000) {
+        errors.push('Description must be less than 5000 characters')
+      } else if (key === 'price' && (typeof value !== 'number' || value < 0)) {
+        errors.push('Price must be a positive number')
+      } else if (key === 'is_published' && typeof value !== 'boolean') {
+        errors.push('is_published must be a boolean')
+      } else {
+        validatedData[key] = value
+      }
+    }
+
+    if (errors.length > 0) {
+      return NextResponse.json({
+        error: 'Validation failed',
+        details: errors
+      }, { status: 400 })
+    }
+
+    // Always update the updated_at timestamp
+    validatedData.updated_at = new Date().toISOString()
+
+    logger.info('Admin course update requested', {
+      adminUserId: user.id,
+      courseId: id,
+      fields: Object.keys(validatedData)
     })
 
     const updatedCourse = await withServiceRole(user, async (serviceClient) => {
       const { data, error } = await serviceClient
         .from('courses')
-        .update(updateData)
+        .update(validatedData)
         .eq('id', id)
         .select('*')
         .single()

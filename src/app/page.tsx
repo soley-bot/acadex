@@ -1,10 +1,9 @@
-import ClientHero from '@/components/ClientHero'
+import Hero from '@/components/Hero'
 import Features from '@/components/Features'
 import HonestSection from '@/components/HonestSection'
 import { Section } from '@/components/ui/Layout'
 import { Metadata } from 'next'
 import { generateOrganizationSchema, generateWebsiteSchema } from '@/lib/schema'
-// import ClientHomeWrapper from '@/components/ClientHomeWrapper'
 
 export const metadata: Metadata = {
   title: 'Acadex - Master Your IELTS Score with Targeted Quizzes',
@@ -55,46 +54,33 @@ export const metadata: Metadata = {
 }
 
 export default function Home() {
-  // Generate structured data with enhanced error handling
+  // Temporarily disable structured data to debug the error
+  /*
   let schemas: any[] = []
-  
+
   try {
     const organizationSchema = generateOrganizationSchema()
     const websiteSchema = generateWebsiteSchema()
 
     // Filter out any null/undefined schema objects and validate them
     const candidateSchemas = [organizationSchema, websiteSchema].filter(schema => {
-      try {
-        return schema && 
-               typeof schema === 'object' && 
-               schema['@context'] && 
-               typeof schema['@context'] === 'string' &&
-               schema['@type'] &&
-               typeof schema['@type'] === 'string'
-      } catch (err) {
-        console.warn('Invalid schema object detected:', err)
-        return false
-      }
+      return schema &&
+             typeof schema === 'object' &&
+             schema['@context'] &&
+             typeof schema['@context'] === 'string'
     })
-    
-    // Additional validation to ensure schemas are JSON serializable
-    schemas = candidateSchemas.filter(schema => {
-      try {
-        JSON.stringify(schema)
-        return true
-      } catch (err) {
-        console.warn('Schema not JSON serializable:', err)
-        return false
-      }
-    })
+
+    schemas = candidateSchemas
   } catch (error) {
     console.error('Error generating schemas:', error)
     schemas = []
   }
+  */
 
   return (
     <>
-      {/* Structured Data with error handling */}
+      {/* Structured Data - temporarily disabled for debugging */}
+      {/*
       {schemas.length > 0 && (
         <script
           type="application/ld+json"
@@ -103,9 +89,10 @@ export default function Home() {
           }}
         />
       )}
-      
+      */}
+
       <main className="min-h-screen">
-        <ClientHero />
+        <Hero />
         <Features />
         <HonestSection />
       </main>

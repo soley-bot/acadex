@@ -310,7 +310,7 @@ export const useQuizBuilder = ({
     } finally {
       setIsSaving(false)
     }
-  }, [toast, setError])
+  }, [toast, setError, setIsSaving, setLastSaved, setIsDirty])
 
   // Debounced auto-save function
   const debouncedSave = useCallback(async (stateToSave: QuizBuilderState) => {
@@ -407,9 +407,10 @@ export const useQuizBuilder = ({
         throw new Error(errorData.error || 'Failed to fetch quiz')
       }
 
-      const { quiz } = await response.json()
-      const questions = quiz?.quiz_questions || []
-      console.log('📊 Fetched questions:', { count: questions.length })
+      const quizData = await response.json()
+      // API returns questions array directly (transformed from quiz_questions)
+      const questions = quizData?.questions || []
+      console.log('📊 Fetched questions:', { count: questions.length, questions })
 
       setState(prev => ({
         ...prev,
@@ -430,7 +431,9 @@ export const useQuizBuilder = ({
     if (quiz?.id && loadedQuizIdRef.current !== quiz.id) {
       console.log('🔄 Quiz prop changed, updating state:', {
         quizId: quiz.id,
-        previouslyLoadedId: loadedQuizIdRef.current
+        previouslyLoadedId: loadedQuizIdRef.current,
+        quizHasQuestions: !!(quiz as any).questions,
+        questionsCount: (quiz as any).questions?.length || 0
       })
 
       // Mark this quiz ID as being loaded
@@ -457,11 +460,19 @@ export const useQuizBuilder = ({
           created_at: quiz.created_at,
           updated_at: quiz.updated_at
         },
-        currentStep: 'quiz-editing' // When editing existing quiz, go directly to editing
+        currentStep: 'quiz-editing', // When editing existing quiz, go directly to editing
+        // If quiz already has questions loaded (from prefetch or initial load), use them
+        questions: extractQuestionsFromQuiz(quiz)
       }))
 
-      // Load questions
-      fetchQuestionsForQuiz(quiz.id)
+      // Only fetch questions if not already loaded
+      const hasQuestions = extractQuestionsFromQuiz(quiz).length > 0
+      if (!hasQuestions) {
+        console.log('📥 No questions in quiz prop, fetching from API...')
+        fetchQuestionsForQuiz(quiz.id)
+      } else {
+        console.log('✅ Questions already loaded from quiz prop:', hasQuestions)
+      }
     }
   }, [quiz, fetchQuestionsForQuiz])
 
@@ -511,37 +522,26 @@ export const useQuizBuilder = ({
   }, [])
 
   // Save functions
+
   const saveQuiz = useCallback(async () => {
-    // Basic validation - must have title and duration
-    if (!state.quiz.title?.trim()) {
-      toast({
-        title: 'Validation Error',
-        description: 'Quiz title is required',
-        variant: 'destructive'
-      })
-      return false
-    }
-
-    if (!state.quiz.duration_minutes || state.quiz.duration_minutes <= 0) {
-      toast({
-        title: 'Validation Error', 
-        description: 'Quiz duration must be greater than 0 minutes',
-        variant: 'destructive'
-      })
-      return false
-    }
-
-    // Allow saving without questions but show a warning
-    if (state.questions.length === 0) {
-      console.log('⚠️ Saving quiz without questions as draft')
-    }
-
-    const validation = validateQuizData(state.quiz, state.questions)
+    const currentValidation = validateQuizData(state.quiz, state.questions)
+    
+    console.group('🔍 SAVE QUIZ DEBUG')
+    console.log('Current State:', {
+      hasQuizId: !!state.quiz.id,
+      quizId: state.quiz.id,
+      quizTitle: state.quiz.title,
+      questionCount: state.questions.length,
+      isDirty,
+      isSaving,
+      isValidForSave: currentValidation.isValid || state.questions.length === 0
+    })
     
     // For publishing we need full validation, but for saving we can be more lenient
-    if (state.questions.length > 0 && !validation.isValid) {
-      const questionErrors = validation.errors.filter(e => e.includes('question'))
+    if (state.questions.length > 0 && !currentValidation.isValid) {
+      const questionErrors = currentValidation.errors.filter((e: string) => e.includes('question'))
       if (questionErrors.length > 0) {
+        console.warn('⚠️ Question validation issues:', questionErrors)
         toast({
           title: 'Question Issues',
           description: questionErrors.join(', ') + ' - Quiz saved as draft.',
@@ -611,21 +611,33 @@ export const useQuizBuilder = ({
           throw new Error('Quiz creation failed - no ID returned')
         }
 
-        // Update state with the new quiz ID
-        const updatedState = {
-          ...state,
-          quiz: { ...state.quiz, id: createdQuiz.id }
-        }
-        
-        setState(updatedState)
         console.log('✅ Quiz created with ID:', createdQuiz.id)
-        
-        // Now save with the updated state that has the quiz ID
-        await debouncedSave(updatedState)
+
+        // Update state with the new quiz ID and wait for it to complete
+        await new Promise<void>((resolve) => {
+          setState(prev => {
+            const updatedState = {
+              ...prev,
+              quiz: { ...prev.quiz, id: createdQuiz.id }
+            }
+
+            // Save questions with the new quiz ID immediately after state update
+            if (updatedState.questions.length > 0) {
+              performSave(updatedState).then(() => resolve())
+            } else {
+              resolve()
+            }
+
+            return updatedState
+          })
+        })
       } else {
         // Quiz already exists, save normally
         await debouncedSave(state)
       }
+      
+      console.log('✅ SAVE SUCCESSFUL')
+      console.groupEnd()
       
       toast({
         title: 'Success',
@@ -635,7 +647,14 @@ export const useQuizBuilder = ({
       
       return true
     } catch (error) {
-      console.error('Save failed:', error)
+      console.error('❌ SAVE FAILED:', error)
+      console.log('Error Details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        type: error instanceof Error ? error.constructor.name : typeof error,
+        stack: error instanceof Error ? error.stack : undefined
+      })
+      console.groupEnd()
+      
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to save quiz',
@@ -645,7 +664,7 @@ export const useQuizBuilder = ({
     } finally {
       setState(prev => ({ ...prev, isSaving: false }))
     }
-  }, [state, debouncedSave, toast])
+  }, [state, debouncedSave, toast, performSave, isDirty, isSaving])
 
   const publishQuiz = useCallback(async () => {
     const validation = validateQuizData(state.quiz, state.questions)
@@ -702,7 +721,7 @@ export const useQuizBuilder = ({
     isDirty,
     isSaving,
     lastSaved,
-    
+
     // Actions
     updateQuiz,
     updateQuestions,
@@ -711,7 +730,7 @@ export const useQuizBuilder = ({
     setError,
     saveQuiz,
     publishQuiz,
-    
+
     // Utilities
     validation: validateQuizData(state.quiz, state.questions)
   }

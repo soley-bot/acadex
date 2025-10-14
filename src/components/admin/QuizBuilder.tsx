@@ -134,6 +134,17 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
   const handleSave = useCallback(() => saveQuiz(), [saveQuiz]);
   const handlePublish = useCallback(() => publishQuiz(), [publishQuiz]);
 
+  // Handle close with unsaved changes warning
+  const handleClose = useCallback(() => {
+    if (isDirty) {
+      const confirmed = window.confirm(
+        'You have unsaved changes. Are you sure you want to close? Your changes will be lost.'
+      );
+      if (!confirmed) return;
+    }
+    onClose();
+  }, [isDirty, onClose]);
+
   // Render current step content with progressive loading
   const renderCurrentStep = useMemo(() => {
     switch (state.currentStep) {
@@ -246,13 +257,19 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/50">
             <div className="flex items-center gap-4">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Quiz Builder Clean</h2>
-                <p className="text-sm text-gray-500 mt-0.5">Refactored quiz builder with extracted components</p>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {quiz ? 'Edit Quiz' : 'Create New Quiz'}
+                </h2>
+                <p className="text-sm text-gray-500 mt-0.5">
+                  {isDirty && <span className="text-orange-600 font-medium">● Unsaved changes</span>}
+                  {!isDirty && lastSaved && <span className="text-green-600">✓ Saved {new Date(lastSaved).toLocaleTimeString()}</span>}
+                </p>
               </div>
             </div>
             <button
-              onClick={onClose}
-              className="text-gray-400 p-2 rounded-lg"
+              onClick={handleClose}
+              className="text-gray-400 p-2 rounded-lg hover:bg-gray-200 transition-colors"
+              title={isDirty ? 'You have unsaved changes' : 'Close'}
             >
               <X className="h-5 w-5" />
             </button>
@@ -299,6 +316,24 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
             </div>
           </div>
 
+          {/* Unsaved Changes Warning */}
+          {isDirty && (
+            <div className="px-6 py-3 bg-orange-50 border-b border-orange-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-orange-800 font-medium text-sm">⚠️ You have unsaved changes</span>
+                </div>
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving || !validation.isValid}
+                  className="px-4 py-1.5 text-sm bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSaving ? 'Saving...' : 'Save Now'}
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Error Display */}
           {state.error && (
             <div className="px-6 py-2 bg-red-50 border-b border-red-200">
@@ -326,9 +361,19 @@ export const QuizBuilder = memo<QuizBuilderProps>(({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleSave}
-                    disabled={isSaving}
-                    className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    disabled={isSaving || !isDirty}
+                    className={`px-4 py-2 text-sm rounded-lg font-medium transition-all flex items-center gap-2 ${
+                      isSaving
+                        ? 'bg-blue-500 text-white cursor-wait'
+                        : isDirty
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                    }`}
+                    title={!isDirty ? 'No changes to save' : 'Save changes'}
                   >
+                    {isSaving && <span className="animate-spin">⏳</span>}
+                    {!isSaving && isDirty && <span>●</span>}
+                    {!isSaving && !isDirty && <span>✓</span>}
                     {isSaving ? 'Saving...' : 'Save'}
                   </button>
                 </div>

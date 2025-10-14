@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { quizAPI } from '@/lib/api'
-const { getUserQuizAttempts: getQuizResults } = quizAPI
 import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertTriangle, CheckCircle, BarChart3, Lightbulb, Check, Edit, RefreshCw, BookOpen, Clock, Target, Award } from 'lucide-react'
@@ -47,18 +45,24 @@ export default function QuizResultsPage() {
     const fetchResults = async () => {
       try {
         setLoading(true)
-        const response = await getQuizResults(params.resultId as string)
-        
-        if (response.error) {
-          setError('Failed to load quiz results')
-          logger.error('Error fetching quiz results:', response.error)
-        } else {
-          const resultData = Array.isArray(response.data) ? response.data[0] : response.data?.data?.[0] || null
-          setResults(resultData)
+
+        // Fetch from the new quiz-attempts API
+        const response = await fetch(`/api/quiz-attempts/${params.resultId}`)
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: Failed to fetch results`)
         }
+
+        const data = await response.json()
+
+        if (!data.success || !data.data) {
+          throw new Error(data.error || 'Failed to load quiz results')
+        }
+
+        setResults(data.data)
       } catch (err) {
         logger.error('Error fetching quiz results:', err)
-        setError('Failed to load quiz results')
+        setError(err instanceof Error ? err.message : 'Failed to load quiz results')
       } finally {
         setLoading(false)
       }

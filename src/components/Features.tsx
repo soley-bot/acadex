@@ -7,65 +7,83 @@ export default function Features() {
   const features = [
     {
       icon: Crosshair,
-      title: "Focused Practice",
-      description: "Target specific areas like listening comprehension or writing structure with bite-sized quizzes designed for quick improvement."
+      title: "Targeted Micro-Quizzes",
+      description: "Stop wasting hours on generic lessons. Fix a specific weakness, like 'Complex Sentences' or 'Environment Vocabulary,' in just 15 minutes."
     },
     {
       icon: CheckCircle,
-      title: "Quality Questions",
-      description: "Every quiz question follows IELTS format standards, giving you authentic practice that mirrors the real exam experience."
+      title: "Expert-Verified Content",
+      description: "Every question is AI-assisted for variety and human-verified for quality by an experienced educator. This isn't just English; it's the English that impresses examiners."
     },
     {
       icon: Zap,
-      title: "Instant Results",
-      description: "Get immediate feedback on your answers with clear explanations to help you understand concepts and improve faster."
+      title: "Instant, Detailed Feedback",
+      description: "Understand the 'why' behind every answer. Our clear, detailed explanations in Khmer help you learn from your mistakes so you don't repeat them on exam day."
     },
     {
       icon: BarChart,
-      title: "Track Progress",
-      description: "Monitor your improvement across all IELTS sections with simple progress tracking and performance insights."
+      title: "Build Real Mastery",
+      description: "Don't just memorize word lists. Our interactive quizzes force you to apply your knowledge in context, building the deep understanding needed for a high score."
     }
   ]
 
   return (
-    <section className="bg-muted py-16">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        {/* Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-section-title mb-4">
-            Everything You Need to Practice
-          </h2>
-          <p className="text-section-subtitle max-w-2xl mx-auto">
-            Simple, effective tools to help you prepare for IELTS at your own pace
-          </p>
-        </div>
+    <section
+      className="relative overflow-hidden section-padding"
+    >
+      {/* Standardized Animated Background */}
+      <BlobBackground variant="default" />
 
-        {/* Features Grid */}
-        <div className="grid-features max-w-6xl mx-auto">
+      <div className="container container-xl relative">
+        {/* Section Header - Fluid Typography */}
+        <AnimatedDiv variant="fadeInUp" className="text-center space-y-6 mb-12">
+          <AnimatedDiv variant="scaleIn" delay={0.2}>
+            <div className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2 rounded-full shadow-lg">
+              <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+              <span className="font-medium">A Smarter Way to Prepare</span>
+            </div>
+          </AnimatedDiv>
+
+          <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 tracking-tight leading-tight md:leading-tight">
+            Focus on What Truly Matters for Your Score
+          </h2>
+
+          <div className="max-w-4xl mx-auto leading-relaxed text-gray-600">
+            <p className="text-base md:text-lg lg:text-xl">
+              Getting a high score in IELTS is not about knowing everything. It is about mastering the foundational skills that examiners look for. We help you isolate and fix the common errors in vocabulary and grammar that are preventing you from reaching your goal.
+            </p>
+          </div>
+        </AnimatedDiv>
+
+        {/* Features Grid - Fluid Card System */}
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto gap-6">
           {features.map((feature, index) => {
             const IconComponent = feature.icon;
             return (
               <StaggerItem key={index}>
-                <div className="text-center group">
-                  {/* Icon */}
-                  <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mx-auto mb-6 text-primary-foreground group-hover:bg-primary/90 transition-colors">
-                    <IconComponent size={28} />
-                  </div>
+                <HoverScale scale={1.03} className="group h-full">
+                  <Card variant="glass" className="p-6 h-full hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                    <CardContent className="p-0 space-y-4">
+                      {/* Icon Container */}
+                      <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center group-hover:bg-secondary transition-all duration-300 shadow-lg text-white">
+                        <IconComponent size={30} />
+                      </div>
 
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                    {feature.title}
-                  </h3>
+                      <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-900 group-hover:text-primary transition-colors">
+                        {feature.title}
+                      </h3>
 
-                  <p className="text-gray-600 leading-relaxed">
-                    {feature.description}
-                  </p>
-                </div>
+                      <p className="text-sm md:text-base lg:text-lg text-gray-600 leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </HoverScale>
               </StaggerItem>
             );
           })}
-        </div>
+        </StaggerContainer>
       </div>
     </section>
   )
 }
-

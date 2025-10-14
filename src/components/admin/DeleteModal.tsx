@@ -79,16 +79,76 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
   const handleCascadeDelete = useCallback(() => {
     if (!item) return;
     handleSubmission(async () => {
+      const errors: string[] = [];
+
       if (item.type === 'quiz') {
-        await supabase.from('quiz_attempts').delete().eq('quiz_id', item.id);
-        await supabase.from('quizzes').delete().eq('id', item.id);
+        // Delete quiz attempts first
+        const { error: attemptsError } = await supabase
+          .from('quiz_attempts')
+          .delete()
+          .eq('quiz_id', item.id);
+
+        if (attemptsError) {
+          logger.error('Failed to delete quiz attempts', attemptsError);
+          errors.push('Failed to delete quiz attempts');
+          throw new Error(`Failed to delete quiz attempts: ${attemptsError.message}`);
+        }
+
+        // Delete quiz questions
+        const { error: questionsError } = await supabase
+          .from('quiz_questions')
+          .delete()
+          .eq('quiz_id', item.id);
+
+        if (questionsError) {
+          logger.error('Failed to delete quiz questions', questionsError);
+          errors.push('Failed to delete quiz questions');
+          throw new Error(`Failed to delete quiz questions: ${questionsError.message}`);
+        }
+
+        // Finally delete the quiz itself
+        const { error: quizError } = await supabase
+          .from('quizzes')
+          .delete()
+          .eq('id', item.id);
+
+        if (quizError) {
+          logger.error('Failed to delete quiz', quizError);
+          throw new Error(`Failed to delete quiz: ${quizError.message}`);
+        }
+
       } else if (item.type === 'course') {
-        await Promise.all([
+        // Delete related data in parallel
+        const [enrollmentsResult, progressResult] = await Promise.all([
           supabase.from('enrollments').delete().eq('course_id', item.id),
           supabase.from('lesson_progress').delete().eq('course_id', item.id)
         ]);
-        await supabase.from('courses').delete().eq('id', item.id);
+
+        if (enrollmentsResult.error) {
+          logger.error('Failed to delete enrollments', enrollmentsResult.error);
+          errors.push('Failed to delete enrollments');
+          throw new Error(`Failed to delete enrollments: ${enrollmentsResult.error.message}`);
+        }
+
+        if (progressResult.error) {
+          logger.error('Failed to delete lesson progress', progressResult.error);
+          errors.push('Failed to delete lesson progress');
+          throw new Error(`Failed to delete lesson progress: ${progressResult.error.message}`);
+        }
+
+        // Finally delete the course itself
+        const { error: courseError } = await supabase
+          .from('courses')
+          .delete()
+          .eq('id', item.id);
+
+        if (courseError) {
+          logger.error('Failed to delete course', courseError);
+          throw new Error(`Failed to delete course: ${courseError.message}`);
+        }
       }
+
+      logger.info(`Successfully deleted ${item.type}`, { id: item.id });
     }, () => {
       onSuccess();
       onClose();
@@ -99,15 +159,37 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
     if (!item) return;
     handleSubmission(async () => {
       if (item.type === 'quiz') {
-        await supabase.from('quiz_attempts').delete().eq('quiz_id', item.id);
+        const { error: attemptsError } = await supabase
+          .from('quiz_attempts')
+          .delete()
+          .eq('quiz_id', item.id);
+
+        if (attemptsError) {
+          logger.error('Failed to delete quiz attempts', attemptsError);
+          throw new Error(`Failed to delete quiz attempts: ${attemptsError.message}`);
+        }
+
         setUsageInfo(prev => ({ ...prev, attempts: 0 }));
       } else if (item.type === 'course') {
-        await Promise.all([
+        const [enrollmentsResult, progressResult] = await Promise.all([
           supabase.from('enrollments').delete().eq('course_id', item.id),
           supabase.from('lesson_progress').delete().eq('course_id', item.id)
         ]);
+
+        if (enrollmentsResult.error) {
+          logger.error('Failed to delete enrollments', enrollmentsResult.error);
+          throw new Error(`Failed to delete enrollments: ${enrollmentsResult.error.message}`);
+        }
+
+        if (progressResult.error) {
+          logger.error('Failed to delete lesson progress', progressResult.error);
+          throw new Error(`Failed to delete lesson progress: ${progressResult.error.message}`);
+        }
+
         setUsageInfo(prev => ({ ...prev, enrollments: 0 }));
       }
+
+      logger.info(`Successfully cleaned ${item.type} data`, { id: item.id });
       await checkUsage();
       setDeleteOption('');
     });

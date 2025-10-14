@@ -115,8 +115,6 @@ export const GET = withAdminAuth(async (
 
     return NextResponse.json(transformedQuiz)
 
-    return NextResponse.json(transformedQuiz)
-
   } catch (error) {
     console.error('Unexpected error in quiz fetch:', error)
     return NextResponse.json(

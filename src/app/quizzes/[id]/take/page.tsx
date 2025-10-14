@@ -55,47 +55,36 @@ export default function QuizTakingPage({ params }: QuizTakingPageProps) {
   // Submit quiz with proper error handling and cleanup
   const submitQuiz = useCallback(async () => {
     if (submitting || !isMountedRef.current) return;
-    
+
     setSubmitting(true);
-    
+
     try {
       // Create abort controller for submit request
       const submitController = new AbortController();
-      
-      // Calculate score (simple version)
-      let score = 0;
-      const totalPoints = questions.reduce((sum, question) => sum + (question.points || 1), 0);
-      
-      questions.forEach(question => {
-        const userAnswer = answers[question.id];
-        if (question.question_type === 'multiple_choice') {
-          if (userAnswer === question.correct_answer) {
-            score += question.points || 1;
-          }
-        }
-      });
+
+      // Calculate time taken
+      const timeTaken = quiz?.time_limit_minutes
+        ? (quiz.time_limit_minutes * 60) - timeLeft
+        : 0;
 
       // Submit to API with abort signal
-      const response = await fetch('/api/quiz-progress', {
+      const response = await fetch(`/api/quizzes/${quizId}/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         signal: submitController.signal,
         body: JSON.stringify({
-          quiz_id: quizId,
           answers,
-          score,
-          total_questions: questions.length,
-          total_points: totalPoints,
-          time_taken: quiz?.time_limit_minutes ? (quiz.time_limit_minutes * 60) - timeLeft : 0
+          time_taken: timeTaken
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: Failed to submit quiz`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}: Failed to submit quiz`);
       }
 
       const result = await response.json();
-      
+
       if (!result.success) {
         throw new Error(result.error || 'Failed to submit quiz');
       }
@@ -107,26 +96,27 @@ export default function QuizTakingPage({ params }: QuizTakingPageProps) {
           clearInterval(timerRef.current);
           timerRef.current = null;
         }
-        
-        router.push(`/quizzes/${quizId}/results`);
+
+        // Navigate to results page with the result ID
+        router.push(`/quizzes/${quizId}/results/${result.result.id}`);
       }
     } catch (err) {
       // Only handle error if not aborted and component is mounted
       if (!isMountedRef.current) return;
-      
+
       if (err instanceof Error && err.name === 'AbortError') {
         console.log('Quiz submission aborted');
         return;
       }
-      
+
       console.error('Error submitting quiz:', err);
-      setError('Failed to submit quiz. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to submit quiz. Please try again.');
     } finally {
       if (isMountedRef.current) {
         setSubmitting(false);
       }
     }
-  }, [submitting, questions, answers, quizId, quiz?.time_limit_minutes, timeLeft, router]);
+  }, [submitting, answers, quizId, quiz?.time_limit_minutes, timeLeft, router]);
 
   // Resolve params with proper error handling
   useEffect(() => {

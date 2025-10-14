@@ -177,9 +177,10 @@ export default function AdminEnrollmentsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Enrollment Management</h1>
@@ -523,6 +524,7 @@ export default function AdminEnrollmentsPage() {
         onClose={() => actions.closeModal('showAddModal')}
         onEnrollmentCreated={() => refetchEnrollments()}
       />
+      </div>
     </div>
   )
 }

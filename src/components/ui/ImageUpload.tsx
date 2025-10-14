@@ -1,4 +1,5 @@
 import * as React from "react"
+import Image from "next/image"
 import { Input } from "./input"
 
 interface ImageUploadProps {
@@ -76,8 +77,14 @@ const ImageUpload = React.forwardRef<HTMLInputElement, ImageUploadProps>(
           />
         </div>
         {(preview || urlValue) && (
-          <div className="mt-2">
-            <img src={preview || urlValue} alt="Preview" className="max-w-xs rounded-md" />
+          <div className="mt-2 relative w-full max-w-xs h-48">
+            <Image 
+              src={preview || urlValue} 
+              alt="Preview" 
+              fill
+              className="rounded-md object-cover" 
+              sizes="(max-width: 320px) 100vw, 320px"
+            />
           </div>
         )}
       </div>

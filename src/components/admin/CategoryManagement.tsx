@@ -53,6 +53,7 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true)
+      console.log('Fetching categories...')
       
       // Get the current session to include Authorization header
       const { data: { session } } = await supabase.auth.getSession()
@@ -73,17 +74,22 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
         headers
       })
       
+      console.log('Categories response status:', response.status)
+      
       if (!response.ok) {
         const errorData = await response.json()
+        console.error('Categories fetch error:', errorData)
         throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`)
       }
       
       const data = await response.json()
+      console.log('Categories fetched:', data.categories?.length || 0, 'categories')
       setCategories(data.categories || [])
     } catch (err: any) {
       const errorMessage = err instanceof Error ? err.message : String(err)
       logger.error('Error fetching categories:', errorMessage)
       console.error('Category fetch error:', errorMessage)
+      alert(`Failed to fetch categories: ${errorMessage}`)
     } finally {
       setLoading(false)
     }
@@ -196,26 +202,26 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-gray-200">
-        <div className="bg-primary p-6 text-white">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden border border-gray-200">
+        <div className="bg-primary px-6 py-4 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold">Category Management</h2>
-              <p className="text-white/80">Create and manage categories for quizzes and courses</p>
+              <h2 className="text-xl font-bold">Category Management</h2>
+              <p className="text-white/80 text-sm">Create and manage categories for quizzes and courses</p>
             </div>
             <button
               onClick={onClose}
-              className="text-white/80 hover:text-white transition-colors p-2"
+              className="text-white/80 hover:text-white transition-colors p-1.5 hover:bg-white/10 rounded-lg"
             >
-              <X size={24} />
+              <X size={20} />
             </button>
           </div>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+        <div className="p-5 overflow-y-auto max-h-[calc(90vh-100px)]">
           {/* Header Actions */}
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">
+          <div className="flex justify-between items-center mb-5">
+            <h3 className="text-base font-semibold text-gray-900">
               Categories ({categories.filter(c => c.is_active).length})
             </h3>
             <button
@@ -230,7 +236,7 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
                 })
                 setShowForm(true)
               }}
-              className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm font-medium"
             >
               <Plus size={16} />
               Add Category
@@ -239,17 +245,17 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
 
           {/* Category Form */}
           {showForm && (
-            <Card className="mb-6 border-primary/20">
-              <CardHeader className="bg-primary/5">
-                <CardTitle className="text-lg text-gray-900">
+            <Card className="mb-4 border-primary/20">
+              <CardHeader className="bg-primary/5 px-4 py-3">
+                <CardTitle className="text-base text-gray-900 font-semibold">
                   {editingCategory ? 'Edit Category' : 'Create New Category'}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <CardContent className="p-4">
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-xs font-medium text-gray-700 mb-1.5">
                         Category Name *
                       </label>
                       <input
@@ -257,19 +263,19 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
                         required
                         value={formData.name}
                         onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         placeholder="e.g., Advanced Grammar"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-xs font-medium text-gray-700 mb-1.5">
                         Type
                       </label>
                       <select
                         value={formData.type}
                         onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as any }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       >
                         <option value="general">General</option>
                         <option value="quiz">Quiz Only</option>
@@ -279,24 +285,24 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs font-medium text-gray-700 mb-1.5">
                       Description
                     </label>
                     <textarea
                       value={formData.description}
                       onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      rows={3}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      rows={2}
                       placeholder="Brief description of this category"
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-xs font-medium text-gray-700 mb-1.5">
                         Color
                       </label>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1.5">
                         {colorOptions.map(color => (
                           <button
                             key={color}
@@ -314,13 +320,13 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-xs font-medium text-gray-700 mb-1.5">
                         Icon
                       </label>
                       <select
                         value={formData.icon}
                         onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                       >
                         {iconOptions.map(icon => (
                           <option key={icon} value={icon}>
@@ -331,12 +337,12 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
                     </div>
                   </div>
 
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex gap-2 pt-3">
                     <button
                       type="submit"
-                      className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                      className="bg-primary hover:bg-secondary text-white hover:text-black px-5 py-2 rounded-lg flex items-center gap-2 transition-colors text-sm font-medium"
                     >
-                      <Save size={16} />
+                      <Save size={14} />
                       {editingCategory ? 'Update' : 'Create'} Category
                     </button>
                     <button
@@ -345,7 +351,7 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
                         setShowForm(false)
                         setEditingCategory(null)
                       }}
-                      className="bg-muted/40 hover:bg-muted/60 text-gray-700 px-6 py-2 rounded-lg transition-colors"
+                      className="bg-muted/40 hover:bg-muted/60 text-gray-700 px-5 py-2 rounded-lg transition-colors text-sm font-medium"
                     >
                       Cancel
                     </button>
@@ -355,54 +361,76 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
             </Card>
           )}
 
+          {/* Loading State */}
+          {loading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading categories...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && categories.length === 0 && (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Palette className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No categories yet</h3>
+              <p className="text-gray-600 mb-6">Create your first category to organize your quizzes and courses</p>
+              <button
+                onClick={() => setShowForm(true)}
+                className="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg inline-flex items-center gap-2"
+              >
+                <Plus size={16} />
+                Create Category
+              </button>
+            </div>
+          )}
+
           {/* Categories List */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {categories.filter(c => c.is_active).map(category => (
-              <Card key={category.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
+          {!loading && categories.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-1">
+              {categories.filter(c => c.is_active).map(category => (
+                <Card key={category.id} className="hover:shadow-lg transition-shadow border border-gray-200">
+                  <CardContent className="p-3">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
                       <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-medium"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
                         style={{ backgroundColor: category.color }}
                       >
-                        {category.name.charAt(0)}
+                        {category.name.charAt(0).toUpperCase()}
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">{category.name}</h4>
-                        <span className="text-xs text-gray-500 uppercase">{category.type}</span>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-semibold text-sm text-gray-900 truncate">{category.name}</h4>
+                        <span className="text-[10px] text-gray-500 uppercase tracking-wide">{category.type}</span>
                       </div>
                     </div>
-                    <div className="flex gap-1">
+                    <div className="flex gap-0.5 flex-shrink-0 ml-1">
                       <button
                         onClick={() => handleEdit(category)}
-                        className="text-gray-400 hover:text-primary p-1 transition-colors"
+                        className="text-gray-400 hover:text-primary p-1 transition-colors rounded hover:bg-gray-100"
+                        title="Edit category"
                       >
-                        <Edit size={14} />
+                        <Edit size={13} />
                       </button>
                       <button
                         onClick={() => handleDelete(category.id)}
-                        className="text-gray-400 hover:text-destructive p-1 transition-colors"
+                        className="text-gray-400 hover:text-red-600 p-1 transition-colors rounded hover:bg-red-50"
+                        title="Delete category"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={13} />
                       </button>
                     </div>
                   </div>
                   {category.description && (
-                    <p className="text-sm text-gray-600 line-clamp-2">{category.description}</p>
+                    <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">{category.description}</p>
                   )}
                 </CardContent>
               </Card>
             ))}
-          </div>
-
-          {categories.filter(c => c.is_active).length === 0 && !loading && (
-            <div className="text-center py-12">
-              <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Palette className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No categories yet</h3>
-              <p className="text-gray-600 mb-4">Create your first category to organize your content</p>
             </div>
           )}
         </div>

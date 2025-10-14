@@ -1,76 +1,134 @@
 import * as React from "react"
 
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+// Simple context-based Select component
+interface SelectContextValue {
+  value?: string
   onValueChange?: (value: string) => void
-  state?: 'default' | 'error' | 'success'
-  placeholder?: string
+  disabled?: boolean
+  open: boolean
+  setOpen: (open: boolean) => void
 }
 
-const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className = "", children, onValueChange, state = 'default', placeholder, ...props }, ref) => {
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-      if (onValueChange) {
-        onValueChange(e.target.value)
+const SelectContext = React.createContext<SelectContextValue>({
+  open: false,
+  setOpen: () => {}
+})
+
+interface SelectProps {
+  value?: string
+  onValueChange?: (value: string) => void
+  disabled?: boolean
+  children: React.ReactNode
+}
+
+const Select: React.FC<SelectProps> = ({ value, onValueChange, disabled, children }) => {
+  const [open, setOpen] = React.useState(false)
+  
+  return (
+    <SelectContext.Provider value={{ value, onValueChange, disabled, open, setOpen }}>
+      <div className="relative">{children}</div>
+    </SelectContext.Provider>
+  )
+}
+
+const SelectItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { value: string }>(
+  ({ className = "", value, children, ...props }, ref) => {
+    const context = React.useContext(SelectContext)
+    
+    const handleClick = () => {
+      if (!context.disabled && context.onValueChange) {
+        context.onValueChange(value)
+        context.setOpen(false)
       }
     }
-
-    const stateStyles = {
-      default: "border-border focus:border-ring focus-ring",
-      error: "border-destructive focus:border-destructive focus:ring-destructive focus:ring-offset-2 focus:outline-none focus:ring-2",
-      success: "border-success focus:border-success focus:ring-success focus:ring-offset-2 focus:outline-none focus:ring-2"
-    }
-
-    const baseClasses = "flex h-10 w-full rounded-md bg-background px-3 py-2 text-sm text-foreground ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 transition-colors cursor-pointer"
-
+    
     return (
-      <select
-        className={`${baseClasses} ${stateStyles[state]} ${className}`}
+      <div
         ref={ref}
-        onChange={handleChange}
+        className={`relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 px-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground ${
+          context.value === value ? 'bg-accent' : ''
+        } ${className}`}
+        onClick={handleClick}
         {...props}
       >
-        {placeholder && (
-          <option value="" disabled className="text-muted-foreground">
-            {placeholder}
-          </option>
-        )}
         {children}
-      </select>
+      </div>
     )
   }
 )
 
-const SelectItem = React.forwardRef<HTMLOptionElement, React.OptionHTMLAttributes<HTMLOptionElement>>(
-  ({ className = "", ...props }, ref) => (
-    <option ref={ref} className={`text-foreground ${className}`} {...props} />
-  )
-)
-
-// Compatibility components for more complex select usage
 const SelectContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ children, ...props }, ref) => (
-    <div ref={ref} {...props}>
-      {children}
-    </div>
-  )
+  ({ className = "", children, ...props }, ref) => {
+    const context = React.useContext(SelectContext)
+    
+    if (!context.open) return null
+    
+    return (
+      <div
+        ref={ref}
+        className={`absolute top-full mt-1 max-h-60 w-full overflow-auto rounded-md border bg-white text-foreground shadow-md z-50 p-1 ${className}`}
+        {...props}
+      >
+        {children}
+      </div>
+    )
+  }
 )
 
-const SelectTrigger = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className = "", children, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={`flex h-10 w-full items-center justify-between rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
-      {...props}
-    >
-      {children}
-    </div>
-  )
+const SelectTrigger = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(
+  ({ className = "", children, ...props }, ref) => {
+    const context = React.useContext(SelectContext)
+    
+    // Close on click outside
+    React.useEffect(() => {
+      const handleClickOutside = (e: MouseEvent) => {
+        if (context.open && ref && 'current' in ref && ref.current && !ref.current.contains(e.target as Node)) {
+          context.setOpen(false)
+        }
+      }
+      
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [context, ref])
+    
+    return (
+      <button
+        ref={ref}
+        type="button"
+        className={`flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+        onClick={() => !context.disabled && context.setOpen(!context.open)}
+        disabled={context.disabled}
+        {...props}
+      >
+        {children}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={`ml-2 h-4 w-4 opacity-50 transition-transform ${context.open ? 'rotate-180' : ''}`}
+        >
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+    )
+  }
 )
 
-const SelectValue = React.forwardRef<HTMLSpanElement, React.HTMLAttributes<HTMLSpanElement>>(
-  ({ className = "", ...props }, ref) => (
-    <span ref={ref} className={className} {...props} />
-  )
+const SelectValue = React.forwardRef<HTMLSpanElement, React.HTMLAttributes<HTMLSpanElement> & { placeholder?: string }>(
+  ({ className = "", children, placeholder, ...props }, ref) => {
+    const context = React.useContext(SelectContext)
+    return (
+      <span ref={ref} className={className} {...props}>
+        {context.value || children || placeholder}
+      </span>
+    )
+  }
 )
 
 Select.displayName = "Select"

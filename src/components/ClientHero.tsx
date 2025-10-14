@@ -1,123 +1,172 @@
 "use client"
 
 import Link from 'next/link'
-import Image from 'next/image'
-import { Card, CardContent } from '@/components/ui/card'
-import { BlobBackground } from '@/components/ui/BlobBackground'
+import { Sparkles, Award, TrendingUp, Users } from 'lucide-react'
 import { AnimatedDiv, StaggerContainer, StaggerItem, HoverScale } from '@/components/ui/AnimatedComponents'
 
 export default function ClientHero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Video Background */}
-      <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src="/videos/herovideo.mp4" type="video/mp4" />
-        </video>
-        {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-black/40"></div>
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent"></div>
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-muted/50 via-background to-muted/30">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/2 -left-40 w-96 h-96 bg-secondary/15 rounded-full blur-3xl animate-pulse delay-700"></div>
+        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
+      {/* Subtle Grid Pattern Overlay */}
+      <div className="absolute inset-0 bg-[radial-gradient(hsl(var(--border))_1px,transparent_1px)] [background-size:24px_24px] opacity-30"></div>
+
       {/* Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-        <div className="max-w-4xl">
-          <StaggerContainer>
-            {/* Badge */}
-            <StaggerItem>
-              <AnimatedDiv variant="fadeInUp" delay={0.2}>
-                <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white px-4 py-2 rounded-full text-sm font-medium mb-8">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                  Master IELTS with Expert Practice
-                </div>
-              </AnimatedDiv>
-            </StaggerItem>
-
-            {/* Main Headline */}
-            <StaggerItem>
-              <AnimatedDiv variant="fadeInUp" delay={0.4}>
-                <h1 className="text-hero text-white mb-6">
-                  Boost Your IELTS
-                  <span className="block bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                    Score Faster
-                  </span>
-                </h1>
-              </AnimatedDiv>
-            </StaggerItem>
-
-            {/* Description */}
-            <StaggerItem>
-              <AnimatedDiv variant="fadeInUp" delay={0.6}>
-                <p className="text-xl md:text-2xl text-white/90 mb-10 leading-relaxed max-w-2xl">
-                  Access hundreds of targeted practice questions. Get instant feedback. 
-                  Focus on what matters most for your score.
-                </p>
-              </AnimatedDiv>
-            </StaggerItem>
-
-            {/* CTA Buttons */}
-            <StaggerItem>
-              <AnimatedDiv variant="fadeInUp" delay={0.8}>
-                <div className="flex flex-col sm:flex-row gap-4 mb-12">
-                  <HoverScale scale={1.02}>
-                    <Link href="/auth" className="group">
-                      <button className="btn-primary text-lg px-8 py-4 shadow-2xl hover:shadow-primary/25 flex items-center justify-center gap-2 min-w-[200px]">
-                        Get Started
-                        <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                      </button>
-                    </Link>
-                  </HoverScale>
-                  
-                  <HoverScale scale={1.02}>
-                    <Link href="/quizzes">
-                      <button className="btn-outline border-white/20 text-white hover:bg-white hover:text-foreground text-lg px-8 py-4 backdrop-blur-sm min-w-[200px]">
-                        Try Free Quiz
-                      </button>
-                    </Link>
-                  </HoverScale>
-                </div>
-              </AnimatedDiv>
-            </StaggerItem>
-
-            {/* Trust Indicators */}
-            <StaggerItem>
-              <AnimatedDiv variant="fadeInUp" delay={1.0}>
-                <div className="flex flex-wrap items-center gap-8 text-white/70">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-sm">500+ Practice Questions</span>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10 pt-20 md:pt-0">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left Column - Text Content */}
+          <div className="max-w-2xl">
+            <StaggerContainer>
+              {/* Badge */}
+              <StaggerItem>
+                <AnimatedDiv variant="fadeInUp" delay={0.1}>
+                  <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6 backdrop-blur-sm">
+                    <Sparkles size={16} className="text-primary" />
+                    Made for Cambodian Students
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-sm">Instant Feedback</span>
+                </AnimatedDiv>
+              </StaggerItem>
+
+              {/* Main Headline */}
+              <StaggerItem>
+                <AnimatedDiv variant="fadeInUp" delay={0.2}>
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight">
+                    Stop Guessing.
+                    <span className="block mt-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent animate-gradient bg-300%">
+                      Start Scoring Higher.
+                    </span>
+                  </h1>
+                </AnimatedDiv>
+              </StaggerItem>
+
+              {/* Description */}
+              <StaggerItem>
+                <AnimatedDiv variant="fadeInUp" delay={0.3}>
+                  <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed">
+                    Finally, IELTS practice built for Cambodian students. Master the vocabulary and grammar patterns that actually show up on test day.
+                    <span className="block mt-2 font-semibold text-foreground">Your Band 7.5+ starts here.</span>
+                  </p>
+                </AnimatedDiv>
+              </StaggerItem>
+
+              {/* CTA Buttons */}
+              <StaggerItem>
+                <AnimatedDiv variant="fadeInUp" delay={0.4}>
+                  <div className="flex flex-col sm:flex-row gap-4 mb-10">
+                    <HoverScale scale={1.05}>
+                      <Link href="/auth/signup" className="group">
+                        <button className="w-full sm:w-auto bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-2">
+                          Start Practicing Free
+                          <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                          </svg>
+                        </button>
+                      </Link>
+                    </HoverScale>
+
+                    <HoverScale scale={1.05}>
+                      <Link href="/quizzes">
+                        <button className="w-full sm:w-auto border-2 border-primary text-primary hover:bg-primary hover:text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300">
+                          Browse Quizzes
+                        </button>
+                      </Link>
+                    </HoverScale>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-sm">All IELTS Sections</span>
+                </AnimatedDiv>
+              </StaggerItem>
+
+              {/* Social Proof */}
+              <StaggerItem>
+                <AnimatedDiv variant="fadeInUp" delay={0.5}>
+                  <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="font-medium">Free to Start</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="font-medium">Instant Feedback</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="font-medium">Built by Educators</span>
+                    </div>
                   </div>
-                </div>
-              </AnimatedDiv>
-            </StaggerItem>
-          </StaggerContainer>
+                </AnimatedDiv>
+              </StaggerItem>
+            </StaggerContainer>
+          </div>
+
+          {/* Right Column - Feature Cards */}
+          <div className="hidden lg:block">
+            <StaggerContainer>
+              <div className="grid grid-cols-2 gap-4">
+                <StaggerItem>
+                  <AnimatedDiv variant="fadeInUp" delay={0.3}>
+                    <div className="bg-white/80 backdrop-blur-sm border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                      <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center mb-4">
+                        <Award className="text-white" size={24} strokeWidth={2} />
+                      </div>
+                      <h3 className="font-bold text-base mb-2">Real IELTS Focus</h3>
+                      <p className="text-xs text-muted-foreground">Practice questions that match actual exam patterns</p>
+                    </div>
+                  </AnimatedDiv>
+                </StaggerItem>
+
+                <StaggerItem>
+                  <AnimatedDiv variant="fadeInUp" delay={0.4} className="mt-8">
+                    <div className="bg-white/80 backdrop-blur-sm border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                      <div className="w-12 h-12 bg-gradient-to-br from-secondary to-primary rounded-xl flex items-center justify-center mb-4">
+                        <TrendingUp className="text-white" size={24} strokeWidth={2} />
+                      </div>
+                      <h3 className="font-bold text-base mb-2">See Your Growth</h3>
+                      <p className="text-xs text-muted-foreground">Track your progress as you improve</p>
+                    </div>
+                  </AnimatedDiv>
+                </StaggerItem>
+
+                <StaggerItem>
+                  <AnimatedDiv variant="fadeInUp" delay={0.5} className="mt-8">
+                    <div className="bg-white/80 backdrop-blur-sm border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                      <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center mb-4">
+                        <Sparkles className="text-white" size={24} strokeWidth={2} />
+                      </div>
+                      <h3 className="font-bold text-base mb-2">Smart Practice</h3>
+                      <p className="text-xs text-muted-foreground">Focus on what matters most for your score</p>
+                    </div>
+                  </AnimatedDiv>
+                </StaggerItem>
+
+                <StaggerItem>
+                  <AnimatedDiv variant="fadeInUp" delay={0.6}>
+                    <div className="bg-white/80 backdrop-blur-sm border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                      <div className="w-12 h-12 bg-gradient-to-br from-secondary to-primary rounded-xl flex items-center justify-center mb-4">
+                        <Users className="text-white" size={24} strokeWidth={2} />
+                      </div>
+                      <h3 className="font-bold text-base mb-2">Study Anytime</h3>
+                      <p className="text-xs text-muted-foreground">Practice on your schedule, at your pace</p>
+                    </div>
+                  </AnimatedDiv>
+                </StaggerItem>
+              </div>
+            </StaggerContainer>
+          </div>
         </div>
       </div>
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
-        <AnimatedDiv variant="fadeInUp" delay={1.2}>
-          <div className="flex flex-col items-center gap-2 text-white/60">
-            <span className="text-sm font-medium">Scroll to explore</span>
-            <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-              <div className="w-1 h-3 bg-white/60 rounded-full animate-bounce mt-2"></div>
+        <AnimatedDiv variant="fadeInUp" delay={0.8}>
+          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+            <span className="text-xs font-semibold uppercase tracking-wider">Discover More</span>
+            <div className="w-6 h-10 border-2 border-primary/30 rounded-full flex justify-center">
+              <div className="w-1 h-3 bg-primary rounded-full animate-bounce mt-2"></div>
             </div>
           </div>
         </AnimatedDiv>

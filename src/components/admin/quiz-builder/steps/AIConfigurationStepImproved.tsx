@@ -188,7 +188,7 @@ export const AIConfigurationStep = memo<AIConfigurationStepProps>(({
                           {option.label}
                         </Label>
                       </div>
-                      <Select defaultValue="5" disabled={!isChecked}>
+                      <Select value="5" disabled={!isChecked}>
                         <SelectTrigger className="w-16 h-8">
                           <SelectValue />
                         </SelectTrigger>
@@ -276,7 +276,7 @@ export const AIConfigurationStep = memo<AIConfigurationStepProps>(({
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs">Style:</Label>
-                  <Select defaultValue="academic">
+                  <Select value="academic">
                     <SelectTrigger className="h-8">
                       <SelectValue />
                     </SelectTrigger>
@@ -289,7 +289,7 @@ export const AIConfigurationStep = memo<AIConfigurationStepProps>(({
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs">Tone:</Label>
-                  <Select defaultValue="formal">
+                  <Select value="formal">
                     <SelectTrigger className="h-8">
                       <SelectValue />
                     </SelectTrigger>

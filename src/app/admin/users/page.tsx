@@ -102,24 +102,26 @@ export default function AdminUsers() {
 
   return (
     <div className="min-h-screen">
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">User Management</h1>
-            <p className="text-muted-foreground mt-1">Manage and monitor all platform users</p>
+      {/* Add proper container padding */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">User Management</h1>
+              <p className="text-muted-foreground mt-1">Manage and monitor all platform users</p>
+            </div>
+            <button 
+              onClick={() => actions.openModal('showAddModal')}
+              className="btn btn-default flex items-center gap-2"
+            >
+              <Icon name="add" size={16} color="white" />
+              Add User
+            </button>
           </div>
-          <button 
-            onClick={() => actions.openModal('showAddModal')}
-            className="btn btn-default flex items-center gap-2"
-          >
-            <Icon name="add" size={16} color="white" />
-            Add User
-          </button>
         </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card variant="elevated" size="md" className="shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-bold">Total Users</CardTitle>
@@ -335,6 +337,7 @@ export default function AdminUsers() {
         }}
         user={deletingUser}
       />
+      </div>
     </div>
   )
 }

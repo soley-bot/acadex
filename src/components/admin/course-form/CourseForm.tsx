@@ -16,6 +16,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
     successMessage,
     activeTab,
     isLoading,
+    isDirty,
     totalLessons,
     totalDurationMinutes,
     hasValidationErrors,
@@ -73,39 +74,78 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
               <h2 className="text-xl font-bold">
                 {course ? 'Edit Course' : 'Create New Course'}
               </h2>
-              {totalLessons > 0 && (
-                <div className="flex gap-2 mt-2">
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                    {totalLessons} lessons
-                  </Badge>
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">
-                    {Math.round(totalDurationMinutes / 60)}h {totalDurationMinutes % 60}m
-                  </Badge>
-                </div>
-              )}
+              <div className="flex gap-2 mt-2">
+                {isDirty && <span className="text-orange-600 font-medium text-sm">● Unsaved changes</span>}
+                {totalLessons > 0 && (
+                  <>
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                      {totalLessons} lessons
+                    </Badge>
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">
+                      {Math.round(totalDurationMinutes / 60)}h {totalDurationMinutes % 60}m
+                    </Badge>
+                  </>
+                )}
+              </div>
             </div>
             <div className="flex gap-2">
               {!embedded && (
-                <Button variant="outline" onClick={onClose}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (isDirty) {
+                      const confirmed = window.confirm(
+                        'You have unsaved changes. Are you sure you want to cancel? Your changes will be lost.'
+                      );
+                      if (!confirmed) return;
+                    }
+                    onClose();
+                  }}
+                >
                   <IconX className="w-4 h-4 mr-2" />
                   Cancel
                 </Button>
               )}
               <Button
                 onClick={handleSubmit}
-                disabled={isLoading || hasValidationErrors}
-                className="disabled:opacity-50"
+                disabled={isLoading || hasValidationErrors || !isDirty}
+                className={`${
+                  isDirty && !hasValidationErrors && !isLoading
+                    ? 'bg-blue-600 hover:bg-blue-700'
+                    : ''
+                } disabled:opacity-50`}
               >
                 {isLoading ? (
                   <IconLoader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
+                ) : isDirty ? (
                   <IconDeviceFloppy className="w-4 h-4 mr-2" />
+                ) : (
+                  <span className="mr-2">✓</span>
                 )}
                 {course ? 'Update Course' : 'Create Course'}
               </Button>
             </div>
           </div>
         </Card>
+
+        {/* Unsaved Changes Warning */}
+        {isDirty && (
+          <Alert className="border-orange-200 bg-orange-50">
+            <div className="flex items-center justify-between w-full">
+              <AlertDescription className="text-orange-800 font-medium">
+                ⚠️ You have unsaved changes
+              </AlertDescription>
+              <Button
+                size="sm"
+                onClick={handleSubmit}
+                disabled={isLoading || hasValidationErrors}
+                className="bg-orange-600 hover:bg-orange-700 text-white"
+              >
+                {isLoading ? 'Saving...' : 'Save Now'}
+              </Button>
+            </div>
+          </Alert>
+        )}
 
         {/* Error/Success Messages */}
         {error && (
