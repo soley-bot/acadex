@@ -34,27 +34,29 @@ export function CourseHeader({ course, progress, onToggleSidebar, isSidebarOpen 
               )}
             </button>
 
-            {/* Breadcrumb Navigation */}
-            <nav className="flex items-center gap-2 text-sm">
+            {/* Breadcrumb Navigation - Smart: icon-only on mobile, gap-3 */}
+            <nav className="flex items-center gap-3 text-sm">
               <Link 
                 href="/dashboard" 
-                className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
+                className="flex items-center gap-0 sm:gap-1 text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Dashboard"
               >
-                <Home size={16} />
-                <span className="hidden sm:inline">Dashboard</span>
+                <Home size={18} className="sm:w-4 sm:h-4" />
+                <span className="sr-only sm:not-sr-only sm:inline">Dashboard</span>
               </Link>
-              <span className="text-muted-foreground">/</span>
+              <span className="hidden sm:inline text-muted-foreground">/</span>
               <Link 
                 href="/courses" 
-                className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
+                className="flex items-center gap-0 sm:gap-1 text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Courses"
               >
-                <BookOpen size={16} />
-                <span className="hidden sm:inline">Courses</span>
+                <BookOpen size={18} className="sm:w-4 sm:h-4" />
+                <span className="sr-only sm:not-sr-only sm:inline">Courses</span>
               </Link>
-              <span className="text-muted-foreground">/</span>
+              <span className="hidden sm:inline text-muted-foreground">/</span>
               <button
                 onClick={() => setShowCourseInfo(!showCourseInfo)}
-                className="text-foreground font-medium hover:text-primary transition-colors max-w-[200px] md:max-w-[300px] truncate"
+                className="text-foreground font-medium hover:text-primary transition-colors max-w-[120px] sm:max-w-[200px] md:max-w-[300px] truncate"
               >
                 {course.title}
               </button>
@@ -70,22 +72,22 @@ export function CourseHeader({ course, progress, onToggleSidebar, isSidebarOpen 
 
           {/* Right Section - Progress */}
           <div className="flex items-center gap-4">
-            {/* Progress Indicator */}
+            {/* Progress Indicator - Smart: hide label on mobile, larger bar, text-sm badge */}
             <div className="flex items-center gap-3">
-              <div className="hidden sm:block text-sm text-muted-foreground">
+              <div className="hidden md:block text-sm text-muted-foreground">
                 Progress: {Math.round(progress)}%
               </div>
               
-              {/* Progress Bar */}
-              <div className="w-24 md:w-32 h-3 bg-muted rounded-full overflow-hidden">
+              {/* Progress Bar - Smart: bigger on mobile */}
+              <div className="w-32 sm:w-40 md:w-48 h-2 bg-muted rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-primary transition-all duration-500 rounded-full"
                   style={{ width: `${progress}%` }}
                 />
               </div>
               
-              {/* Progress Badge */}
-              <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-medium">
+              {/* Progress Badge - Smart: text-sm, py-1.5 */}
+              <div className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium">
                 {Math.round(progress)}%
               </div>
             </div>

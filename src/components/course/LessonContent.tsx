@@ -105,16 +105,16 @@ export function LessonContent({
 
   return (
     <div className="h-full flex flex-col">
-      {/* Lesson Header */}
-      <div className="border-b border-border p-6">
+      {/* Lesson Header - Smart: adaptive padding */}
+      <div className="border-b border-border px-3 py-5 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             {lesson.video_url ? (
-              <Play size={20} className="text-primary" />
+              <Play size={22} className="text-primary" />
             ) : (
-              <FileText size={20} className="text-primary" />
+              <FileText size={22} className="text-primary" />
             )}
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm sm:text-base text-muted-foreground">
               {lesson.video_url ? 'Video Lesson' : 'Reading Material'}
             </span>
           </div>
@@ -127,38 +127,38 @@ export function LessonContent({
           )}
         </div>
         
-        <h1 className="text-2xl font-bold text-foreground mb-2">{lesson.title}</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3">{lesson.title}</h1>
         
         <div className="flex items-center justify-between">
           {lesson.duration_minutes && (
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Clock size={16} />
-              <span>{lesson.duration_minutes} minutes</span>
+              <Clock size={18} />
+              <span className="text-base">{lesson.duration_minutes} minutes</span>
             </div>
           )}
           
-          {/* Mobile: Swipe hint */}
-          <div className="lg:hidden flex items-center gap-4 text-xs text-muted-foreground">
+          {/* Mobile: Swipe hint - Smart: larger text */}
+          <div className="lg:hidden flex items-center gap-4 text-sm text-muted-foreground">
             {hasPrevious && (
               <div className="flex items-center gap-1 opacity-60">
-                <ChevronLeft size={12} />
+                <ChevronLeft size={14} />
                 <span>Swipe</span>
               </div>
             )}
             {hasNext && (
               <div className="flex items-center gap-1 opacity-60">
                 <span>Swipe</span>
-                <ChevronRight size={12} />
+                <ChevronRight size={14} />
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Main Content - With mobile swipe support */}
+      {/* Main Content - Smart: adaptive padding */}
       <div 
         ref={contentRef}
-        className="flex-1 overflow-y-auto p-6 space-y-8 touch-pan-y"
+        className="flex-1 overflow-y-auto px-3 py-5 sm:px-5 sm:py-6 lg:px-8 lg:py-8 space-y-8 touch-pan-y"
         style={{ touchAction: 'pan-y' }} // Allow vertical scrolling, horizontal for swipe
       >
         {/* Video Player */}
@@ -277,15 +277,32 @@ export function LessonContent({
         )}
       </div>
 
-      {/* Navigation Footer - Enhanced for mobile */}
-      <div className="border-t border-border p-4 lg:p-6">
-        <div className="flex items-center justify-between gap-4">
+      {/* Navigation Footer - Smart: status above on mobile, icon-only buttons, better padding */}
+      <div className="border-t border-border p-4 sm:p-5 lg:p-6">
+        {/* Smart: Status above buttons on mobile */}
+        <div className="sm:hidden text-center mb-3">
+          <p className="text-sm font-medium text-foreground">
+            {isCompleted ? '✅ Completed!' : 'Continue learning'}
+          </p>
+          {!isCompleted && onComplete && (
+            <button
+              onClick={onComplete}
+              className="mt-1 text-xs text-primary hover:text-primary/80 underline touch-manipulation"
+              style={{ touchAction: 'manipulation' }}
+            >
+              Mark complete
+            </button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3 sm:gap-4">
+          {/* Smart: Icon only on mobile, text on desktop */}
           <button
             onClick={onPrevious}
             disabled={!hasPrevious}
             className={`
-              flex items-center gap-2 px-4 py-3 lg:px-6 rounded-xl font-medium 
-              transition-all duration-200 touch-manipulation min-h-[48px] flex-1 max-w-[140px]
+              flex items-center justify-center gap-2 px-4 py-3 sm:px-5 rounded-xl font-medium 
+              transition-all duration-200 touch-manipulation min-h-[48px] min-w-[48px] sm:min-w-[120px]
               ${hasPrevious 
                 ? 'bg-muted hover:bg-muted/80 text-foreground active:scale-95 shadow-sm hover:shadow-md' 
                 : 'bg-muted/50 text-muted-foreground cursor-not-allowed opacity-50'
@@ -293,33 +310,35 @@ export function LessonContent({
             `}
             style={{ touchAction: 'manipulation' }}
           >
-            <ChevronLeft size={16} />
-            <span className="hidden sm:inline">Previous</span>
-            <span className="sm:hidden">Prev</span>
+            <ChevronLeft size={20} />
+            <span className="hidden md:inline">Previous</span>
           </button>
 
-          {/* Center content - Mobile optimized */}
-          <div className="text-center flex-1 px-2">
-            <p className="text-sm text-muted-foreground">
-              {isCompleted ? '✅ Completed!' : 'Continue learning'}
-            </p>
-            {!isCompleted && onComplete && (
-              <button
-                onClick={onComplete}
-                className="mt-1 text-xs text-primary hover:text-primary/80 underline touch-manipulation"
-                style={{ touchAction: 'manipulation' }}
-              >
-                Mark complete
-              </button>
-            )}
+          {/* Smart: Hidden on mobile, shown on desktop */}
+          <div className="hidden sm:flex text-center flex-1 px-4">
+            <div className="flex-1">
+              <p className="text-sm text-muted-foreground">
+                {isCompleted ? '✅ Completed!' : 'Continue learning'}
+              </p>
+              {!isCompleted && onComplete && (
+                <button
+                  onClick={onComplete}
+                  className="mt-1 text-xs text-primary hover:text-primary/80 underline touch-manipulation"
+                  style={{ touchAction: 'manipulation' }}
+                >
+                  Mark complete
+                </button>
+              )}
+            </div>
           </div>
 
+          {/* Smart: Icon only on mobile, text on desktop */}
           <button
             onClick={onNext}
             disabled={!hasNext}
             className={`
-              flex items-center gap-2 px-4 py-3 lg:px-6 rounded-xl font-medium 
-              transition-all duration-200 touch-manipulation min-h-[48px] flex-1 max-w-[140px]
+              flex items-center justify-center gap-2 px-4 py-3 sm:px-5 rounded-xl font-medium 
+              transition-all duration-200 touch-manipulation min-h-[48px] min-w-[48px] sm:min-w-[120px]
               ${hasNext 
                 ? 'bg-primary hover:bg-secondary text-white hover:text-black active:scale-95 shadow-sm hover:shadow-md' 
                 : 'bg-muted/50 text-muted-foreground cursor-not-allowed opacity-50'
@@ -327,16 +346,15 @@ export function LessonContent({
             `}
             style={{ touchAction: 'manipulation' }}
           >
-            <span className="hidden sm:inline">Next</span>
-            <span className="sm:hidden">Next</span>
-            <ChevronRight size={16} />
+            <span className="hidden md:inline">Next</span>
+            <ChevronRight size={20} />
           </button>
         </div>
         
-        {/* Mobile: Navigation hint */}
-        <div className="lg:hidden mt-3 text-center">
-          <p className="text-xs text-muted-foreground/70">
-            💡 Tip: Swipe left/right to navigate between lessons
+        {/* Smart: Shorter hint */}
+        <div className="sm:hidden mt-3 text-center">
+          <p className="text-sm text-muted-foreground">
+            💡 Swipe to navigate
           </p>
         </div>
       </div>
