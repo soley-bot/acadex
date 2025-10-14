@@ -10,6 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { BlobBackground } from '@/components/ui/BlobBackground'
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter'
 
+// Force dynamic rendering - auth pages need session handling
+export const dynamic = 'force-dynamic'
+
 function EnhancedSignupForm() {
   const { signUp } = useAuth()
   const router = useRouter()

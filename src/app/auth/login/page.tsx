@@ -10,6 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { EmailField, PasswordField } from '@/components/auth/FormField'
 import { getSecureRedirect } from '@/lib/redirect-security'
 
+// Force dynamic rendering - auth pages need session handling
+export const dynamic = 'force-dynamic'
+
 function EnhancedLoginForm() {
   const { signIn, signUp, user } = useAuth()
   const router = useRouter()
