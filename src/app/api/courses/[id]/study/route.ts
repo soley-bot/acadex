@@ -71,8 +71,12 @@ export async function GET(
       .single()
 
     if (courseError) {
+      console.error('Course fetch error:', courseError)
       return NextResponse.json(
-        { error: 'Course not found' },
+        {
+          error: 'Course not found',
+          details: process.env.NODE_ENV === 'development' ? courseError.message : undefined
+        },
         { status: 404 }
       )
     }
@@ -88,8 +92,12 @@ export async function GET(
       .order('order_index')
 
     if (modulesError) {
+      console.error('Modules fetch error:', modulesError)
       return NextResponse.json(
-        { error: 'Failed to load course modules' },
+        {
+          error: 'Failed to load course modules',
+          details: process.env.NODE_ENV === 'development' ? modulesError.message : undefined
+        },
         { status: 500 }
       )
     }
@@ -110,8 +118,22 @@ export async function GET(
 
   } catch (error) {
     console.error('Error in course study API:', error)
+
+    // Log detailed error information for debugging
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
+    }
+
+    // Return appropriate error response
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Failed to load course content',
+        details: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined
+      },
       { status: 500 }
     )
   }

@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { ChevronDown, ChevronRight, PlayCircle, CheckCircle, Lock, Clock, FileText, Circle } from 'lucide-react'
+import { ChevronDown, ChevronRight, CheckCircle, Circle, PlayCircle } from 'lucide-react'
 import { CourseModule, CourseLesson, LessonProgress } from '@/lib/supabase'
 
 interface ModuleWithContent extends CourseModule {
@@ -31,10 +30,23 @@ export function CourseSidebar({
 }: CourseSidebarProps) {
   const calculateModuleProgress = (module: ModuleWithContent) => {
     if (!module.course_lessons?.length) return 0
-    const completedLessons = module.course_lessons.filter(
+
+    // In development, show all lessons if no published lessons exist
+    // In production, only count published lessons
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    let lessonsToCount = module.course_lessons.filter(lesson => lesson.is_published)
+
+    // Fallback: if no published lessons, show all lessons in development
+    if (lessonsToCount.length === 0 && isDevelopment) {
+      lessonsToCount = module.course_lessons
+    }
+
+    if (lessonsToCount.length === 0) return 0
+
+    const completedLessons = lessonsToCount.filter(
       lesson => lesson.progress?.is_completed
     ).length
-    return Math.round((completedLessons / module.course_lessons.length) * 100)
+    return Math.round((completedLessons / lessonsToCount.length) * 100)
   }
 
   const getLessonStatus = (lesson: CourseLesson & { progress?: LessonProgress }) => {
@@ -106,6 +118,8 @@ export function CourseSidebar({
                   <button
                     onClick={() => onToggleModule(module.id)}
                     className="w-full p-4 text-left bg-muted/30 hover:bg-muted/50 transition-colors flex items-center gap-3"
+                    aria-label={`${isExpanded ? 'Collapse' : 'Expand'} module ${moduleIndex + 1}: ${module.title}`}
+                    aria-expanded={isExpanded}
                   >
                     {isExpanded ? (
                       <ChevronDown size={18} className="sm:w-4 sm:h-4 text-muted-foreground" />
@@ -118,33 +132,18 @@ export function CourseSidebar({
                         Module {moduleIndex + 1}: {module.title}
                       </div>
                       <div className="text-sm text-muted-foreground mt-1">
-                        {progress}% complete • {module.course_lessons?.length || 0} lessons
-                      </div>
-                    </div>
+                        {(() => {
+                          const isDevelopment = process.env.NODE_ENV === 'development'
+                          let lessonsToShow = module.course_lessons?.filter(l => l.is_published) || []
 
-                    {/* Progress Ring - Smart: bigger on mobile */}
-                    <div className="relative w-10 h-10 sm:w-8 sm:h-8">
-                      <svg className="w-10 h-10 sm:w-8 sm:h-8 transform -rotate-90" viewBox="0 0 32 32">
-                        <circle
-                          cx="16" cy="16" r="14"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          className="text-muted-foreground/20"
-                        />
-                        <circle
-                          cx="16" cy="16" r="14"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeDasharray={`${progress * 0.88} 88`}
-                          className="text-primary"
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-xs font-medium text-foreground">
-                          {Math.round(progress)}%
-                        </span>
+                          // Fallback: show all lessons in development if none are published
+                          if (lessonsToShow.length === 0 && isDevelopment) {
+                            lessonsToShow = module.course_lessons || []
+                          }
+
+                          const completedCount = lessonsToShow.filter(l => l.progress?.is_completed).length
+                          return `${completedCount}/${lessonsToShow.length} lessons`
+                        })()}
                       </div>
                     </div>
                   </button>
@@ -152,10 +151,35 @@ export function CourseSidebar({
                   {/* Lessons List */}
                   {isExpanded && module.course_lessons && (
                     <div className="border-t border-border">
-                      {module.course_lessons.map((lesson, lessonIndex) => {
+                      {module.course_lessons.length === 0 ? (
+                        <div className="p-6 text-center">
+                          <p className="text-sm text-muted-foreground">
+                            No lessons in this module yet.
+                          </p>
+                        </div>
+                      ) : (() => {
+                        const isDevelopment = process.env.NODE_ENV === 'development'
+                        let lessonsToDisplay = module.course_lessons.filter(lesson => lesson.is_published)
+
+                        // Fallback: show all lessons in development if none are published
+                        if (lessonsToDisplay.length === 0 && isDevelopment) {
+                          lessonsToDisplay = module.course_lessons
+                        }
+
+                        if (lessonsToDisplay.length === 0) {
+                          return (
+                            <div className="p-6 text-center">
+                              <p className="text-sm text-muted-foreground">
+                                No published lessons in this module yet.
+                              </p>
+                            </div>
+                          )
+                        }
+
+                        return lessonsToDisplay.map((lesson, lessonIndex) => {
                         const status = getLessonStatus(lesson)
                         const isCurrentLesson = lesson.id === currentLesson?.id
-                        
+
                         return (
                           <button
                             key={lesson.id}
@@ -167,41 +191,27 @@ export function CourseSidebar({
                               ${isCurrentLesson ? 'bg-primary/10 border-l-4 border-l-primary shadow-sm' : 'hover:shadow-sm'}
                             `}
                             style={{ touchAction: 'manipulation' }} // Optimize for touch
+                            aria-label={`Lesson ${lessonIndex + 1}: ${lesson.title}${status === 'completed' ? ' (completed)' : ''}${isCurrentLesson ? ' (current)' : ''}`}
+                            aria-current={isCurrentLesson ? 'page' : undefined}
                           >
                             <div className="flex-shrink-0">
                               {getStatusIcon(status, lesson)}
                             </div>
-                            
+
                             <div className="flex-1 min-w-0">
                               <div className={`font-medium truncate leading-tight ${
                                 isCurrentLesson ? 'text-primary' : 'text-foreground'
                               }`}>
                                 {lessonIndex + 1}. {lesson.title}
                               </div>
-                              
-                              <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
-                                {lesson.duration_minutes && (
-                                  <div className="flex items-center gap-1">
-                                    <Clock size={14} className="sm:w-3 sm:h-3" />
-                                    <span>{lesson.duration_minutes} min</span>
-                                  </div>
-                                )}
-                                
-                                {lesson.video_url && (
-                                  <div className="flex items-center gap-1">
-                                    <PlayCircle size={14} className="sm:w-3 sm:h-3" />
-                                    <span>Video</span>
-                                  </div>
-                                )}
-                                
-                                {status === 'completed' && (
-                                  <span className="text-xs bg-success/10 text-success px-2 py-0.5 rounded-full font-medium">
-                                    Complete
-                                  </span>
-                                )}
-                              </div>
+
+                              {lesson.duration_minutes && (
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  {lesson.duration_minutes} min
+                                </div>
+                              )}
                             </div>
-                            
+
                             {/* Mobile: Show arrow for current lesson */}
                             {isCurrentLesson && (
                               <div className="lg:hidden flex-shrink-0">
@@ -210,7 +220,8 @@ export function CourseSidebar({
                             )}
                           </button>
                         )
-                      })}
+                      })
+                      })()}
                     </div>
                   )}
                 </div>

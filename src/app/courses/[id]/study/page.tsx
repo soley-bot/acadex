@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase, Course, CourseModule, CourseLesson, LessonProgress } from '@/lib/supabase'
 import { getCourseWithModulesAndLessons, updateEnrollmentProgress } from '@/lib/database-operations'
@@ -41,6 +41,24 @@ export default function CourseStudyPage() {
   const [isEnrolled, setIsEnrolled] = useState(false)
   const [enrollmentProgress, setEnrollmentProgress] = useState(0)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isCompletingLesson, setIsCompletingLesson] = useState(false)
+  const [sessionWarning, setSessionWarning] = useState(false)
+
+  // Session expiry detection
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session && user) {
+        console.warn('⚠️ Session expired detected')
+        setSessionWarning(true)
+      }
+    }
+
+    // Check session every 30 seconds
+    const intervalId = setInterval(checkSession, 30000)
+
+    return () => clearInterval(intervalId)
+  }, [user])
 
   useEffect(() => {
     // Wait for auth to finish loading
@@ -134,13 +152,41 @@ export default function CourseStudyPage() {
       setModules(modulesWithProgress)
       setExpandedModules(new Set(data.modules.map((m: CourseModule) => m.id)))
       
-      // Set first lesson as current
-      const firstModule = modulesWithProgress[0]
-      if (firstModule?.course_lessons && firstModule.course_lessons.length > 0) {
-        const firstLesson = firstModule.course_lessons[0]
-        if (firstLesson) {
-          setCurrentLesson(firstLesson)
+      // Try to restore last lesson from localStorage
+      let lessonToSet = null
+      try {
+        const savedLessonId = localStorage.getItem(`course_${courseId}_last_lesson`)
+        if (savedLessonId) {
+          // Find the saved lesson
+          for (const module of modulesWithProgress) {
+            if (module.course_lessons) {
+              const savedLesson = module.course_lessons.find(
+                lesson => lesson.id === savedLessonId && lesson.is_published
+              )
+              if (savedLesson) {
+                lessonToSet = savedLesson
+                console.log('📍 Restored last lesson position from localStorage')
+                break
+              }
+            }
+          }
         }
+      } catch (error) {
+        console.warn('Failed to restore lesson position from localStorage:', error)
+      }
+
+      // Fallback to first published lesson if no saved position
+      if (!lessonToSet) {
+        for (const module of modulesWithProgress) {
+          if (module.course_lessons && module.course_lessons.length > 0) {
+            lessonToSet = module.course_lessons.find(lesson => lesson.is_published)
+            if (lessonToSet) break
+          }
+        }
+      }
+
+      if (lessonToSet) {
+        setCurrentLesson(lessonToSet)
       }
 
         console.log('✅ Course content loaded successfully')
@@ -170,10 +216,20 @@ export default function CourseStudyPage() {
   const handleSelectLesson = (lesson: LessonWithProgress) => {
     setCurrentLesson(lesson)
     setIsSidebarOpen(false) // Close sidebar on mobile when lesson is selected
+
+    // Save lesson position to localStorage for recovery
+    try {
+      localStorage.setItem(`course_${courseId}_last_lesson`, lesson.id)
+    } catch (error) {
+      console.warn('Failed to save lesson position to localStorage:', error)
+    }
   }
 
   const handleCompleteLesson = async () => {
-    if (!currentLesson || !user) return
+    if (!currentLesson || !user || isCompletingLesson) return
+
+    // Prevent race conditions - only allow one completion at a time
+    setIsCompletingLesson(true)
 
     console.log('🔄 Starting lesson completion...', {
       lessonId: currentLesson.id,
@@ -272,12 +328,15 @@ export default function CourseStudyPage() {
       }, 0)
       
       const newProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
-      
+
+      // Validate progress bounds (0-100)
+      const validatedProgress = Math.max(0, Math.min(100, newProgress))
+
       // Update enrollment progress (only for actually enrolled users, not admin bypass)
       if (user.role !== 'admin') {
         console.log('📊 Updating enrollment progress for regular user...')
         try {
-          await updateEnrollmentProgress(user.id, params.id as string, newProgress, currentLesson.id)
+          await updateEnrollmentProgress(user.id, params.id as string, validatedProgress, currentLesson.id)
           console.log('✅ Enrollment progress updated successfully')
         } catch (progressError) {
           console.warn('⚠️ Failed to update enrollment progress:', progressError)
@@ -286,11 +345,14 @@ export default function CourseStudyPage() {
       } else {
         console.log('👑 Admin user detected - skipping enrollment progress update')
       }
-      
+
     } catch (error) {
       logger.error('Error completing lesson:', error)
       // Show user-friendly error message
       alert('Failed to mark lesson as complete. Please try again.')
+    } finally {
+      // Always reset loading state
+      setIsCompletingLesson(false)
     }
   }
 
@@ -315,25 +377,29 @@ export default function CourseStudyPage() {
 
     const currentModule = modules[moduleIndex]
     if (!currentModule) return
-    
-    // Try next lesson in current module
+
+    // Try next published lesson in current module
     if (currentModule.course_lessons && lessonIndex < currentModule.course_lessons.length - 1) {
-      const nextLesson = currentModule.course_lessons[lessonIndex + 1]
-      if (nextLesson) {
-        setCurrentLesson(nextLesson)
+      // Find next published lesson
+      for (let i = lessonIndex + 1; i < currentModule.course_lessons.length; i++) {
+        const nextLesson = currentModule.course_lessons[i]
+        if (nextLesson && nextLesson.is_published) {
+          setCurrentLesson(nextLesson)
+          return
+        }
       }
-      return
     }
-    
-    // Try first lesson of next module
-    if (moduleIndex < modules.length - 1) {
-      const nextModule = modules[moduleIndex + 1]
+
+    // Try first published lesson of next module
+    for (let i = moduleIndex + 1; i < modules.length; i++) {
+      const nextModule = modules[i]
       if (nextModule && nextModule.course_lessons && nextModule.course_lessons.length > 0) {
-        const firstLesson = nextModule.course_lessons[0]
-        if (firstLesson) {
-          setCurrentLesson(firstLesson)
+        const firstPublishedLesson = nextModule.course_lessons.find(lesson => lesson.is_published)
+        if (firstPublishedLesson) {
+          setCurrentLesson(firstPublishedLesson)
           // Expand next module
           setExpandedModules(prev => new Set([...prev, nextModule.id]))
+          return
         }
       }
     }
@@ -343,27 +409,34 @@ export default function CourseStudyPage() {
     const { moduleIndex, lessonIndex } = getCurrentLessonIndex()
     if (moduleIndex === -1) return
 
-    // Try previous lesson in current module
+    // Try previous published lesson in current module
     if (lessonIndex > 0) {
       const currentModule = modules[moduleIndex]
       if (currentModule && currentModule.course_lessons) {
-        const prevLesson = currentModule.course_lessons[lessonIndex - 1]
-        if (prevLesson) {
-          setCurrentLesson(prevLesson)
+        // Find previous published lesson
+        for (let i = lessonIndex - 1; i >= 0; i--) {
+          const prevLesson = currentModule.course_lessons[i]
+          if (prevLesson && prevLesson.is_published) {
+            setCurrentLesson(prevLesson)
+            return
+          }
         }
       }
-      return
     }
-    
-    // Try last lesson of previous module
-    if (moduleIndex > 0) {
-      const prevModule = modules[moduleIndex - 1]
+
+    // Try last published lesson of previous module
+    for (let i = moduleIndex - 1; i >= 0; i--) {
+      const prevModule = modules[i]
       if (prevModule && prevModule.course_lessons && prevModule.course_lessons.length > 0) {
-        const lastLesson = prevModule.course_lessons[prevModule.course_lessons.length - 1]
-        if (lastLesson) {
-          setCurrentLesson(lastLesson)
-          // Expand previous module
-          setExpandedModules(prev => new Set([...prev, prevModule.id]))
+        // Find last published lesson
+        for (let j = prevModule.course_lessons.length - 1; j >= 0; j--) {
+          const lastLesson = prevModule.course_lessons[j]
+          if (lastLesson && lastLesson.is_published) {
+            setCurrentLesson(lastLesson)
+            // Expand previous module
+            setExpandedModules(prev => new Set([...prev, prevModule.id]))
+            return
+          }
         }
       }
     }
@@ -372,54 +445,70 @@ export default function CourseStudyPage() {
   const hasNextLesson = () => {
     const { moduleIndex, lessonIndex } = getCurrentLessonIndex()
     if (moduleIndex === -1) return false
-    
+
     const currentModule = modules[moduleIndex]
     if (!currentModule) return false
-    
-    // Check if there's a next lesson in current module
-    if (currentModule.course_lessons && lessonIndex < currentModule.course_lessons.length - 1) return true
-    
-    // Check if there's a next module with lessons
+
+    // Check if there's a next published lesson in current module
+    if (currentModule.course_lessons && lessonIndex < currentModule.course_lessons.length - 1) {
+      for (let i = lessonIndex + 1; i < currentModule.course_lessons.length; i++) {
+        if (currentModule.course_lessons[i]?.is_published) return true
+      }
+    }
+
+    // Check if there's a next module with published lessons
     for (let i = moduleIndex + 1; i < modules.length; i++) {
       const moduleToCheck = modules[i]
-      if (moduleToCheck && moduleToCheck.course_lessons && moduleToCheck.course_lessons.length > 0) return true
+      if (moduleToCheck && moduleToCheck.course_lessons) {
+        if (moduleToCheck.course_lessons.some(lesson => lesson.is_published)) return true
+      }
     }
-    
+
     return false
   }
 
   const hasPreviousLesson = () => {
     const { moduleIndex, lessonIndex } = getCurrentLessonIndex()
     if (moduleIndex === -1) return false
-    
-    // Check if there's a previous lesson in current module
-    if (lessonIndex > 0) return true
-    
-    // Check if there's a previous module with lessons
+
+    const currentModule = modules[moduleIndex]
+    if (!currentModule) return false
+
+    // Check if there's a previous published lesson in current module
+    if (lessonIndex > 0 && currentModule.course_lessons) {
+      for (let i = lessonIndex - 1; i >= 0; i--) {
+        if (currentModule.course_lessons[i]?.is_published) return true
+      }
+    }
+
+    // Check if there's a previous module with published lessons
     for (let i = moduleIndex - 1; i >= 0; i--) {
       const moduleToCheck = modules[i]
-      if (moduleToCheck && moduleToCheck.course_lessons && moduleToCheck.course_lessons.length > 0) return true
+      if (moduleToCheck && moduleToCheck.course_lessons) {
+        if (moduleToCheck.course_lessons.some(lesson => lesson.is_published)) return true
+      }
     }
-    
+
     return false
   }
 
-  const calculateOverallProgress = () => {
+  // Memoize overall progress calculation to avoid recalculating on every render
+  const overallProgress = useMemo(() => {
     if (!modules || modules.length === 0) return 0
-    
+
     const totalLessons = modules.reduce((acc, courseModule) => {
       return acc + (courseModule.course_lessons?.length || 0)
     }, 0)
-    
+
     if (totalLessons === 0) return 0
-    
+
     const completedLessons = modules.reduce((acc, courseModule) => {
       if (!courseModule.course_lessons) return acc
       return acc + courseModule.course_lessons.filter(lesson => lesson.progress?.is_completed).length
     }, 0)
-    
+
     return (completedLessons / totalLessons) * 100
-  }
+  }, [modules])
 
   if (loading) {
     return (
@@ -469,19 +558,51 @@ export default function CourseStudyPage() {
   return (
     <CourseErrorBoundary>
       <div className="h-screen flex flex-col bg-background relative">
-        
-        {/* Mobile-Only Contextual Back Navigation Overlay */}
-        <div className="lg:hidden absolute top-4 left-4 z-50">
-          <ContextualBackButton
-            href="/courses"
-            label="Back to Courses"
-          />
-        </div>
+
+        {/* Session Expiry Warning */}
+        {sessionWarning && (
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-md">
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 shadow-lg rounded">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3 flex-1">
+                  <p className="text-sm text-yellow-700 font-medium">
+                    Your session has expired
+                  </p>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    Your progress has been saved. Please sign in again to continue.
+                  </p>
+                  <button
+                    onClick={() => router.push(`/auth?tab=signin&redirect=/courses/${courseId}/study`)}
+                    className="mt-2 text-sm font-medium text-yellow-700 hover:text-yellow-600 underline"
+                  >
+                    Sign in again
+                  </button>
+                </div>
+                <div className="ml-auto pl-3">
+                  <button
+                    onClick={() => setSessionWarning(false)}
+                    className="inline-flex text-yellow-400 hover:text-yellow-500"
+                  >
+                    <span className="sr-only">Dismiss</span>
+                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Course Header */}
         <CourseHeader
           course={course}
-          progress={calculateOverallProgress()}
+          progress={overallProgress}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           isSidebarOpen={isSidebarOpen}
         />
@@ -509,6 +630,7 @@ export default function CourseStudyPage() {
                 onComplete={handleCompleteLesson}
                 hasNext={hasNextLesson()}
                 hasPrevious={hasPreviousLesson()}
+                isCompleting={isCompletingLesson}
               />
             ) : (
               <div className="h-full flex items-center justify-center">

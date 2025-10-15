@@ -12,6 +12,8 @@ interface YouTubePlayerProps {
 
 export function YouTubePlayer({ videoId, title, onVideoEnd, className = '' }: YouTubePlayerProps) {
   const [isLoaded, setIsLoaded] = useState(false)
+  const [hasError, setHasError] = useState(false)
+  const [retryCount, setRetryCount] = useState(0)
   
   if (!videoId) {
     return (
@@ -46,7 +48,25 @@ export function YouTubePlayer({ videoId, title, onVideoEnd, className = '' }: Yo
   }
 
   const cleanVideoId = extractVideoId(videoId)
-  
+
+  // Validate video ID format
+  const isValidId = /^[a-zA-Z0-9_-]{11}$/.test(cleanVideoId)
+
+  if (!isValidId) {
+    return (
+      <div className={`relative aspect-video bg-muted rounded-lg flex items-center justify-center ${className}`}>
+        <div className="text-center p-8">
+          <Play size={48} className="text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">Invalid Video</h3>
+          <p className="text-muted-foreground text-sm mb-4">The video ID format is invalid.</p>
+          <p className="text-xs text-muted-foreground font-mono bg-muted-foreground/10 px-3 py-2 rounded">
+            ID: {videoId}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   const embedUrl = `https://www.youtube.com/embed/${cleanVideoId}?` + new URLSearchParams({
     rel: '0',
     showinfo: '0',
@@ -57,6 +77,35 @@ export function YouTubePlayer({ videoId, title, onVideoEnd, className = '' }: Yo
     iv_load_policy: '3',
     autohide: '1'
   }).toString()
+
+  const handleRetry = () => {
+    setHasError(false)
+    setIsLoaded(false)
+    setRetryCount(prev => prev + 1)
+  }
+
+  if (hasError) {
+    return (
+      <div className={`relative aspect-video bg-muted rounded-lg flex items-center justify-center ${className}`}>
+        <div className="text-center p-8">
+          <Play size={48} className="text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">Video Load Failed</h3>
+          <p className="text-muted-foreground text-sm mb-4">
+            Unable to load the video. This could be due to network issues or the video being unavailable.
+          </p>
+          <button
+            onClick={handleRetry}
+            className="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+          >
+            Retry
+          </button>
+          <p className="text-xs text-muted-foreground mt-4">
+            If the problem persists, try refreshing the page.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={`relative aspect-video bg-muted rounded-lg overflow-hidden shadow-lg ${className}`}>
@@ -70,12 +119,14 @@ export function YouTubePlayer({ videoId, title, onVideoEnd, className = '' }: Yo
       )}
       
       <iframe
+        key={retryCount}
         src={embedUrl}
         title={title}
         frameBorder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowFullScreen
         onLoad={() => setIsLoaded(true)}
+        onError={() => setHasError(true)}
         className="absolute inset-0 w-full h-full"
       />
     </div>
