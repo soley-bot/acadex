@@ -78,8 +78,8 @@ export const CourseCard = memo<CourseCardProps>(({
   }, [course.level])
 
   return (
-    <Card className={`group hover:shadow-lg transition-all duration-200 border-0 shadow-sm ${className}`}>
-      <Link href={`/courses/${course.id}`} className="block">
+    <Card className={`group bg-white hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 shadow-lg ${className}`}>
+      <Link href={`/courses/${course.id}/study`} className="block">
         {/* Course Image */}
         <div className="relative overflow-hidden rounded-t-lg aspect-video">
           <Image
@@ -92,8 +92,10 @@ export const CourseCard = memo<CourseCardProps>(({
           />
           
           {/* Overlay with play button */}
-          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-            <PlayCircle className="w-12 h-12 text-white" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+              <PlayCircle className="w-8 h-8 text-primary" />
+            </div>
           </div>
           
           {/* Level badge */}
@@ -170,11 +172,10 @@ export const CourseCard = memo<CourseCardProps>(({
             </div>
             <Button 
               size="sm" 
-              className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-              variant="outline"
+              className="bg-primary text-white hover:bg-primary/90 group-hover:shadow-md transition-all"
             >
               Start Course
-              <ArrowRight className="w-3 h-3 ml-1" />
+              <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
         </CardContent>

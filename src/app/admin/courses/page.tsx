@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Pagination } from '@/components/ui/Pagination'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { DeleteModal } from '@/components/admin/DeleteModal'
 import { CourseViewModal } from '@/components/admin/CourseViewModal'
 import { formatDate } from '@/lib/date-utils'
@@ -239,7 +240,7 @@ export default function CoursesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
       {/* Add proper container padding */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6">
         {/* Header Section - Enhanced with better design */}
         <div className="mb-8">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
@@ -337,17 +338,21 @@ export default function CoursesPage() {
               />
             </div>
             <div className="w-full sm:w-64">
-              <select
-                className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors text-base font-medium"
+              <Select
                 value={selectedCategory}
-                onChange={(e) => handleCategoryChange(e.target.value)}
+                onValueChange={handleCategoryChange}
               >
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map(category => (
+                    <SelectItem key={category} value={category}>
+                      {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>

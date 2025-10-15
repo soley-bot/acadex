@@ -79,7 +79,7 @@ export function CourseSidebar({
       
       {/* Sidebar - Smart: responsive width */}
       <aside className={`
-        fixed lg:sticky top-0 left-0 h-screen w-full sm:w-80 lg:w-72 glass z-50
+        fixed lg:sticky top-0 left-0 h-screen w-full sm:w-80 lg:w-72 bg-background border-r border-border shadow-lg lg:shadow-none z-50
         transform transition-transform duration-300 ease-in-out lg:transform-none
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         flex flex-col touch-manipulation
@@ -107,7 +107,7 @@ export function CourseSidebar({
 
         {/* Modules List - Smart: adaptive padding, larger spacing */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-3 sm:p-4 space-y-3">
+          <div className="p-4 sm:p-6 space-y-3">
             {modules.map((module, moduleIndex) => {
               const isExpanded = expandedModules.has(module.id)
               const progress = calculateModuleProgress(module)

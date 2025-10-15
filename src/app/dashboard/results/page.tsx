@@ -215,7 +215,7 @@ export default function AllResultsPage() {
                       {quizAttempts.map((attempt) => (
                         <div
                           key={attempt.id}
-                          className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
+                          className="flex items-center justify-between p-4 md:p-5 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
                         >
                           <div className="flex-1 min-w-0">
                             <h3 className="text-sm font-medium text-foreground mb-1 truncate">

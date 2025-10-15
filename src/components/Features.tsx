@@ -1,6 +1,4 @@
-import { Card, CardContent } from '@/components/ui/card'
-import { BlobBackground } from '@/components/ui/BlobBackground'
-import { CheckCircle, Zap, Crosshair, BarChart, ArrowRight } from 'lucide-react'
+import { CheckCircle, Zap, Crosshair, BarChart } from 'lucide-react'
 import { AnimatedDiv, StaggerContainer, StaggerItem, HoverScale } from '@/components/ui/AnimatedComponents'
 
 export default function Features() {
@@ -28,56 +26,47 @@ export default function Features() {
   ]
 
   return (
-    <section
-      className="relative overflow-hidden section-padding"
-    >
-      {/* Standardized Animated Background */}
-      <BlobBackground variant="default" />
-
-      <div className="container container-xl relative">
-        {/* Section Header - Fluid Typography */}
-        <AnimatedDiv variant="fadeInUp" className="text-center space-y-6 mb-12">
+    <section className="relative py-20 lg:py-32 bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      <div className="container mx-auto px-6 sm:px-8 lg:px-12 max-w-7xl">
+        {/* Section Header */}
+        <AnimatedDiv variant="fadeInUp" className="text-center space-y-6 mb-16 lg:mb-20">
           <AnimatedDiv variant="scaleIn" delay={0.2}>
-            <div className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2 rounded-full shadow-lg">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-full shadow-lg">
               <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-              <span className="font-medium">A Smarter Way to Prepare</span>
+              <span className="font-semibold">A Smarter Way to Prepare</span>
             </div>
           </AnimatedDiv>
 
-          <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 tracking-tight leading-tight md:leading-tight">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
             Focus on What Truly Matters for Your Score
           </h2>
 
-          <div className="max-w-4xl mx-auto leading-relaxed text-gray-600">
-            <p className="text-base md:text-lg lg:text-xl">
-              Getting a high score in IELTS is not about knowing everything. It is about mastering the foundational skills that examiners look for. We help you isolate and fix the common errors in vocabulary and grammar that are preventing you from reaching your goal.
-            </p>
-          </div>
+          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Getting a high score in IELTS is not about knowing everything. It is about mastering the foundational skills that examiners look for.
+          </p>
         </AnimatedDiv>
 
-        {/* Features Grid - Fluid Card System */}
-        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto gap-6">
+        {/* Features Grid - Modern Card Design */}
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
           {features.map((feature, index) => {
             const IconComponent = feature.icon;
             return (
               <StaggerItem key={index}>
-                <HoverScale scale={1.03} className="group h-full">
-                  <Card variant="glass" className="p-6 h-full hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                    <CardContent className="p-0 space-y-4">
-                      {/* Icon Container */}
-                      <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center group-hover:bg-secondary transition-all duration-300 shadow-lg text-white">
-                        <IconComponent size={30} />
-                      </div>
+                <HoverScale scale={1.02} className="h-full">
+                  <div className="group h-full bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl border border-gray-100 hover:border-primary/20 transition-all duration-300">
+                    {/* Icon Container */}
+                    <div className="w-14 h-14 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-md">
+                      <IconComponent className="text-white" size={28} />
+                    </div>
 
-                      <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-900 group-hover:text-primary transition-colors">
-                        {feature.title}
-                      </h3>
+                    <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 group-hover:text-primary transition-colors">
+                      {feature.title}
+                    </h3>
 
-                      <p className="text-sm md:text-base lg:text-lg text-gray-600 leading-relaxed">
-                        {feature.description}
-                      </p>
-                    </CardContent>
-                  </Card>
+                    <p className="text-base md:text-lg text-gray-600 leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </div>
                 </HoverScale>
               </StaggerItem>
             );

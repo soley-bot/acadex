@@ -18,7 +18,7 @@ const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
     return (
       <div
         ref={ref}
-        className={`mx-auto px-4 sm:px-6 lg:px-8 ${sizeClasses[size]} ${className}`}
+        className={`mx-auto px-6 sm:px-8 md:px-10 lg:px-12 ${sizeClasses[size]} ${className}`}
         {...props}
       />
     )

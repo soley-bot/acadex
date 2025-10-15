@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Play, Volume2, VolumeX, Maximize, RotateCcw } from 'lucide-react'
 
 interface YouTubePlayerProps {
@@ -14,24 +14,14 @@ export function YouTubePlayer({ videoId, title, onVideoEnd, className = '' }: Yo
   const [isLoaded, setIsLoaded] = useState(false)
   const [hasError, setHasError] = useState(false)
   const [retryCount, setRetryCount] = useState(0)
-  
-  if (!videoId) {
-    return (
-      <div className={`relative aspect-video bg-muted rounded-lg flex items-center justify-center ${className}`}>
-        <div className="text-center">
-          <Play size={48} className="text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">No Video Available</h3>
-          <p className="text-muted-foreground">This lesson doesn&apos;t have a video component.</p>
-        </div>
-      </div>
-    )
-  }
+  const [showPlayer, setShowPlayer] = useState(false)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   // Extract video ID from various YouTube URL formats
   const extractVideoId = (url: string): string => {
-    if (url.length === 11 && !url.includes('/')) {
-      // Already a video ID
-      return url
+    if (!url || url.length === 11 && !url.includes('/')) {
+      // Already a video ID or null
+      return url || ''
     }
     
     const patterns = [
@@ -47,10 +37,71 @@ export function YouTubePlayer({ videoId, title, onVideoEnd, className = '' }: Yo
     return url // Return as-is if no pattern matches
   }
 
-  const cleanVideoId = extractVideoId(videoId)
+  const cleanVideoId = videoId ? extractVideoId(videoId) : ''
+  const isValidId = cleanVideoId && /^[a-zA-Z0-9_-]{11}$/.test(cleanVideoId)
 
-  // Validate video ID format
-  const isValidId = /^[a-zA-Z0-9_-]{11}$/.test(cleanVideoId)
+  // Use srcdoc for lazy loading and reduced violations
+  const embedUrl = isValidId ? `https://www.youtube-nocookie.com/embed/${cleanVideoId}?` + new URLSearchParams({
+    rel: '0',
+    showinfo: '0',
+    modestbranding: '1',
+    autoplay: '0',
+    fs: '1',
+    cc_load_policy: '1',
+    iv_load_policy: '3',
+    autohide: '1',
+    enablejsapi: '1',
+    origin: typeof window !== 'undefined' ? window.location.origin : '',
+    // Add these to reduce violations
+    widget_referrer: typeof window !== 'undefined' ? window.location.href : '',
+    playsinline: '1'
+  }).toString() : ''
+
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    if (!iframeRef.current || !isValidId) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !showPlayer) {
+            setShowPlayer(true)
+          }
+        })
+      },
+      { rootMargin: '50px' }
+    )
+
+    observer.observe(iframeRef.current)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [showPlayer, isValidId])
+
+  const handleRetry = () => {
+    setHasError(false)
+    setIsLoaded(false)
+    setRetryCount(prev => prev + 1)
+    setShowPlayer(false)
+    // Use requestAnimationFrame to avoid forced reflow
+    requestAnimationFrame(() => {
+      setShowPlayer(true)
+    })
+  }
+
+  // Early returns for invalid states
+  if (!videoId) {
+    return (
+      <div className={`relative aspect-video bg-muted rounded-lg flex items-center justify-center ${className}`}>
+        <div className="text-center">
+          <Play size={48} className="text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">No Video Available</h3>
+          <p className="text-muted-foreground">This lesson doesn&apos;t have a video component.</p>
+        </div>
+      </div>
+    )
+  }
 
   if (!isValidId) {
     return (
@@ -65,23 +116,6 @@ export function YouTubePlayer({ videoId, title, onVideoEnd, className = '' }: Yo
         </div>
       </div>
     )
-  }
-
-  const embedUrl = `https://www.youtube.com/embed/${cleanVideoId}?` + new URLSearchParams({
-    rel: '0',
-    showinfo: '0',
-    modestbranding: '1',
-    autoplay: '0',
-    fs: '1',
-    cc_load_policy: '1',
-    iv_load_policy: '3',
-    autohide: '1'
-  }).toString()
-
-  const handleRetry = () => {
-    setHasError(false)
-    setIsLoaded(false)
-    setRetryCount(prev => prev + 1)
   }
 
   if (hasError) {
@@ -108,8 +142,11 @@ export function YouTubePlayer({ videoId, title, onVideoEnd, className = '' }: Yo
   }
 
   return (
-    <div className={`relative aspect-video bg-muted rounded-lg overflow-hidden shadow-lg ${className}`}>
-      {!isLoaded && (
+    <div 
+      ref={iframeRef}
+      className={`relative aspect-video bg-muted rounded-lg overflow-hidden shadow-lg ${className}`}
+    >
+      {!isLoaded && showPlayer && (
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
@@ -118,17 +155,35 @@ export function YouTubePlayer({ videoId, title, onVideoEnd, className = '' }: Yo
         </div>
       )}
       
-      <iframe
-        key={retryCount}
-        src={embedUrl}
-        title={title}
-        frameBorder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowFullScreen
-        onLoad={() => setIsLoaded(true)}
-        onError={() => setHasError(true)}
-        className="absolute inset-0 w-full h-full"
-      />
+      {!showPlayer && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">
+          <div className="text-center">
+            <Play size={64} className="text-primary mx-auto mb-4" />
+            <p className="text-foreground font-medium">Click to load video</p>
+          </div>
+          <button
+            onClick={() => setShowPlayer(true)}
+            className="absolute inset-0 w-full h-full cursor-pointer bg-transparent hover:bg-black/5 transition-colors"
+            aria-label="Load video player"
+          />
+        </div>
+      )}
+      
+      {showPlayer && (
+        <iframe
+          key={retryCount}
+          src={embedUrl}
+          title={title}
+          frameBorder="0"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          onLoad={() => setIsLoaded(true)}
+          onError={() => setHasError(true)}
+          className="absolute inset-0 w-full h-full"
+          style={{ border: 0 }}
+        />
+      )}
     </div>
   )
 }

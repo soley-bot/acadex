@@ -252,10 +252,10 @@ export default function PopularCourses() {
                       )}
                     </div>
                     <Link 
-                      href={`/courses/${course.id}`}
+                      href={`/courses/${course.id}/study`}
                       className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 rounded-lg font-bold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2"
                     >
-                      <span>Enroll Now</span>
+                      <span>Start Learning</span>
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>

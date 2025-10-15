@@ -34,7 +34,7 @@ export default function CreateCoursePage() {
     <div className="min-h-screen bg-background">
       {/* Professional Header */}
       <div className="bg-card border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <Link 
@@ -55,7 +55,7 @@ export default function CreateCoursePage() {
       </div>
 
       {/* Main Content - Professional Card Layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
         <Card variant="elevated" className="overflow-hidden">
           <CourseForm
             isOpen={true}

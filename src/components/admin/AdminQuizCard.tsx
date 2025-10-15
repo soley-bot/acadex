@@ -56,7 +56,7 @@ export function AdminQuizCard({
 
   if (compact) {
     return (
-      <Card variant="elevated" className={`hover:shadow-md transition-all duration-200 ${isSelected ? 'ring-2 ring-primary' : ''}`}>
+      <Card className={`group bg-white hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 border border-gray-100 shadow-md ${isSelected ? 'ring-2 ring-primary' : ''}`}>
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
             {/* Selection Checkbox */}
@@ -166,7 +166,7 @@ export function AdminQuizCard({
 
   // Full card view (existing design)
   return (
-    <Card variant="elevated" className={`overflow-hidden group hover:shadow-lg transition-all duration-300 bg-white ${isSelected ? 'ring-2 ring-primary' : ''}`}>
+    <Card className={`overflow-hidden group bg-white hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 shadow-lg ${isSelected ? 'ring-2 ring-primary' : ''}`}>
       {/* Selection Checkbox - Absolute positioned for full cards */}
       {showSelection && (
         <div className="absolute top-3 right-3 z-10">

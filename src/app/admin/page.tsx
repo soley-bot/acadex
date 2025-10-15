@@ -209,21 +209,21 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center p-3 rounded-lg bg-secondary/10">
+                <div className="flex items-center p-4 md:p-5 rounded-lg bg-secondary/10">
                   <div className="w-3 h-3 bg-secondary rounded-full mr-4"></div>
                   <div className="flex-1">
                     <BodyMD className="text-foreground font-semibold">New user registered</BodyMD>
                     <BodyMD className="text-muted-foreground text-xs">2 minutes ago</BodyMD>
                   </div>
                 </div>
-                <div className="flex items-center p-3 rounded-lg bg-success/10">
+                <div className="flex items-center p-4 md:p-5 rounded-lg bg-success/10">
                   <div className="w-3 h-3 bg-success rounded-full mr-4"></div>
                   <div className="flex-1">
                     <BodyMD className="text-foreground font-semibold">Course published</BodyMD>
                     <BodyMD className="text-muted-foreground text-xs">1 hour ago</BodyMD>
                   </div>
                 </div>
-                <div className="flex items-center p-3 rounded-lg bg-primary/10">
+                <div className="flex items-center p-4 md:p-5 rounded-lg bg-primary/10">
                   <div className="w-3 h-3 bg-primary rounded-full mr-4"></div>
                   <div className="flex-1">
                     <BodyMD className="text-foreground font-semibold">Quiz completed</BodyMD>

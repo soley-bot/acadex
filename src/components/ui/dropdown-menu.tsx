@@ -97,7 +97,10 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
     return (
       <div
         ref={ref}
-        className={`absolute ${alignmentClasses[align]} top-full w-56 rounded-md shadow-lg bg-background border border-border z-50 ${className}`}
+        className={`absolute ${alignmentClasses[align]} top-full mt-2 w-56 rounded-xl shadow-lg bg-white border border-gray-200 z-50 ${className}`}
+        style={{
+          animation: 'slideDown 200ms ease-out'
+        }}
         {...props}
       >
         {children}
@@ -131,7 +134,7 @@ const DropdownMenuItem = React.forwardRef<HTMLButtonElement, DropdownMenuItemPro
     return (
       <button
         ref={ref}
-        className={`block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted focus-ring ${className}`}
+        className={`block w-full text-left px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-primary/20 ${className}`}
         onClick={handleClick}
         {...props}
       >
@@ -174,6 +177,27 @@ DropdownMenuItem.displayName = "DropdownMenuItem"
 DropdownMenuSeparator.displayName = "DropdownMenuSeparator"
 DropdownMenuLabel.displayName = "DropdownMenuLabel"
 DropdownMenuCheckboxItem.displayName = "DropdownMenuCheckboxItem"
+
+// Add animation keyframes to global styles if not already present
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style')
+  style.textContent = `
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  `
+  if (!document.querySelector('style[data-dropdown-animations]')) {
+    style.setAttribute('data-dropdown-animations', 'true')
+    document.head.appendChild(style)
+  }
+}
 
 export { 
   DropdownMenu, 

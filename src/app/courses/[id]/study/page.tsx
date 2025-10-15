@@ -11,6 +11,7 @@ import { LessonContent } from '@/components/course/LessonContent'
 import { logger } from '@/lib/logger'
 import { ContextualBackButton } from '@/components/navigation/ContextualBackButton'
 import { CourseErrorBoundary } from '@/components/ErrorBoundary'
+import { AlertCircle, RefreshCw, ArrowLeft } from 'lucide-react'
 
 // Force dynamic rendering - this page requires authentication
 export const dynamic = 'force-dynamic'
@@ -29,7 +30,7 @@ export default function CourseStudyPage() {
   const params = useParams()
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
-  const courseId = params.id as string
+  const courseId = params?.id as string | undefined
   
   // Core state
   const [course, setCourse] = useState<Course | null>(null)
@@ -43,6 +44,7 @@ export default function CourseStudyPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isCompletingLesson, setIsCompletingLesson] = useState(false)
   const [sessionWarning, setSessionWarning] = useState(false)
+  const [loadingStage, setLoadingStage] = useState<'auth' | 'params' | 'content'>('auth')
 
   // Session expiry detection
   useEffect(() => {
@@ -60,50 +62,110 @@ export default function CourseStudyPage() {
     return () => clearInterval(intervalId)
   }, [user])
 
+  // Safety timeout - prevent infinite loading
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (loading && !error) {
+        console.error('⏱️ Loading timeout after 20 seconds')
+        setError('Loading timeout. Please check your connection and try again.')
+        setLoading(false)
+      }
+    }, 20000) // 20 second safety timeout
+
+    return () => clearTimeout(timeoutId)
+  }, [loading, error])
+
+  // Development debug logging
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 Course Study Effect State:', {
+        courseId,
+        hasUser: !!user,
+        authLoading,
+        loading,
+        loadingStage,
+        error
+      })
+    }
+  }, [courseId, user, authLoading, loading, loadingStage, error])
+
   useEffect(() => {
     // Wait for auth to finish loading
     if (authLoading) {
+      setLoadingStage('auth')
+      return
+    }
+
+    // Validate courseId is available
+    if (!courseId) {
+      setLoadingStage('params')
+      console.error('❌ Course ID is missing from params')
+      setError('Invalid course ID')
+      setLoading(false)
       return
     }
 
     const loadCourseContent = async () => {
       try {
+        setLoadingStage('content')
         setLoading(true)
         setError(null)
-
-        if (!courseId) {
-          console.error('Course ID is missing from params')
-          setError('Invalid course ID')
-          setLoading(false)
-          return
-        }
         
         if (!user) {
+          console.log('No user found, redirecting to auth...')
           router.push(`/auth?tab=signin&redirect=/courses/${courseId}/study`)
           return
         }
       
       // Get session token for API authentication
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      if (sessionError || !session) {
+        console.error('Session error:', sessionError)
         router.push(`/auth?tab=signin&redirect=/courses/${courseId}/study`)
         return
       }
 
       // Use API route instead of direct Supabase (fixes CORS on custom domains)
-      const response = await fetch(`/api/courses/${courseId}/study`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-      })
+      // Add timeout to prevent infinite loading
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 second timeout
+
+      let response
+      try {
+        response = await fetch(`/api/courses/${courseId}/study`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          signal: controller.signal
+        })
+        clearTimeout(timeoutId)
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId)
+        if (fetchError.name === 'AbortError') {
+          console.error('Request timeout')
+          setError('Request timed out. Please check your connection and try again.')
+        } else {
+          console.error('Fetch error:', fetchError)
+          setError('Network error. Please check your connection and try again.')
+        }
+        setLoading(false)
+        return
+      }
 
       if (!response.ok) {
+        const errorText = await response.text()
+        console.error('API error response:', response.status, errorText)
+        
         if (response.status === 403) {
           setError('You are not enrolled in this course.')
         } else if (response.status === 404) {
           setError('Course not found.')
+        } else if (response.status === 401) {
+          console.log('Unauthorized, redirecting to auth...')
+          router.push(`/auth?tab=signin&redirect=/courses/${courseId}/study`)
+          return
         } else {
           setError('Failed to load course content. Please try again.')
         }
@@ -158,10 +220,10 @@ export default function CourseStudyPage() {
         const savedLessonId = localStorage.getItem(`course_${courseId}_last_lesson`)
         if (savedLessonId) {
           // Find the saved lesson
-          for (const module of modulesWithProgress) {
-            if (module.course_lessons) {
-              const savedLesson = module.course_lessons.find(
-                lesson => lesson.id === savedLessonId && lesson.is_published
+          for (const courseModule of modulesWithProgress) {
+            if (courseModule.course_lessons) {
+              const savedLesson = courseModule.course_lessons.find(
+                (lesson: LessonWithProgress) => lesson.id === savedLessonId && lesson.is_published
               )
               if (savedLesson) {
                 lessonToSet = savedLesson
@@ -177,9 +239,9 @@ export default function CourseStudyPage() {
 
       // Fallback to first published lesson if no saved position
       if (!lessonToSet) {
-        for (const module of modulesWithProgress) {
-          if (module.course_lessons && module.course_lessons.length > 0) {
-            lessonToSet = module.course_lessons.find(lesson => lesson.is_published)
+        for (const courseModule of modulesWithProgress) {
+          if (courseModule.course_lessons && courseModule.course_lessons.length > 0) {
+            lessonToSet = courseModule.course_lessons.find((lesson: LessonWithProgress) => lesson.is_published)
             if (lessonToSet) break
           }
         }
@@ -510,28 +572,75 @@ export default function CourseStudyPage() {
     return (completedLessons / totalLessons) * 100
   }, [modules])
 
+  // Enhanced loading UI with stage information
   if (loading) {
+    const loadingMessage = 
+      loadingStage === 'auth' ? 'Checking authentication...' :
+      loadingStage === 'params' ? 'Loading course...' :
+      'Loading course content...'
+
     return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-foreground">Loading course content...</p>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-6"></div>
+          <p className="text-lg text-foreground font-medium mb-2">{loadingMessage}</p>
+          <p className="text-sm text-muted-foreground">
+            This should only take a moment...
+          </p>
         </div>
       </div>
     )
   }
 
+  // Enhanced error UI with retry and navigation options
   if (error || !course) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Course Not Found</h1>
-          <p className="text-muted-foreground mb-6">{error || 'The course you are looking for does not exist.'}</p>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+        <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
+          {/* Error Icon */}
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
+              <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+            </div>
+          </div>
+
+          {/* Error Title */}
+          <h1 className="text-2xl font-bold text-center text-foreground mb-3">
+            {error?.includes('Invalid') ? 'Invalid Course' :
+             error?.includes('timeout') ? 'Loading Timeout' :
+             error?.includes('enrolled') ? 'Not Enrolled' :
+             'Course Not Found'}
+          </h1>
+
+          {/* Error Description */}
+          <p className="text-center text-muted-foreground mb-6">
+            {error || 'The course you are looking for does not exist or is no longer available.'}
+          </p>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => router.back()}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-foreground font-medium"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Go Back
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Retry
+            </button>
+          </div>
+
+          {/* Secondary Action */}
           <button
             onClick={() => router.push('/courses')}
-            className="bg-primary hover:bg-secondary text-white hover:text-black px-6 py-3 rounded-lg font-medium transition-colors"
+            className="w-full mt-3 px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            Browse Courses
+            Browse All Courses
           </button>
         </div>
       </div>

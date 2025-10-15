@@ -88,9 +88,13 @@ export function LessonContent({
     const element = contentRef.current
     if (!element) return
 
-    element.addEventListener('touchstart', handleTouchStart, { passive: true })
-    element.addEventListener('touchend', handleTouchEnd, { passive: true })
-    element.addEventListener('touchmove', handleTouchMove, { passive: false })
+    // Use options object to mark as passive correctly
+    const passiveOptions = { passive: true }
+    const activeOptions = { passive: false }
+
+    element.addEventListener('touchstart', handleTouchStart, passiveOptions)
+    element.addEventListener('touchend', handleTouchEnd, passiveOptions)
+    element.addEventListener('touchmove', handleTouchMove, activeOptions)
 
     return () => {
       element.removeEventListener('touchstart', handleTouchStart)
@@ -108,7 +112,7 @@ export function LessonContent({
   return (
     <div className="h-full flex flex-col">
       {/* Lesson Header - Simplified */}
-      <div className="border-b border-border px-3 py-5 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
+      <div className="border-b border-border px-6 py-6 sm:px-8 sm:py-8 lg:px-12 lg:py-10">
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex-1">{lesson.title}</h1>
 
@@ -131,7 +135,7 @@ export function LessonContent({
       {/* Main Content - Smart: adaptive padding */}
       <div 
         ref={contentRef}
-        className="flex-1 overflow-y-auto px-3 py-5 sm:px-5 sm:py-6 lg:px-8 lg:py-8 space-y-8 touch-pan-y"
+        className="flex-1 overflow-y-auto px-6 py-6 sm:px-8 sm:py-8 lg:px-12 lg:py-10 space-y-8 touch-pan-y"
         style={{ touchAction: 'pan-y' }} // Allow vertical scrolling, horizontal for swipe
       >
         {/* Video Player */}

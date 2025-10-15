@@ -39,7 +39,7 @@ interface QuizListCardProps {
 }
 
 export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true }) => {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const { hasAttempted, getQuizAttempt } = useUserProgress()
   
@@ -53,6 +53,11 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
   }), [quiz.category, quiz.title, quiz.image_url])
 
   const handleQuickStart = useCallback(async () => {
+    // Wait for auth to finish loading before making navigation decisions
+    if (authLoading) {
+      return
+    }
+
     if (!user) {
       router.push('/auth/login')
       return
@@ -60,7 +65,7 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
 
     // Direct navigation to quiz taking page - no complex logic needed
     router.push(`/quizzes/${quiz.id}/take`)
-  }, [user, router, quiz.id])
+  }, [user, authLoading, router, quiz.id])
 
   const getDifficultyColor = useCallback((difficulty: string) => {
     if (!difficulty) return 'bg-gray-100 text-gray-600 border-gray-200' // Handle null/undefined
@@ -83,13 +88,14 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
   }, [])
 
   const getActionButtonText = useCallback(() => {
+    if (authLoading) return 'Loading...'
     if (!user) return 'Start Quiz'
     if (attempted) {
       if (lastAttempt?.completed_at) return 'Retake'
       return 'Continue'
     }
     return 'Start Quiz'
-  }, [user, attempted, lastAttempt])
+  }, [user, authLoading, attempted, lastAttempt])
 
   const getScoreDisplay = useCallback(() => {
     if (!lastAttempt?.completed_at || !lastAttempt?.score) return null
@@ -106,7 +112,7 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
   }, [lastAttempt])
 
   return (
-    <Card className="hover:shadow-md transition-all duration-200 h-full overflow-hidden border border-subtle bg-surface-primary shadow-md hover:shadow-lg">
+    <Card className="group bg-white hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 h-full overflow-hidden border border-gray-100 shadow-lg">
       <div className="h-full flex flex-col">
         {/* Quiz Image - Top Position for All Screens */}
         <div className="relative w-full h-40 sm:h-48 bg-muted overflow-hidden">
@@ -115,7 +121,7 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
               src={quiz.image_url}
               alt={quiz.title}
               fill
-              className="object-cover transition-transform duration-300 hover:scale-105"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
@@ -123,7 +129,7 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
               src={quizImage.src}
               alt={quizImage.alt}
               fill
-              className="object-cover transition-transform duration-300 hover:scale-105"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           )}
@@ -133,7 +139,7 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
         <CardContent className="p-3.5 flex-1 flex flex-col">
           {/* Title and Status Row */}
           <div className="flex items-start justify-between gap-3 mb-2">
-            <h3 className="font-semibold text-foreground text-lg sm:text-xl line-clamp-2 leading-tight flex-1">
+            <h3 className="font-semibold text-foreground text-lg sm:text-xl line-clamp-2 leading-tight flex-1 group-hover:text-primary transition-colors">
               {quiz.title}
             </h3>
             {showProgress && user && attempted && (
@@ -189,7 +195,8 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
           {/* Action Button - Bottom */}
           <Button
             onClick={handleQuickStart}
-            className="w-full bg-primary hover:bg-secondary text-white px-4 py-2.5 text-sm font-medium mt-auto"
+            disabled={authLoading}
+            className="w-full bg-primary hover:bg-secondary text-white px-4 py-2.5 text-sm font-medium mt-auto disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span className="flex items-center justify-center gap-2">
               <Play className="w-4 h-4" />

@@ -1,7 +1,8 @@
 'use client'
 
-import { Menu, X } from 'lucide-react'
+import { Menu, X, ArrowLeft } from 'lucide-react'
 import { Course } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
 
 interface CourseHeaderProps {
   course: Course
@@ -11,9 +12,11 @@ interface CourseHeaderProps {
 }
 
 export function CourseHeader({ course, progress, onToggleSidebar, isSidebarOpen }: CourseHeaderProps) {
+  const router = useRouter()
+
   return (
     <header className="bg-background border-b border-border shadow-sm sticky top-0 z-30">
-      <div className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3">
+      <div className="px-6 sm:px-8 lg:px-12 py-3 sm:py-4">
         {/* Mobile-First Row Layout */}
         <div className="flex flex-col gap-2 sm:gap-0">
           {/* Top Row: Menu + Breadcrumbs + Info Button */}
@@ -31,6 +34,16 @@ export function CourseHeader({ course, progress, onToggleSidebar, isSidebarOpen 
                 ) : (
                   <Menu size={18} className="text-foreground" />
                 )}
+              </button>
+
+              {/* Back to Courses Button */}
+              <button
+                onClick={() => router.push('/courses')}
+                className="flex items-center gap-1.5 p-1.5 sm:p-2 hover:bg-muted rounded-lg transition-colors flex-shrink-0 text-muted-foreground hover:text-foreground"
+                aria-label="Back to courses"
+                title="Back to courses"
+              >
+                <ArrowLeft size={18} />
               </button>
 
               {/* Course Title - Simple and clean */}

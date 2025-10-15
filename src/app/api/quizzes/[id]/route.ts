@@ -18,12 +18,13 @@ function validateQuizId(quizId: string | undefined): string {
 }
 
 // GET - Fetch single public quiz with questions for taking
-export async function GET(request: NextRequest) {
-  // Extract quiz ID from URL pathname
-  const url = new URL(request.url)
-  const rawQuizId = url.pathname.split('/').pop()
-  
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    // Properly await params for Next.js 14+
+    const { id: rawQuizId } = await params
     const quizId = validateQuizId(rawQuizId)
 
     const supabase = createServiceClient()
@@ -118,7 +119,6 @@ export async function GET(request: NextRequest) {
 
   } catch (error: any) {
     logger.error('Public quiz details API error', { 
-      quizId: rawQuizId,
       error: error.message 
     })
     

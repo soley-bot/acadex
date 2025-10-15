@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useAdminUsers } from '@/hooks/api'
 import type { User } from '@/lib/supabase'
 import AddUserModal from '@/components/admin/AddUserModal'
@@ -103,7 +104,7 @@ export default function AdminUsers() {
   return (
     <div className="min-h-screen">
       {/* Add proper container padding */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6">
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
@@ -184,16 +185,20 @@ export default function AdminUsers() {
             className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-primary"
           />
         </div>
-        <select 
+        <Select 
           value={roleFilter} 
-          onChange={(e) => setRoleFilter(e.target.value)}
-          className="px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-primary"
+          onValueChange={setRoleFilter}
         >
-          <option value="all">All Roles</option>
-          <option value="admin">Admin</option>
-          <option value="instructor">Instructor</option>
-          <option value="student">Student</option>
-        </select>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="All Roles" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Roles</SelectItem>
+            <SelectItem value="admin">Admin</SelectItem>
+            <SelectItem value="instructor">Instructor</SelectItem>
+            <SelectItem value="student">Student</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Users Table */}

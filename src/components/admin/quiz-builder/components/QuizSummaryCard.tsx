@@ -53,7 +53,7 @@ export const QuizSummaryCard = memo<QuizSummaryCardProps>(({
   const getStatusIcon = (isComplete: boolean) => isComplete ? <IconCheck size={14} /> : <IconAlertTriangle size={14} />
 
   return (
-    <Card className="shadow-sm border border-gray-200">
+    <Card className="bg-white border border-gray-200 shadow-md">
       <CardContent className="space-y-6 p-6">
         {/* Header */}
         <div className="flex items-start justify-between">

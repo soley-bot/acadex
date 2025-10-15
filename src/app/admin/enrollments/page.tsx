@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Users, BookOpen, Calendar, Clock, Search, Filter, UserMinus, Eye, MoreHorizontal, TrendingUp, Award, Plus } from 'lucide-react'
+import { Users, BookOpen, Calendar, Clock, Search, Filter, UserMinus, Eye, MoreHorizontal, TrendingUp, Award, Plus, CheckCircle } from 'lucide-react'
 import { formatDate } from '@/lib/date-utils'
 import { useAdminEnrollments } from '@/hooks/api'
 import { useAdminModals } from '@/hooks/admin/useAdminModals'
@@ -206,7 +206,7 @@ export default function AdminEnrollmentsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-secondary/10 rounded-lg">
+            <div className="p-4 md:p-5 bg-secondary/10 rounded-lg">
               <Users className="w-6 h-6 text-secondary" />
             </div>
             <div className="ml-4">
@@ -218,7 +218,7 @@ export default function AdminEnrollmentsPage() {
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-yellow-100 rounded-lg">
+            <div className="p-4 md:p-5 bg-yellow-100 rounded-lg">
               <TrendingUp className="w-6 h-6 text-yellow-600" />
             </div>
             <div className="ml-4">
@@ -230,8 +230,8 @@ export default function AdminEnrollmentsPage() {
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <Award className="w-6 h-6 text-green-600" />
+            <div className="p-4 md:p-5 bg-green-100 rounded-lg">
+              <CheckCircle className="w-6 h-6 text-green-600" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Completed</p>
@@ -242,7 +242,7 @@ export default function AdminEnrollmentsPage() {
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-purple-100 rounded-lg">
+            <div className="p-4 md:p-5 bg-purple-100 rounded-lg">
               <BookOpen className="w-6 h-6 text-purple-600" />
             </div>
             <div className="ml-4">
