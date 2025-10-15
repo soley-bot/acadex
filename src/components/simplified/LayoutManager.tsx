@@ -27,6 +27,7 @@ function LoadingScreen({ message = 'Loading...' }: { message?: string }) {
 function getLayoutType(pathname: string) {
   if (pathname.startsWith('/admin')) return 'admin'
   if (pathname.startsWith('/dashboard')) return 'dashboard'
+  if (pathname.startsWith('/auth')) return 'auth'
   if (pathname.includes('/study') || pathname.includes('/take')) return 'fullscreen'
   return 'public'
 }
@@ -61,13 +62,17 @@ export function LayoutManager({ children }: LayoutManagerProps) {
     case 'fullscreen':
       // These layouts handle their own header/footer internally
       return <>{children}</>
+    
+    case 'auth':
+      // Auth pages (login, signup) don't need header/footer or padding
+      return <>{children}</>
       
     case 'public':
     default:
       return (
         <>
           <Header />
-          <main>{children}</main>
+          <main className="pt-14">{children}</main>
           <Footer />
         </>
       )

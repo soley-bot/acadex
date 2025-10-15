@@ -103,7 +103,7 @@ export default function QuizResultsPage() {
   if (error || !results) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
-        <div className="max-w-2xl mx-auto px-4 pt-20 sm:pt-32">
+        <div className="max-w-2xl mx-auto px-4 py-8">
           
           {/* Contextual Back Navigation for Error State */}
           <div className="mb-4 sm:mb-6">
@@ -132,7 +132,7 @@ export default function QuizResultsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 pt-16 sm:pt-20 pb-8 sm:pb-12">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-8 sm:pb-12">
         
         {/* Contextual Back Navigation */}
         <div className="mb-4 sm:mb-6">

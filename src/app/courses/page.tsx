@@ -85,7 +85,7 @@ export default function CoursesPage() {
     return (
       <div className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 py-20">
-          <div className="text-center pt-16">
+          <div className="text-center">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
               Loading Courses
             </h1>
@@ -106,7 +106,7 @@ export default function CoursesPage() {
     return (
       <div className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 py-20">
-          <div className="text-center pt-16">
+          <div className="text-center">
             <div className="mb-8">
               <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg className="w-10 h-10 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">

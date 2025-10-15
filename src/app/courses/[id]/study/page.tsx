@@ -28,7 +28,8 @@ type LessonWithProgress = CourseLesson & {
 export default function CourseStudyPage() {
   const params = useParams()
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
+  const courseId = params.id as string
   
   // Core state
   const [course, setCourse] = useState<Course | null>(null)
@@ -41,25 +42,38 @@ export default function CourseStudyPage() {
   const [enrollmentProgress, setEnrollmentProgress] = useState(0)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
-  const loadCourseContent = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      if (!user) {
-        router.push('/auth/login')
-        return
-      }
+  useEffect(() => {
+    // Wait for auth to finish loading
+    if (authLoading) {
+      return
+    }
+
+    const loadCourseContent = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        if (!courseId) {
+          console.error('Course ID is missing from params')
+          setError('Invalid course ID')
+          setLoading(false)
+          return
+        }
+        
+        if (!user) {
+          router.push(`/auth?tab=signin&redirect=/courses/${courseId}/study`)
+          return
+        }
       
       // Get session token for API authentication
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
-        router.push('/auth/login')
+        router.push(`/auth?tab=signin&redirect=/courses/${courseId}/study`)
         return
       }
 
       // Use API route instead of direct Supabase (fixes CORS on custom domains)
-      const response = await fetch(`/api/courses/${params.id}/study`, {
+      const response = await fetch(`/api/courses/${courseId}/study`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -80,6 +94,23 @@ export default function CourseStudyPage() {
       }
 
       const data = await response.json()
+      
+      console.log('📦 Course data received:', {
+        course: !!data.course,
+        modulesCount: data.modules?.length,
+        isEnrolled: data.isEnrolled,
+        progressCount: data.progress?.length
+      })
+      
+      if (!data.course) {
+        setError('Course data not found')
+        setLoading(false)
+        return
+      }
+
+      if (!data.modules || data.modules.length === 0) {
+        console.warn('⚠️ No modules found for course')
+      }
       
       setIsEnrolled(data.isEnrolled)
       setEnrollmentProgress(data.enrollmentProgress || 0)
@@ -111,18 +142,20 @@ export default function CourseStudyPage() {
           setCurrentLesson(firstLesson)
         }
       }
-      
-    } catch (error) {
-      logger.error('Error loading course content:', error)
-      setError('Failed to load course content. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }, [params.id, user, router])
 
-  useEffect(() => {
+        console.log('✅ Course content loaded successfully')
+        setLoading(false)
+        
+      } catch (error) {
+        console.error('❌ Error loading course content:', error)
+        logger.error('Error loading course content:', error)
+        setError('Failed to load course content. Please try again.')
+        setLoading(false)
+      }
+    }
+
     loadCourseContent()
-  }, [loadCourseContent])
+  }, [courseId, user, authLoading, router])
 
   const handleToggleModule = (moduleId: string) => {
     const newExpanded = new Set(expandedModules)

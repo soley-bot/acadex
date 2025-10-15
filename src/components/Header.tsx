@@ -49,7 +49,7 @@ export default function Header() {
   return (
     <header className="header-fixed">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-14">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <Logo 
@@ -133,10 +133,10 @@ export default function Header() {
               </DropdownMenu>
             ) : (
               <>
-                <Link href="/auth/login" className="nav-link px-4 py-2 text-sm md:text-base lg:text-lg">
+                <Link href="/auth?tab=signin" className="nav-link px-4 py-2 text-sm md:text-base lg:text-lg">
                   Sign In
                 </Link>
-                <Link href="/auth/signup" className="btn-primary transform hover:scale-105">
+                <Link href="/auth?tab=signup" className="btn-primary transform hover:scale-105">
                   Get Started
                 </Link>
               </>
@@ -176,50 +176,50 @@ export default function Header() {
             isMenuOpen ? 'mobile-menu-open' : 'mobile-menu-closed'
           }`}
         >
-          <div className="nav-list bg-white min-h-0">
+          <div className="nav-list bg-white h-full flex flex-col">
             {/* Main Navigation */}
-            <div className="py-4">
+            <div className="flex-1 py-2">
               <Link 
                 href="/courses" 
-                className="nav-link group flex items-center justify-between px-6 py-4 text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-300 font-medium border-b border-gray-100 hover:border-primary/20 active:bg-primary/20"
+                className="nav-link group flex items-center justify-between px-4 py-3.5 text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-300 font-medium border-b border-gray-100 hover:border-primary/20 active:bg-primary/20"
                 onClick={handleMobileNavClick}
               >
                 <div className="flex items-center gap-3">
-                  <Book size={20} className="group-hover:scale-110 transition-transform duration-200" />
-                  <span className="group-hover:translate-x-1 transition-transform duration-200">Courses</span>
+                  <Book size={18} className="group-hover:scale-110 transition-transform duration-200" />
+                  <span className="text-sm group-hover:translate-x-1 transition-transform duration-200">Courses</span>
                 </div>
                 <div className="w-2 h-2 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               </Link>
               <Link 
                 href="/quizzes" 
-                className="nav-link group flex items-center justify-between px-6 py-4 text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-300 font-medium border-b border-gray-100 hover:border-primary/20 active:bg-primary/20"
+                className="nav-link group flex items-center justify-between px-4 py-3.5 text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-300 font-medium border-b border-gray-100 hover:border-primary/20 active:bg-primary/20"
                 onClick={handleMobileNavClick}
               >
                 <div className="flex items-center gap-3">
-                  <Lightbulb size={20} className="group-hover:scale-110 transition-transform duration-200" />
-                  <span className="group-hover:translate-x-1 transition-transform duration-200">Quizzes</span>
+                  <Lightbulb size={18} className="group-hover:scale-110 transition-transform duration-200" />
+                  <span className="text-sm group-hover:translate-x-1 transition-transform duration-200">Quizzes</span>
                 </div>
                 <div className="w-2 h-2 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               </Link>
               <Link 
                 href="/about" 
-                className="nav-link group flex items-center justify-between px-6 py-4 text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-300 font-medium border-b border-gray-100 hover:border-primary/20 active:bg-primary/20"
+                className="nav-link group flex items-center justify-between px-4 py-3.5 text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-300 font-medium border-b border-gray-100 hover:border-primary/20 active:bg-primary/20"
                 onClick={handleMobileNavClick}
               >
                 <div className="flex items-center gap-3">
-                  <Info size={20} className="group-hover:scale-110 transition-transform duration-200" />
-                  <span className="group-hover:translate-x-1 transition-transform duration-200">About</span>
+                  <Info size={18} className="group-hover:scale-110 transition-transform duration-200" />
+                  <span className="text-sm group-hover:translate-x-1 transition-transform duration-200">About</span>
                 </div>
                 <div className="w-2 h-2 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               </Link>
               <Link 
                 href="/contact" 
-                className="nav-link group flex items-center justify-between px-6 py-4 text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-300 font-medium border-b border-gray-100 hover:border-primary/20 active:bg-primary/20"
+                className="nav-link group flex items-center justify-between px-4 py-3.5 text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-300 font-medium border-b border-gray-100 hover:border-primary/20 active:bg-primary/20"
                 onClick={handleMobileNavClick}
               >
                 <div className="flex items-center gap-3">
-                  <Mail size={20} className="group-hover:scale-110 transition-transform duration-200" />
-                  <span className="group-hover:translate-x-1 transition-transform duration-200">Contact</span>
+                  <Mail size={18} className="group-hover:scale-110 transition-transform duration-200" />
+                  <span className="text-sm group-hover:translate-x-1 transition-transform duration-200">Contact</span>
                 </div>
                 <div className="w-2 h-2 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               </Link>
@@ -227,9 +227,8 @@ export default function Header() {
             
             {/* User Section */}
             {user ? (
-              <>
-                <div className="border-t border-gray-200 my-2"></div>
-                <div className="px-6 py-4 bg-primary/5">
+              <div className="border-t border-gray-200 mt-auto">
+                <div className="px-4 py-3 bg-primary/5">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
                       <span className="text-white font-bold text-sm">{user.name?.charAt(0).toUpperCase()}</span>
@@ -242,57 +241,56 @@ export default function Header() {
                 </div>
                 <Link 
                   href="/dashboard" 
-                  className="nav-link group flex items-center justify-between px-6 py-4 text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-300 font-medium border-b border-gray-100 hover:border-primary/20 active:bg-primary/20"
+                  className="nav-link group flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-300 font-medium border-b border-gray-100 hover:border-primary/20 active:bg-primary/20"
                   onClick={handleMobileNavClick}
                 >
                   <div className="flex items-center gap-3">
-                    <Home size={20} className="group-hover:scale-110 transition-transform duration-200" />
-                    <span className="group-hover:translate-x-1 transition-transform duration-200">Dashboard</span>
+                    <Home size={18} className="group-hover:scale-110 transition-transform duration-200" />
+                    <span className="text-sm group-hover:translate-x-1 transition-transform duration-200">Dashboard</span>
                   </div>
                   <div className="w-2 h-2 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                 </Link>
                 <Link 
                   href="/profile" 
-                  className="nav-link group flex items-center justify-between px-6 py-4 text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-300 font-medium border-b border-gray-100 hover:border-primary/20 active:bg-primary/20"
+                  className="nav-link group flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-300 font-medium border-b border-gray-100 hover:border-primary/20 active:bg-primary/20"
                   onClick={handleMobileNavClick}
                 >
                   <div className="flex items-center gap-3">
-                    <User size={20} className="group-hover:scale-110 transition-transform duration-200" />
-                    <span className="group-hover:translate-x-1 transition-transform duration-200">Profile</span>
+                    <User size={18} className="group-hover:scale-110 transition-transform duration-200" />
+                    <span className="text-sm group-hover:translate-x-1 transition-transform duration-200">Profile</span>
                   </div>
                   <div className="w-2 h-2 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="nav-link group w-full flex items-center justify-between px-6 py-4 text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-300 font-medium active:bg-red-100"
+                  className="nav-link group w-full flex items-center justify-between px-4 py-3 text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-300 font-medium active:bg-red-100"
                 >
                   <div className="flex items-center gap-3">
-                    <ArrowRight size={20} className="group-hover:scale-110 group-hover:translate-x-1 transition-transform duration-200" />
-                    <span className="group-hover:translate-x-1 transition-transform duration-200">Sign Out</span>
+                    <ArrowRight size={18} className="group-hover:scale-110 group-hover:translate-x-1 transition-transform duration-200" />
+                    <span className="text-sm group-hover:translate-x-1 transition-transform duration-200">Sign Out</span>
                   </div>
                   <div className="w-2 h-2 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                 </button>
-              </>
+              </div>
             ) : (
-              <>
-                <div className="border-t border-gray-200 my-2"></div>
-                <div className="p-4 space-y-3">
+              <div className="border-t border-gray-200 mt-auto">
+                <div className="p-3 space-y-2">
                   <Link
-                    href="/auth/login"
-                    className="nav-link group flex items-center justify-center w-full px-6 py-3 text-primary hover:bg-primary/10 hover:border-primary/60 transition-all duration-300 font-semibold rounded-lg border border-primary hover:shadow-md active:scale-95"
+                    href="/auth?tab=signin"
+                    className="nav-link group flex items-center justify-center w-full px-4 py-2.5 text-primary hover:bg-primary/10 hover:border-primary/60 transition-all duration-300 font-semibold rounded-lg border border-primary hover:shadow-md active:scale-95"
                     onClick={handleMobileNavClick}
                   >
-                    <span className="group-hover:scale-105 transition-transform duration-200">Sign In</span>
+                    <span className="text-sm group-hover:scale-105 transition-transform duration-200">Sign In</span>
                   </Link>
                   <Link
-                    href="/auth/signup"
-                    className="nav-link group flex items-center justify-center w-full px-6 py-3 bg-primary text-white hover:bg-primary/90 hover:shadow-lg transition-all duration-300 font-semibold rounded-lg active:scale-95"
+                    href="/auth?tab=signup"
+                    className="nav-link group flex items-center justify-center w-full px-4 py-2.5 bg-primary text-white hover:bg-primary/90 hover:shadow-lg transition-all duration-300 font-semibold rounded-lg active:scale-95"
                     onClick={handleMobileNavClick}
                   >
-                    <span className="group-hover:scale-105 transition-transform duration-200">Get Started</span>
+                    <span className="text-sm group-hover:scale-105 transition-transform duration-200">Get Started</span>
                   </Link>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>

@@ -17,89 +17,101 @@ export function CourseHeader({ course, progress, onToggleSidebar, isSidebarOpen 
 
   return (
     <header className="bg-background border-b border-border shadow-sm sticky top-0 z-30">
-      <div className="px-4 lg:px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Left Section */}
-          <div className="flex items-center gap-4">
-            {/* Mobile Menu Button */}
-            <button
-              onClick={onToggleSidebar}
-              className="lg:hidden p-2 hover:bg-muted rounded-lg transition-colors"
-              aria-label="Toggle course navigation"
-            >
-              {isSidebarOpen ? (
-                <X size={20} className="text-foreground" />
-              ) : (
-                <Menu size={20} className="text-foreground" />
-              )}
-            </button>
+      <div className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3">
+        {/* Mobile-First Row Layout */}
+        <div className="flex flex-col gap-2 sm:gap-0">
+          {/* Top Row: Menu + Breadcrumbs + Info Button */}
+          <div className="flex items-center justify-between gap-2">
+            {/* Left Section */}
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={onToggleSidebar}
+                className="lg:hidden p-1.5 sm:p-2 hover:bg-muted rounded-lg transition-colors flex-shrink-0"
+                aria-label="Toggle course navigation"
+              >
+                {isSidebarOpen ? (
+                  <X size={18} className="text-foreground" />
+                ) : (
+                  <Menu size={18} className="text-foreground" />
+                )}
+              </button>
 
-            {/* Breadcrumb Navigation - Smart: icon-only on mobile, gap-3 */}
-            <nav className="flex items-center gap-3 text-sm">
-              <Link 
-                href="/dashboard" 
-                className="flex items-center gap-0 sm:gap-1 text-muted-foreground hover:text-primary transition-colors"
-                aria-label="Dashboard"
-              >
-                <Home size={18} className="sm:w-4 sm:h-4" />
-                <span className="sr-only sm:not-sr-only sm:inline">Dashboard</span>
-              </Link>
-              <span className="hidden sm:inline text-muted-foreground">/</span>
-              <Link 
-                href="/courses" 
-                className="flex items-center gap-0 sm:gap-1 text-muted-foreground hover:text-primary transition-colors"
-                aria-label="Courses"
-              >
-                <BookOpen size={18} className="sm:w-4 sm:h-4" />
-                <span className="sr-only sm:not-sr-only sm:inline">Courses</span>
-              </Link>
-              <span className="hidden sm:inline text-muted-foreground">/</span>
+              {/* Breadcrumb Navigation - Compact on mobile */}
+              <nav className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm min-w-0 flex-1">
+                <Link 
+                  href="/dashboard" 
+                  className="flex items-center gap-0 sm:gap-1 text-muted-foreground hover:text-primary transition-colors flex-shrink-0"
+                  aria-label="Dashboard"
+                >
+                  <Home size={16} className="sm:w-4 sm:h-4" />
+                  <span className="sr-only sm:not-sr-only sm:inline">Dashboard</span>
+                </Link>
+                <span className="hidden xs:inline text-muted-foreground">/</span>
+                <Link 
+                  href="/courses" 
+                  className="hidden xs:flex items-center gap-0 sm:gap-1 text-muted-foreground hover:text-primary transition-colors flex-shrink-0"
+                  aria-label="Courses"
+                >
+                  <BookOpen size={16} className="sm:w-4 sm:h-4" />
+                  <span className="sr-only sm:not-sr-only sm:inline">Courses</span>
+                </Link>
+                <span className="hidden xs:inline text-muted-foreground">/</span>
+                <span className="text-foreground font-medium truncate min-w-0">
+                  {course.title}
+                </span>
+              </nav>
+
+              {/* Course Info Toggle (Mobile) */}
               <button
                 onClick={() => setShowCourseInfo(!showCourseInfo)}
-                className="text-foreground font-medium hover:text-primary transition-colors max-w-[120px] sm:max-w-[200px] md:max-w-[300px] truncate"
+                className="lg:hidden p-1.5 sm:p-2 hover:bg-muted rounded-lg transition-colors flex-shrink-0"
+                aria-label="Course information"
               >
-                {course.title}
+                <BookOpen size={18} className="text-foreground" />
               </button>
-            </nav>
+            </div>
           </div>
 
-          {/* Center Section - Course Title (Desktop) */}
-          <div className="hidden lg:block flex-1 mx-8">
-            <h1 className="text-lg font-semibold text-foreground truncate text-center">
-              {course.title}
-            </h1>
+          {/* Bottom Row: Progress Bar - Only on mobile */}
+          <div className="flex sm:hidden items-center gap-2">
+            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-primary transition-all duration-500 rounded-full"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <div className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0">
+              {Math.round(progress)}%
+            </div>
           </div>
 
-          {/* Right Section - Progress */}
-          <div className="flex items-center gap-4">
-            {/* Progress Indicator - Smart: hide label on mobile, larger bar, text-sm badge */}
-            <div className="flex items-center gap-3">
+          {/* Desktop Layout - Single Row */}
+          <div className="hidden sm:flex items-center justify-between">
+            {/* Center Section - Course Title (Desktop) */}
+            <div className="hidden lg:block flex-1 mx-8">
+              <h1 className="text-lg font-semibold text-foreground truncate text-center">
+                {course.title}
+              </h1>
+            </div>
+
+            {/* Right Section - Progress (Desktop) */}
+            <div className="flex items-center gap-3 ml-auto">
               <div className="hidden md:block text-sm text-muted-foreground">
                 Progress: {Math.round(progress)}%
               </div>
               
-              {/* Progress Bar - Smart: bigger on mobile */}
-              <div className="w-32 sm:w-40 md:w-48 h-2 bg-muted rounded-full overflow-hidden">
+              <div className="w-32 md:w-40 lg:w-48 h-2 bg-muted rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-primary transition-all duration-500 rounded-full"
                   style={{ width: `${progress}%` }}
                 />
               </div>
               
-              {/* Progress Badge - Smart: text-sm, py-1.5 */}
               <div className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium">
                 {Math.round(progress)}%
               </div>
             </div>
-
-            {/* Course Info Toggle (Mobile) */}
-            <button
-              onClick={() => setShowCourseInfo(!showCourseInfo)}
-              className="lg:hidden p-2 hover:bg-muted rounded-lg transition-colors"
-              aria-label="Course information"
-            >
-              <BookOpen size={20} className="text-foreground" />
-            </button>
           </div>
         </div>
 

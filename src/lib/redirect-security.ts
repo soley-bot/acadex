@@ -53,7 +53,7 @@ export function sanitizeRedirectUrl(
  */
 export const SAFE_REDIRECTS = {
   DASHBOARD: '/dashboard',
-  LOGIN: '/auth/login',
+  LOGIN: '/auth?tab=signin',
   ADMIN: '/admin',
   HOME: '/',
   COURSES: '/courses',

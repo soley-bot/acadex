@@ -26,7 +26,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-secondary/5">
       {/* Hero Section */}
-      <Section className="relative pt-20 pb-12 md:pt-24 md:pb-16 text-center">
+      <Section className="relative py-12 md:pb-16 text-center">
         <Container size="md">
           <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6">
             <Heart className="w-4 h-4" />
