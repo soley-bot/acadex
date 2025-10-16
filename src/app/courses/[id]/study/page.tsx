@@ -106,13 +106,14 @@ export default function CourseStudyPage() {
     // Wait for auth to finish loading
     if (authLoading) {
       setLoadingStage('auth')
+      console.log('[Course] Waiting for auth to complete...')
       return
     }
 
     // Validate courseId is available
     if (!courseId) {
       setLoadingStage('params')
-      console.error('❌ Course ID is missing from params')
+      console.error('[Course] Course ID is missing from params')
       setError('Invalid course ID')
       setLoading(false)
       return
@@ -120,11 +121,12 @@ export default function CourseStudyPage() {
 
     // CRITICAL: Prevent duplicate fetches
     if (hasFetchedRef.current) {
-      console.log('[Fetch Guard] Already fetched course data, skipping');
+      console.log('[Course] Already fetched course data, skipping');
       return;
     }
 
     hasFetchedRef.current = true;
+    console.log('[Course] Starting course data fetch for:', courseId);
 
     const loadCourseContent = async () => {
       // Cancel any previous request
@@ -295,11 +297,13 @@ export default function CourseStudyPage() {
         }
         
       } catch (error) {
-        console.error('❌ Error loading course content:', error)
+        console.error('[Course] Error loading course content:', error)
         logger.error('Error loading course content:', error)
         if (mountedRef.current) {
           setError('Failed to load course content. Please try again.')
           setLoading(false)
+          // Reset fetch ref to allow retry
+          hasFetchedRef.current = false
         }
       }
     }
@@ -311,6 +315,7 @@ export default function CourseStudyPage() {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
+      // Note: Don't reset hasFetchedRef here - let it persist to prevent re-fetch on unmount
     }
   }, [courseId, user, authLoading, router])
 

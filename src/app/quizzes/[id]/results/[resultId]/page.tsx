@@ -31,25 +31,40 @@ interface QuizResult {
 export default function QuizResultsPage() {
   const params = useParams()
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [results, setResults] = useState<QuizResult | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    // CRITICAL: Wait for auth to complete before checking user
+    if (authLoading) {
+      console.log('[Results] Waiting for auth to complete...')
+      return
+    }
+
+    // Check if user is logged in
     if (!user) {
+      console.log('[Results] No user found, redirecting to auth...')
       router.push(`/auth?tab=signin&redirect=/quizzes/${params.id}/results/${params.resultId}`)
       return
     }
 
     const fetchResults = async () => {
       try {
+        console.log('[Results] Fetching results for attempt:', params.resultId)
         setLoading(true)
 
         // Fetch from the new quiz-attempts API
         const response = await fetch(`/api/quiz-attempts/${params.resultId}`)
 
         if (!response.ok) {
+          // Handle 401/403 specifically - means auth issue
+          if (response.status === 401 || response.status === 403) {
+            console.log('[Results] Auth error, redirecting...')
+            router.push(`/auth?tab=signin&redirect=/quizzes/${params.id}/results/${params.resultId}`)
+            return
+          }
           throw new Error(`HTTP ${response.status}: Failed to fetch results`)
         }
 
@@ -59,8 +74,10 @@ export default function QuizResultsPage() {
           throw new Error(data.error || 'Failed to load quiz results')
         }
 
+        console.log('[Results] Results loaded successfully')
         setResults(data.data)
       } catch (err) {
+        console.error('[Results] Error fetching quiz results:', err)
         logger.error('Error fetching quiz results:', err)
         setError(err instanceof Error ? err.message : 'Failed to load quiz results')
       } finally {
@@ -70,8 +87,11 @@ export default function QuizResultsPage() {
 
     if (params.resultId) {
       fetchResults()
+    } else {
+      setError('Invalid result ID')
+      setLoading(false)
     }
-  }, [params.id, params.resultId, user, router])
+  }, [params.id, params.resultId, user, authLoading, router])
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600'
@@ -87,13 +107,15 @@ export default function QuizResultsPage() {
     return { message: 'Keep learning! Practice makes perfect!' }
   }
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
         <div className="max-w-2xl mx-auto px-4 flex items-center justify-center py-20">
           <Card variant="elevated" className="text-center p-12">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary mx-auto mb-6"></div>
-            <p className="text-lg text-muted-foreground font-medium">Loading results...</p>
+            <p className="text-lg text-muted-foreground font-medium">
+              {authLoading ? 'Checking authentication...' : 'Loading results...'}
+            </p>
           </Card>
         </div>
       </div>

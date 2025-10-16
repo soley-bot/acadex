@@ -32,19 +32,22 @@ export default function QuizTakingPage() {
 
   // Load quiz data - only once when auth is ready
   useEffect(() => {
-    // Wait for auth to complete
+    // CRITICAL: Wait for auth to complete before any checks
     if (authLoading) {
+      console.log('[Quiz] Waiting for auth to complete...')
       return;
     }
 
     // Check if user is logged in
     if (!user) {
+      console.log('[Quiz] No user found, redirecting to auth...')
       router.push(`/auth?tab=signin&redirect=/quizzes/${quizId}/take`);
       return;
     }
 
     // Check if we have quizId
     if (!quizId) {
+      console.error('[Quiz] Invalid quiz ID');
       setError('Invalid quiz ID');
       setLoading(false);
       return;
@@ -52,10 +55,12 @@ export default function QuizTakingPage() {
 
     // Prevent duplicate fetches
     if (hasFetchedRef.current) {
+      console.log('[Quiz] Already fetched, skipping...');
       return;
     }
 
     hasFetchedRef.current = true;
+    console.log('[Quiz] Starting quiz data fetch for:', quizId);
 
     // Fetch quiz data
     const loadQuiz = async () => {
@@ -66,6 +71,12 @@ export default function QuizTakingPage() {
         const response = await fetch(`/api/quizzes/${quizId}`);
 
         if (!response.ok) {
+          // Handle 401/403 specifically - means auth issue
+          if (response.status === 401 || response.status === 403) {
+            console.log('[Quiz] Auth error, redirecting...');
+            router.push(`/auth?tab=signin&redirect=/quizzes/${quizId}/take`);
+            return;
+          }
           throw new Error(`Failed to fetch quiz: ${response.status}`);
         }
 
@@ -75,6 +86,7 @@ export default function QuizTakingPage() {
           throw new Error('Invalid quiz data received');
         }
 
+        console.log('[Quiz] Quiz loaded successfully:', result.quiz.title);
         setQuiz(result.quiz);
         setQuestions(result.questions);
 
@@ -86,9 +98,11 @@ export default function QuizTakingPage() {
 
         setLoading(false);
       } catch (err) {
-        console.error('Error loading quiz:', err);
+        console.error('[Quiz] Error loading quiz:', err);
         setError(err instanceof Error ? err.message : 'Failed to load quiz');
         setLoading(false);
+        // Reset fetch ref to allow retry
+        hasFetchedRef.current = false;
       }
     };
 
