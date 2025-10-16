@@ -61,7 +61,7 @@ async function checkAuth(request: NextRequest) {
     if (!user) {
       return {
         requiresRedirect: true,
-        redirectTo: '/auth/login'
+        redirectTo: '/auth?tab=signin'
       }
     }
 
@@ -86,7 +86,7 @@ async function checkAuth(request: NextRequest) {
     console.error('Auth check failed:', error)
     return {
       requiresRedirect: true,
-      redirectTo: '/auth/login'
+      redirectTo: '/auth?tab=signin'
     }
   }
 }
@@ -100,7 +100,9 @@ function isProtectedRoute(pathname: string): boolean {
     /^\/admin/,
     /^\/profile/,
     /^\/progress/,
-    /^\/courses\/[^/]+\/study/
+    /^\/courses\/[^/]+\/study/,
+    /^\/quizzes\/[^/]+\/take/,        // Quiz taking requires auth
+    /^\/quizzes\/[^/]+\/results/      // Quiz results requires auth
   ]
   
   return protectedPatterns.some(pattern => pattern.test(pathname))

@@ -71,7 +71,7 @@ export default function RootLayout({
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#dc2626" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
       </head>
       <body className="font-sans antialiased">
         <ErrorBoundary>

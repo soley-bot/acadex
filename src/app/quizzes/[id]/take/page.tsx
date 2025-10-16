@@ -28,6 +28,7 @@ export default function QuizTakingPage() {
   // Refs
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const hasFetchedRef = useRef(false);
+  const submitRef = useRef(false); // Prevent double submission
 
   // Load quiz data - only once when auth is ready
   useEffect(() => {
@@ -38,7 +39,7 @@ export default function QuizTakingPage() {
 
     // Check if user is logged in
     if (!user) {
-      router.push('/auth/login');
+      router.push(`/auth?tab=signin&redirect=/quizzes/${quizId}/take`);
       return;
     }
 
@@ -128,10 +129,13 @@ export default function QuizTakingPage() {
 
   // Submit quiz
   const handleSubmit = useCallback(async () => {
-    if (submitting || !quizId || !user) {
+    // CRITICAL: Prevent double submission (from timer + user click)
+    if (submitRef.current || submitting || !quizId || !user) {
+      console.log('[Submit Guard] Already submitting, ignoring duplicate request');
       return;
     }
 
+    submitRef.current = true;
     setSubmitting(true);
 
     try {
@@ -171,6 +175,8 @@ export default function QuizTakingPage() {
       console.error('Error submitting quiz:', err);
       setError(err instanceof Error ? err.message : 'Failed to submit quiz');
       setSubmitting(false);
+      // Allow retry on error
+      submitRef.current = false;
     }
   }, [submitting, quizId, user, quiz, timeLeft, answers, router]);
 

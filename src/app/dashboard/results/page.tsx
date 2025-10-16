@@ -54,7 +54,7 @@ export default function AllResultsPage() {
 
   useEffect(() => {
     if (!user) {
-      router.push('/auth/login')
+      router.push('/auth?tab=signin&redirect=/dashboard/results')
       return
     }
 

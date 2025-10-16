@@ -14,13 +14,14 @@ export const dynamic = 'force-dynamic'
 type TabType = 'signin' | 'signup'
 
 export default function AuthPage() {
-  const { signIn, signUp, user } = useAuth()
+  const { signIn, signUp, user, loading: authLoading } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<TabType>('signup')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   // Sign In form state
   const [signInData, setSignInData] = useState({
@@ -39,22 +40,54 @@ export default function AuthPage() {
 
   // Handle redirect if already logged in
   useEffect(() => {
-    if (user) {
+    if (user && !authLoading && !isRedirecting) {
+      setIsRedirecting(true)
       const redirectTo = searchParams.get('redirect') || searchParams.get('redirectTo')
       const secureRedirect = getSecureRedirect(redirectTo, user.role)
-      router.push(secureRedirect)
+      router.replace(secureRedirect)
     }
-  }, [user, router, searchParams])
+  }, [user, authLoading, isRedirecting, router, searchParams])
 
-  // Check for tab parameter in URL
+  // Check for tab parameter and error messages in URL
   useEffect(() => {
     const tab = searchParams.get('tab')
     if (tab === 'signin' || tab === 'signup') {
       setActiveTab(tab)
     }
+
+    // Check for error from OAuth callback
+    const errorParam = searchParams.get('error')
+    if (errorParam) {
+      setError(decodeURIComponent(errorParam))
+    }
   }, [searchParams])
 
-  if (user) {
+  // Mobile debugging - helps diagnose mobile-specific issues
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      console.log('[Auth Debug] User Agent:', navigator.userAgent)
+      console.log('[Auth Debug] Cookies enabled:', navigator.cookieEnabled)
+      
+      // Test localStorage availability (just for logging, don't show error yet)
+      try {
+        localStorage.setItem('__test__', 'test')
+        localStorage.removeItem('__test__')
+        console.log('[Auth Debug] localStorage: Available')
+      } catch (e) {
+        console.warn('[Auth Debug] localStorage: BLOCKED', e)
+        // Don't set error here - will check before sign in
+      }
+
+      // Log viewport info
+      console.log('[Auth Debug] Viewport:', {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      })
+    }
+  }, [])
+
+  if (user || isRedirecting) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
@@ -70,6 +103,16 @@ export default function AuthPage() {
     setLoading(true)
     setError('')
 
+    // Check localStorage before attempting sign in
+    try {
+      localStorage.setItem('__auth_check__', 'test')
+      localStorage.removeItem('__auth_check__')
+    } catch (e) {
+      setError('Your browser is blocking storage. Please disable private browsing mode or enable cookies.')
+      setLoading(false)
+      return
+    }
+
     const { error: signInError } = await signIn(signInData.email, signInData.password)
     
     if (signInError) {
@@ -83,6 +126,16 @@ export default function AuthPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
+
+    // Check localStorage before attempting sign up
+    try {
+      localStorage.setItem('__auth_check__', 'test')
+      localStorage.removeItem('__auth_check__')
+    } catch (e) {
+      setError('Your browser is blocking storage. Please disable private browsing mode or enable cookies.')
+      setLoading(false)
+      return
+    }
 
     const fullName = `${signUpData.firstName} ${signUpData.lastName}`.trim()
     const { error: signUpError } = await signUp(signUpData.email, signUpData.password, fullName)
@@ -99,10 +152,13 @@ export default function AuthPage() {
     setError('')
     
     try {
+      // Always use window.location.origin (we're in browser/client component)
+      const callbackUrl = `${window.location.origin}/auth/callback`
+
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -126,10 +182,13 @@ export default function AuthPage() {
     setError('')
     
     try {
+      // Always use window.location.origin (we're in browser/client component)
+      const callbackUrl = `${window.location.origin}/auth/callback`
+
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl,
         }
       })
       

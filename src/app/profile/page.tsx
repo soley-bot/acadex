@@ -39,7 +39,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!user) {
-      router.push('/auth/login')
+      router.push('/auth?tab=signin&redirect=/profile')
       return
     }
 

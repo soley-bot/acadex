@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Container, Section, Grid } from '@/components/ui/Layout'
 import { Card, CardContent } from '@/components/ui/card'
@@ -18,6 +18,9 @@ function ContactFormComponent() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  
+  // Prevent double submission
+  const submitRef = useRef(false)
 
   useEffect(() => {
     const subject = searchParams.get('subject')
@@ -40,6 +43,14 @@ function ContactFormComponent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // CRITICAL: Prevent double submission
+    if (submitRef.current || loading) {
+      console.log('[Submit Guard] Already submitting, ignoring');
+      return;
+    }
+    
+    submitRef.current = true;
     setLoading(true)
     setError('')
     setSuccess(false)
@@ -47,8 +58,14 @@ function ContactFormComponent() {
       await new Promise(resolve => setTimeout(resolve, 1000))
       setSuccess(true)
       setFormData({ name: '', email: '', subject: '', message: '' })
+      // Allow re-submit after 3 seconds
+      setTimeout(() => {
+        submitRef.current = false;
+      }, 3000);
     } catch (err) {
       setError('Failed to send message. Please try again.')
+      // Allow immediate retry on error
+      submitRef.current = false;
     } finally {
       setLoading(false)
     }
@@ -137,7 +154,7 @@ function ContactFormComponent() {
                       <label htmlFor="message" className="block text-sm font-medium text-gray-900 mb-2">Message</label>
                       <textarea id="message" name="message" value={formData.message} onChange={handleInputChange} required rows={5} className="input" placeholder="Tell us how we can help..."></textarea>
                     </div>
-                    <Button type="submit" disabled={loading} size="lg" className="w-full">
+                    <Button type="submit" disabled={loading || submitRef.current} size="lg" className="w-full">
                       {loading ? (
                         <span className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Sending...</span>
                       ) : (

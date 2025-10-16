@@ -1,6 +1,26 @@
 import { createClient } from '@supabase/supabase-js'
 import type { UserRole } from './auth-security'
 
+/**
+ * Check if localStorage is available and working
+ * Mobile browsers (especially Safari) may block it in private mode
+ */
+function getStorageAdapter() {
+  if (typeof window === 'undefined') return undefined
+  
+  try {
+    const testKey = '__storage_test__'
+    window.localStorage.setItem(testKey, 'test')
+    window.localStorage.removeItem(testKey)
+    console.log('[Supabase] localStorage available')
+    return window.localStorage
+  } catch (e) {
+    console.warn('[Supabase] localStorage blocked or unavailable (common on mobile Safari private mode)')
+    // Return undefined - Supabase will use memory storage as fallback
+    return undefined
+  }
+}
+
 function createSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -26,13 +46,15 @@ function createSupabaseClient() {
   }
 
   try {
+    const storage = getStorageAdapter()
+    
     const client = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
         storageKey: 'acadex-auth-token',
-        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+        storage: storage, // Will use memory storage if localStorage is blocked
         flowType: 'pkce'
       },
       global: {
@@ -46,7 +68,8 @@ function createSupabaseClient() {
     })
     
     if (typeof window !== 'undefined') {
-      console.log('[Supabase] Client initialized successfully')
+      console.log('[Supabase] Client initialized successfully', 
+        storage ? 'with localStorage' : 'with memory storage (localStorage unavailable)')
     }
     
     return client

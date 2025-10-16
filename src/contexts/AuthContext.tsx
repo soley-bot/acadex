@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { User as SupabaseUser, AuthChangeEvent, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@/lib/supabase'
@@ -31,27 +31,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null)
   const [loading, setLoading] = useState(true)
+  
+  // Use ref to track if we've fetched profile to avoid closure issues
+  const userRef = useRef<User | null>(null)
+  
+  // Update ref when user changes
+  useEffect(() => {
+    userRef.current = user
+  }, [user])
 
-  // Simple initialization - no timeouts or complex logic
+  // Helper to fetch user profile with error handling
+  const fetchUserProfile = async (userId: string): Promise<User | null> => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single()
+      
+      if (error) {
+        logger.error('Failed to fetch user profile:', error)
+        return null
+      }
+      
+      return profile
+    } catch (error) {
+      logger.error('Unexpected error fetching profile:', error)
+      return null
+    }
+  }
+
+  // Initialize auth and set up listeners
   useEffect(() => {
     let mounted = true
 
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        const { data: { session }, error } = await supabase.auth.getSession()
         
-        if (mounted) {
-          setSupabaseUser(session?.user || null)
-          
-          if (session?.user) {
-            // Fetch user profile
-            const { data: profile } = await supabase
-              .from('users')
-              .select('*')
-              .eq('id', session.user.id)
-              .single()
-            
-            setUser(profile || null)
+        if (error) {
+          logger.error('Failed to get session:', error)
+        }
+        
+        if (mounted && session?.user) {
+          setSupabaseUser(session.user)
+          const profile = await fetchUserProfile(session.user.id)
+          if (mounted && profile) {
+            setUser(profile)
+            userRef.current = profile
+            console.log('[Auth] Initial session loaded, user profile set')
           }
         }
       } catch (error) {
@@ -65,26 +93,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initializeAuth()
 
-    // Listen for auth changes
+    // Listen for auth changes - optimized to reduce redundant calls
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event: AuthChangeEvent, session: Session | null) => {
-        if (!mounted) return
+      async (event: AuthChangeEvent, session: Session | null) => {
+        console.log('[Auth] State changed:', event)
 
-        setSupabaseUser(session?.user || null)
-        
-        if (session?.user) {
-          const { data: profile } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-          
-          setUser(profile || null)
-        } else {
-          setUser(null)
+        // CRITICAL: Always set loading to false eventually, even if component unmounts
+        // This ensures QuizListCard and other components don't get stuck in loading state
+        try {
+          if (!mounted) {
+            console.log('[Auth] Component unmounted, skipping state update')
+            return
+          }
+
+          if (session?.user) {
+            setSupabaseUser(session.user)
+            
+            // Fetch profile on sign in and user updates
+            if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+              const profile = await fetchUserProfile(session.user.id)
+              if (profile && mounted) {
+                setUser(profile)
+                userRef.current = profile
+                console.log('[Auth] Profile updated for', event)
+              }
+            } 
+            // For INITIAL_SESSION and TOKEN_REFRESHED, fetch if we don't have profile yet
+            else if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
+              // Use ref to avoid closure issue
+              if (!userRef.current) {
+                console.log('[Auth] Fetching profile for existing session...')
+                const profile = await fetchUserProfile(session.user.id)
+                if (profile && mounted) {
+                  setUser(profile)
+                  userRef.current = profile
+                  console.log('[Auth] Profile loaded from existing session')
+                }
+              } else {
+                console.log('[Auth] Profile already exists, skipping fetch')
+              }
+            }
+          } else {
+            setUser(null)
+            setSupabaseUser(null)
+            userRef.current = null
+            console.log('[Auth] User signed out')
+          }
+        } finally {
+          // ALWAYS set loading to false, even if there are errors
+          if (mounted) {
+            setLoading(false)
+            console.log('[Auth] Loading complete')
+          }
         }
-        
-        setLoading(false)
       }
     )
 
@@ -92,7 +153,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       mounted = false
       subscription.unsubscribe()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Recover session when app becomes visible (mobile support)
+  // Using refs to avoid recreating listener on every user/loading change
+  useEffect(() => {
+    // Only set up once
+    if (typeof document === 'undefined') return
+
+    const handleVisibilityChange = async () => {
+      // Skip if document not visible or still initializing
+      if (document.visibilityState !== 'visible' || loading) {
+        return
+      }
+
+      console.log('[Auth] App visible - checking session...')
+      
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          logger.error('Session check failed:', error)
+          return
+        }
+
+        // Only refresh if we have a session but no current user state
+        if (session?.user && !user) {
+          console.log('[Auth] Session exists but user missing - refreshing')
+          const profile = await fetchUserProfile(session.user.id)
+          if (profile) {
+            setUser(profile)
+            setSupabaseUser(session.user)
+          }
+        }
+      } catch (error) {
+        logger.error('Visibility change check failed:', error)
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Only set up once, use refs for current values if needed
 
   // Simplified sign in
   const signIn = async (email: string, password: string) => {

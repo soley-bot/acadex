@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase, Course, CourseModule, CourseLesson, LessonProgress } from '@/lib/supabase'
 import { getCourseWithModulesAndLessons, updateEnrollmentProgress } from '@/lib/database-operations'
@@ -46,6 +46,11 @@ export default function CourseStudyPage() {
   const [sessionWarning, setSessionWarning] = useState(false)
   const [loadingStage, setLoadingStage] = useState<'auth' | 'params' | 'content'>('auth')
 
+  // Refs to prevent race conditions
+  const hasFetchedRef = useRef(false)
+  const abortControllerRef = useRef<AbortController | null>(null)
+  const mountedRef = useRef(true)
+
   // Session expiry detection
   useEffect(() => {
     const checkSession = async () => {
@@ -89,6 +94,14 @@ export default function CourseStudyPage() {
     }
   }, [courseId, user, authLoading, loading, loadingStage, error])
 
+  // Mounted guard setup
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
+
   useEffect(() => {
     // Wait for auth to finish loading
     if (authLoading) {
@@ -105,7 +118,21 @@ export default function CourseStudyPage() {
       return
     }
 
+    // CRITICAL: Prevent duplicate fetches
+    if (hasFetchedRef.current) {
+      console.log('[Fetch Guard] Already fetched course data, skipping');
+      return;
+    }
+
+    hasFetchedRef.current = true;
+
     const loadCourseContent = async () => {
+      // Cancel any previous request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      
+      abortControllerRef.current = new AbortController();
       try {
         setLoadingStage('content')
         setLoading(true)
@@ -126,9 +153,8 @@ export default function CourseStudyPage() {
       }
 
       // Use API route instead of direct Supabase (fixes CORS on custom domains)
-      // Add timeout to prevent infinite loading
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 15000) // 15 second timeout
+      // Use shared abort controller
+      const timeoutId = setTimeout(() => abortControllerRef.current?.abort(), 15000) // 15 second timeout
 
       let response
       try {
@@ -138,19 +164,25 @@ export default function CourseStudyPage() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${session.access_token}`
           },
-          signal: controller.signal
+          signal: abortControllerRef.current.signal
         })
         clearTimeout(timeoutId)
       } catch (fetchError: any) {
         clearTimeout(timeoutId)
         if (fetchError.name === 'AbortError') {
-          console.error('Request timeout')
-          setError('Request timed out. Please check your connection and try again.')
+          console.error('Request aborted or timed out')
+          // Don't set error on intentional aborts (component unmounting)
+          if (mountedRef.current) {
+            setError('Request timed out. Please check your connection and try again.')
+            setLoading(false)
+          }
         } else {
           console.error('Fetch error:', fetchError)
-          setError('Network error. Please check your connection and try again.')
+          if (mountedRef.current) {
+            setError('Network error. Please check your connection and try again.')
+            setLoading(false)
+          }
         }
-        setLoading(false)
         return
       }
 
@@ -174,6 +206,12 @@ export default function CourseStudyPage() {
       }
 
       const data = await response.json()
+      
+      // Check if component is still mounted before updating state
+      if (!mountedRef.current) {
+        console.log('[Mounted Guard] Component unmounted, skipping state updates');
+        return;
+      }
       
       console.log('📦 Course data received:', {
         course: !!data.course,
@@ -252,17 +290,28 @@ export default function CourseStudyPage() {
       }
 
         console.log('✅ Course content loaded successfully')
-        setLoading(false)
+        if (mountedRef.current) {
+          setLoading(false)
+        }
         
       } catch (error) {
         console.error('❌ Error loading course content:', error)
         logger.error('Error loading course content:', error)
-        setError('Failed to load course content. Please try again.')
-        setLoading(false)
+        if (mountedRef.current) {
+          setError('Failed to load course content. Please try again.')
+          setLoading(false)
+        }
       }
     }
 
     loadCourseContent()
+
+    // Cleanup: abort request on unmount or dependency change
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    }
   }, [courseId, user, authLoading, router])
 
   const handleToggleModule = (moduleId: string) => {

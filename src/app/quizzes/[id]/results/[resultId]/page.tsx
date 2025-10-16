@@ -38,7 +38,7 @@ export default function QuizResultsPage() {
 
   useEffect(() => {
     if (!user) {
-      router.push('/auth/login')
+      router.push(`/auth?tab=signin&redirect=/quizzes/${params.id}/results/${params.resultId}`)
       return
     }
 
@@ -71,7 +71,7 @@ export default function QuizResultsPage() {
     if (params.resultId) {
       fetchResults()
     }
-  }, [params.resultId, user, router])
+  }, [params.id, params.resultId, user, router])
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600'

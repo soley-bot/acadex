@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { quizAPI } from '@/lib/api'
 const { getUserQuizAttempts } = quizAPI
@@ -44,8 +44,20 @@ export default function MyQuizzesPage() {
   const [activeTab, setActiveTab] = useState<'attempts' | 'available'>('attempts')
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  // Prevent duplicate fetches
+  const hasFetchedRef = useRef(false)
+  const mountedRef = useRef(true)
+
   useEffect(() => {
-    if (user) {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
+
+  useEffect(() => {
+    if (user && !hasFetchedRef.current) {
+      hasFetchedRef.current = true
       fetchQuizData()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,8 +70,14 @@ export default function MyQuizzesPage() {
       setLoading(true)
       setError(null) // Clear any previous errors
       
-      // Fetch user's quiz attempts with better error handling
-      const attemptsResponse = await getUserQuizAttempts(user.id, { limit: 10 })
+      // CRITICAL: Fetch both in parallel instead of sequential (faster!)
+      const [attemptsResponse, quizzesResponse] = await Promise.all([
+        getUserQuizAttempts(user.id, { limit: 10 }),
+        quizAPI.getQuizzes({ limit: 20 })
+      ])
+      
+      // Check if still mounted before updating state
+      if (!mountedRef.current) return
       
       // Transform attempts data first so we can use it later
       let transformedAttempts: any[] = []
@@ -102,14 +120,12 @@ export default function MyQuizzesPage() {
           }
         }) || []
 
-        setQuizAttempts(transformedAttempts)
+        if (mountedRef.current) {
+          setQuizAttempts(transformedAttempts)
+        }
       }
 
-      // Fetch available quizzes
-      const quizzesResponse = await quizAPI.getQuizzes({ 
-        limit: 20 
-      })
-      
+      // Process quizzes data (already fetched in parallel above)
       if (quizzesResponse.error) {
         setError('Failed to load available quizzes. Please try again.')
       } else {
@@ -134,13 +150,19 @@ export default function MyQuizzesPage() {
           }
         }) || []
 
-        setAvailableQuizzes(transformedQuizzes)
+        if (mountedRef.current) {
+          setAvailableQuizzes(transformedQuizzes)
+        }
       }
 
     } catch (error) {
-      setError('Failed to load quiz data. Please check your connection and try again.')
+      if (mountedRef.current) {
+        setError('Failed to load quiz data. Please check your connection and try again.')
+      }
     } finally {
-      setLoading(false)
+      if (mountedRef.current) {
+        setLoading(false)
+      }
     }
   }
 
