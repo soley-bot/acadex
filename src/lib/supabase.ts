@@ -2,12 +2,46 @@ import { createClient } from '@supabase/supabase-js'
 import type { UserRole } from './auth-security'
 
 /**
+ * Cookie-based storage adapter for when localStorage is blocked
+ * Used as fallback on mobile Safari private mode
+ */
+function createCookieStorage() {
+  return {
+    getItem: (key: string): string | null => {
+      if (typeof document === 'undefined') return null
+
+      const value = document.cookie
+        .split('; ')
+        .find(row => row.startsWith(`${key}=`))
+        ?.split('=')[1]
+
+      return value ? decodeURIComponent(value) : null
+    },
+    setItem: (key: string, value: string): void => {
+      if (typeof document === 'undefined') return
+
+      // Use 30 days expiry, Secure flag, and Lax SameSite for better compatibility
+      const maxAge = 30 * 24 * 60 * 60 // 30 days in seconds
+      document.cookie = `${key}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/; SameSite=Lax; Secure`
+      console.log('[Supabase] Saved to cookie:', key)
+    },
+    removeItem: (key: string): void => {
+      if (typeof document === 'undefined') return
+
+      document.cookie = `${key}=; max-age=0; path=/; SameSite=Lax; Secure`
+      console.log('[Supabase] Removed from cookie:', key)
+    }
+  }
+}
+
+/**
  * Check if localStorage is available and working
  * Mobile browsers (especially Safari) may block it in private mode
+ * Falls back to cookie-based storage for persistence
  */
 function getStorageAdapter() {
   if (typeof window === 'undefined') return undefined
-  
+
   try {
     const testKey = '__storage_test__'
     window.localStorage.setItem(testKey, 'test')
@@ -15,9 +49,9 @@ function getStorageAdapter() {
     console.log('[Supabase] localStorage available')
     return window.localStorage
   } catch (e) {
-    console.warn('[Supabase] localStorage blocked or unavailable (common on mobile Safari private mode)')
-    // Return undefined - Supabase will use memory storage as fallback
-    return undefined
+    console.warn('[Supabase] localStorage blocked - using cookie storage fallback (mobile Safari private mode)')
+    // Return cookie-based storage instead of undefined to maintain persistence
+    return createCookieStorage() as any
   }
 }
 
@@ -68,8 +102,12 @@ function createSupabaseClient() {
     })
     
     if (typeof window !== 'undefined') {
-      console.log('[Supabase] Client initialized successfully', 
-        storage ? 'with localStorage' : 'with memory storage (localStorage unavailable)')
+      const storageType = storage === window.localStorage
+        ? 'with localStorage'
+        : storage
+          ? 'with cookie storage (localStorage blocked)'
+          : 'with memory storage (no persistence)'
+      console.log('[Supabase] Client initialized successfully', storageType)
     }
     
     return client

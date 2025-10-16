@@ -10,6 +10,9 @@ import { createServerClient } from '@supabase/ssr'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Create response early so we can modify cookies
+  let response = NextResponse.next()
+
   // Skip middleware for static files and public routes
   if (pathname.startsWith('/_next/') ||
       pathname.startsWith('/api/') ||
@@ -18,31 +21,36 @@ export async function middleware(request: NextRequest) {
       pathname === '/robots.txt' ||
       pathname === '/sitemap.xml' ||
       pathname.startsWith('/auth/')) {
-    return NextResponse.next()
+    return response
   }
 
   // Only handle auth for protected routes
   if (isProtectedRoute(pathname)) {
-    const authResult = await checkAuth(request)
-    
+    const authResult = await checkAuth(request, response)
+
     if (authResult.requiresRedirect && authResult.redirectTo) {
       return NextResponse.redirect(new URL(authResult.redirectTo, request.url))
+    }
+
+    // Use the response from checkAuth which may have updated cookies
+    if (authResult.response) {
+      response = authResult.response
     }
   }
 
   // Add basic security headers
-  const response = NextResponse.next()
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  
+
   return response
 }
 
 /**
- * Simple auth check without caching
+ * Simple auth check with proper cookie handling
+ * Returns response object to allow middleware to update cookies
  */
-async function checkAuth(request: NextRequest) {
+async function checkAuth(request: NextRequest, response: NextResponse) {
   try {
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -50,18 +58,28 @@ async function checkAuth(request: NextRequest) {
       {
         cookies: {
           get: (name: string) => request.cookies.get(name)?.value,
-          set: () => {}, // Not needed in middleware
-          remove: () => {} // Not needed in middleware
+          set: (name: string, value: string, options: any) => {
+            // Update both request and response cookies for proper token management
+            request.cookies.set({ name, value, ...options })
+            response.cookies.set({ name, value, ...options })
+          },
+          remove: (name: string, options: any) => {
+            request.cookies.set({ name, value: '', ...options })
+            response.cookies.set({ name, value: '', ...options })
+          }
         }
       }
     )
 
     const { data: { user } } = await supabase.auth.getUser()
-    
+
     if (!user) {
+      // Include original URL in redirect parameter
+      const redirectPath = request.nextUrl.pathname + request.nextUrl.search
       return {
         requiresRedirect: true,
-        redirectTo: '/auth?tab=signin'
+        redirectTo: `/auth?tab=signin&redirect=${encodeURIComponent(redirectPath)}`,
+        response
       }
     }
 
@@ -72,21 +90,24 @@ async function checkAuth(request: NextRequest) {
         .select('role')
         .eq('id', user.id)
         .single()
-      
+
       if (userRecord?.role !== 'admin') {
         return {
           requiresRedirect: true,
-          redirectTo: '/unauthorized'
+          redirectTo: '/unauthorized',
+          response
         }
       }
     }
 
-    return { requiresRedirect: false }
+    return { requiresRedirect: false, response }
   } catch (error) {
     console.error('Auth check failed:', error)
+    const redirectPath = request.nextUrl.pathname + request.nextUrl.search
     return {
       requiresRedirect: true,
-      redirectTo: '/auth?tab=signin'
+      redirectTo: `/auth?tab=signin&redirect=${encodeURIComponent(redirectPath)}`,
+      response
     }
   }
 }
