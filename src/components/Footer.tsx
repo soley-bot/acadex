@@ -49,7 +49,7 @@ export function Footer() {
             </p>
             <div className="mb-8">
               <p className="text-muted-foreground mb-2">
-                Email: acadex@gmail.com
+                Email: academyacadex@gmail.com
               </p>
               <p className="text-muted-foreground">
                 Based in Phnom Penh, Cambodia

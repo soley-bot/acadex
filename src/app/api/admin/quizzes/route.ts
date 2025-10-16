@@ -258,7 +258,7 @@ export const PUT = withAdminAuth(async (request: NextRequest, user) => {
     })
 
     const quiz = await withServiceRole(user, async (serviceClient) => {
-      const { data, error } = await serviceClient
+      const { data, error} = await serviceClient
         .from('quizzes')
         .update({
           title: body.title,
@@ -286,6 +286,15 @@ export const PUT = withAdminAuth(async (request: NextRequest, user) => {
           instructions: body.instructions,
           tags: body.tags,
           estimated_time_minutes: body.estimated_time_minutes,
+
+          // Reading quiz fields (CRITICAL: was missing!)
+          reading_passage: body.reading_passage,
+          passage_title: body.passage_title,
+          passage_source: body.passage_source,
+          passage_audio_url: body.passage_audio_url,
+          word_count: body.word_count,
+          estimated_read_time: body.estimated_read_time,
+
           updated_at: new Date().toISOString()
         })
         .eq('id', quizId)

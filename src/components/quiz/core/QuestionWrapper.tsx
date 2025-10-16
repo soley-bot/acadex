@@ -113,21 +113,27 @@ export const QuestionWrapper = memo<QuestionWrapperProps>(({
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Question Container - Match original design */}
-      <div className="bg-white/95 rounded-xl p-5 shadow-lg border border-white/20">
+      {/* Question Container - Enhanced with modern design */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-xl border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-shadow duration-300">
         {/* Question Header */}
-        <div className="mb-6">
-          <div className="bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg p-4 mb-4">
+        <div className="mb-8">
+          <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-purple-950/30 rounded-xl p-5 sm:p-6 border border-blue-100 dark:border-blue-900/30">
             <div className="flex items-start justify-between gap-4">
-              <h2 className="text-xl font-semibold text-foreground leading-relaxed flex-1">
-                {question.question}
-              </h2>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <Badge variant="secondary" className="text-xs">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1.5 h-8 bg-gradient-to-b from-primary to-secondary rounded-full"></div>
+                  <span className="text-xs font-semibold text-primary uppercase tracking-wide">Question</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-relaxed">
+                  {question.question}
+                </h2>
+              </div>
+              <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                <Badge variant="secondary" className="text-xs font-semibold px-3 py-1 bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20">
                   Q{questionNumber}
                 </Badge>
                 {question.points && (
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-xs font-medium px-3 py-1 border-2 border-amber-300 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
                     {question.points} pts
                   </Badge>
                 )}
@@ -136,21 +142,23 @@ export const QuestionWrapper = memo<QuestionWrapperProps>(({
           </div>
         </div>
 
-        {/* Question Content - Compact spacing */}
-        <div className="space-y-2">
+        {/* Question Content */}
+        <div className="space-y-3">
           {renderQuestionContent()}
         </div>
 
-        {/* Explanation */}
+        {/* Explanation - Enhanced design */}
         {showExplanation && question.explanation && (
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold mt-0.5">
-                i
+          <div className="mt-8 p-5 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-l-4 border-blue-500 rounded-xl shadow-md">
+            <div className="flex items-start gap-4">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-lg">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
               </div>
-              <div>
-                <h4 className="font-medium text-blue-900 mb-2">Explanation</h4>
-                <p className="text-sm text-blue-800 leading-relaxed">{question.explanation}</p>
+              <div className="flex-1">
+                <h4 className="font-bold text-blue-900 dark:text-blue-200 mb-2 text-sm uppercase tracking-wide">Explanation</h4>
+                <p className="text-sm sm:text-base text-blue-800 dark:text-blue-300 leading-relaxed">{question.explanation}</p>
               </div>
             </div>
           </div>

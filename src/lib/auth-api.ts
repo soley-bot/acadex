@@ -7,13 +7,57 @@ import { supabase } from './supabase'
 import { ErrorHandler } from './errorHandler'
 
 /**
- * Get the current access token from Supabase session
+ * Get the current access token - optimized to check localStorage first (fast path)
  */
 export async function getAccessToken(): Promise<string | null> {
+  console.log('🔑 [GET_ACCESS_TOKEN] Starting...')
+
+  // FAST PATH: Check localStorage first (avoids slow getSession call)
   try {
-    const { data: { session } } = await supabase.auth.getSession()
-    return session?.access_token || null
+    if (typeof window !== 'undefined') {
+      const authData = localStorage.getItem('acadex-auth-token')
+      if (authData) {
+        const parsed = JSON.parse(authData)
+        const token = parsed?.access_token
+        const expiresAt = parsed?.expires_at
+
+        // Verify token exists and hasn't expired
+        if (token && expiresAt) {
+          const expiryDate = new Date(expiresAt * 1000)
+          const now = new Date()
+
+          if (expiryDate > now) {
+            console.log('✅ [GET_ACCESS_TOKEN] Using valid token from localStorage (fast)')
+            return token
+          } else {
+            console.log('⚠️ [GET_ACCESS_TOKEN] Token expired, will refresh via session')
+          }
+        }
+      }
+    }
+  } catch (storageError) {
+    console.warn('⚠️ [GET_ACCESS_TOKEN] localStorage check failed:', storageError)
+  }
+
+  // SLOW PATH: Fallback to getSession with timeout (only if localStorage failed)
+  try {
+    console.log('🔄 [GET_ACCESS_TOKEN] Fetching from Supabase session...')
+
+    const timeoutPromise = new Promise<any>((_, reject) => {
+      setTimeout(() => reject(new Error('Session fetch timed out')), 5000)
+    })
+
+    const sessionPromise = supabase.auth.getSession()
+    const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise])
+
+    if (session?.access_token) {
+      console.log('✅ [GET_ACCESS_TOKEN] Got token from session')
+      return session.access_token
+    }
+
+    return null
   } catch (error) {
+    console.error('❌ [GET_ACCESS_TOKEN] Session fetch failed:', error)
     ErrorHandler.handleError(error, 'auth-api.getAccessToken')
     return null
   }
@@ -49,19 +93,31 @@ export async function getAuthHeaders(): Promise<HeadersInit> {
  * Make an authenticated API request
  */
 export async function authenticatedFetch(
-  url: string, 
+  url: string,
   options: RequestInit = {}
 ): Promise<Response> {
+  console.log('🌐 [AUTH_FETCH] Starting fetch to:', url)
+  console.log('🌐 [AUTH_FETCH] Options:', options)
+
   const authHeaders = await createAuthHeaders()
-  
-  return fetch(url, {
+  console.log('🌐 [AUTH_FETCH] Auth headers created')
+
+  const fetchOptions = {
     ...options,
     headers: {
       ...authHeaders,
       ...options.headers
     },
-    credentials: 'include' // Include cookies as fallback
-  })
+    credentials: 'include' as RequestCredentials // Include cookies as fallback
+  }
+
+  console.log('🌐 [AUTH_FETCH] About to call fetch with options:', fetchOptions)
+
+  const response = await fetch(url, fetchOptions)
+
+  console.log('🌐 [AUTH_FETCH] Fetch completed with status:', response.status)
+
+  return response
 }
 
 /**
@@ -131,19 +187,99 @@ export const quizAPI = {
   },
 
   /**
-   * Create a new quiz
+   * Create a new quiz with timeout
    */
   async createQuiz(quizData: any) {
-    const response = await authenticatedPost('/api/admin/quizzes', quizData)
-    return response.json()
+    console.log('🚀 [QUIZ_API] Creating new quiz:', quizData.title)
+
+    try {
+      // Add timeout to prevent hanging
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => {
+        console.log('⏰ [QUIZ_API] Quiz creation timeout - aborting request')
+        controller.abort()
+      }, 30000) // 30 second timeout
+
+      console.log('📝 [QUIZ_API] Sending quiz creation payload:', quizData)
+
+      const response = await authenticatedPost('/api/admin/quizzes', quizData, {
+        signal: controller.signal
+      })
+
+      clearTimeout(timeoutId)
+
+      console.log('📡 [QUIZ_API] Response status:', response.status)
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('❌ [QUIZ_API] Quiz creation failed:', errorText)
+        throw new Error(`Quiz creation failed: ${errorText}`)
+      }
+
+      const result = await response.json()
+      console.log('✅ [QUIZ_API] Quiz created successfully:', result)
+
+      if (!result.quiz) {
+        throw new Error(result.error || 'Quiz creation failed')
+      }
+
+      return result
+    } catch (error: any) {
+      console.error('💥 [QUIZ_API] Quiz creation error:', error)
+
+      if (error.name === 'AbortError') {
+        throw new Error('Quiz creation timed out. Please try again.')
+      }
+
+      throw error
+    }
   },
 
   /**
-   * Update an existing quiz
+   * Update an existing quiz with timeout
    */
   async updateQuiz(quizData: any) {
-    const response = await authenticatedPut('/api/admin/quizzes', quizData)
-    return response.json()
+    console.log('🚀 [QUIZ_API] Updating quiz:', quizData.id)
+
+    try {
+      // Add timeout to prevent hanging
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => {
+        console.log('⏰ [QUIZ_API] Quiz update timeout - aborting request')
+        controller.abort()
+      }, 30000) // 30 second timeout
+
+      console.log('📝 [QUIZ_API] Sending quiz update payload:', quizData)
+
+      const response = await authenticatedPut('/api/admin/quizzes', quizData)
+
+      clearTimeout(timeoutId)
+
+      console.log('📡 [QUIZ_API] Response status:', response.status)
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('❌ [QUIZ_API] Quiz update failed:', errorText)
+        throw new Error(`Quiz update failed: ${errorText}`)
+      }
+
+      const result = await response.json()
+      console.log('✅ [QUIZ_API] Quiz updated successfully:', result)
+
+      if (!result.quiz) {
+        throw new Error(result.error || 'Quiz update failed')
+      }
+
+      return result
+    } catch (error: any) {
+      console.error('💥 [QUIZ_API] Quiz update error:', error)
+
+      if (error.name === 'AbortError') {
+        throw new Error('Quiz update timed out. Please try again.')
+      }
+
+      throw error
+    }
   },
 
   /**

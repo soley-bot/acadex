@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { StandardQuizLayout } from '@/components/quiz/layouts/StandardQuizLayout';
+import { ReadingQuizLayout } from '@/components/quiz/layouts/ReadingQuizLayout';
 import { QuizErrorBoundary } from '@/components/ErrorBoundary';
 import { AlertCircle, RefreshCw, ArrowLeft } from 'lucide-react';
 
@@ -263,21 +264,46 @@ export default function QuizTakingPage() {
     );
   }
 
+  // Determine if this is a reading quiz
+  const isReadingQuiz = quiz?.reading_passage && quiz.reading_passage.trim().length > 0;
+
   // Main quiz interface
   return (
     <QuizErrorBoundary>
-      <StandardQuizLayout
-        questions={questions}
-        currentQuestionIndex={currentQuestionIndex}
-        answers={answers}
-        timeLeft={timeLeft || 0}
-        showTimer={timeLeft !== null && timeLeft > 0}
-        onAnswerChange={handleAnswerChange}
-        onPrevious={goPrevious}
-        onNext={goNext}
-        onSubmit={handleSubmit}
-        submitting={submitting}
-      />
+      {isReadingQuiz ? (
+        <ReadingQuizLayout
+          questions={questions}
+          currentQuestionIndex={currentQuestionIndex}
+          answers={answers}
+          timeLeft={timeLeft ?? undefined}
+          showTimer={true}
+          onAnswerChange={handleAnswerChange}
+          onPrevious={goPrevious}
+          onNext={goNext}
+          onSubmit={handleSubmit}
+          submitting={submitting}
+          readingPassage={quiz.reading_passage}
+          passageTitle={quiz.passage_title}
+          passageSource={quiz.passage_source}
+          passageAudioUrl={quiz.passage_audio_url}
+          wordCount={quiz.word_count}
+          estimatedReadTime={quiz.estimated_read_time}
+        />
+      ) : (
+        <StandardQuizLayout
+          questions={questions}
+          currentQuestionIndex={currentQuestionIndex}
+          answers={answers}
+          timeLeft={timeLeft ?? undefined}
+          showTimer={true}
+          onAnswerChange={handleAnswerChange}
+          onPrevious={goPrevious}
+          onNext={goNext}
+          onSubmit={handleSubmit}
+          submitting={submitting}
+          quizTitle={quiz.title || "Quiz"}
+        />
+      )}
     </QuizErrorBoundary>
   );
 }
