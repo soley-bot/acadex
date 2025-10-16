@@ -1,8 +1,11 @@
 import { logger } from '@/lib/logger'
 
 // Database operations that match the exact schema structure
-import { supabase, Course, Quiz, User, Enrollment, CourseModule, CourseLesson } from './supabase'
+import { createSupabaseClient, Course, Quiz, User, Enrollment, CourseModule, CourseLesson } from './supabase'
 import { validateCourseData, validateQuiz, prepareCourseForDatabase, COURSE_FIELDS, QUIZ_FIELDS } from './database-types'
+
+// Create a shared client instance for this module
+const supabase = createSupabaseClient()
 
 // Enhanced database operation with proper error handling
 async function executeWithTimeout<T>(

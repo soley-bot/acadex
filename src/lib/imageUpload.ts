@@ -1,5 +1,8 @@
 // Utility functions for uploading images to Supabase Storage
-import { supabase } from './supabase'
+import { createSupabaseClient } from './supabase'
+
+// Create module-level Supabase client for image uploads
+const supabase = createSupabaseClient()
 
 export interface ImageUploadResult {
   success: boolean

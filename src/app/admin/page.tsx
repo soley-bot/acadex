@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { H1, H2, H3, BodyLG, BodyMD } from '@/components/ui/Typography'
 import { Container, Section, Grid } from '@/components/ui/Layout'
 import { logger } from '@/lib/logger'
@@ -37,6 +37,9 @@ export default function AdminDashboard() {
       setError(null)
 
       logger.info('Fetching dashboard statistics', { component: 'AdminDashboard' })
+
+      // Create Supabase client for queries
+      const supabase = createSupabaseClient()
 
       // Use COUNT queries for much better performance
       const [usersCount, coursesData, quizzesCount, attemptsCount] = await Promise.all([

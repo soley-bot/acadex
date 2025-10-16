@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { X, User, Mail, Lock, UserCheck, Loader2 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 
 interface AddUserModalProps {
   isOpen: boolean

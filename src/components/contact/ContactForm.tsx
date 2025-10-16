@@ -2,10 +2,12 @@
 
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Container, Section, Grid } from '@/components/ui/Layout'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Mail, Loader2, CheckCircle, XCircle } from 'lucide-react'
+import { Loader2, CheckCircle, XCircle, MessageCircle } from 'lucide-react'
+import { PageHero } from '@/components/layout/PageHero'
+import { PageSection } from '@/components/layout/PageSection'
+import { SectionHeader } from '@/components/layout/SectionHeader'
 
 function ContactFormComponent() {
   const searchParams = useSearchParams()
@@ -91,94 +93,85 @@ function ContactFormComponent() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-secondary/5">
+    <>
       {/* Hero Section */}
-      <Section className="relative py-12 md:pb-16 text-center">
-        <Container size="md">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6">
-            <Mail className="w-4 h-4" />
-            Contact Us
-          </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-            Questions About Your IELTS Prep?
-          </h1>
-          <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
-            Whether you have a question, a suggestion for a new quiz topic, or need technical support, I&apos;m here to help. Every message helps us build a better platform for you.
-          </p>
-        </Container>
-      </Section>
+      <PageHero
+        badge={{ icon: MessageCircle, text: 'Contact Us' }}
+        title="Questions About Your IELTS Prep?"
+        description="Whether you have a question, a suggestion for a new quiz topic, or need technical support, I'm here to help. Every message helps us build a better platform for you."
+        imageSrc="/images/hero/learning-together.jpg"
+        minHeight="min-h-[60vh] lg:min-h-[70vh]"
+      />
 
       {/* Contact Form & Info Section */}
-      <Section className="py-16 md:py-20 lg:py-24">
-        <Container size="lg">
-          <Grid cols={1} className="lg:grid-cols-5 gap-12 md:gap-16">
-            {/* Form */}
-            <div className="lg:col-span-3">
-              <Card>
-                <CardContent className="p-8 md:p-10">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-8">Send a Message</h2>
-                  {success && (
-                    <div className="bg-green-100 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-6 flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5" />
-                      <p>Thank you for your message! We&apos;ll get back to you within 1-2 business days.</p>
-                    </div>
-                  )}
-                  {error && (
-                    <div className="bg-red-100 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6 flex items-center gap-3">
-                      <XCircle className="w-5 h-5" />
-                      <p>{error}</p>
-                    </div>
-                  )}
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Form fields here, using standard input/select/textarea elements styled by globals.css */}
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-900 mb-2">Name</label>
-                      <input type="text" id="name" name="name" value={formData.name} onChange={handleInputChange} required className="input" placeholder="Your full name" />
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">Email</label>
-                      <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} required className="input" placeholder="your.email@example.com" />
-                    </div>
-                    <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-900 mb-2">Subject</label>
-                      <select id="subject" name="subject" value={formData.subject} onChange={handleInputChange} required className="input">
-                        <option value="">Select a topic</option>
-                        <option value="IELTS Quiz Question">IELTS Quiz Question</option>
-                        <option value="Content Suggestion">Content Suggestion</option>
-                        <option value="Technical Support">Technical Support</option>
-                        <option value="Partnership Inquiry">Partnership Inquiry</option>
-                        <option value="General Feedback">General Feedback</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-gray-900 mb-2">Message</label>
-                      <textarea id="message" name="message" value={formData.message} onChange={handleInputChange} required rows={5} className="input" placeholder="Tell us how we can help..."></textarea>
-                    </div>
-                    <Button type="submit" disabled={loading || submitRef.current} size="lg" className="w-full">
-                      {loading ? (
-                        <span className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Sending...</span>
-                      ) : (
-                        "Send Message"
-                      )}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-            {/* FAQ */}
-            <div className="lg:col-span-2 space-y-8">
-                <h2 className="text-3xl font-bold text-gray-900">Frequently Asked Questions</h2>
-                {faqItems.map((item, index) => (
-                  <div key={index}>
-                    <h3 className="text-xl font-semibold mb-2">{item.question}</h3>
-                    <p className="text-gray-600 leading-relaxed">{item.answer}</p>
+      <PageSection>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 md:gap-16">
+          {/* Form */}
+          <div className="lg:col-span-3">
+            <Card>
+              <CardContent className="p-8 md:p-10">
+                <h2 className="text-3xl font-bold text-gray-900 mb-8">Send a Message</h2>
+                {success && (
+                  <div className="bg-green-100 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-6 flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5" />
+                    <p>Thank you for your message! We&apos;ll get back to you within 1-2 business days.</p>
                   </div>
-                ))}
-            </div>
-          </Grid>
-        </Container>
-      </Section>
-    </div>
+                )}
+                {error && (
+                  <div className="bg-red-100 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6 flex items-center gap-3">
+                    <XCircle className="w-5 h-5" />
+                    <p>{error}</p>
+                  </div>
+                )}
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Form fields here, using standard input/select/textarea elements styled by globals.css */}
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-900 mb-2">Name</label>
+                    <input type="text" id="name" name="name" value={formData.name} onChange={handleInputChange} required className="input" placeholder="Your full name" />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">Email</label>
+                    <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} required className="input" placeholder="your.email@example.com" />
+                  </div>
+                  <div>
+                    <label htmlFor="subject" className="block text-sm font-medium text-gray-900 mb-2">Subject</label>
+                    <select id="subject" name="subject" value={formData.subject} onChange={handleInputChange} required className="input">
+                      <option value="">Select a topic</option>
+                      <option value="IELTS Quiz Question">IELTS Quiz Question</option>
+                      <option value="Content Suggestion">Content Suggestion</option>
+                      <option value="Technical Support">Technical Support</option>
+                      <option value="Partnership Inquiry">Partnership Inquiry</option>
+                      <option value="General Feedback">General Feedback</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-gray-900 mb-2">Message</label>
+                    <textarea id="message" name="message" value={formData.message} onChange={handleInputChange} required rows={5} className="input" placeholder="Tell us how we can help..."></textarea>
+                  </div>
+                  <Button type="submit" disabled={loading || submitRef.current} size="lg" className="w-full">
+                    {loading ? (
+                      <span className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Sending...</span>
+                    ) : (
+                      "Send Message"
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+          {/* FAQ */}
+          <div className="lg:col-span-2 space-y-8">
+              <h2 className="text-3xl font-bold text-gray-900">Frequently Asked Questions</h2>
+              {faqItems.map((item, index) => (
+                <div key={index}>
+                  <h3 className="text-xl font-semibold mb-2">{item.question}</h3>
+                  <p className="text-gray-600 leading-relaxed">{item.answer}</p>
+                </div>
+              ))}
+          </div>
+        </div>
+      </PageSection>
+    </>
   )
 }
 

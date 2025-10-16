@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { StudentSidebar } from '@/components/student/StudentSidebar'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { 
   User, 
   Bell, 
@@ -40,9 +41,18 @@ interface UserSettings {
 }
 
 export default function SettingsPage() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  // CRITICAL: Redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      console.log('[Settings] No user found, redirecting to auth...')
+      router.push('/auth?tab=signin&redirect=/dashboard/settings')
+    }
+  }, [authLoading, user, router])
   const [settings, setSettings] = useState<UserSettings>({
     notifications: {
       courseReminders: true,
@@ -70,7 +80,9 @@ export default function SettingsPage() {
 
       try {
         setLoading(true)
-        
+
+        const supabase = createSupabaseClient()
+
         // Fetch user profile data from Supabase
         const { data: userData, error: userError } = await supabase
           .from('users')
@@ -148,6 +160,8 @@ export default function SettingsPage() {
     if (!user?.id) return
 
     try {
+      const supabase = createSupabaseClient()
+
       // Update user settings in Supabase
       const { error } = await supabase
         .from('users')
@@ -174,7 +188,7 @@ export default function SettingsPage() {
     }
   }
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-background flex">
         {/* Desktop Sidebar */}
@@ -195,6 +209,9 @@ export default function SettingsPage() {
           <div className="p-6">
             <div className="animate-pulse">
               <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+              <p className="text-gray-600 mb-4">
+                {authLoading ? 'Checking authentication...' : 'Loading settings...'}
+              </p>
               <div className="space-y-6">
                 {[...Array(3)].map((_, i) => (
                   <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>

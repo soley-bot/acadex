@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart3, TrendingUp, Users, BookOpen, Brain, DollarSign, Download, RefreshCw, Calendar, Filter } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 
 interface AnalyticsData {
@@ -98,6 +98,9 @@ export default function AdminAnalytics() {
       setError(null)
 
       logger.apiCall('/admin/analytics', 'GET', { timeRange: timeRangeRef.current })
+
+      // Create Supabase client for queries
+      const supabase = createSupabaseClient()
 
       // Calculate date range for filtering
       const now = new Date()

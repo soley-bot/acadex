@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { AlertTriangle, Trash2, Loader2, Users, FileText, X } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 import { useLoadingState, useSubmissionState } from '@/hooks/useAsyncState'
 
@@ -38,6 +38,8 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
 
     // 🔄 CONSOLIDATED: Using unified loading pattern
     await withLoading(async () => {
+      const supabase = createSupabaseClient()
+
       if (item.type === 'quiz') {
         // Check quiz attempts and questions
         const [attemptsResult, questionsResult] = await Promise.all([
@@ -79,6 +81,7 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
   const handleCascadeDelete = useCallback(() => {
     if (!item) return;
     handleSubmission(async () => {
+      const supabase = createSupabaseClient()
       const errors: string[] = [];
 
       if (item.type === 'quiz') {
@@ -158,6 +161,8 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
   const handleCleanDelete = useCallback(() => {
     if (!item) return;
     handleSubmission(async () => {
+      const supabase = createSupabaseClient()
+
       if (item.type === 'quiz') {
         const { error: attemptsError } = await supabase
           .from('quiz_attempts')

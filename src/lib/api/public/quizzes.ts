@@ -1,11 +1,14 @@
-import { supabase } from '../../supabase'
+import { createSupabaseClient } from '../../supabase'
 import type { QuizAttempt } from '../../supabase'
-import type { 
-  QuizFilters, 
+import type {
+  QuizFilters,
   ServiceResponse,
   Quiz,
   QuizWithQuestions
 } from '../shared'
+
+// Create module-level Supabase client for API functions
+const supabase = createSupabaseClient()
 
 export const publicQuizAPI = {
   // Get paginated published quizzes

@@ -1,5 +1,8 @@
-import { supabase } from '../supabase'
+import { createSupabaseClient } from '../supabase'
 import type { Course } from '../supabase'
+
+// Create module-level Supabase client for API functions
+const supabase = createSupabaseClient()
 
 export const courseAPI = {
   // Get paginated published courses

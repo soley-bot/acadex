@@ -1,8 +1,11 @@
 import { courseCache } from './cache'
-import { supabase } from './supabase'
+import { createSupabaseClient } from './supabase'
 import type { Course, CourseModule, CourseLesson } from './supabase'
 
 import { logger } from '@/lib/logger'
+
+// Create module-level Supabase client for course services
+const supabase = createSupabaseClient()
 
 export interface BatchCourseRequest {
   courseIds: string[]

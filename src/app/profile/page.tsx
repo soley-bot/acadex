@@ -24,7 +24,7 @@ interface UserProfile {
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { user, updateProfile } = useAuth()
+  const { user, loading: authLoading, updateProfile } = useAuth()
   const [profile, setProfile] = useState<UserProfile>({
     name: '',
     email: '',
@@ -37,22 +37,25 @@ export default function ProfilePage() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
+  // CRITICAL: Check authLoading before redirecting
   useEffect(() => {
-    if (!user) {
+    if (!authLoading && !user) {
       router.push('/auth?tab=signin&redirect=/profile')
       return
     }
 
-    // Initialize profile with user data
-    setProfile({
-      name: user.name || '',
-      email: user.email || '',
-      bio: '',
-      avatar_url: user.avatar_url || '',
-      learning_goals: '',
-      preferred_subjects: []
-    })
-  }, [user, router])
+    // Initialize profile with user data once loaded
+    if (user) {
+      setProfile({
+        name: user.name || '',
+        email: user.email || '',
+        bio: '',
+        avatar_url: user.avatar_url || '',
+        learning_goals: '',
+        preferred_subjects: []
+      })
+    }
+  }, [authLoading, user, router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target

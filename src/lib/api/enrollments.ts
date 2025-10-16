@@ -1,4 +1,7 @@
-import { supabase } from '../supabase'
+import { createSupabaseClient } from '../supabase'
+
+// Create module-level Supabase client for API functions
+const supabase = createSupabaseClient()
 
 export const enrollmentAPI = {
   // Enroll in course

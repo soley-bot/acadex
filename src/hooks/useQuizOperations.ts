@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useMemo } from 'react'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { logger } from '@/lib/logger'
 import { useQuizContext, QuizFormData, ValidationError } from '@/contexts/QuizContext'
@@ -198,6 +198,8 @@ export function useQuizAutoSave(quizId?: string) {
 
     try {
       dispatch({ type: 'SET_AUTO_SAVING', payload: true })
+
+      const supabase = createSupabaseClient()
 
       // Prepare quiz data
       const quizData = {

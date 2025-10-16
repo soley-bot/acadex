@@ -4,8 +4,7 @@
  */
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '@/lib/supabase' // Still needed for detail queries
-import type { Course } from '@/lib/supabase'
+import { createSupabaseClient, type Course } from '@/lib/supabase'
 
 // Query keys for consistency
 export const COURSE_QUERY_KEYS = {
@@ -148,6 +147,7 @@ export function useOptimizedCourse(id: string) {
   return useQuery({
     queryKey: COURSE_QUERY_KEYS.detail(id),
     queryFn: async (): Promise<Course | null> => {
+      const supabase = createSupabaseClient()
       const { data, error } = await supabase
         .from('courses')
         .select('*')
@@ -186,6 +186,7 @@ export function usePrefetchCourses() {
         queryKey: COURSE_QUERY_KEYS.list(JSON.stringify(nextFilters)),
         queryFn: async () => {
           // Recreate the query logic for prefetch
+          const supabase = createSupabaseClient()
           let query = supabase
             .from('courses')
             .select(`
@@ -250,6 +251,7 @@ export function usePrefetchCourses() {
       await queryClient.prefetchQuery({
         queryKey: COURSE_QUERY_KEYS.detail(courseId),
         queryFn: async () => {
+          const supabase = createSupabaseClient()
           const { data, error } = await supabase
             .from('courses')
             .select('*')

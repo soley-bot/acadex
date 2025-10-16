@@ -9,7 +9,7 @@
 export { logger } from './logger'
 
 // Database and types
-export { supabase } from './supabase'
+export { createSupabaseClient } from './supabase'
 export type { 
   User, 
   Course, 

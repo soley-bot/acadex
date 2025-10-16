@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, memo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus, Edit, Trash2, Save, X, Palette } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 
 interface Category {
@@ -54,7 +54,9 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
     try {
       setLoading(true)
       console.log('Fetching categories...')
-      
+
+      const supabase = createSupabaseClient()
+
       // Get the current session to include Authorization header
       const { data: { session } } = await supabase.auth.getSession()
       
@@ -103,8 +105,10 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     try {
+      const supabase = createSupabaseClient()
+
       // Get the current session to include Authorization header
       const { data: { session } } = await supabase.auth.getSession()
       

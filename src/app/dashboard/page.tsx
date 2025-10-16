@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
-import { supabase } from '@/lib/supabase'
 import { useStudentDashboard } from '@/hooks/api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -24,15 +23,22 @@ import {
 import { formatDate } from '@/lib/date-utils'
 
 export default function StudentDashboard() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  
+  // CRITICAL: Redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      console.log('[Dashboard] No user found, redirecting to auth...')
+      router.push('/auth?tab=signin&redirect=/dashboard')
+    }
+  }, [authLoading, user, router])
+
   // React Query hook to fetch dashboard data
-  const { 
-    data: dashboardData, 
-    isLoading: loading, 
+  const {
+    data: dashboardData,
+    isLoading: loading,
     error: dashboardError,
     refetch: refetchDashboard
   } = useStudentDashboard(user?.id || null)
@@ -62,7 +68,7 @@ export default function StudentDashboard() {
     return 'text-red-600'
   }
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex">
         {/* Desktop Sidebar */}
@@ -82,8 +88,12 @@ export default function StudentDashboard() {
         <div className="flex-1 lg:ml-64 flex items-center justify-center">
           <Card variant="elevated" className="text-center p-12 max-w-md mx-auto">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary mx-auto mb-6"></div>
-            <BodyLG className="text-gray-700 font-medium">Loading dashboard...</BodyLG>
-            <BodyMD className="text-gray-500 mt-2">Gathering your learning progress</BodyMD>
+            <BodyLG className="text-gray-700 font-medium">
+              {authLoading ? 'Checking authentication...' : 'Loading dashboard...'}
+            </BodyLG>
+            <BodyMD className="text-gray-500 mt-2">
+              {authLoading ? 'Please wait...' : 'Gathering your learning progress'}
+            </BodyMD>
           </Card>
         </div>
       </div>

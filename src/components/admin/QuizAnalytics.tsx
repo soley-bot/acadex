@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { BaseModal } from '@/components/ui/BaseModal'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart3, TrendingUp, Users, Clock, Award, Target } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 
 interface QuizAnalyticsData {
@@ -36,6 +36,8 @@ export function QuizAnalytics({ isOpen, onClose }: QuizAnalyticsProps) {
   const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true)
+
+      const supabase = createSupabaseClient()
 
       // Calculate date filter based on time range
       let dateFilter = ''

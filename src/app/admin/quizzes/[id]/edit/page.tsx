@@ -5,8 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Save, Eye, Loader2 } from 'lucide-react'
 import { QuizBuilderRouter } from '@/components/admin/QuizBuilderRouter'
-import { supabase } from '@/lib/supabase'
-import type { Quiz } from '@/lib/supabase'
+import { createSupabaseClient, type Quiz } from '@/lib/supabase'
 
 export default function EditQuizPage() {
   const router = useRouter()
@@ -21,6 +20,7 @@ export default function EditQuizPage() {
         setLoading(true)
         setError(null)
 
+        const supabase = createSupabaseClient()
         // Get the current session to include Authorization header
         const { data: { session } } = await supabase.auth.getSession()
         

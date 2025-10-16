@@ -6,9 +6,12 @@
  */
 
 import { logger } from '@/lib/logger'
-import { supabase, Course } from '../supabase'
+import { createSupabaseClient, Course } from '../supabase'
 import { courseCache } from '../cache'
 import { courseAPI } from '../auth-api'
+
+// Create a shared client instance for this module
+const supabase = createSupabaseClient()
 
 export const cachedCourseAPI = {
   // Get all courses with caching

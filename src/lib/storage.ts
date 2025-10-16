@@ -1,6 +1,9 @@
-import { supabase } from './supabase'
+import { createSupabaseClient } from './supabase'
 
 import { logger } from '@/lib/logger'
+
+// Create module-level Supabase client for storage operations
+const supabase = createSupabaseClient()
 
 export interface UploadResult {
   url: string | null

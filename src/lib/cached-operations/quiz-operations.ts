@@ -5,8 +5,11 @@
  * Extracted from cachedOperations.ts for better organization and maintainability.
  */
 
-import { supabase, Quiz } from '../supabase'
+import { createSupabaseClient, Quiz } from '../supabase'
 import { quizCache } from '../cache'
+
+// Create a shared client instance for this module
+const supabase = createSupabaseClient()
 
 export const cachedQuizAPI = {
   // Get all quizzes with caching

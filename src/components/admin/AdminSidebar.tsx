@@ -20,10 +20,10 @@ const navigationItems = [
 
 export function AdminSidebar({ onMobileClose }: { onMobileClose?: () => void }) {
   const pathname = usePathname()
-  const { user, signOut, isAdmin } = useAuth()
+  const { user, signOut } = useAuth()
 
   // CRITICAL SECURITY: Block access for non-admin users
-  if (!user || !isAdmin()) {
+  if (!user || user.role !== 'admin') {
     return (
       <div className="w-64 glass flex flex-col h-full items-center justify-center p-4">
         <div className="text-center">

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Plus, Edit3, Trash2, CheckCircle, Book, Clock, Hash } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface QuizQuestion {
@@ -42,7 +42,9 @@ export function LessonQuizManager({ lessonId, lessonTitle, onQuizUpdated }: Less
   useEffect(() => {
     const loadLessonQuiz = async () => {
       if (!lessonId) return
-      
+
+      const supabase = createSupabaseClient()
+
       try {
         const { data, error } = await supabase
           .from('quizzes')
@@ -111,6 +113,8 @@ export function LessonQuizManager({ lessonId, lessonTitle, onQuizUpdated }: Less
 
     setLoading(true)
     setError(null)
+
+    const supabase = createSupabaseClient()
 
     try {
       // Validate quiz
@@ -208,6 +212,8 @@ export function LessonQuizManager({ lessonId, lessonTitle, onQuizUpdated }: Less
     if (!quiz?.id || !confirm('Are you sure you want to delete this quiz?')) return
 
     setLoading(true)
+    const supabase = createSupabaseClient()
+
     try {
       const { error } = await supabase
         .from('quizzes')

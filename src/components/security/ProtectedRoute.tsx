@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { AuthSecurity } from '@/lib/auth-security'
+import { isAdmin, isStudent, isAuthenticated } from '@/lib/auth-helpers'
 import { logger } from '@/lib/logger'
 
 interface ProtectedRouteProps {
@@ -188,9 +189,9 @@ export function useRoutePermissions() {
   const pathname = usePathname()
 
   const permissions = {
-    isAuthenticated: AuthSecurity.isAuthenticated(user),
-    isAdmin: AuthSecurity.isAdmin(user),
-    isStudent: AuthSecurity.isStudent(user),
+    isAuthenticated: isAuthenticated(user),
+    isAdmin: isAdmin(user),
+    isStudent: isStudent(user),
     canAccessRoute: (route?: string) => AuthSecurity.canAccessRoute(user, route || pathname),
     currentRoute: pathname,
     user

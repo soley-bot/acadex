@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { supabase, Course, CourseModule, CourseLesson, LessonProgress } from '@/lib/supabase'
+import { createSupabaseClient, Course, CourseModule, CourseLesson, LessonProgress } from '@/lib/supabase'
 import { getCourseWithModulesAndLessons, updateEnrollmentProgress } from '@/lib/database-operations'
 import { useAuth } from '@/contexts/AuthContext'
 import { CourseHeader } from '@/components/course/CourseHeader'
@@ -54,6 +54,7 @@ export default function CourseStudyPage() {
   // Session expiry detection
   useEffect(() => {
     const checkSession = async () => {
+      const supabase = createSupabaseClient()
       const { data: { session } } = await supabase.auth.getSession()
       if (!session && user) {
         console.warn('⚠️ Session expired detected')
@@ -145,8 +146,9 @@ export default function CourseStudyPage() {
           router.push(`/auth?tab=signin&redirect=/courses/${courseId}/study`)
           return
         }
-      
+
       // Get session token for API authentication
+      const supabase = createSupabaseClient()
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       if (sessionError || !session) {
         console.error('Session error:', sessionError)
@@ -355,6 +357,8 @@ export default function CourseStudyPage() {
     })
 
     try {
+      const supabase = createSupabaseClient()
+
       // First check if a record exists
       const { data: existingProgress, error: checkError } = await supabase
         .from('lesson_progress')
@@ -376,7 +380,7 @@ export default function CourseStudyPage() {
           .update({
             is_completed: true,
             completed_at: new Date().toISOString()
-          })
+          } as any)
           .eq('id', existingProgress.id)
       } else {
         // Insert new record
@@ -387,7 +391,7 @@ export default function CourseStudyPage() {
             lesson_id: currentLesson.id,
             is_completed: true,
             completed_at: new Date().toISOString()
-          })
+          } as any)
       }
 
       if (result.error) {

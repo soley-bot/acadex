@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 
 export interface Category {
   id: string
@@ -29,6 +29,7 @@ export const useCategories = (): UseCategoriesReturn => {
       setIsLoading(true)
       setError(null)
 
+      const supabase = createSupabaseClient()
       const { data, error } = await supabase
         .from('categories')
         .select('id, name, slug, description, color, icon, level, is_active')

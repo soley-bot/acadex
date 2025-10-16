@@ -88,7 +88,8 @@ export default function AdminDebugPage() {
     try {
       console.log('🔍 Testing Supabase connection...')
       
-      const { supabase } = await import('@/lib/supabase')
+      const { createSupabaseClient } = await import('@/lib/supabase')
+      const supabase = createSupabaseClient()
       const { data, error: supabaseError } = await supabase
         .from('quizzes')
         .select('id, title, category, is_published')

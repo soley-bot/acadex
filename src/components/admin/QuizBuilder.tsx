@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import type { Quiz, QuizQuestion } from '@/lib/supabase'
 import { toast } from 'sonner'
 import { quizAPI, authenticatedPost, authenticatedGet } from '@/lib/auth-api'
@@ -103,6 +103,8 @@ export function QuizBuilder({ quiz, isOpen, onClose, onSuccess }: QuizBuilderPro
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    const supabase = createSupabaseClient()
 
     try {
       const fileExt = file.name.split('.').pop()

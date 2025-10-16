@@ -12,13 +12,10 @@ import {
   Instagram 
 } from 'lucide-react'
 import { Container } from '@/components/ui/Layout'
-import { useHydrationSafe } from '@/hooks/useHydrationSafe'
 import { NewsletterSignup } from './NewsletterSignup'
 import { Logo } from './ui/Logo'
 
 export function Footer() {
-  const mounted = useHydrationSafe()
-  
   // Always use same year to prevent hydration mismatch
   const currentYear = 2025
 

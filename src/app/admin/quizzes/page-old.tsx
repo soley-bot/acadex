@@ -23,7 +23,8 @@ import { QuizGridView } from '@/components/admin/dashboard/QuizGridView'
 import { useAdminDashboardData, usePrefetchQuiz, useBulkQuizOperations } from '@/hooks/api'
 import type { AdminDashboardResponse } from '@/types'
 import { useAdminModals } from '@/hooks/admin/useAdminModals'
-import { supabase, type Quiz as BaseQuiz } from '@/lib/supabase'
+import { createSupabaseClient, type Quiz as BaseQuiz } from '@/lib/supabase'
+const supabase = createSupabaseClient()
 import { authenticatedPut } from '@/lib/auth-api'
 
 // Extended Quiz interface with calculated statistics

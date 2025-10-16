@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase, Quiz, QuizQuestion } from '@/lib/supabase'
+import { createSupabaseClient, Quiz, QuizQuestion } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 import { useMemo } from 'react'
 
@@ -48,6 +48,8 @@ async function fetchQuizzesWithStats(filters: QuizFilters = {}): Promise<QuizQue
 
   const from = (page - 1) * limit
   const to = from + limit - 1
+
+  const supabase = createSupabaseClient()
 
   let query = supabase
     .from('quizzes')
@@ -129,6 +131,8 @@ async function fetchQuizzesWithStats(filters: QuizFilters = {}): Promise<QuizQue
 
 // Fetch single quiz with questions and detailed stats
 async function fetchQuizWithQuestions(quizId: string): Promise<QuizWithStats & { questions: QuizQuestion[] }> {
+  const supabase = createSupabaseClient()
+
   const { data: quiz, error: quizError } = await supabase
     .from('quizzes')
     .select('*')
@@ -173,6 +177,8 @@ async function fetchQuizWithQuestions(quizId: string): Promise<QuizWithStats & {
 
 // Delete quiz with all related data
 async function deleteQuizWithRelations(quizId: string): Promise<void> {
+  const supabase = createSupabaseClient()
+
   // Delete in correct order due to foreign key constraints
   const { error: attemptsError } = await supabase
     .from('quiz_attempts')
@@ -198,6 +204,8 @@ async function deleteQuizWithRelations(quizId: string): Promise<void> {
 
 // Toggle quiz publication status
 async function toggleQuizPublication(quizId: string, isPublished: boolean): Promise<Quiz> {
+  const supabase = createSupabaseClient()
+
   const { data, error } = await supabase
     .from('quizzes')
     .update({ is_published: isPublished, updated_at: new Date().toISOString() })

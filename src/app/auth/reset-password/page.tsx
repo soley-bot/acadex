@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { CheckCircle, AlertTriangle, Loader2, Lock } from 'lucide-react'
 import { PasswordField } from '@/components/auth/FormField'
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 
 function ResetPasswordForm() {
   const router = useRouter()
@@ -38,6 +38,7 @@ function ResetPasswordForm() {
     // Set the session with the tokens from the URL
     const setSession = async () => {
       try {
+        const supabase = createSupabaseClient()
         const { error } = await supabase.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken
@@ -83,6 +84,7 @@ function ResetPasswordForm() {
     setError('')
 
     try {
+      const supabase = createSupabaseClient()
       const { error } = await supabase.auth.updateUser({
         password: formData.password
       })

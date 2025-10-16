@@ -1,4 +1,8 @@
 import { Metadata } from 'next'
+import { Shield } from 'lucide-react'
+import { PageHero } from '@/components/layout/PageHero'
+import { PageSection } from '@/components/layout/PageSection'
+import { Card } from '@/components/ui/card'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy - Acadex',
@@ -7,11 +11,17 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Privacy Policy</h1>
-          
+    <>
+      <PageHero
+        badge={{ icon: Shield, text: 'Privacy Policy' }}
+        title="Your Privacy Matters"
+        description="We're committed to protecting your personal information and being transparent about how we use it."
+        imageSrc="/images/hero/learning-together.jpg"
+        minHeight="min-h-[50vh] lg:min-h-[60vh]"
+      />
+
+      <PageSection>
+        <Card className="p-8 md:p-12">
           <div className="prose prose-gray max-w-none">
             <p className="text-lg text-gray-600 mb-6">
               Last updated: {new Date().toLocaleDateString()}
@@ -97,9 +107,9 @@ export default function PrivacyPolicy() {
               </p>
             </section>
           </div>
-        </div>
-      </div>
-    </div>
+        </Card>
+      </PageSection>
+    </>
   )
 }
 

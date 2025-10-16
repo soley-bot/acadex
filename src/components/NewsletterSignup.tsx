@@ -1,15 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { useHydrationSafe } from '@/hooks/useHydrationSafe'
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState('')
-  const mounted = useHydrationSafe()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!mounted) return // Prevent submission before hydration
     // SECURITY: Remove console.log to prevent email leakage in production
     // console.log('Newsletter signup:', email) // REMOVED for security
   }
@@ -25,15 +22,13 @@ export function NewsletterSignup() {
             onChange={(e) => setEmail(e.target.value)}
             className="flex-1 px-4 py-3 sm:px-6 sm:py-4 border border-gray-300 bg-white text-secondary rounded-xl focus:ring-2 focus:ring-primary focus:border-primary placeholder-gray-500 font-medium text-sm sm:text-base"
             autoComplete="email"
-            required={mounted}
-            disabled={!mounted}
+            required
           />
           <button 
             type="submit"
-            className="bg-primary hover:bg-secondary text-white hover:text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-            disabled={!mounted}
+            className="bg-primary hover:bg-secondary text-white hover:text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base whitespace-nowrap"
           >
-            {mounted ? 'Subscribe' : 'Loading...'}
+            Subscribe
           </button>
         </div>
       </form>

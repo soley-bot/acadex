@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Sparkles, Wand2, Lightbulb, Zap, RefreshCw, CheckCircle, Copy, Plus } from 'lucide-react'
 import { logger } from '@/lib/logger'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import type { QuizQuestion } from '@/lib/supabase'
 
 interface QuestionSuggestion {
@@ -43,6 +43,7 @@ export function AIQuestionSuggestions({
 
   // Helper function to get auth headers
   const getAuthHeaders = async () => {
+    const supabase = createSupabaseClient()
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) {
       throw new Error('Authentication required')

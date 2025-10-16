@@ -5,8 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Save, Eye, Loader2 } from 'lucide-react'
 import { CourseForm } from '@/components/admin/course-form/CourseForm'
-import { supabase } from '@/lib/supabase'
-import type { Course } from '@/lib/supabase'
+import { createSupabaseClient, type Course } from '@/lib/supabase'
 
 export default function EditCoursePage() {
   const router = useRouter()
@@ -20,6 +19,7 @@ export default function EditCoursePage() {
       if (!params.id) return
 
       try {
+        const supabase = createSupabaseClient()
         const { data, error } = await supabase
           .from('courses')
           .select('*')

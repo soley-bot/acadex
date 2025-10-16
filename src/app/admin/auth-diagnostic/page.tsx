@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { useLoadingState } from '@/hooks/useAsyncState'
 
 export default function AuthDiagnosticPage() {
-  const { user, supabaseUser, loading } = useAuth()
+  const { user, loading } = useAuth()
   const [sessionInfo, setSessionInfo] = useState<any>(null)
   const [apiTestResult, setApiTestResult] = useState<any>(null)
   
@@ -19,6 +19,7 @@ export default function AuthDiagnosticPage() {
 
   const checkSession = async () => {
     try {
+      const supabase = createSupabaseClient()
       const { data: { session }, error } = await supabase.auth.getSession()
       setSessionInfo({
         hasSession: !!session,
@@ -60,6 +61,7 @@ export default function AuthDiagnosticPage() {
 
   const testWithAuthHeader = async () => {
     await withLoading(async () => {
+      const supabase = createSupabaseClient()
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
         setApiTestResult({ error: 'No access token available', method: 'Authorization Header' });
@@ -109,9 +111,9 @@ export default function AuthDiagnosticPage() {
             <strong>Supabase User:</strong>
             <pre className="bg-gray-100 p-2 rounded text-sm mt-1">
               {JSON.stringify({
-                hasSupabaseUser: !!supabaseUser,
-                email: supabaseUser?.email,
-                id: supabaseUser?.id
+                hasUser: !!user,
+                email: user?.email,
+                id: user?.id
               }, null, 2)}
             </pre>
           </div>

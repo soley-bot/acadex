@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StudentSidebar } from '@/components/student/StudentSidebar'
 import { Progress } from '@/components/ui/progress'
@@ -39,63 +40,89 @@ interface ProgressStats {
 }
 
 export default function ProgressPage() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
+  const [supabase] = useState(() => createSupabaseClient())
+  const router = useRouter()
   const [courseProgress, setCourseProgress] = useState<CourseProgress[]>([])
   const [recentQuizzes, setRecentQuizzes] = useState<QuizAttempt[]>([])
   const [stats, setStats] = useState<ProgressStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  // CRITICAL: Redirect if not authenticated
   useEffect(() => {
-    if (user) {
+    if (!authLoading && !user) {
+      console.log('[Progress] No user found, redirecting to auth...')
+      router.push('/auth?tab=signin&redirect=/progress')
+    }
+  }, [authLoading, user, router])
+
+  useEffect(() => {
+    if (!authLoading && user) {
       fetchProgressData()
     }
-  }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user, authLoading]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchProgressData = async () => {
     if (!user?.id) return
-    
+
+    // Use supabase client
+    const supabaseClient = supabase
+
     try {
+      console.log('[Progress] Fetching progress data...')
       setLoading(true)
 
-      // Fetch enrollments with course data
-      const { data: enrollments, error: enrollmentsError } = await supabase
-        .from('enrollments')
-        .select('*')
-        .eq('user_id', user.id)
-
-      if (enrollmentsError) throw enrollmentsError
-
-      // Process course progress
-      const progressData: CourseProgress[] = []
-      
-      for (const enrollment of enrollments || []) {
-        // Get course details
-        const { data: course } = await supabase
-          .from('courses')
-          .select('id, title, duration')
-          .eq('id', enrollment.course_id)
-          .single()
-
-        // Get total lessons for this course
-        const { data: totalLessons } = await supabase
-          .from('course_lessons')
-          .select('id')
-          .eq('course_id', enrollment.course_id)
-
-        // Get completed lessons for this user
-        const { data: completedLessons } = await supabase
-          .from('lesson_progress')
-          .select('lesson_id')
+      // PERFORMANCE: Fetch enrollments and quiz attempts in parallel
+      const [enrollmentsResult, quizAttemptsResult] = await Promise.all([
+        supabaseClient
+          .from('enrollments')
+          .select('*')
+          .eq('user_id', user.id),
+        supabaseClient
+          .from('quiz_attempts')
+          .select('*')
           .eq('user_id', user.id)
-          .eq('completed', true)
+          .order('completed_at', { ascending: false })
+          .limit(5)
+      ])
 
-        const totalLessonsCount = totalLessons?.length || 0
-        const completedLessonsCount = completedLessons?.length || 0
+      if (enrollmentsResult.error) throw enrollmentsResult.error
+      if (quizAttemptsResult.error) throw quizAttemptsResult.error
+
+      const enrollments = enrollmentsResult.data || []
+      const quizAttempts = quizAttemptsResult.data || []
+
+      // Process course progress - fetch all courses in parallel
+      const coursePromises = enrollments.map(async (enrollment: any) => {
+        // Fetch course details, lessons, and progress in parallel
+        const [courseResult, totalLessonsResult, completedLessonsResult] = await Promise.all([
+          supabaseClient
+            .from('courses')
+            .select('id, title, duration')
+            .eq('id', enrollment.course_id)
+            .single(),
+          supabaseClient
+            .from('course_lessons')
+            .select('id')
+            .eq('course_id', enrollment.course_id),
+          supabaseClient
+            .from('lesson_progress')
+            .select('lesson_id')
+            .eq('user_id', user.id)
+            .eq('completed', true)
+        ])
+
+        const course = courseResult.data
+        const totalLessons = totalLessonsResult.data || []
+        const completedLessons = completedLessonsResult.data || []
+
+        const totalLessonsCount = totalLessons.length
+        const completedLessonsCount = completedLessons.length
         const progressPercentage = totalLessonsCount > 0 ? (completedLessonsCount / totalLessonsCount) * 100 : 0
 
         if (course) {
-          progressData.push({
+          return {
             id: enrollment.course_id,
             title: course.title,
             progress_percentage: Math.round(progressPercentage),
@@ -103,26 +130,14 @@ export default function ProgressPage() {
             total_lessons: totalLessonsCount,
             last_accessed: enrollment.last_accessed || enrollment.enrolled_at,
             duration: course.duration
-          })
+          }
         }
-      }
+        return null
+      })
 
-      setCourseProgress(progressData)
-
-      // Fetch recent quiz attempts
-      const { data: quizAttempts, error: quizError } = await supabase
-        .from('quiz_attempts')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('completed_at', { ascending: false })
-        .limit(5)
-
-      if (quizError) throw quizError
-
-      // Get quiz details for each attempt
-      const recentQuizData: QuizAttempt[] = []
-      for (const attempt of quizAttempts || []) {
-        const { data: quiz } = await supabase
+      // Process quiz attempts - fetch all quiz details in parallel
+      const quizPromises = quizAttempts.map(async (attempt: any) => {
+        const { data: quiz } = await supabaseClient
           .from('quizzes')
           .select('title, questions')
           .eq('id', attempt.quiz_id)
@@ -132,25 +147,42 @@ export default function ProgressPage() {
           const totalQuestions = Array.isArray(quiz.questions) ? quiz.questions.length : 0
           const percentage = totalQuestions > 0 ? Math.round((attempt.score / totalQuestions) * 100) : 0
 
-          recentQuizData.push({
+          return {
             id: attempt.id,
             quiz_title: quiz.title,
             score: attempt.score,
             total_questions: totalQuestions,
             completed_at: attempt.completed_at,
             percentage
-          })
+          }
         }
-      }
+        return null
+      })
 
-      setRecentQuizzes(recentQuizData)
+      // Wait for all parallel operations to complete
+      const [progressData, recentQuizData] = await Promise.all([
+        Promise.all(coursePromises),
+        Promise.all(quizPromises)
+      ])
+
+      // Filter out null values
+      const validProgressData = progressData.filter((p): p is CourseProgress => p !== null)
+      const validQuizData = recentQuizData.filter((q): q is QuizAttempt => q !== null)
+
+      console.log('[Progress] Processed data:', {
+        courses: validProgressData.length,
+        quizzes: validQuizData.length
+      })
+
+      setCourseProgress(validProgressData)
+      setRecentQuizzes(validQuizData)
 
       // Calculate stats
-      const totalEnrolled = progressData.length
-      const completed = progressData.filter(course => course.progress_percentage >= 100).length
-      const totalLessonsCompleted = progressData.reduce((sum: number, course) => sum + course.lessons_completed, 0)
-      const averageScore = recentQuizData.length > 0 
-        ? Math.round(recentQuizData.reduce((sum: number, quiz: QuizAttempt) => sum + quiz.percentage, 0) / recentQuizData.length)
+      const totalEnrolled = validProgressData.length
+      const completed = validProgressData.filter(course => course.progress_percentage >= 100).length
+      const totalLessonsCompleted = validProgressData.reduce((sum: number, course) => sum + course.lessons_completed, 0)
+      const averageScore = validQuizData.length > 0
+        ? Math.round(validQuizData.reduce((sum: number, quiz: QuizAttempt) => sum + quiz.percentage, 0) / validQuizData.length)
         : 0
 
       setStats({
@@ -163,7 +195,7 @@ export default function ProgressPage() {
       })
 
     } catch (error) {
-      console.error('Error fetching progress data:', error)
+      console.error('[Progress] Error fetching progress data:', error)
     } finally {
       setLoading(false)
     }
@@ -181,7 +213,7 @@ export default function ProgressPage() {
     return 'bg-red-100 text-red-800'
   }
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-background flex">
         {/* Desktop Sidebar */}
@@ -201,7 +233,10 @@ export default function ProgressPage() {
         <div className="flex-1 lg:ml-64">
           <div className="p-6">
             <div className="animate-pulse">
-              <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+              <div className="h-8 bg-gray-200 rounded w-1/4 mb-2"></div>
+              <p className="text-gray-600 mb-6">
+                {authLoading ? 'Checking authentication...' : 'Loading progress data...'}
+              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {[...Array(4)].map((_, i) => (
                   <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>

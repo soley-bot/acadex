@@ -55,7 +55,18 @@ function getStorageAdapter() {
   }
 }
 
+// Client-side singleton to ensure single instance across all components
+let clientInstance: any = null
+
 function createSupabaseClient() {
+  // Only use singleton on client-side
+  if (typeof window !== 'undefined') {
+    if (clientInstance) {
+      console.log('[Supabase] Returning existing client instance')
+      return clientInstance
+    }
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
@@ -81,14 +92,14 @@ function createSupabaseClient() {
 
   try {
     const storage = getStorageAdapter()
-    
+
     const client = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
         storageKey: 'acadex-auth-token',
-        storage: storage, // Will use memory storage if localStorage is blocked
+        storage: storage,
         flowType: 'pkce'
       },
       global: {
@@ -100,16 +111,21 @@ function createSupabaseClient() {
         schema: 'public'
       }
     })
-    
+
+    // Only store singleton on client-side, never on server
     if (typeof window !== 'undefined') {
+      clientInstance = client
+
       const storageType = storage === window.localStorage
         ? 'with localStorage'
         : storage
           ? 'with cookie storage (localStorage blocked)'
           : 'with memory storage (no persistence)'
-      console.log('[Supabase] Client initialized successfully', storageType)
+      console.log('[Supabase] NEW client created and stored as singleton', storageType)
+    } else {
+      console.log('[Supabase] Server-side client created (no singleton)')
     }
-    
+
     return client
   } catch (error) {
     console.error('[Supabase] Failed to create client:', error)
@@ -121,7 +137,20 @@ function createSupabaseClient() {
   }
 }
 
-export const supabase = createSupabaseClient()
+/**
+ * FINAL FIX: Export the factory function instead of a singleton
+ * 
+ * WHY THIS WORKS:
+ * - Components can call createSupabaseClient() in their own lifecycle
+ * - React components only run on client after hydration
+ * - No module-level initialization = no SSR issues
+ * 
+ * AuthContext creates its own client in useEffect for client-side only auth.
+ * Other files should use createSupabaseClient() directly or useAuth() hook.
+ */
+
+// Export ONLY the factory function - no module-level instance
+export { createSupabaseClient }
 
 // Database Types matching exact schema
 export interface User {

@@ -7,8 +7,11 @@ export { enrollmentAPI } from './enrollments'
 // Legacy exports for backward compatibility
 import { courseAPI } from './courses'
 import { quizAPI } from './public/quizzes'
-import { supabase } from '../supabase'
+import { createSupabaseClient } from '../supabase'
 import { logger } from '../logger'
+
+// Create module-level Supabase client for utility functions
+const supabase = createSupabaseClient()
 
 export async function getCourses(filters?: { category?: string; level?: string; search?: string }) {
   return courseAPI.getCourses(filters)

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Mail, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react'
 import { EmailField } from '@/components/auth/FormField'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -32,6 +32,7 @@ export default function ForgotPasswordPage() {
     setError('')
 
     try {
+      const supabase = createSupabaseClient()
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       })

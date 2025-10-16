@@ -5,8 +5,11 @@
  * Extracted from cachedOperations.ts for better organization and maintainability.
  */
 
-import { supabase, User } from '../supabase'
+import { createSupabaseClient, User } from '../supabase'
 import { userCache } from '../cache'
+
+// Create a shared client instance for this module
+const supabase = createSupabaseClient()
 
 export const cachedUserAPI = {
   // Get user profile with caching

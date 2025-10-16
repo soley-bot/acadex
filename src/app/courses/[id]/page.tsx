@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { Loader2, BookOpen, Clock, Users, Award, CheckCircle, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
@@ -28,6 +28,7 @@ export default function CourseDetailPage() {
     try {
       setLoading(true)
 
+      const supabase = createSupabaseClient()
       // Fetch course details
       const { data: courseData, error: courseError } = await supabase
         .from('courses')
@@ -56,7 +57,7 @@ export default function CourseDetailPage() {
           .eq('id', user.id)
           .single()
 
-        if (userData?.role === 'admin') {
+        if ((userData as any)?.role === 'admin') {
           // Admin can access directly
           router.replace(`/courses/${courseId}/study`)
           return
@@ -98,6 +99,7 @@ export default function CourseDetailPage() {
     try {
       setEnrolling(true)
 
+      const supabase = createSupabaseClient()
       // Create enrollment
       const { error } = await supabase
         .from('enrollments')
@@ -106,7 +108,7 @@ export default function CourseDetailPage() {
           course_id: courseId,
           progress: 0,
           enrolled_at: new Date().toISOString()
-        })
+        } as any)
 
       if (error) throw error
 

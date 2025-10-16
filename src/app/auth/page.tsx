@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { Loader2, AlertTriangle } from 'lucide-react'
 import { getSecureRedirect } from '@/lib/redirect-security'
 import Link from 'next/link'
@@ -15,6 +15,7 @@ type TabType = 'signin' | 'signup'
 
 export default function AuthPage() {
   const { signIn, signUp, user, loading: authLoading } = useAuth()
+  const [supabase] = useState(() => createSupabaseClient()) // Local client for OAuth
   const router = useRouter()
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<TabType>('signup')
@@ -40,13 +41,28 @@ export default function AuthPage() {
 
   // Handle redirect if already logged in
   useEffect(() => {
-    if (user && !authLoading && !isRedirecting) {
+    console.log('[Auth Page] Redirect check:', { 
+      hasUser: !!user, 
+      isRedirecting,
+      userRole: user?.role 
+    })
+    
+    // CRITICAL FIX: Use soft navigation to preserve React state
+    // Small delay ensures user state propagates to all context consumers
+    if (user && !isRedirecting) {
+      console.log('[Auth Page] User detected, redirecting with soft navigation...')
       setIsRedirecting(true)
+      
       const redirectTo = searchParams.get('redirect') || searchParams.get('redirectTo')
       const secureRedirect = getSecureRedirect(redirectTo, user.role)
-      router.replace(secureRedirect)
+      console.log('[Auth Page] Redirecting to:', secureRedirect)
+      
+      // Use router.push() to preserve state + small delay for propagation
+      setTimeout(() => {
+        router.push(secureRedirect)
+      }, 100)
     }
-  }, [user, authLoading, isRedirecting, router, searchParams])
+  }, [user, isRedirecting, searchParams, router])
 
   // Check for tab parameter and error messages in URL
   useEffect(() => {
@@ -88,11 +104,29 @@ export default function AuthPage() {
   }, [])
 
   if (user || isRedirecting) {
+    const redirectTo = searchParams.get('redirect') || searchParams.get('redirectTo')
+    const fallbackUrl = user?.role === 'admin' ? '/admin' : '/dashboard'
+    
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-gray-600">Redirecting...</p>
+          <p className="text-gray-600 mb-4">Redirecting...</p>
+          {isRedirecting && (
+            <p className="text-sm text-gray-500 mb-4">
+              If not redirected automatically, click below
+            </p>
+          )}
+          <button
+            onClick={() => {
+              const target = redirectTo || fallbackUrl
+              console.log('[Auth Page] Manual redirect to:', target)
+              window.location.href = target
+            }}
+            className="px-4 py-2 text-sm text-primary hover:text-secondary underline"
+          >
+            Continue to {user?.role === 'admin' ? 'Admin Dashboard' : 'Dashboard'}
+          </button>
         </div>
       </div>
     )
@@ -150,7 +184,7 @@ export default function AuthPage() {
   const handleGoogleAuth = async () => {
     setLoading(true)
     setError('')
-    
+
     try {
       // Always use window.location.origin (we're in browser/client component)
       const callbackUrl = `${window.location.origin}/auth/callback`
@@ -180,7 +214,7 @@ export default function AuthPage() {
   const handleFacebookAuth = async () => {
     setLoading(true)
     setError('')
-    
+
     try {
       // Always use window.location.origin (we're in browser/client component)
       const callbackUrl = `${window.location.origin}/auth/callback`

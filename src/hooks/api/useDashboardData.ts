@@ -3,8 +3,10 @@
  */
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
-import { logger, supabase } from '@/lib'
+import { logger, createSupabaseClient } from '@/lib'
 import type { AdminDashboardResponse, Course, UserRole } from '@/types'
+
+const supabase = createSupabaseClient()
 
 // Auth helper
 async function getAuthHeaders() {

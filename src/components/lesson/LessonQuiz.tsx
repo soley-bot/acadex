@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { X, ChevronLeft, ChevronRight, Check } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 
 interface QuizQuestion {
   id: string
@@ -33,7 +33,9 @@ export function LessonQuiz({ lessonId, lessonTitle, isOpen, onClose, onComplete 
     const loadLessonQuiz = async () => {
       setLoading(true)
       setError(null)
-      
+
+      const supabase = createSupabaseClient()
+
       try {
         const { data, error } = await supabase
           .from('quizzes')

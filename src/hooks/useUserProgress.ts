@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 
 // Define types for user progress states
@@ -50,6 +50,8 @@ export function useUserProgress(courseId?: string, quizId?: string) {
     const loadUserProgress = async () => {
       try {
         setIsLoading(true)
+
+        const supabase = createSupabaseClient()
 
         // Load user enrollments with progress
         const { data: enrollmentData, error: enrollmentError } = await supabase
@@ -135,6 +137,8 @@ export const createQuickActions = (router: ReturnType<typeof useRouter>) => ({
    */
   async quickEnrollAndStudy(courseId: string, userId: string) {
     try {
+      const supabase = createSupabaseClient()
+
       // Enroll user
       const { error: enrollError } = await supabase
         .from('enrollments')
@@ -160,6 +164,8 @@ export const createQuickActions = (router: ReturnType<typeof useRouter>) => ({
    */
   async quickStartQuiz(quizId: string, userId: string) {
     try {
+      const supabase = createSupabaseClient()
+
       // Check if user needs to be enrolled in a course first
       const { data: quiz } = await supabase
         .from('quizzes')

@@ -109,8 +109,8 @@ export async function verifyAuthentication(supabase: any): Promise<Authenticated
     })
     
     // Fallback to email-based role determination
-    const { AuthSecurity } = await import('./auth-security')
-    const role = AuthSecurity.determineRole(user.email!)
+    const { determineRole } = await import('./auth-helpers')
+    const role = determineRole(user.email!)
     
     return {
       id: user.id,

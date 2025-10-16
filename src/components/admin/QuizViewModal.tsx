@@ -4,7 +4,7 @@ import { logger } from '@/lib/logger'
 
 import { useState, useEffect, useCallback } from 'react'
 import { X, Eye, Edit, Clock, Users, BarChart3, CheckCircle, XCircle } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { formatDate } from '@/lib/date-utils'
 
 interface Question {
@@ -68,6 +68,8 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
     if (!quiz) return
 
     setLoading(true)
+    const supabase = createSupabaseClient()
+
     try {
       // Load questions
       const { data: questionsData, error: questionsError } = await supabase

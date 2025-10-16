@@ -2,8 +2,10 @@
  * Public-facing API hooks for students and general users
  */
 import { useQuery } from '@tanstack/react-query'
-import { supabase } from '@/lib'
+import { createSupabaseClient } from '@/lib'
 import type { Course } from '@/types'
+
+const supabase = createSupabaseClient()
 
 // Auth helper
 async function getAuthHeaders() {

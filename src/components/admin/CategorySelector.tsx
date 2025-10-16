@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle, memo } from 'react'
 import { ChevronDown, Plus, Settings } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
 
 interface Category {
@@ -47,7 +47,9 @@ export const CategorySelector = memo(forwardRef<CategorySelectorRef, CategorySel
     try {
       setLoading(true)
       setError(null)
-      
+
+      const supabase = createSupabaseClient()
+
       const { data, error } = await supabase
         .from('categories')
         .select('*')

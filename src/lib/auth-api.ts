@@ -3,62 +3,21 @@
  * Adds authentication headers to API requests
  */
 
-import { supabase } from './supabase'
-import { ErrorHandler } from './errorHandler'
+import { createSupabaseClient } from './supabase'
+
+// Create module-level Supabase client for auth operations
+const supabase = createSupabaseClient()
 
 /**
- * Get the current access token - optimized to check localStorage first (fast path)
+ * Get the current access token
+ * Simple and direct - Supabase SDK already handles caching
  */
 export async function getAccessToken(): Promise<string | null> {
-  console.log('🔑 [GET_ACCESS_TOKEN] Starting...')
-
-  // FAST PATH: Check localStorage first (avoids slow getSession call)
   try {
-    if (typeof window !== 'undefined') {
-      const authData = localStorage.getItem('acadex-auth-token')
-      if (authData) {
-        const parsed = JSON.parse(authData)
-        const token = parsed?.access_token
-        const expiresAt = parsed?.expires_at
-
-        // Verify token exists and hasn't expired
-        if (token && expiresAt) {
-          const expiryDate = new Date(expiresAt * 1000)
-          const now = new Date()
-
-          if (expiryDate > now) {
-            console.log('✅ [GET_ACCESS_TOKEN] Using valid token from localStorage (fast)')
-            return token
-          } else {
-            console.log('⚠️ [GET_ACCESS_TOKEN] Token expired, will refresh via session')
-          }
-        }
-      }
-    }
-  } catch (storageError) {
-    console.warn('⚠️ [GET_ACCESS_TOKEN] localStorage check failed:', storageError)
-  }
-
-  // SLOW PATH: Fallback to getSession with timeout (only if localStorage failed)
-  try {
-    console.log('🔄 [GET_ACCESS_TOKEN] Fetching from Supabase session...')
-
-    const timeoutPromise = new Promise<any>((_, reject) => {
-      setTimeout(() => reject(new Error('Session fetch timed out')), 5000)
-    })
-
-    const sessionPromise = supabase.auth.getSession()
-    const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise])
-
-    if (session?.access_token) {
-      console.log('✅ [GET_ACCESS_TOKEN] Got token from session')
-      return session.access_token
-    }
-
-    return null
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token || null
   } catch (error) {
-    console.error('❌ [GET_ACCESS_TOKEN] Session fetch failed:', error)
-    ErrorHandler.handleError(error, 'auth-api.getAccessToken')
+    console.error('Failed to get access token:', error)
     return null
   }
 }
@@ -427,7 +386,7 @@ export const courseAPI = {
       console.log('✅ Course updated successfully via courseAPI')
       return result
     } catch (error) {
-      ErrorHandler.handleError(error, 'courseAPI.updateCourse')
+      console.error('courseAPI.updateCourse error:', error)
       throw error
     }
   },
