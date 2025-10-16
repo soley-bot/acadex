@@ -1,5 +1,4 @@
 import { IconX, IconDeviceFloppy, IconLoader2, IconAlertCircle, IconBook, IconList } from '@tabler/icons-react'
-import { useCourseFormPerformance } from '@/lib/adminPerformanceSystem'
 import { useCourseForm } from './hooks/useCourseForm'
 import { BasicInfoStep } from './steps/BasicInfoStep'
 import type { CourseFormProps } from './types'
@@ -28,14 +27,6 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
     setError,
     setSuccessMessage
   } = useCourseForm(course)
-
-  // Performance monitoring
-  const { 
-    metrics, 
-    logPerformanceReport, 
-    isSlowComponent, 
-    performanceScore 
-  } = useCourseFormPerformance()
 
   const handleSubmit = async () => {
     if (hasValidationErrors) {
@@ -170,16 +161,6 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
             <IconAlertCircle className="w-4 h-4" />
             <AlertDescription className="text-red-800">
               {mutationError.message}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Performance Alert */}
-        {isSlowComponent && (
-          <Alert className="border-yellow-200 bg-yellow-50">
-            <IconAlertCircle className="w-4 h-4" />
-            <AlertDescription className="text-yellow-800">
-              Performance warning: Form is responding slowly (Score: {performanceScore}/100)
             </AlertDescription>
           </Alert>
         )}

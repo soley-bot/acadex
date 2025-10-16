@@ -5,7 +5,6 @@
 
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef } from 'react';
-import { cacheUtils, withCache } from '@/lib/cache-utils';
 
 interface RedirectOptions {
   replace?: boolean;
@@ -38,8 +37,8 @@ export function useSmartRedirect() {
     }
 
     // Cache current path for back navigation
-    if (cache) {
-      cacheUtils.session.set('lastPath', window.location.pathname);
+    if (cache && typeof window !== 'undefined') {
+      sessionStorage.setItem('lastPath', window.location.pathname);
     }
 
     // Preload the route if enabled
@@ -129,11 +128,11 @@ export function useSmartRedirect() {
 
   // Go back with fallback
   const goBack = useCallback((fallbackPath = '/') => {
-    const lastPath = cacheUtils.session.get('lastPath') as string | null;
-    
+    const lastPath = typeof window !== 'undefined' ? sessionStorage.getItem('lastPath') : null;
+
     if (lastPath && lastPath !== window.location.pathname) {
       navigate(lastPath);
-    } else if (window.history.length > 1) {
+    } else if (typeof window !== 'undefined' && window.history.length > 1) {
       router.back();
     } else {
       navigate(fallbackPath);
@@ -177,16 +176,11 @@ function requiresAuth(path: string): boolean {
 }
 
 // Cached route loader
-export const loadRoute = withCache(
-  (path: string) => `route:${path}`,
-  async (path: string) => {
-    // This would normally fetch route-specific data
-    // For now, just return a promise that resolves
-    await new Promise(resolve => setTimeout(resolve, 100));
-    return { path, loaded: true, timestamp: Date.now() };
-  },
-  2 * 60 * 1000 // 2 minutes
-);
+export const loadRoute = async (path: string) => {
+  // Simple route loader without cache
+  await new Promise(resolve => setTimeout(resolve, 100));
+  return { path, loaded: true, timestamp: Date.now() };
+};
 
 // Preload common routes based on user type
 export function preloadCommonRoutes(userRole: string | null, router: any) {

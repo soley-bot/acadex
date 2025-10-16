@@ -1,6 +1,33 @@
-import { courseCache } from './cache'
 import { createSupabaseClient } from './supabase'
 import type { Course, CourseModule, CourseLesson } from './supabase'
+
+// Simple in-memory cache
+const simpleCache = new Map<string, { data: any; timestamp: number }>()
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+function getCached<T>(key: string): T | null {
+  const cached = simpleCache.get(key)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data as T
+  }
+  return null
+}
+
+function setCache(key: string, data: any) {
+  simpleCache.set(key, { data, timestamp: Date.now() })
+}
+
+function invalidateCache(pattern?: string) {
+  if (pattern) {
+    for (const key of simpleCache.keys()) {
+      if (key.includes(pattern)) {
+        simpleCache.delete(key)
+      }
+    }
+  } else {
+    simpleCache.clear()
+  }
+}
 
 import { logger } from '@/lib/logger'
 
@@ -32,7 +59,7 @@ class CoursePreloadingService {
   async preloadCourses(courseIds: string[]) {
     if (this.isDestroyed) return
     
-    const uncachedIds = courseIds.filter(id => !courseCache.get(`course:${id}`))
+    const uncachedIds = courseIds.filter(id => !getCached(`course:${id}`))
     
     if (uncachedIds.length === 0) return
 
@@ -87,7 +114,7 @@ class CoursePreloadingService {
     // Cache each course
     courses?.forEach((course: { id: string }) => {
       if (course?.id) {
-        courseCache.set(`course:${course.id}`, course, ['courses', `course:${course.id}`])
+        setCache(`course:${course.id}`, course)
       }
     })
   }
@@ -96,7 +123,7 @@ class CoursePreloadingService {
   async preloadRelatedCourses(currentCourseId: string) {
     try {
       // Get current course category to find related courses
-      const currentCourse = courseCache.get(`course:${currentCourseId}`) as Course | undefined
+      const currentCourse = getCached(`course:${currentCourseId}`) as Course | undefined
       if (!currentCourse || !currentCourse.category) return
 
       const { data: relatedCourses } = await supabase
@@ -190,7 +217,7 @@ class CourseSearchService {
 
       // Also cache individual courses
       results.forEach((course: any) => {
-        courseCache.set(`course:${course.id}`, course, ['courses', `course:${course.id}`])
+        setCache(`course:${course.id}`, course)
       })
 
       return results
@@ -221,7 +248,7 @@ class CourseOptimizationService {
     const cacheKey = `course:${courseId}:modules`
     
     // Check cache first
-    const cached = courseCache.get<CourseModule[]>(cacheKey)
+    const cached = getCached<CourseModule[]>(cacheKey)
     if (cached) {
       return cached
     }
@@ -239,7 +266,7 @@ class CourseOptimizationService {
       if (error) throw error
 
       const result = modules || []
-      courseCache.set(cacheKey, result, ['courses', `course:${courseId}`, 'modules'])
+      setCache(cacheKey, result)
       
       return result
     } catch (error) {
@@ -252,7 +279,7 @@ class CourseOptimizationService {
   async loadLesson(lessonId: string): Promise<CourseLesson | null> {
     const cacheKey = `lesson:${lessonId}`
     
-    const cached = courseCache.get<CourseLesson>(cacheKey)
+    const cached = getCached<CourseLesson>(cacheKey)
     if (cached) {
       return cached
     }
@@ -266,7 +293,7 @@ class CourseOptimizationService {
 
       if (error) throw error
 
-      courseCache.set(cacheKey, lesson, ['lessons', `lesson:${lessonId}`])
+      setCache(cacheKey, lesson)
       return lesson
     } catch (error) {
       logger.error('Failed to load lesson:', error)
@@ -316,7 +343,7 @@ export const courseUtils = {
   async getCourse(id: string, includeContent = false): Promise<Course | null> {
     const cacheKey = includeContent ? `course:${id}:full` : `course:${id}`
     
-    const cached = courseCache.get<Course>(cacheKey)
+    const cached = getCached<Course>(cacheKey)
     if (cached) {
       return cached
     }
@@ -344,7 +371,7 @@ export const courseUtils = {
       if (!data) throw new Error('Course not found')
 
       const course = data as unknown as Course
-      courseCache.set(cacheKey, course, ['courses', `course:${id}`])
+      setCache(cacheKey, course)
       return course
     } catch (error) {
       logger.error('Failed to get course:', error)
@@ -354,7 +381,7 @@ export const courseUtils = {
 
   // Invalidate all course-related cache
   invalidateCourse(courseId: string) {
-    courseCache.invalidateByTags([`course:${courseId}`])
+    invalidateCache(`course:${courseId}`)
   },
 
   // Warm up cache for popular courses

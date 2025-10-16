@@ -69,18 +69,6 @@ const QuizAnalyticsComponent = dynamic(
   }
 )
 
-const SecurityDashboardComponent = dynamic(
-  () => import('@/components/admin/SecurityDashboard'),
-  {
-    loading: () => (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Loading Security Dashboard...</span>
-      </div>
-    ),
-    ssr: false
-  }
-)
 
 // Component wrapper with Suspense boundaries
 export const LazyComponents = {
@@ -137,17 +125,6 @@ export const LazyComponents = {
     }>
       <QuizAnalyticsComponent {...props} />
     </Suspense>
-  ),
-
-  SecurityDashboard: (props: any) => (
-    <Suspense fallback={
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Loading Security Dashboard...</span>
-      </div>
-    }>
-      <SecurityDashboardComponent {...props} />
-    </Suspense>
   )
 }
 
@@ -157,6 +134,5 @@ export {
   CategoryManagementComponent,
   QuestionCreationComponent,
   QuizBuilderComponent,
-  QuizAnalyticsComponent,
-  SecurityDashboardComponent
+  QuizAnalyticsComponent
 }

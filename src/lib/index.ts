@@ -46,6 +46,3 @@ export { getHeroImage } from './imageMapping'
 // Constants
 export { quizDifficulties, quizCategories } from './quiz-constants-unified'
 export { levels, statuses } from './courseConstants'
-
-// Cache utilities (consolidated)
-export { cacheUtils, withCache } from './cache-utils'

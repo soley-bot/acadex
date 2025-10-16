@@ -1,9 +1,60 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useCourseMutations } from '@/lib/cached-operations'
-import { quizAPI } from '@/lib/api'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { EnhancedCourseData, ModuleData, LessonData, QuizOption, TabType } from '../types'
 import type { Course } from '@/lib/supabase'
+
+// Simple mutations without cache
+const useCourseMutations = () => {
+  const queryClient = useQueryClient()
+
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await fetch('/api/admin/courses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      if (!response.ok) throw new Error('Failed to create course')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] })
+    }
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string, updates: any }) => {
+      const response = await fetch(`/api/admin/courses/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      })
+      if (!response.ok) throw new Error('Failed to update course')
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] })
+    }
+  })
+
+  return {
+    createCourse: createMutation.mutateAsync,
+    updateCourse: updateMutation.mutateAsync,
+    isCreating: createMutation.isPending,
+    isUpdating: updateMutation.isPending,
+    error: createMutation.error || updateMutation.error
+  }
+}
+
+// Simple quiz API
+const quizAPI = {
+  getQuizzes: async () => {
+    const response = await fetch('/api/admin/quizzes')
+    if (!response.ok) throw new Error('Failed to fetch quizzes')
+    return response.json()
+  }
+}
 
 export function useCourseForm(course?: Course) {
   const { user } = useAuth()

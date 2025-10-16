@@ -16,10 +16,7 @@ import { quizDifficulties } from '@/lib/quiz-constants-unified'
 import { Badge } from '@/components/ui/badge'
 import { TextInput } from '@/components/ui/FormInputs'
 import { usePublicQuizzes, usePublicQuizCategories } from '@/hooks/usePublicQuizzes'
-// Temporarily disabled to isolate layout issue
-// import { useMemoryMonitor } from '@/lib/memory-optimization'
-// import { useEnhancedWebVitals } from '@/lib/safe-web-vitals'
-import { useDebounce } from '@/lib/performance'
+import { useDebounce } from '@/hooks/useDebounce'
 
 interface PaginationData {
   page: number
