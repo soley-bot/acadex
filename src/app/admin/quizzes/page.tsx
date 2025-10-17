@@ -109,8 +109,8 @@ export default function AdminQuizzesPage() {
       })
       if (!response.ok) throw new Error('Failed to toggle publish state')
       refetch()
-    } catch (error) {
-      logger.error('Failed to toggle quiz publication:', error)
+    } catch (error: any) {
+      logger.error('Failed to toggle quiz publication', { error: error.message })
       refetch()
     }
   }, [refetch])

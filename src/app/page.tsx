@@ -71,7 +71,7 @@ export default function Home() {
     })
 
     schemas = candidateSchemas
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error generating schemas:', error)
     schemas = []
   }

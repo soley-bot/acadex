@@ -37,7 +37,7 @@ export async function getQuizzes(filters?: { category?: string; difficulty?: str
   const { data, error } = await query.order('created_at', { ascending: false })
 
   if (error) {
-    logger.error('Error fetching quizzes:', error)
+    logger.error('Error fetching quizzes', { error: error?.message || 'Unknown error' })
     return []
   }
 
@@ -59,7 +59,7 @@ export async function getRandomQuizQuestions(limit: number = 3) {
     .limit(limit)
 
   if (error) {
-    logger.error('Error fetching random quiz questions:', error)
+    logger.error('Error fetching random quiz questions', { error: error?.message || 'Unknown error' })
     return []
   }
 

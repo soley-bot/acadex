@@ -147,7 +147,7 @@ export class GeminiAIService extends BaseAIService {
         }
       }
     } catch (error: any) {
-      logger.error('Gemini AI generation failed:', error)
+      logger.error('Gemini AI generation failed', { error: error?.message || 'Unknown error' })
       return {
         success: false,
         error: error.message || 'Content generation failed'
@@ -460,7 +460,7 @@ Generate quiz with this structure:
         }
       }
     } catch (error: any) {
-      logger.error('Quiz generation failed:', error)
+      logger.error('Quiz generation failed', { error: error?.message || 'Unknown error' })
       return { 
         success: false, 
         error: error.message || 'Quiz generation failed' 

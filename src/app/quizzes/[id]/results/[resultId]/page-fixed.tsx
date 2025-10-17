@@ -55,8 +55,8 @@ export default function QuizResultsPage() {
           const resultData = Array.isArray(response.data) ? response.data[0] : response.data?.data?.[0] || null
           setResults(resultData)
         }
-      } catch (err) {
-        logger.error('Error fetching quiz results:', err)
+      } catch (err: any) {
+        logger.error('Error fetching quiz results', { error: err?.message || 'Unknown error' })
         setError('Failed to load quiz results')
       } finally {
         setLoading(false)

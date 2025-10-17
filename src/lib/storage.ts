@@ -49,7 +49,7 @@ export async function uploadFile(
       })
 
     if (error) {
-      logger.error('Upload error:', error)
+      logger.error('Upload error', { error: error?.message || 'Unknown error' })
       return { url: null, error: error.message }
     }
 
@@ -59,8 +59,8 @@ export async function uploadFile(
       .getPublicUrl(data.path)
 
     return { url: urlData.publicUrl, error: null }
-  } catch (err) {
-    logger.error('Upload error:', err)
+  } catch (err: any) {
+    logger.error('Upload error', { error: err?.message || 'Unknown error' })
     return { url: null, error: 'Failed to upload file' }
   }
 }
@@ -73,13 +73,13 @@ export async function deleteFile(bucket: string, path: string): Promise<boolean>
       .remove([path])
 
     if (error) {
-      logger.error('Delete error:', error)
+      logger.error('Delete error', { error: error?.message || 'Unknown error' })
       return false
     }
 
     return true
-  } catch (err) {
-    logger.error('Delete error:', err)
+  } catch (err: any) {
+    logger.error('Delete error', { error: err?.message || 'Unknown error' })
     return false
   }
 }

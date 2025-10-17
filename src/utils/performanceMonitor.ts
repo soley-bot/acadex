@@ -53,7 +53,7 @@ export class QuizBuilderPerformanceMonitor {
       const result = await asyncFn()
       this.endMeasurement(operation, 100) // Higher threshold for async ops
       return result
-    } catch (error) {
+    } catch (error: any) {
       this.endMeasurement(operation, 100)
       throw error
     }

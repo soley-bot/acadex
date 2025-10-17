@@ -338,7 +338,7 @@ export const adminQuizAPI = {
     try {
       await Promise.all(promises)
       return { data: { success: true }, error: null }
-    } catch (error) {
+    } catch (error: any) {
       return { data: null, error: error as any }
     }
   },

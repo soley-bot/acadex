@@ -92,8 +92,8 @@ export function AIQuestionSuggestions({
         suggestionCount: data.suggestions?.length || 0
       })
       
-    } catch (error) {
-      logger.error('Failed to generate AI question suggestions:', error)
+    } catch (error: any) {
+      logger.error('Failed to generate AI question suggestions', { error: error?.message || 'Unknown error' })
       setError(error instanceof Error ? error.message : 'Failed to generate suggestions')
     } finally {
       setIsLoading(false)

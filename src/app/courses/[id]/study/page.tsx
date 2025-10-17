@@ -47,7 +47,7 @@ export default function CourseStudyPage() {
   const [loadingStage, setLoadingStage] = useState<'auth' | 'params' | 'content'>('auth')
 
   // Refs to prevent race conditions
-  const hasFetchedRef = useRef(false)
+  const hasFetchedRef = useRef<string | false>(false)
   const abortControllerRef = useRef<AbortController | null>(null)
   const mountedRef = useRef(true)
 
@@ -72,11 +72,11 @@ export default function CourseStudyPage() {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (loading && !error) {
-        console.error('⏱️ Loading timeout after 20 seconds')
+        console.error('⏱️ Loading timeout after 45 seconds')
         setError('Loading timeout. Please check your connection and try again.')
         setLoading(false)
       }
-    }, 20000) // 20 second safety timeout
+    }, 45000) // 45 second safety timeout (longer than fetch timeout)
 
     return () => clearTimeout(timeoutId)
   }, [loading, error])
@@ -95,11 +95,16 @@ export default function CourseStudyPage() {
     }
   }, [courseId, user, authLoading, loading, loadingStage, error])
 
-  // Mounted guard setup
+  // Mounted guard setup and cleanup on unmount
   useEffect(() => {
     mountedRef.current = true
     return () => {
       mountedRef.current = false
+      // Only abort on actual component unmount
+      if (abortControllerRef.current) {
+        console.log('[Course] Component unmounting, aborting requests')
+        abortControllerRef.current.abort()
+      }
     }
   }, [])
 
@@ -120,21 +125,24 @@ export default function CourseStudyPage() {
       return
     }
 
-    // CRITICAL: Prevent duplicate fetches
-    if (hasFetchedRef.current) {
+    // Wait for user to be loaded
+    if (!user) {
+      console.log('[Course] No user yet, waiting...')
+      return
+    }
+
+    // CRITICAL: Prevent duplicate fetches with stable key
+    const fetchKey = `${courseId}-${user.id}`
+    if (hasFetchedRef.current === fetchKey) {
       console.log('[Course] Already fetched course data, skipping');
       return;
     }
 
-    hasFetchedRef.current = true;
+    hasFetchedRef.current = fetchKey;
     console.log('[Course] Starting course data fetch for:', courseId);
 
     const loadCourseContent = async () => {
-      // Cancel any previous request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-      
+      // Create new AbortController for this request
       abortControllerRef.current = new AbortController();
       try {
         setLoadingStage('content')
@@ -158,9 +166,10 @@ export default function CourseStudyPage() {
 
       // Use API route instead of direct Supabase (fixes CORS on custom domains)
       // Use shared abort controller
-      const timeoutId = setTimeout(() => abortControllerRef.current?.abort(), 15000) // 15 second timeout
+      const timeoutId = setTimeout(() => abortControllerRef.current?.abort(), 30000) // 30 second timeout
 
       let response
+      let didTimeout = false
       try {
         response = await fetch(`/api/courses/${courseId}/study`, {
           method: 'GET',
@@ -174,17 +183,21 @@ export default function CourseStudyPage() {
       } catch (fetchError: any) {
         clearTimeout(timeoutId)
         if (fetchError.name === 'AbortError') {
-          console.error('Request aborted or timed out')
-          // Don't set error on intentional aborts (component unmounting)
-          if (mountedRef.current) {
-            setError('Request timed out. Please check your connection and try again.')
-            setLoading(false)
+          // Check if component is still mounted to distinguish timeout from unmount
+          if (!mountedRef.current) {
+            console.log('[Course] Request aborted due to component unmount')
+            return
           }
+          console.error('[Course] Request timed out after 30 seconds')
+          setError('Request timed out. Please check your connection and try again.')
+          setLoading(false)
+          hasFetchedRef.current = false // Allow retry
         } else {
-          console.error('Fetch error:', fetchError)
+          console.error('[Course] Fetch error:', fetchError)
           if (mountedRef.current) {
             setError('Network error. Please check your connection and try again.')
             setLoading(false)
+            hasFetchedRef.current = false // Allow retry
           }
         }
         return
@@ -275,7 +288,7 @@ export default function CourseStudyPage() {
             }
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.warn('Failed to restore lesson position from localStorage:', error)
       }
 
@@ -298,9 +311,9 @@ export default function CourseStudyPage() {
           setLoading(false)
         }
         
-      } catch (error) {
+      } catch (error: any) {
         console.error('[Course] Error loading course content:', error)
-        logger.error('Error loading course content:', error)
+        logger.error('Error loading course content', { error: error?.message || 'Unknown error' })
         if (mountedRef.current) {
           setError('Failed to load course content. Please try again.')
           setLoading(false)
@@ -312,14 +325,10 @@ export default function CourseStudyPage() {
 
     loadCourseContent()
 
-    // Cleanup: abort request on unmount or dependency change
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-      // Note: Don't reset hasFetchedRef here - let it persist to prevent re-fetch on unmount
-    }
-  }, [courseId, user, authLoading, router])
+    // No cleanup needed here - abort controller is managed separately
+    // The mountedRef prevents state updates after unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courseId, user?.id]) // Don't include authLoading - we check it inside the effect
 
   const handleToggleModule = (moduleId: string) => {
     const newExpanded = new Set(expandedModules)
@@ -338,7 +347,7 @@ export default function CourseStudyPage() {
     // Save lesson position to localStorage for recovery
     try {
       localStorage.setItem(`course_${courseId}_last_lesson`, lesson.id)
-    } catch (error) {
+    } catch (error: any) {
       console.warn('Failed to save lesson position to localStorage:', error)
     }
   }
@@ -466,8 +475,8 @@ export default function CourseStudyPage() {
         console.log('👑 Admin user detected - skipping enrollment progress update')
       }
 
-    } catch (error) {
-      logger.error('Error completing lesson:', error)
+    } catch (error: any) {
+      logger.error('Error completing lesson', { error: error?.message || 'Unknown error' })
       // Show user-friendly error message
       alert('Failed to mark lesson as complete. Please try again.')
     } finally {

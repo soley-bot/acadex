@@ -34,7 +34,7 @@ export function useDeleteQuiz() {
       logger.info('✅ Quiz deleted and cache invalidated')
     },
     onError: (error) => {
-      logger.error('❌ Failed to delete quiz:', error)
+      logger.error('❌ Failed to delete quiz', { error: error?.message || 'Unknown error' })
     }
   })
 }

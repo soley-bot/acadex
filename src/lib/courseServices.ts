@@ -79,8 +79,8 @@ class CoursePreloadingService {
 
     try {
       await this.batchLoadCourses(batch)
-    } catch (error) {
-      logger.warn('Batch preload failed:', error)
+    } catch (error: any) {
+      logger.warn('Batch preload failed', { error: error?.message || 'Unknown error' })
     }
 
     // Continue processing if more items in queue and not destroyed
@@ -137,8 +137,8 @@ class CoursePreloadingService {
       if (relatedCourses) {
         this.preloadCourses(relatedCourses.map((c: { id: string }) => c.id))
       }
-    } catch (error) {
-      logger.warn('Related course preloading failed:', error)
+    } catch (error: any) {
+      logger.warn('Related course preloading failed', { error: error?.message || 'Unknown error' })
     }
   }
 
@@ -221,8 +221,8 @@ class CourseSearchService {
       })
 
       return results
-    } catch (error) {
-      logger.error('Course search failed:', error)
+    } catch (error: any) {
+      logger.error('Course search failed', { error: error?.message || 'Unknown error' })
       return []
     }
   }
@@ -269,8 +269,8 @@ class CourseOptimizationService {
       setCache(cacheKey, result)
       
       return result
-    } catch (error) {
-      logger.error('Failed to load course modules:', error)
+    } catch (error: any) {
+      logger.error('Failed to load course modules', { error: error?.message || 'Unknown error' })
       return []
     }
   }
@@ -295,8 +295,8 @@ class CourseOptimizationService {
 
       setCache(cacheKey, lesson)
       return lesson
-    } catch (error) {
-      logger.error('Failed to load lesson:', error)
+    } catch (error: any) {
+      logger.error('Failed to load lesson', { error: error?.message || 'Unknown error' })
       return null
     }
   }
@@ -325,7 +325,7 @@ class CourseOptimizationService {
           this.loadLesson(next.id) // Prefetch in background
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       // Silently fail for prefetching
       logger.debug('Prefetch failed:', error)
     }
@@ -373,8 +373,8 @@ export const courseUtils = {
       const course = data as unknown as Course
       setCache(cacheKey, course)
       return course
-    } catch (error) {
-      logger.error('Failed to get course:', error)
+    } catch (error: any) {
+      logger.error('Failed to get course', { error: error?.message || 'Unknown error' })
       return null
     }
   },
@@ -397,8 +397,8 @@ export const courseUtils = {
       if (popular) {
         coursePreloader.preloadCourses(popular.map((c: any) => c.id))
       }
-    } catch (error) {
-      logger.warn('Failed to warm up popular courses:', error)
+    } catch (error: any) {
+      logger.warn('Failed to warm up popular courses', { error: error?.message || 'Unknown error' })
     }
   }
 }

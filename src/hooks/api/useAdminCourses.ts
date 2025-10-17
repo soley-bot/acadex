@@ -66,10 +66,10 @@ export function useAdminCourses(page = 1, limit = 50, search = '', category = 'a
           search,
           category
         })
-        
+
         const url = `/api/admin/courses?${params}`
-        logger.debug('🌐 useAdminCourses: Fetching from', url)
-        
+        logger.debug('🌐 useAdminCourses: Fetching from', { url })
+
         const response = await fetch(url, {
           method: 'GET',
           headers,
@@ -95,8 +95,8 @@ export function useAdminCourses(page = 1, limit = 50, search = '', category = 'a
           pagination: data.pagination || { page, limit, total: 0, totalPages: 0 },
           success: data.success
         }
-      } catch (error) {
-        logger.error('💥 useAdminCourses: Error in queryFn', error)
+      } catch (error: any) {
+        logger.error('💥 useAdminCourses: Error in queryFn', { error: error?.message || 'Unknown error' })
         throw error
       }
     },
@@ -151,7 +151,7 @@ export function useCreateCategory() {
       logger.info('✅ Category created and cache invalidated')
     },
     onError: (error) => {
-      logger.error('❌ Failed to create category:', error)
+      logger.error('❌ Failed to create category', { error: error?.message || 'Unknown error' })
     }
   })
 }

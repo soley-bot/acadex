@@ -86,8 +86,8 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
       message: 'Modules and lessons saved successfully'
     })
 
-  } catch (error) {
-    logger.error('Course modules API: Unexpected error:', error)
+  } catch (error: any) {
+    logger.error('Course modules API: Unexpected error', { error: error?.message || 'Unknown error' })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 })

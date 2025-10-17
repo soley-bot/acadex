@@ -1,5 +1,5 @@
 import { logger } from './logger'
-import { ErrorHandler } from './errorHandler'
+import { handleError } from './errorHandler'
 import { AIServiceFactory, BaseAIService } from './ai-services'
 import { PromptBuilder, ResponseParser, FormatConverter } from './ai-quiz-generator'
 
@@ -197,7 +197,7 @@ export class SimpleAIQuizGenerator {
       }
 
     } catch (error: any) {
-      const formattedError = ErrorHandler.handleError(error, 'simple-ai-quiz-generator.generateSimpleQuiz')
+      const formattedError = handleError(error, 'simple-ai-quiz-generator.generateSimpleQuiz')
 
       return {
         success: false,

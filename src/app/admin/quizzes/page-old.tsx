@@ -275,9 +275,9 @@ export default function AdminQuizzesPage() {
       // Refetch to ensure consistency
       refetch()
       
-      logger.info(`Successfully ${newPublishedState ? 'published' : 'unpublished'} quiz:`, quiz.id)
-    } catch (error) {
-      logger.error('Failed to toggle quiz publication:', error)
+      logger.info(`Successfully ${newPublishedState ? 'published' : 'unpublished'} quiz`, { quizId: quiz.id })
+    } catch (error: any) {
+      logger.error('Failed to toggle quiz publication', { error: error.message })
       // Refetch to restore correct state
       refetch()
     }

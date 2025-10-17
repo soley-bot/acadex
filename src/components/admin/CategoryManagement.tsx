@@ -89,7 +89,7 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
       setCategories(data.categories || [])
     } catch (err: any) {
       const errorMessage = err instanceof Error ? err.message : String(err)
-      logger.error('Error fetching categories:', errorMessage)
+      logger.error('Error fetching categories', { error: errorMessage })
       console.error('Category fetch error:', errorMessage)
       alert(`Failed to fetch categories: ${errorMessage}`)
     } finally {
@@ -166,7 +166,7 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
       }
     } catch (err: any) {
       const errorMessage = err instanceof Error ? err.message : String(err)
-      logger.error('Error saving category:', errorMessage)
+      logger.error('Error saving category', { error: errorMessage })
       // TODO: Add user-facing error notification
       console.error('Category save error:', errorMessage)
     }
@@ -195,10 +195,10 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
       if (!response.ok) {
         throw new Error('Failed to delete category')
       }
-      
+
       await fetchCategories()
-    } catch (err) {
-      logger.error('Error deleting category:', err)
+    } catch (err: any) {
+      logger.error('Error deleting category', { error: err?.message || 'Unknown error' })
     }
   }
 

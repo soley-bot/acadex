@@ -5,27 +5,28 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { useStudentDashboard } from '@/hooks/api'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DashboardLayout } from '@/components/layouts/DashboardLayout'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { StudentSidebar } from '@/components/student/StudentSidebar'
-import { BodyLG, BodyMD } from '@/components/ui/Typography'
-import { 
-  BookOpen, 
-  GraduationCap, 
-  Brain, 
+import { StatCard, StatCardPresets } from '@/components/ui/stat-card'
+import {
+  BookOpen,
+  GraduationCap,
+  Brain,
   Trophy,
   TrendingUp,
   Clock,
   Target,
-  PlayCircle
+  PlayCircle,
+  ArrowRight,
+  Sparkles
 } from 'lucide-react'
 import { formatDate } from '@/lib/date-utils'
 
 export default function StudentDashboard() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // CRITICAL: Redirect if not authenticated
   useEffect(() => {
@@ -56,361 +57,306 @@ export default function StudentDashboard() {
   const recentCourses = dashboardData?.recentCourses || []
   const recentQuizzes = dashboardData?.recentQuizzes || []
 
-  const getProgressColor = (percentage: number) => {
-    if (percentage >= 80) return 'bg-green-500'
-    if (percentage >= 60) return 'bg-yellow-500'
-    return 'bg-red-500'
-  }
-
-  const getScoreColor = (percentage: number) => {
-    if (percentage >= 80) return 'text-green-600'
-    if (percentage >= 60) return 'text-yellow-600'
-    return 'text-red-600'
-  }
-
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex">
-        {/* Desktop Sidebar */}
-        <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-          <StudentSidebar />
-        </div>
-
-        {/* Mobile Sidebar */}
-        {sidebarOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)}>
-            <div className="fixed inset-y-0 left-0 w-64 bg-sidebar" onClick={e => e.stopPropagation()}>
-              <StudentSidebar onMobileClose={() => setSidebarOpen(false)} />
-            </div>
-          </div>
-        )}
-
-        <div className="flex-1 lg:ml-64 flex items-center justify-center">
-          <Card variant="elevated" className="text-center p-12 max-w-md mx-auto">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary mx-auto mb-6"></div>
-            <BodyLG className="text-gray-700 font-medium">
+      <DashboardLayout title="Dashboard">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Card className="text-center !p-6 sm:!p-8 md:!p-10 lg:!p-12 max-w-md mx-auto border-2 border-primary/20 shadow-xl">
+            <div className="animate-spin rounded-full h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 border-4 border-primary/20 border-t-primary mx-auto mb-4 sm:mb-5 md:mb-6"></div>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
               {authLoading ? 'Checking authentication...' : 'Loading dashboard...'}
-            </BodyLG>
-            <BodyMD className="text-gray-500 mt-2">
+            </h3>
+            <p className="text-sm sm:text-base text-gray-600">
               {authLoading ? 'Please wait...' : 'Gathering your learning progress'}
-            </BodyMD>
+            </p>
           </Card>
         </div>
-      </div>
+      </DashboardLayout>
     )
   }
 
   // Error state with retry option
   if (dashboardError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex">
-        {/* Desktop Sidebar */}
-        <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-          <StudentSidebar />
-        </div>
-
-        <div className="flex-1 lg:ml-64">
-          <div className="p-6">
-            <div className="max-w-md mx-auto text-center py-12">
-              <div className="mb-8">
-                <div className="text-6xl mb-4">😞</div>
-                <h2 className="text-2xl font-semibold text-gray-900 mb-4">Oops! Something went wrong</h2>
-                <p className="text-gray-600 mb-6">
-                  We couldn&apos;t load your dashboard data. This might be a temporary issue.
-                </p>
-              </div>
-              
-              <div className="space-y-4">
-                <Button onClick={() => refetchDashboard()} className="w-full">
-                  Try Again
-                </Button>
-                <Button variant="outline" onClick={() => router.push('/')} className="w-full">
-                  Go to Home
-                </Button>
-              </div>
-              
-              {/* Technical details for development */}
-              {process.env.NODE_ENV === 'development' && (
-                <details className="mt-8 p-4 bg-gray-50 rounded-lg text-left">
-                  <summary className="cursor-pointer font-medium">Error Details</summary>
-                  <pre className="mt-2 text-sm text-red-600 whitespace-pre-wrap">
-                    {dashboardError?.message || 'Unknown error'}
-                  </pre>
-                </details>
-              )}
-            </div>
+      <DashboardLayout title="Dashboard">
+        <div className="max-w-md mx-auto text-center py-12">
+          <div className="mb-8">
+            <div className="text-6xl mb-4">😞</div>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Oops! Something went wrong</h2>
+            <p className="text-gray-600 mb-6">
+              We couldn&apos;t load your dashboard data. This might be a temporary issue.
+            </p>
           </div>
+
+          <div className="space-y-4">
+            <Button onClick={() => refetchDashboard()} className="w-full">
+              Try Again
+            </Button>
+            <Button variant="outline" onClick={() => router.push('/')} className="w-full">
+              Go to Home
+            </Button>
+          </div>
+
+          {/* Technical details for development */}
+          {process.env.NODE_ENV === 'development' && (
+            <details className="mt-8 p-4 bg-gray-50 rounded-lg text-left">
+              <summary className="cursor-pointer font-medium">Error Details</summary>
+              <pre className="mt-2 text-sm text-red-600 whitespace-pre-wrap">
+                {dashboardError?.message || 'Unknown error'}
+              </pre>
+            </details>
+          )}
         </div>
-      </div>
+      </DashboardLayout>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex">
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-        <StudentSidebar />
+    <DashboardLayout title="Dashboard">
+      {/* Welcome Header */}
+      <div className="mb-4 sm:mb-6 lg:mb-8">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
+            Welcome back, {user?.name?.split(' ')[0] || 'Student'}!
+          </h1>
+        </div>
+        <p className="text-sm sm:text-base lg:text-lg text-gray-600">Let&apos;s continue your learning journey</p>
       </div>
 
-      {/* Mobile Sidebar */}
-      {sidebarOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)}>
-          <div className="fixed inset-y-0 left-0 w-64 bg-sidebar" onClick={e => e.stopPropagation()}>
-            <StudentSidebar onMobileClose={() => setSidebarOpen(false)} />
-          </div>
-        </div>
-      )}
+        <div className="grid gap-4 sm:gap-5 lg:gap-6 grid-cols-1 xl:grid-cols-3">
 
-      <div className="flex-1 lg:ml-64">
-        {/* Clean Header */}
-        <header className="bg-white border-b-2 border-slate-200">
-          <div className="max-w-screen-xl mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              {/* Mobile hamburger menu */}
-              <div className="lg:hidden">
-                <button
-                  onClick={() => setSidebarOpen(true)}
-                  className="p-2 rounded-md text-slate-600 hover:text-slate-800 hover:bg-slate-100"
-                >
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-              </div>
-              
-              <div className="flex-1 lg:flex-initial">
-                <h1 className="text-xl font-semibold text-slate-700">
-                  Welcome back, {user?.name || 'Student'}!
-                </h1>
-                <p className="text-sm text-slate-500">Let&apos;s have a great day of learning.</p>
-              </div>
-              
-              <div className="flex items-center space-x-4">
-                <button className="text-slate-600 hover:text-slate-800">
-                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15 17H20L18.5951 15.5951C18.2141 15.2141 18 14.6973 18 14.1585V11C18 8.38757 16.3304 6.16509 14 5.34142V5C14 3.89543 13.1046 3 12 3C10.8954 3 10 3.89543 10 5V5.34142C7.66962 6.16509 6 8.38757 6 11V14.1585C6 14.6973 5.78595 15.2141 5.40493 15.5951L4 17H9M12 21C12.5523 21 13 20.5523 13 20H11C11 20.5523 11.4477 21 12 21Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
-                <div className="w-10 h-10 bg-sky-500 rounded-full flex items-center justify-center text-white font-semibold">
-                  {user?.name?.charAt(0).toUpperCase() || 'S'}
-                </div>
-              </div>
+          {/* Main Column */}
+          <div className="xl:col-span-2 flex flex-col gap-4 sm:gap-5 lg:gap-6">
+
+            {/* Stats Overview - Modern Gradient Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <StatCard
+                label="Active Courses"
+                value={stats.totalCourses}
+                icon={BookOpen}
+                variant="gradient"
+                {...StatCardPresets.courses.gradient}
+              />
+              <StatCard
+                label="Completed"
+                value={stats.completedCourses}
+                icon={GraduationCap}
+                variant="gradient"
+                {...StatCardPresets.completed.gradient}
+              />
+              <StatCard
+                label="Quiz Attempts"
+                value={stats.totalQuizzes}
+                icon={Brain}
+                variant="gradient"
+                {...StatCardPresets.quizzes.gradient}
+              />
+              <StatCard
+                label="Avg Score"
+                value={`${stats.averageScore}%`}
+                icon={Trophy}
+                variant="gradient"
+                {...StatCardPresets.score.gradient}
+              />
             </div>
-          </div>
-        </header>
 
-        {/* Main Content */}
-        <main className="dashboard-main">
-          <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
-            
-            {/* Main Column */}
-            <div className="lg:col-span-2 flex flex-col gap-6">
-              
-              {/* Stats Overview */}
-              <div className="dashboard-section">
-                <div className="dashboard-section-header">
-                  <h3 className="dashboard-section-title flex items-center">
-                    <TrendingUp className="w-6 h-6 mr-3 text-sky-500" />
-                    Your Progress
-                  </h3>
+            {/* My Courses Section */}
+            <Card className="border-2 border-gray-100 shadow-lg">
+              <CardContent className="!p-3 sm:!p-4 md:!p-5 lg:!p-6">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                      <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                    </div>
+                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">My Courses</h3>
+                  </div>
+                  <Link href="/dashboard/my-courses">
+                    <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80 text-xs sm:text-sm">
+                      View All <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
+                    </Button>
+                  </Link>
                 </div>
-                
-                <div className="stats-grid">
-                  {/* Active Courses */}
-                  <div className="stat-card">
-                    <div className="stat-card-header">
-                      <h4 className="stat-card-title">Active Courses</h4>
-                      <div className="stat-card-icon">
-                        <BookOpen className="w-4 h-4 stat-card-icon-default" />
-                      </div>
-                    </div>
-                    <div className="stat-card-value">{stats.totalCourses}</div>
-                    <p className="stat-card-description">Currently enrolled</p>
-                  </div>
 
-                  {/* Completed Courses */}
-                  <div className="stat-card">
-                    <div className="stat-card-header">
-                      <h4 className="stat-card-title">Completed Courses</h4>
-                      <div className="stat-card-icon">
-                        <GraduationCap className="w-4 h-4 stat-card-icon-success" />
-                      </div>
-                    </div>
-                    <div className="stat-card-value">{stats.completedCourses}</div>
-                    <p className="stat-card-description">Finished successfully</p>
-                  </div>
-
-                  {/* Total Quizzes */}
-                  <div className="stat-card">
-                    <div className="stat-card-header">
-                      <h4 className="stat-card-title">Total Quizzes</h4>
-                      <div className="stat-card-icon">
-                        <Brain className="w-4 h-4 stat-card-icon-default" />
-                      </div>
-                    </div>
-                    <div className="stat-card-value">{stats.totalQuizzes}</div>
-                    <p className="stat-card-description">Attempted so far</p>
-                  </div>
-
-                  {/* Average Score */}
-                  <div className="stat-card">
-                    <div className="stat-card-header">
-                      <h4 className="stat-card-title">Average Score</h4>
-                      <div className="stat-card-icon">
-                        <Trophy className="w-4 h-4 stat-card-icon-warning" />
-                      </div>
-                    </div>
-                    <div className="stat-card-value">{stats.averageScore}%</div>
-                    <p className="stat-card-description">Across all quizzes</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Current Courses */}
-              <div className="dashboard-section">
-                <div className="dashboard-section-header">
-                  <h3 className="dashboard-section-title flex items-center">
-                    <BookOpen className="w-6 h-6 mr-3 text-sky-500" />
-                    My Courses
-                  </h3>
-                </div>
-                <div className="space-y-4">
+                <div className="space-y-2 sm:space-y-3">
                   {recentCourses.length > 0 ? (
-                    recentCourses.map((course) => (
-                      <div key={course.id} className="content-card">
-                        <div className="content-card-body">
-                          <div className="flex items-center mb-3">
-                            <div className="p-2 bg-sky-100 rounded-full mr-4 text-sky-600">
-                              <BookOpen className="w-5 h-5" />
-                            </div>
-                            <div>
-                              <h4 className="content-card-title">{course.title}</h4>
-                              <p className="content-card-description">{course.category}</p>
-                            </div>
+                    recentCourses.slice(0, 3).map((course) => (
+                      <div key={course.id} className="p-3 sm:p-4 bg-gradient-to-r from-gray-50 to-white rounded-lg sm:rounded-xl border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all">
+                        <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                          <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
+                            <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                           </div>
-                          <div className="content-card-progress">
-                            <div className="flex justify-between items-center mb-1">
-                              <span className="content-card-progress-label">Progress</span>
-                              <span className="text-xs font-semibold text-sky-600">{course.progress}%</span>
-                            </div>
-                            <div className="progress-bar">
-                              <div className="progress-fill bg-sky-500" style={{ width: `${course.progress}%` }}></div>
-                            </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm sm:text-base text-gray-900 truncate">{course.title}</h4>
+                            <p className="text-xs sm:text-sm text-gray-500">{course.category}</p>
                           </div>
+                        </div>
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <Progress value={course.progress} className="flex-1 h-1.5 sm:h-2" />
+                          <span className="text-xs sm:text-sm font-semibold text-primary whitespace-nowrap">{course.progress}%</span>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="empty-state">
-                      <BookOpen className="empty-state-icon" />
-                      <h4 className="empty-state-title">No courses yet</h4>
-                      <p className="empty-state-description">Start your learning journey by enrolling in a course.</p>
-                      <div className="empty-state-action">
-                        <Link href="/courses">
-                          <Button>Browse Courses</Button>
-                        </Link>
+                    <div className="text-center py-6 sm:py-8 md:py-10 lg:py-12">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                        <BookOpen className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-blue-600" />
                       </div>
+                      <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">No courses yet</h4>
+                      <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Start your learning journey today</p>
+                      <Button asChild size="sm" className="sm:text-base">
+                        <Link href="/courses">Browse Courses</Link>
+                      </Button>
                     </div>
                   )}
                 </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              {/* Recent Quiz Results */}
-              <div className="bg-white p-6 rounded-xl shadow-md">
-                <h3 className="text-xl font-semibold text-slate-700 mb-4 flex items-center">
-                  <Brain className="w-6 h-6 mr-3 text-amber-500" />
-                  Recent Quiz Results
-                </h3>
-                <div className="space-y-3">
+            {/* Recent Quiz Results */}
+            <Card className="border-2 border-gray-100 shadow-lg">
+              <CardContent className="!p-3 sm:!p-4 md:!p-5 lg:!p-6">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                      <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                    </div>
+                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">Recent Quiz Results</h3>
+                  </div>
+                  <Link href="/dashboard/my-quizzes">
+                    <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80 text-xs sm:text-sm">
+                      View All <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
+                    </Button>
+                  </Link>
+                </div>
+
+                <div className="space-y-2 sm:space-y-3">
                   {recentQuizzes.length > 0 ? (
-                    recentQuizzes.map((quiz) => (
-                      <div key={quiz.id} className="flex items-center justify-between p-4 md:p-5 bg-slate-50 rounded-lg">
-                        <div>
-                          <h4 className="text-sm font-semibold text-slate-800">{quiz.title}</h4>
-                          <p className="text-xs text-slate-500">{quiz.score}/{quiz.totalQuestions} correct</p>
+                    recentQuizzes.slice(0, 3).map((quiz) => (
+                      <div key={quiz.id} className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-gray-50 to-white rounded-lg sm:rounded-xl border border-gray-200 hover:border-primary/30 hover:shadow-md transition-all">
+                        <div className="flex-1 min-w-0 mr-2 sm:mr-3">
+                          <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-1 truncate">{quiz.title}</h4>
+                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600">
+                            <span>{quiz.score}/{quiz.totalQuestions} correct</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span className="hidden sm:inline">{formatDate(quiz.completedAt)}</span>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className={`text-xs font-medium ${
-                            quiz.percentage >= 85 ? 'text-green-600' : 
-                            quiz.percentage >= 70 ? 'text-amber-600' : 'text-red-600'
-                          }`}>
-                            {quiz.percentage}%
-                          </p>
-                          <p className="text-xs text-slate-500">{formatDate(quiz.completedAt)}</p>
+                        <div className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg font-bold text-xs sm:text-sm whitespace-nowrap ${
+                          quiz.percentage >= 85 ? 'bg-green-100 text-green-700' :
+                          quiz.percentage >= 70 ? 'bg-amber-100 text-amber-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {quiz.percentage}%
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8">
-                      <div className="bg-gradient-to-br from-purple-50 to-pink-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                        <Brain className="h-8 w-8 text-purple-600" />
+                    <div className="text-center py-6 sm:py-8 md:py-10 lg:py-12">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                        <Brain className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-purple-600" />
                       </div>
-                      <h3 className="font-semibold text-slate-800 mb-2">Test Your Knowledge!</h3>
-                      <p className="text-slate-600 mb-4 max-w-sm mx-auto text-sm">
-                        Challenge yourself with interactive quizzes and track your progress.
-                      </p>
-                      <Button className="w-full sm:w-auto" asChild>
+                      <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Test Your Knowledge!</h4>
+                      <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Challenge yourself with interactive quizzes</p>
+                      <Button asChild size="sm" className="sm:text-base">
                         <Link href="/quizzes">Try Your First Quiz</Link>
                       </Button>
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
+          </div>
 
-            {/* Side Column */}
-            <div className="lg:col-span-1">
-              <div className="bg-white p-6 rounded-xl shadow-md sticky top-8">
-                <h3 className="text-xl font-semibold text-slate-700 mb-4 flex items-center">
-                  <Clock className="w-6 h-6 mr-3 text-sky-500" />
-                  Study Assistant
-                </h3>
-                <div className="space-y-4">
-                  {/* First-time user guidance */}
-                  {stats.totalCourses === 0 ? (
-                    <div className="p-4 bg-gradient-to-br from-sky-50 to-blue-50 rounded-lg">
-                      <h4 className="text-sm font-semibold text-slate-800 mb-2">New to Acadex?</h4>
-                      <p className="text-xs text-slate-600 mb-3">Start by exploring our courses or test your knowledge with interactive quizzes.</p>
-                      <div className="space-y-2">
-                        <Button size="sm" asChild className="w-full">
-                          <Link href="/courses">Browse Courses</Link>
-                        </Button>
-                        <Button variant="outline" size="sm" asChild className="w-full">
-                          <Link href="/quizzes">Try a Quiz</Link>
-                        </Button>
+          {/* Sidebar Column */}
+          <div className="xl:col-span-1 flex flex-col gap-4 sm:gap-5 lg:gap-6">
+            {/* Study Assistant Card */}
+            <Card className="border-2 border-primary/20 shadow-xl bg-gradient-to-br from-primary/5 to-secondary/5">
+              <CardContent className="!p-3 sm:!p-4 md:!p-5 lg:!p-6">
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                    <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  </div>
+                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">Study Assistant</h3>
+                </div>
+
+                {stats.totalCourses === 0 ? (
+                  <div className="space-y-4">
+                    <p className="text-sm text-gray-600">Start by exploring our courses or test your knowledge with interactive quizzes.</p>
+                    <div className="space-y-2">
+                      <Button size="sm" asChild className="w-full">
+                        <Link href="/courses">Browse Courses</Link>
+                      </Button>
+                      <Button variant="outline" size="sm" asChild className="w-full">
+                        <Link href="/quizzes">Try a Quiz</Link>
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="p-4 bg-white rounded-lg border border-gray-200">
+                      <h4 className="font-semibold text-gray-900 mb-2">Today&apos;s Goal</h4>
+                      <p className="text-sm text-gray-600 mb-3">Complete 2 lessons and 1 quiz</p>
+                      <Progress value={60} className="mb-2" />
+                      <p className="text-xs text-gray-500">60% Complete</p>
+                    </div>
+
+                    <div className="p-4 bg-white rounded-lg border border-gray-200">
+                      <h4 className="font-semibold text-gray-900 mb-2">This Week</h4>
+                      <div className="space-y-1 text-sm text-gray-600">
+                        <p>Study hours: {stats.studyHours}</p>
+                        <p>Quizzes completed: {stats.totalQuizzes}</p>
+                        <p>Average score: {stats.averageScore}%</p>
                       </div>
                     </div>
-                  ) : (
-                    <>
-                      <div className="p-4 bg-gradient-to-br from-sky-50 to-blue-50 rounded-lg">
-                        <h4 className="text-sm font-semibold text-slate-800 mb-2">Today&apos;s Goal</h4>
-                        <p className="text-xs text-slate-600 mb-3">Complete 2 lessons and 1 quiz</p>
-                        <div className="w-full bg-slate-200 rounded-full h-2 mb-2">
-                          <div className="bg-sky-500 h-2 rounded-full" style={{ width: '60%' }}></div>
-                        </div>
-                        <p className="text-xs text-slate-500">60% Complete</p>
-                      </div>
-                      
-                      <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
-                        <h4 className="text-sm font-semibold text-slate-800 mb-2">This Week</h4>
-                        <p className="text-xs text-slate-600 mb-1">Study hours: {stats.studyHours}</p>
-                        <p className="text-xs text-slate-600 mb-1">Quizzes completed: {stats.totalQuizzes}</p>
-                        <p className="text-xs text-slate-600">Average score: {stats.averageScore}%</p>
-                      </div>
-                    </>
-                  )}
 
-                  <button className="w-full bg-sky-500 hover:bg-sky-600 text-white text-sm font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center">
-                    Continue Learning
-                    <PlayCircle className="w-4 h-4 ml-2" />
-                  </button>
+                    <Button className="w-full" asChild>
+                      <Link href="/dashboard/my-courses" className="flex items-center justify-center gap-2">
+                        Continue Learning
+                        <PlayCircle className="w-4 h-4" />
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Quick Stats Card */}
+            <Card className="border-2 border-gray-100 shadow-lg">
+              <CardContent className="!p-3 sm:!p-4 md:!p-5 lg:!p-6">
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  </div>
+                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">Quick Stats</h3>
                 </div>
-              </div>
-            </div>
+
+                <div className="space-y-3">
+                  <Link href="/dashboard/my-courses" className="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">Active Courses</span>
+                      <span className="text-lg font-bold text-primary">{stats.totalCourses}</span>
+                    </div>
+                  </Link>
+
+                  <Link href="/dashboard/progress" className="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">View Progress</span>
+                      <Target className="w-5 h-5 text-primary" />
+                    </div>
+                  </Link>
+
+                  <Link href="/dashboard/my-quizzes" className="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-700">Quiz History</span>
+                      <Brain className="w-5 h-5 text-primary" />
+                    </div>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </main>
-      </div>
-    </div>
+        </div>
+    </DashboardLayout>
   )
 }
-

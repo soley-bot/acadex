@@ -40,7 +40,7 @@ export function ManualEnrollmentModal({ isOpen, onClose, onEnrollmentCreated }: 
 
       const data = await response.json()
       setUsers(data.users || [])
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching users:', error)
     }
   }
@@ -60,7 +60,7 @@ export function ManualEnrollmentModal({ isOpen, onClose, onEnrollmentCreated }: 
       // Filter for published courses only
       const publishedCourses = (data.courses || []).filter((course: Course) => course.is_published)
       setCourses(publishedCourses)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching courses:', error)
     }
   }

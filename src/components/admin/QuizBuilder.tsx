@@ -124,7 +124,7 @@ export function QuizBuilder({ quiz, isOpen, onClose, onSuccess }: QuizBuilderPro
       setImagePreview(publicUrl)
       setQuizData({ ...quizData, image_url: publicUrl })
       toast.success('Image uploaded successfully')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading image:', error)
       toast.error('Failed to upload image')
     }

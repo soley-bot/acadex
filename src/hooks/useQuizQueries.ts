@@ -87,7 +87,7 @@ async function fetchQuizzesWithStats(filters: QuizFilters = {}): Promise<QuizQue
   const { data, error, count } = await query
 
   if (error) {
-    logger.error('Error fetching quizzes:', error)
+    logger.error('Error fetching quizzes', { error: error?.message || 'Unknown error' })
     throw error
   }
 
@@ -257,7 +257,7 @@ export function useQuizMutations() {
       queryClient.invalidateQueries({ queryKey: ['quizzes'] })
     },
     onError: (error) => {
-      logger.error('Failed to delete quiz:', error)
+      logger.error('Failed to delete quiz', { error: error?.message || 'Unknown error' })
     }
   })
 

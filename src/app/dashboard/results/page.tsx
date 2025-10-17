@@ -74,8 +74,8 @@ export default function AllResultsPage() {
             setPagination(paginationData)
           }
         }
-      } catch (err) {
-        logger.error('Error fetching quiz attempts:', err)
+      } catch (err: any) {
+        logger.error('Error fetching quiz attempts', { error: err?.message || 'Unknown error' })
         setError('Failed to load quiz results')
       } finally {
         setLoading(false)
@@ -139,10 +139,10 @@ export default function AllResultsPage() {
 
         {error && (
           <Card variant="elevated" className="mb-8">
-            <CardContent className="p-6">
+            <CardContent className="!p-4 sm:!p-5 md:!p-6">
               <div className="text-center">
-                <h3 className="text-lg font-semibold text-foreground mb-2">Unable to Load Results</h3>
-                <p className="text-muted-foreground mb-6">{error}</p>
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">Unable to Load Results</h3>
+                <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">{error}</p>
                 <button
                   onClick={() => window.location.reload()}
                   className="bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2 rounded-lg transition-colors"
@@ -159,42 +159,42 @@ export default function AllResultsPage() {
             {/* Statistics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <Card variant="elevated">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
-                      <Target className="h-5 w-5 text-secondary" />
+                <CardContent className="!p-3 sm:!p-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
+                      <Target className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Total Quizzes</p>
-                      <p className="text-xl font-bold text-foreground">{getTotalQuizzes()}</p>
+                      <p className="text-lg sm:text-xl font-bold text-foreground">{getTotalQuizzes()}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               <Card variant="elevated">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
-                      <TrendingUp className="h-5 w-5 text-success" />
+                <CardContent className="!p-3 sm:!p-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-success/10 rounded-lg flex items-center justify-center">
+                      <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-success" />
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Average Score</p>
-                      <p className="text-xl font-bold text-foreground">{getAverageScore()}%</p>
+                      <p className="text-lg sm:text-xl font-bold text-foreground">{getAverageScore()}%</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               <Card variant="elevated">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-warning/10 rounded-lg flex items-center justify-center">
-                      <Award className="h-5 w-5 text-warning" />
+                <CardContent className="!p-3 sm:!p-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-warning/10 rounded-lg flex items-center justify-center">
+                      <Award className="h-4 w-4 sm:h-5 sm:w-5 text-warning" />
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Best Score</p>
-                      <p className="text-xl font-bold text-foreground">{getBestScore()}%</p>
+                      <p className="text-lg sm:text-xl font-bold text-foreground">{getBestScore()}%</p>
                     </div>
                   </div>
                 </CardContent>
@@ -258,7 +258,7 @@ export default function AllResultsPage() {
             {pagination.totalPages > 1 && (
               <div className="flex justify-center mt-6">
                 <Card variant="elevated">
-                  <CardContent className="p-4">
+                  <CardContent className="!p-3 sm:!p-4">
                     <Pagination
                       currentPage={pagination.page}
                       totalPages={pagination.totalPages}

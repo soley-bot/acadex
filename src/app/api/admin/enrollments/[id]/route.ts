@@ -59,7 +59,7 @@ export const DELETE = withAdminAuth(async (
       message: 'Student successfully unenrolled',
       deletedBy: { id: user.id, email: user.email, role: user.role }
     }, { status: 200 })
-  } catch (error) {
+  } catch (error: any) {
     console.error('API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
@@ -117,7 +117,7 @@ export const PATCH = withAdminAuth(async (
       enrollment,
       updatedBy: { id: user.id, email: user.email, role: user.role }
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

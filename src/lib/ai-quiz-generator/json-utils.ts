@@ -60,7 +60,7 @@ export class JSONUtils {
       }
       
       return fixed
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('Error fixing JSON issues', { error })
       return jsonString
     }
@@ -173,7 +173,7 @@ export class JSONUtils {
       }
       
       return null
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('Error repairing truncated JSON', { error })
       return null
     }

@@ -88,7 +88,7 @@ export default function PopularCourses() {
         logger.debug('Database response:', { data, error })
         
         if (error) {
-          logger.error('Error loading courses:', error)
+          logger.error('Error loading courses', { error: error?.message || 'Unknown error' })
           setCourses([])
           setError('Failed to load courses')
         } else if (data && data.length > 0) {
@@ -100,8 +100,8 @@ export default function PopularCourses() {
           setCourses([])
           setError(null)
         }
-      } catch (error) {
-        logger.error('Error loading courses:', error)
+      } catch (error: any) {
+        logger.error('Error loading courses', { error: error?.message || 'Unknown error' })
         setCourses([])
         setError('Failed to load courses')
       } finally {

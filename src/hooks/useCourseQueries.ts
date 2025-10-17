@@ -87,7 +87,7 @@ export function useOptimizedCourses(filters: CourseFilters = {}) {
             hasMore: false
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error in useOptimizedCourses:', error)
         // Re-throw with more context
         if (error instanceof Error) {
@@ -127,7 +127,7 @@ export function useOptimizedCategories() {
 
         const result = await response.json()
         return result.categories || []
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error in useOptimizedCategories:', error)
         // Don't fail the entire page if categories fail, just return empty
         return []

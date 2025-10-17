@@ -50,18 +50,18 @@ export class AuthSecurity {
     
     // Check against hardcoded admin emails first
     if (AUTH_CONFIG.ADMIN_EMAILS.includes(normalizedEmail)) {
-      logger.security('Admin access granted (hardcoded)', { email: normalizedEmail })
+      logger.info('Admin access granted (hardcoded)', { email: normalizedEmail })
       return 'admin'
     }
-    
+
     // Development mode: allow emails containing "admin" (but not ALL emails)
     if (process.env.NODE_ENV === 'development' && normalizedEmail.includes('admin')) {
-      logger.security('Admin access granted (development pattern)', { email: normalizedEmail })
+      logger.info('Admin access granted (development pattern)', { email: normalizedEmail })
       return 'admin'
     }
-    
+
     if (AUTH_CONFIG.INSTRUCTOR_EMAILS.includes(normalizedEmail)) {
-      logger.security('Instructor access granted', { email: normalizedEmail })
+      logger.info('Instructor access granted', { email: normalizedEmail })
       return 'instructor'
     }
     
@@ -154,10 +154,10 @@ export class AuthSecurity {
       lastActivity: Date.now()
     }
 
-    logger.security('Secure session created', { 
-      userId: user.id, 
+    logger.info('Secure session created', {
+      userId: user.id,
       role: user.role,
-      sessionCreated: sessionData.sessionCreated 
+      sessionCreated: sessionData.sessionCreated
     })
 
     return sessionData
@@ -295,7 +295,7 @@ export class AuthSecurity {
    * Security audit logging
    */
   static auditSecurityEvent(event: string, user: User | null, details?: any) {
-    logger.security(event, {
+    logger.warn(event, {
       userId: user?.id,
       userRole: user?.role,
       userEmail: user?.email,
@@ -345,7 +345,7 @@ class AuthRateLimiter {
     record.lastAttempt = now
     this.attempts.set(identifier, record)
 
-    logger.security('Failed login attempt', {
+    logger.warn('Failed login attempt', {
       identifier,
       attempts: record.count,
       blocked: record.count >= AUTH_CONFIG.MAX_LOGIN_ATTEMPTS

@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
           { status: 403 }
         )
       }
-    } catch (error) {
+    } catch (error: any) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -169,7 +169,7 @@ export async function GET(request: NextRequest) {
           { status: 403 }
         )
       }
-    } catch (error) {
+    } catch (error: any) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }

@@ -21,7 +21,7 @@ const safeLocalStorage = {
     try {
       if (typeof window === 'undefined') return null
       return localStorage.getItem(key)
-    } catch (error) {
+    } catch (error: any) {
       console.warn('Failed to read from localStorage:', error)
       return null
     }
@@ -32,7 +32,7 @@ const safeLocalStorage = {
       if (typeof window === 'undefined') return false
       localStorage.setItem(key, value)
       return true
-    } catch (error) {
+    } catch (error: any) {
       console.warn('Failed to write to localStorage:', error)
       return false
     }
@@ -43,7 +43,7 @@ const safeLocalStorage = {
       if (typeof window === 'undefined') return false
       localStorage.removeItem(key)
       return true
-    } catch (error) {
+    } catch (error: any) {
       console.warn('Failed to remove from localStorage:', error)
       return false
     }
@@ -184,7 +184,7 @@ export function useQuizProgress(
             safeLocalStorage.removeItem(`quiz-${quiz.id}-answers`)
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.warn('Failed to parse saved quiz answers:', error)
         safeLocalStorage.removeItem(`quiz-${quiz.id}-answers`)
       }

@@ -134,7 +134,7 @@ export async function deleteImage(
     }
 
     return true
-  } catch (error) {
+  } catch (error: any) {
     console.error('Image delete error:', error)
     return false
   }
@@ -159,7 +159,7 @@ export async function getSignedImageUrl(
     }
 
     return data.signedUrl
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get signed URL error:', error)
     return null
   }

@@ -91,7 +91,7 @@ export default function AdminEnrollmentsPage() {
 
       // Refresh the enrollments list
       refetchEnrollments()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error unenrolling student:', error)
       alert('Failed to unenroll student. Please try again.')
     }

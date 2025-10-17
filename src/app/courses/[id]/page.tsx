@@ -79,7 +79,7 @@ export default function CourseDetailPage() {
       }
 
       setLoading(false)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading course:', error)
       setLoading(false)
     }

@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       .sort()
 
     return NextResponse.json({ categories: uniqueCategories })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in quiz-categories route:', error)
     return NextResponse.json(
       { error: 'Internal server error' },

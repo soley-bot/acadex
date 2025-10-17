@@ -145,7 +145,7 @@ export function BulkOperations<T>({
         itemCount: selectedCount,
         itemType
       })
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Bulk operation failed', { action: actionId, error })
       // Don't clear selection on error so user can retry
     } finally {

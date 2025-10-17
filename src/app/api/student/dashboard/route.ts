@@ -159,7 +159,7 @@ export const GET = withAuth(async (request: NextRequest, user) => {
       })
     })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in student dashboard API:', error)
     return NextResponse.json(
       { error: 'Internal server error' },

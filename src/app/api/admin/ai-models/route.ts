@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
         })
     }
   } catch (error: any) {
-    logger.error('AI models API error:', error)
+    logger.error('AI models API error', { error: error?.message || 'Unknown error' })
     return NextResponse.json({
       success: false,
       error: 'Failed to process AI models request'
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
         }, { status: 400 })
     }
   } catch (error: any) {
-    logger.error('AI models POST API error:', error)
+    logger.error('AI models POST API error', { error: error?.message || 'Unknown error' })
     return NextResponse.json({
       success: false,
       error: 'Failed to process AI models request'

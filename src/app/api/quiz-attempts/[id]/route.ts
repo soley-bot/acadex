@@ -40,7 +40,7 @@ export async function GET(
     let user
     try {
       user = await verifyAuthentication(supabase)
-    } catch (error) {
+    } catch (error: any) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }

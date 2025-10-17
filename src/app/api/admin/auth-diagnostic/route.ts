@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     })
     
   } catch (error: any) {
-    logger.error('Auth diagnostic failed:', error)
+    logger.error('Auth diagnostic failed', { error: error?.message || 'Unknown error' })
     
     return NextResponse.json({
       success: false,

@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
             set(name: string, value: string, options: any) {
               try {
                 cookieStore.set({ name, value, ...options })
-              } catch (error) {
+              } catch (error: any) {
                 // Handle cookie setting errors in middleware
                 console.error('[Auth Callback] Cookie set error:', error)
               }
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
             remove(name: string, options: any) {
               try {
                 cookieStore.delete({ name, ...options })
-              } catch (error) {
+              } catch (error: any) {
                 // Handle cookie removal errors
                 console.error('[Auth Callback] Cookie remove error:', error)
               }

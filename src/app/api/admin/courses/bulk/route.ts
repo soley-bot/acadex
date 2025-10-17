@@ -176,8 +176,8 @@ export const POST = withAdminAuth(async (request: NextRequest, user) => {
     
     }) // Close withServiceRole callback
 
-  } catch (error) {
-    logger.error('Bulk course operation failed:', error)
+  } catch (error: any) {
+    logger.error('Bulk course operation failed', { error: error?.message || 'Unknown error' })
     
     return NextResponse.json(
       { 

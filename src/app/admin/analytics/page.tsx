@@ -97,7 +97,7 @@ export default function AdminAnalytics() {
       setLoading(true)
       setError(null)
 
-      logger.apiCall('/admin/analytics', 'GET', { timeRange: timeRangeRef.current })
+      logger.debug('API call /admin/analytics', { method: 'GET', timeRange: timeRangeRef.current })
 
       // Create Supabase client for queries
       const supabase = createSupabaseClient()
@@ -182,7 +182,7 @@ export default function AdminAnalytics() {
 
       setAnalytics(analyticsData)
       
-      logger.performance('analytics-fetch', performance.now() - startTime)
+      logger.debug('Performance: analytics-fetch', { duration: `${(performance.now() - startTime).toFixed(2)}ms` })
       logger.info('Analytics data updated', { 
         totalUsers: analyticsData.totalUsers,
         totalCourses: analyticsData.totalCourses 

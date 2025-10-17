@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response)
     
   } catch (error: any) {
-    logger.error('Simple quiz generation API error:', error)
+    logger.error('Simple quiz generation API error', { error: error?.message || 'Unknown error' })
     return NextResponse.json({
       success: false,
       error: 'Internal server error occurred during quiz generation'
@@ -115,7 +115,7 @@ export async function GET() {
     })
     
   } catch (error: any) {
-    logger.error('Simple quiz generation test failed:', error)
+    logger.error('Simple quiz generation test failed', { error: error?.message || 'Unknown error' })
     return NextResponse.json({
       success: false,
       error: 'Failed to test AI service connection'

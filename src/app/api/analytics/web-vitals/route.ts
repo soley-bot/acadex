@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     let body
     try {
       body = await request.json()
-    } catch (error) {
+    } catch (error: any) {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
     }
 
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     // 3. Process for performance monitoring
     
     return NextResponse.json({ success: true }, { status: 200 })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Web vitals endpoint error:', error)
     
     // Don't leak internal error details

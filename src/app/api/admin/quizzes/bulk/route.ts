@@ -205,7 +205,7 @@ export const POST = withAdminAuth(async (request: NextRequest, user) => {
       return NextResponse.json(result)
     })
 
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Bulk quiz operation error', { error })
     return NextResponse.json(
       { error: 'Internal server error during bulk operation' },

@@ -39,7 +39,7 @@ const ImageUpload = React.forwardRef<HTMLInputElement, ImageUploadProps>(
             if (onChange) {
               onChange(url)
             }
-          } catch (error) {
+          } catch (error: any) {
             console.error('File upload failed:', error)
           }
         }

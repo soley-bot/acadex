@@ -113,8 +113,8 @@ export function QuizViewModal({ quiz, isOpen, onClose, onEdit }: QuizViewModalPr
         recentAttempts: attempts.slice(0, 5)
       })
 
-    } catch (err) {
-      logger.error('Error loading quiz data:', err)
+    } catch (err: any) {
+      logger.error('Error loading quiz data', { error: err?.message || 'Unknown error' })
     } finally {
       setLoading(false)
     }

@@ -97,8 +97,8 @@ export function useUserProgress(courseId?: string, quizId?: string) {
         setEnrollments(enrollmentMap)
         setQuizAttempts(attemptMap)
         setIsLoading(false)
-      } catch (error) {
-        logger.error('Failed to load user progress:', error)
+      } catch (error: any) {
+        logger.error('Failed to load user progress', { error: error?.message || 'Unknown error' })
         setIsLoading(false)
       }
     }
@@ -153,8 +153,8 @@ export const createQuickActions = (router: ReturnType<typeof useRouter>) => ({
       // Use Next.js router for client-side navigation
       router.push(`/courses/${courseId}/study`)
       return { success: true }
-    } catch (error) {
-      logger.error('Quick enroll failed:', error)
+    } catch (error: any) {
+      logger.error('Quick enroll failed', { error: error?.message || 'Unknown error' })
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   },
@@ -190,8 +190,8 @@ export const createQuickActions = (router: ReturnType<typeof useRouter>) => ({
       // Use Next.js router for client-side navigation
       router.push(`/quizzes/${quizId}/take`)
       return { success: true }
-    } catch (error) {
-      logger.error('Quick start quiz failed:', error)
+    } catch (error: any) {
+      logger.error('Quick start quiz failed', { error: error?.message || 'Unknown error' })
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   },

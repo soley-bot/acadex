@@ -32,7 +32,7 @@ export async function GET() {
 
     return NextResponse.json({ categories })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in categories API:', error)
     return NextResponse.json(
       { error: 'Internal server error' },

@@ -5,7 +5,7 @@
  */
 
 import { useState, useCallback } from 'react'
-import { ErrorHandler } from '@/lib/errorHandler'
+import { formatError } from '@/lib/errorHandler'
 
 export interface AsyncState<T> {
   data: T | null
@@ -57,7 +57,7 @@ export function useAsyncState<T = any>(initialData: T | null = null): AsyncState
       setSuccess(true)
       return result
     } catch (err: any) {
-      const formattedError = ErrorHandler.formatError(err)
+      const formattedError = formatError(err)
       setError(formattedError.message)
       setSuccess(false)
       return null
@@ -99,7 +99,7 @@ export function useLoadingState() {
       setError(null)
       return await asyncFn()
     } catch (err: any) {
-      const formattedError = ErrorHandler.formatError(err)
+      const formattedError = formatError(err)
       setError(formattedError.message)
       return null
     } finally {
@@ -139,7 +139,7 @@ export function useSubmissionState() {
       if (onSuccess) onSuccess(result)
       return true
     } catch (err: any) {
-      const formattedError = ErrorHandler.formatError(err)
+      const formattedError = formatError(err)
       setError(formattedError.message)
       return false
     } finally {

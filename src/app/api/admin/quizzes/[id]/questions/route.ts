@@ -38,7 +38,7 @@ export const POST = withAdminAuth(async (
       saveLocks.delete(quizId)
     }
 
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Questions save API error', { error })
     return NextResponse.json({ 
       error: error instanceof Error ? error.message : 'Unknown error' 
@@ -204,7 +204,7 @@ export const GET = withAdminAuth(async (
       questions: questions || []
     })
 
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Questions fetch API error', { error })
     return NextResponse.json({ 
       error: error instanceof Error ? error.message : 'Unknown error' 

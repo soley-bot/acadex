@@ -11,7 +11,7 @@
 export const formatDate = (dateString: string): string => {
   try {
     return new Date(dateString).toLocaleDateString()
-  } catch (error) {
+  } catch (error: any) {
     console.warn('Invalid date format:', dateString)
     return 'Invalid date'
   }
@@ -66,7 +66,7 @@ export const formatDateTime = (date: Date): string => {
       minute: '2-digit',
       hour12: true 
     })
-  } catch (error) {
+  } catch (error: any) {
     console.warn('Invalid date object:', date)
     return 'Invalid time'
   }
@@ -93,7 +93,7 @@ export const formatRelativeTime = (dateString: string): string => {
     if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`
     
     return `${Math.floor(diffInDays / 365)} years ago`
-  } catch (error) {
+  } catch (error: any) {
     console.warn('Invalid date format for relative time:', dateString)
     return 'Unknown'
   }
@@ -109,7 +109,7 @@ export const isToday = (dateString: string): boolean => {
     const date = new Date(dateString)
     const today = new Date()
     return date.toDateString() === today.toDateString()
-  } catch (error) {
+  } catch (error: any) {
     return false
   }
 }
@@ -126,7 +126,7 @@ export const formatDuration = (startDate: string, endDate: string): string => {
     const end = new Date(endDate)
     const diffInSeconds = Math.floor((end.getTime() - start.getTime()) / 1000)
     return formatTime(diffInSeconds)
-  } catch (error) {
+  } catch (error: any) {
     console.warn('Invalid date format for duration:', { startDate, endDate })
     return '00:00'
   }

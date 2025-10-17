@@ -12,52 +12,52 @@ export function validateCourseData(course: any): { isValid: boolean; errors: str
   const errors: string[] = []
 
   if (!course.title?.trim()) {
-    logger.validation('title', false, course.title)
+    logger.debug('Validation failed: title is required', { value: course.title })
     errors.push('Title is required')
   }
 
   if (!course.description?.trim()) {
-    logger.validation('description', false, course.description)
+    logger.debug('Validation failed: description is required', { value: course.description })
     errors.push('Description is required')
   }
 
   if (!course.instructor_id?.trim()) {
-    logger.validation('instructor_id', false, course.instructor_id)
+    logger.debug('Validation failed: instructor_id is required', { value: course.instructor_id })
     errors.push('Instructor ID is required')
   }
 
   if (!course.instructor_name?.trim()) {
-    logger.validation('instructor_name', false, course.instructor_name)
+    logger.debug('Validation failed: instructor_name is required', { value: course.instructor_name })
     errors.push('Instructor name is required')
   }
 
   if (!course.category?.trim()) {
-    logger.validation('category', false, course.category)
+    logger.debug('Validation failed: category is required', { value: course.category })
     errors.push('Category is required')
   }
 
   if (!course.duration || course.duration === '') {
-    logger.validation('duration', false, course.duration)
+    logger.debug('Validation failed: duration is required', { value: course.duration })
     errors.push('Duration is required')
   }
 
   if (!course.level || !['beginner', 'intermediate', 'advanced'].includes(course.level)) {
-    logger.validation('level', false, course.level)
+    logger.debug('Validation failed: invalid level', { value: course.level })
     errors.push('Valid level is required (beginner, intermediate, advanced)')
   }
 
   if (!course.status || !['draft', 'published', 'archived'].includes(course.status)) {
-    logger.validation('status', false, course.status)
+    logger.debug('Validation failed: invalid status', { value: course.status })
     errors.push('Valid status is required (draft, published, archived)')
   }
 
   if (course.price !== null && (isNaN(Number(course.price)) || Number(course.price) < 0)) {
-    logger.validation('price', false, course.price)
+    logger.debug('Validation failed: invalid price', { value: course.price })
     errors.push('Price must be a valid positive number or null')
   }
 
   if (course.rating !== null && (isNaN(Number(course.rating)) || Number(course.rating) < 0 || Number(course.rating) > 5)) {
-    logger.validation('rating', false, course.rating)
+    logger.debug('Validation failed: invalid rating', { value: course.rating })
     errors.push('Rating must be between 0 and 5 or null')
   }
 

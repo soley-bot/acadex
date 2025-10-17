@@ -5,7 +5,7 @@ import { Brain, Loader2, Sparkles, Target, CheckCircle, X } from 'lucide-react'
 import { FrontendQuizData, QuestionType } from '@/lib/simple-ai-quiz-generator'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { SUPPORTED_LANGUAGES, DIFFICULTY_LEVELS, type DifficultyLevel } from '@/lib/quiz-constants-unified'
-import { ErrorHandler } from '@/lib/errorHandler'
+import { formatError } from '@/lib/errorHandler'
 
 interface SimpleAIGeneratorProps {
   onQuizGenerated: (quiz: FrontendQuizData) => void
@@ -74,7 +74,7 @@ export function SimpleAIGenerator({ onQuizGenerated }: SimpleAIGeneratorProps) {
         setError(result.error || 'Failed to generate quiz')
       }
     } catch (err: any) {
-      const formattedError = ErrorHandler.formatError(err)
+      const formattedError = formatError(err)
       setError(formattedError.message)
     } finally {
       setGenerating(false)

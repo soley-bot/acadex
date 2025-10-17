@@ -26,7 +26,7 @@ export function generateOrganizationSchema() {
     }
     
     return schema
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error generating organization schema:', error)
     return null
   }
@@ -57,7 +57,7 @@ export function generateWebsiteSchema() {
     }
     
     return schema
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error generating website schema:', error)
     return null
   }
@@ -86,7 +86,7 @@ export function generateCourseSchema(course: any) {
       "inLanguage": "en",
       "about": "English Language Learning"
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error generating course schema:', error)
     return null
   }

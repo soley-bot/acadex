@@ -136,9 +136,9 @@ export async function verifyAdminAuth(supabase: any): Promise<AuthenticatedUser>
     throw new Error('Admin access required')
   }
 
-  logger.security('Admin API access granted', { 
-    userId: user.id, 
-    email: user.email 
+  logger.info('Admin API access granted', {
+    userId: user.id,
+    email: user.email
   })
 
   return user
@@ -247,7 +247,7 @@ export async function withServiceRole<T>(
     throw new Error('Service role operations require admin access')
   }
 
-  logger.security('Service role operation initiated', {
+  logger.warn('Service role operation initiated', {
     adminUserId: adminUser.id,
     adminEmail: adminUser.email
   })

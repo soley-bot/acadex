@@ -5,10 +5,13 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const startTime = Date.now()
   try {
     const { id: courseId } = await params
+    console.log(`[API Study] Starting request for course ${courseId}`)
+
     const supabase = createServiceClient()
-    
+
     // Get user from authorization header
     const authHeader = request.headers.get('authorization')
     if (!authHeader) {
@@ -28,31 +31,62 @@ export async function GET(
       )
     }
 
-    // Check enrollment (skip for admin users)
-    let isEnrolled = false
-    let enrollmentProgress = 0
-    
-    if (user.email) {
-      const { data: userRecord } = await supabase
+    console.log(`[API Study] User authenticated: ${user.id}`)
+
+    // Optimize: Run all queries in parallel using Promise.all
+    const [userResult, courseResult, modulesResult] = await Promise.all([
+      // Get user role
+      supabase
         .from('users')
         .select('role')
         .eq('id', user.id)
-        .single()
+        .single(),
+      // Get course
+      supabase
+        .from('courses')
+        .select('*')
+        .eq('id', courseId)
+        .single(),
+      // Get modules with lessons
+      supabase
+        .from('course_modules')
+        .select(`
+          *,
+          course_lessons (*)
+        `)
+        .eq('course_id', courseId)
+        .order('order_index')
+    ])
 
-      if (userRecord?.role === 'admin') {
+    // Check course exists
+    if (courseResult.error || !courseResult.data) {
+      console.error('Course fetch error:', courseResult.error)
+      return NextResponse.json(
+        {
+          error: 'Course not found',
+          details: process.env.NODE_ENV === 'development' ? courseResult.error?.message : undefined
+        },
+        { status: 404 }
+      )
+    }
+
+    // Check enrollment (skip for admin users)
+    let isEnrolled = false
+    let enrollmentProgress = 0
+
+    if (userResult.data?.role === 'admin') {
+      isEnrolled = true
+    } else {
+      const { data: enrollment, error: enrollmentError } = await supabase
+        .from('enrollments')
+        .select('progress')
+        .eq('user_id', user.id)
+        .eq('course_id', courseId)
+        .maybeSingle()
+
+      if (!enrollmentError && enrollment) {
         isEnrolled = true
-      } else {
-        const { data: enrollment, error: enrollmentError } = await supabase
-          .from('enrollments')
-          .select('progress')
-          .eq('user_id', user.id)
-          .eq('course_id', courseId)
-          .single()
-
-        if (!enrollmentError && enrollment) {
-          isEnrolled = true
-          enrollmentProgress = enrollment.progress || 0
-        }
+        enrollmentProgress = enrollment.progress || 0
       }
     }
 
@@ -63,40 +97,12 @@ export async function GET(
       )
     }
 
-    // Get course with modules and lessons
-    const { data: course, error: courseError } = await supabase
-      .from('courses')
-      .select('*')
-      .eq('id', courseId)
-      .single()
-
-    if (courseError) {
-      console.error('Course fetch error:', courseError)
-      return NextResponse.json(
-        {
-          error: 'Course not found',
-          details: process.env.NODE_ENV === 'development' ? courseError.message : undefined
-        },
-        { status: 404 }
-      )
-    }
-
-    // Get modules with lessons
-    const { data: modules, error: modulesError } = await supabase
-      .from('course_modules')
-      .select(`
-        *,
-        course_lessons (*)
-      `)
-      .eq('course_id', courseId)
-      .order('order_index')
-
-    if (modulesError) {
-      console.error('Modules fetch error:', modulesError)
+    if (modulesResult.error) {
+      console.error('Modules fetch error:', modulesResult.error)
       return NextResponse.json(
         {
           error: 'Failed to load course modules',
-          details: process.env.NODE_ENV === 'development' ? modulesError.message : undefined
+          details: process.env.NODE_ENV === 'development' ? modulesResult.error.message : undefined
         },
         { status: 500 }
       )
@@ -108,15 +114,18 @@ export async function GET(
       .select('*')
       .eq('user_id', user.id)
 
+    const duration = Date.now() - startTime
+    console.log(`[API Study] Request completed in ${duration}ms`)
+
     return NextResponse.json({
-      course,
-      modules: modules || [],
+      course: courseResult.data,
+      modules: modulesResult.data || [],
       progress: progressData || [],
       enrollmentProgress,
       isEnrolled
     })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in course study API:', error)
 
     // Log detailed error information for debugging

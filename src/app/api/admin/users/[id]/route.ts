@@ -91,7 +91,7 @@ export const PUT = withAdminAuth(async (
       .single()
 
     if (error) {
-      logger.error('Database error:', error)
+      logger.error('Database error', { error: error?.message || 'Unknown error' })
       return NextResponse.json(
         { error: 'Failed to update user in database' },
         { status: 500 }
@@ -139,8 +139,8 @@ export const PUT = withAdminAuth(async (
       updatedBy: { id: user.id, email: user.email, role: user.role }
     })
 
-  } catch (error) {
-    logger.error('Update user error:', error)
+  } catch (error: any) {
+    logger.error('Update user error', { error: error?.message || 'Unknown error' })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -224,8 +224,8 @@ export const DELETE = withAdminAuth(async (
       deletedBy: { id: user.id, email: user.email, role: user.role }
     })
 
-  } catch (error) {
-    logger.error('Delete user error:', error)
+  } catch (error: any) {
+    logger.error('Delete user error', { error: error?.message || 'Unknown error' })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

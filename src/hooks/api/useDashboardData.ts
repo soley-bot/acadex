@@ -148,34 +148,34 @@ export function useAdminDashboardData(page = 1, limit = 12) {
  * Student dashboard data hooks
  */
 export function useStudentDashboard(userId: string | null) {
-  logger.debug('useStudentDashboard called with userId:', userId)
-  
+  logger.debug('useStudentDashboard called', { userId })
+
   return useQuery({
     queryKey: ['student', 'dashboard', userId],
     queryFn: async (): Promise<StudentDashboardResponse> => {
       if (!userId) throw new Error('User ID required')
-      
-      logger.debug('Fetching dashboard data for user:', userId)
-      
+
+      logger.debug('Fetching dashboard data', { userId })
+
       const headers = await getAuthHeaders()
-      logger.debug('Auth headers:', headers)
-      
+      logger.debug('Auth headers obtained')
+
       const response = await fetch(`/api/student/dashboard?userId=${userId}`, {
         method: 'GET',
         headers,
         credentials: 'include'
       })
-      
-      logger.debug('Dashboard API response status:', response.status)
-      
+
+      logger.debug('Dashboard API response', { status: response.status })
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        logger.error('Dashboard API error:', errorData)
+        logger.error('Dashboard API error', { errorData })
         throw new Error(errorData.error || `Failed to fetch dashboard data: ${response.status}`)
       }
 
       const data = await response.json()
-      logger.debug('Dashboard API data:', data)
+      logger.debug('Dashboard API data received')
       return data
     },
     enabled: !!userId, // Only run when userId is available

@@ -90,7 +90,7 @@ export const GET = withAdminAuth(async (request: NextRequest) => {
       foldersChecked: folders
     })
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Images API error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },

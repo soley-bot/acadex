@@ -50,9 +50,9 @@ export function ProtectedRoute({
 
       // Redirect after a brief delay to show the access denied message
       const redirectPath = redirectTo || routeAccess.redirectTo || '/auth/login'
-      
+
       setTimeout(() => {
-        logger.security('Redirecting unauthorized user', {
+        logger.warn('Redirecting unauthorized user', {
           from: pathname,
           to: redirectPath,
           userRole: user?.role

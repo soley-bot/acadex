@@ -73,12 +73,12 @@ export const validateQuizData = (formData: QuizData): ValidationError[] => {
     } else if (formData.max_attempts > 10) {
       errors.push({ field: 'max_attempts', message: 'Max attempts cannot exceed 10' })
     }
-    
-  } catch (error) {
-    logger.error('Error in validateQuizData:', error)
+
+  } catch (error: any) {
+    logger.error('Error in validateQuizData', { error: error?.message || 'Unknown error' })
     errors.push({ field: 'general', message: 'Validation error occurred' })
   }
-  
+
   return errors
 }
 
@@ -140,16 +140,16 @@ export const validateQuestion = (question: Question, index: number): ValidationE
         questionIndex: index
       })
     }
-    
-  } catch (error) {
-    logger.error(`Error validating question ${index}:`, error)
-    errors.push({ 
-      field: 'general', 
+
+  } catch (error: any) {
+    logger.error(`Error validating question ${index}`, { error: error?.message || 'Unknown error' })
+    errors.push({
+      field: 'general',
       message: 'Question validation error occurred',
-      questionIndex: index 
+      questionIndex: index
     })
   }
-  
+
   return errors
 }
 

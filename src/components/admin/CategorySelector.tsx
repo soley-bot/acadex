@@ -59,9 +59,9 @@ export const CategorySelector = memo(forwardRef<CategorySelectorRef, CategorySel
 
       if (error) throw error
       setCategories(data || [])
-    } catch (err) {
+    } catch (err: any) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load categories'
-      logger.error('Error fetching categories:', err)
+      logger.error('Error fetching categories', { error: err?.message || 'Unknown error' })
       setError(errorMessage)
     } finally {
       setLoading(false)

@@ -251,8 +251,8 @@ export const POST = withAuth(async (request: NextRequest, user) => {
       }
     })
 
-  } catch (error) {
-    logger.error('AI question generation failed:', error)
+  } catch (error: any) {
+    logger.error('AI question generation failed', { error: error?.message || 'Unknown error' })
     
     return NextResponse.json(
       { 

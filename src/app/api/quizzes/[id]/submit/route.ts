@@ -64,7 +64,7 @@ export async function POST(
     let user
     try {
       user = await verifyAuthentication(supabase)
-    } catch (error) {
+    } catch (error: any) {
       return NextResponse.json(
         { success: false, error: 'Authentication required' },
         { status: 401 }

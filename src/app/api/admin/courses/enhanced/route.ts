@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
       })
     }
   } catch (error: any) {
-    logger.error('Authentication or authorization error:', error)
+    logger.error('Authentication or authorization error', { error: error?.message || 'Unknown error' })
     
     if (error.message === 'Authentication required') {
       return NextResponse.json({ 
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
   } catch (error: any) {
-    logger.error('Error processing request:', error)
+    logger.error('Error processing request', { error: error?.message || 'Unknown error' })
     
     if (error.message === 'Authentication required') {
       return NextResponse.json({ 
@@ -253,7 +253,7 @@ async function createEnhancedCourse(courseData: any, supabase: any, authenticate
 
     return { success: true, data: course }
   } catch (error: any) {
-    logger.error('Error creating enhanced course:', error)
+    logger.error('Error creating enhanced course', { error: error?.message || 'Unknown error' })
     return { success: false, error: error.message }
   }
 }
@@ -506,7 +506,7 @@ async function updateEnhancedCourse(courseData: any, supabase: any, authenticate
 
     return { success: true, data: course }
   } catch (error: any) {
-    logger.error('Error updating enhanced course:', error)
+    logger.error('Error updating enhanced course', { error: error?.message || 'Unknown error' })
     return { success: false, error: error.message }
   }
 }

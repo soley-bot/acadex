@@ -268,7 +268,7 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
 
   const enableAutoRefresh = useCallback((enabled: boolean) => {
     setAutoRefreshEnabled(enabled)
-    logger.debug('Auto-refresh', enabled ? 'enabled' : 'disabled')
+    logger.debug('Auto-refresh', { status: enabled ? 'enabled' : 'disabled' })
   }, [])
 
   const value: LoadingContextType = {

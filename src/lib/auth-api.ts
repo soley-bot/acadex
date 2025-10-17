@@ -16,7 +16,7 @@ export async function getAccessToken(): Promise<string | null> {
   try {
     const { data: { session } } = await supabase.auth.getSession()
     return session?.access_token || null
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to get access token:', error)
     return null
   }
@@ -385,7 +385,7 @@ export const courseAPI = {
       
       console.log('✅ Course updated successfully via courseAPI')
       return result
-    } catch (error) {
+    } catch (error: any) {
       console.error('courseAPI.updateCourse error:', error)
       throw error
     }
@@ -440,7 +440,7 @@ export const courseAPI = {
       console.log('🎯 [DIRECT_LOG] authenticatedPost result:', result)
       
       return result
-    } catch (error) {
+    } catch (error: any) {
       console.error('🎯 [DIRECT_LOG] ERROR in courseAPI.saveModulesAndLessons:', error)
       throw error
     }

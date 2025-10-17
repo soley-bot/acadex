@@ -115,7 +115,7 @@ export const GET = withAdminAuth(async (
 
     return NextResponse.json(transformedQuiz)
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Unexpected error in quiz fetch:', error)
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
@@ -162,7 +162,7 @@ export const PUT = withAdminAuth(async (
 
     return NextResponse.json(quiz)
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Unexpected error in quiz update:', error)
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
@@ -206,7 +206,7 @@ export const DELETE = withAdminAuth(async (
 
     return NextResponse.json({ success: true })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Unexpected error in quiz deletion:', error)
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },

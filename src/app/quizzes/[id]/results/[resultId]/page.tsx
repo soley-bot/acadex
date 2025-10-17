@@ -76,9 +76,9 @@ export default function QuizResultsPage() {
 
         console.log('[Results] Results loaded successfully')
         setResults(data.data)
-      } catch (err) {
+      } catch (err: any) {
         console.error('[Results] Error fetching quiz results:', err)
-        logger.error('Error fetching quiz results:', err)
+        logger.error('Error fetching quiz results', { error: err?.message || 'Unknown error' })
         setError(err instanceof Error ? err.message : 'Failed to load quiz results')
       } finally {
         setLoading(false)

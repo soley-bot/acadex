@@ -115,13 +115,43 @@ module.exports = {
   				'100%': {
   					transform: 'translate(0px, 0px) scale(1)'
   				}
+  			},
+  			'fade-in': {
+  				'0%': { opacity: '0' },
+  				'100%': { opacity: '1' }
+  			},
+  			'fade-in-up': {
+  				'0%': { opacity: '0', transform: 'translateY(20px)' },
+  				'100%': { opacity: '1', transform: 'translateY(0)' }
+  			},
+  			'fade-in-down': {
+  				'0%': { opacity: '0', transform: 'translateY(-20px)' },
+  				'100%': { opacity: '1', transform: 'translateY(0)' }
+  			},
+  			'slide-in-left': {
+  				'0%': { opacity: '0', transform: 'translateX(-20px)' },
+  				'100%': { opacity: '1', transform: 'translateX(0)' }
+  			},
+  			'slide-in-right': {
+  				'0%': { opacity: '0', transform: 'translateX(20px)' },
+  				'100%': { opacity: '1', transform: 'translateX(0)' }
+  			},
+  			'scale': {
+  				'0%': { opacity: '0', transform: 'scale(0.95)' },
+  				'100%': { opacity: '1', transform: 'scale(1)' }
   			}
   		},
   		animation: {
   			'slide-in': 'slide-in 0.3s ease-out',
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out',
-  			blob: 'blob 7s infinite'
+  			blob: 'blob 7s infinite',
+  			'fade-in': 'fade-in 0.5s ease-out',
+  			'fade-in-up': 'fade-in-up 0.6s ease-out',
+  			'fade-in-down': 'fade-in-down 0.6s ease-out',
+  			'slide-in-left': 'slide-in-left 0.6s ease-out',
+  			'slide-in-right': 'slide-in-right 0.6s ease-out',
+  			'scale': 'scale 0.5s ease-out'
   		},
   		fontFamily: {
   			inter: [

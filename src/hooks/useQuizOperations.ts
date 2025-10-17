@@ -274,8 +274,8 @@ export function useQuizAutoSave(quizId?: string) {
       markSaved()
       logger.info('Quiz auto-saved successfully', { quizId: savedQuizId })
 
-    } catch (error) {
-      logger.error('Auto-save failed:', error)
+    } catch (error: any) {
+      logger.error('Auto-save failed', { error: error?.message || 'Unknown error' })
       // Don't throw error for auto-save failures - just log them
     } finally {
       dispatch({ type: 'SET_AUTO_SAVING', payload: false })
@@ -353,8 +353,8 @@ export function useQuizDraft(quizId?: string) {
       
       localStorage.setItem(draftKey, JSON.stringify(draft))
       logger.info('Draft saved to localStorage', { draftKey })
-    } catch (error) {
-      logger.error('Failed to save draft:', error)
+    } catch (error: any) {
+      logger.error('Failed to save draft', { error: error?.message || 'Unknown error' })
     }
   }, [state.formData, state.questions, draftKey])
 
@@ -364,7 +364,7 @@ export function useQuizDraft(quizId?: string) {
       if (!savedDraft) return false
 
       const draft = JSON.parse(savedDraft)
-      
+
       // Check version compatibility
       if (draft.version !== '2.0') {
         logger.warn('Draft version mismatch, skipping load')
@@ -375,7 +375,7 @@ export function useQuizDraft(quizId?: string) {
       const draftTime = new Date(draft.timestamp)
       const now = new Date()
       const hoursDiff = (now.getTime() - draftTime.getTime()) / (1000 * 60 * 60)
-      
+
       if (hoursDiff > 24) {
         logger.info('Draft too old, removing')
         localStorage.removeItem(draftKey)
@@ -385,11 +385,11 @@ export function useQuizDraft(quizId?: string) {
       dispatch({ type: 'SET_FORM_DATA', payload: draft.formData })
       dispatch({ type: 'SET_QUESTIONS', payload: draft.questions })
       dispatch({ type: 'SET_UNSAVED_CHANGES', payload: true })
-      
+
       logger.info('Draft loaded successfully', { draftKey })
       return true
-    } catch (error) {
-      logger.error('Failed to load draft:', error)
+    } catch (error: any) {
+      logger.error('Failed to load draft', { error: error?.message || 'Unknown error' })
       return false
     }
   }, [draftKey, dispatch])
@@ -398,8 +398,8 @@ export function useQuizDraft(quizId?: string) {
     try {
       localStorage.removeItem(draftKey)
       logger.info('Draft cleared', { draftKey })
-    } catch (error) {
-      logger.error('Failed to clear draft:', error)
+    } catch (error: any) {
+      logger.error('Failed to clear draft', { error: error?.message || 'Unknown error' })
     }
   }, [draftKey])
 

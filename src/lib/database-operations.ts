@@ -21,7 +21,7 @@ async function executeWithTimeout<T>(
 
   try {
     return await Promise.race([operation, timeoutPromise])
-  } catch (error) {
+  } catch (error: any) {
     logger.error(`${operationName} failed:`, error)
     throw error
   }
@@ -56,7 +56,7 @@ export async function createCourse(courseData: Partial<Course>): Promise<Course>
     const { data, error } = result
 
     if (error) {
-      logger.error('❌ [DB_CREATE] Database error:', error)
+      logger.error('❌ [DB_CREATE] Database error', { error: error?.message || 'Unknown error' })
       throw error
     }
     
@@ -66,19 +66,19 @@ export async function createCourse(courseData: Partial<Course>): Promise<Course>
     }
     
     const course = data as unknown as Course
-    logger.info('✅ [DB_CREATE] Course created successfully:', course.id)
+    logger.info('✅ [DB_CREATE] Course created successfully', { id: course.id })
     return course
-  } catch (error) {
-    logger.error('❌ [DB_CREATE] Create operation failed:', error)
+  } catch (error: any) {
+    logger.error('❌ [DB_CREATE] Create operation failed', { error: error?.message || 'Unknown error' })
     throw error
   }
 }
 
 export async function updateCourse(id: string, updates: Partial<Course>): Promise<Course> {
   logger.debug('📊 [DB_UPDATE] === STARTING SIMPLIFIED UPDATE ===')
-  logger.debug('📊 [DB_UPDATE] Course ID:', id)  
-  logger.debug('📊 [DB_UPDATE] Updates:', updates)
-  
+  logger.debug('📊 [DB_UPDATE] Course ID', { id })
+  logger.debug('📊 [DB_UPDATE] Updates', { updates })
+
   try {
     // Step 1: Basic validation
     const { errors } = validateCourseData(updates)
@@ -88,7 +88,7 @@ export async function updateCourse(id: string, updates: Partial<Course>): Promis
 
     // Step 2: Prepare data for database
     const preparedData = prepareCourseForDatabase(updates)
-    logger.debug('📊 [DB_UPDATE] Prepared data for DB:', preparedData)
+    logger.debug('📊 [DB_UPDATE] Prepared data for DB')
 
     // Step 3: Simple update (no select, no timeout complexity)
     logger.debug('📊 [DB_UPDATE] Executing simple update...')
@@ -97,10 +97,10 @@ export async function updateCourse(id: string, updates: Partial<Course>): Promis
       .update(preparedData)
       .eq('id', id)
 
-    logger.debug('📊 [DB_UPDATE] Update result:', updateResult)
+    logger.debug('📊 [DB_UPDATE] Update result received')
 
     if (updateResult.error) {
-      logger.error('❌ [DB_UPDATE] Update failed:', updateResult.error)
+      logger.error('❌ [DB_UPDATE] Update failed', { error: updateResult.error?.message || 'Unknown error' })
       throw updateResult.error
     }
 
@@ -112,10 +112,10 @@ export async function updateCourse(id: string, updates: Partial<Course>): Promis
       .eq('id', id)
       .single()
 
-    logger.debug('📊 [DB_UPDATE] Fetch result:', fetchResult)
+    logger.debug('📊 [DB_UPDATE] Fetch result received')
 
     if (fetchResult.error) {
-      logger.error('❌ [DB_UPDATE] Fetch failed:', fetchResult.error)
+      logger.error('❌ [DB_UPDATE] Fetch failed', { error: fetchResult.error?.message || 'Unknown error' })
       throw fetchResult.error
     }
 
@@ -124,11 +124,11 @@ export async function updateCourse(id: string, updates: Partial<Course>): Promis
     }
 
     const updatedCourse = fetchResult.data as unknown as Course
-    logger.debug('✅ [DB_UPDATE] SUCCESS! Course updated:', updatedCourse.id)
+    logger.debug('✅ [DB_UPDATE] SUCCESS! Course updated', { id: updatedCourse.id })
     return updatedCourse
 
-  } catch (error) {
-    logger.error('❌ [DB_UPDATE] FAILED:', error)
+  } catch (error: any) {
+    logger.error('❌ [DB_UPDATE] FAILED', { error: error?.message || 'Unknown error' })
     throw error
   }
 }
@@ -333,7 +333,7 @@ export async function updateEnrollmentProgress(
     .select()
 
   if (error) {
-    logger.error('Error updating enrollment progress:', error)
+    logger.error('Error updating enrollment progress', { error: error?.message || 'Unknown error' })
     throw error
   }
   

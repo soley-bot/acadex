@@ -127,7 +127,7 @@ function createSupabaseClient() {
     }
 
     return client
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Supabase] Failed to create client:', error)
     if (typeof window === 'undefined') {
       // During build, return mock client
