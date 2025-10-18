@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import type { UserRole } from './auth-security'
+import { logger } from './logger'
 
 /**
  * Cookie-based storage adapter for when localStorage is blocked
@@ -23,13 +24,13 @@ function createCookieStorage() {
       // Use 30 days expiry, Secure flag, and Lax SameSite for better compatibility
       const maxAge = 30 * 24 * 60 * 60 // 30 days in seconds
       document.cookie = `${key}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/; SameSite=Lax; Secure`
-      console.log('[Supabase] Saved to cookie:', key)
+      logger.debug('[Supabase] Saved to cookie:', key)
     },
     removeItem: (key: string): void => {
       if (typeof document === 'undefined') return
 
       document.cookie = `${key}=; max-age=0; path=/; SameSite=Lax; Secure`
-      console.log('[Supabase] Removed from cookie:', key)
+      logger.debug('[Supabase] Removed from cookie:', key)
     }
   }
 }
@@ -46,10 +47,10 @@ function getStorageAdapter() {
     const testKey = '__storage_test__'
     window.localStorage.setItem(testKey, 'test')
     window.localStorage.removeItem(testKey)
-    console.log('[Supabase] localStorage available')
+    logger.debug('[Supabase] localStorage available')
     return window.localStorage
   } catch (e) {
-    console.warn('[Supabase] localStorage blocked - using cookie storage fallback (mobile Safari private mode)')
+    logger.warn('[Supabase] localStorage blocked - using cookie storage fallback (mobile Safari private mode)')
     // Return cookie-based storage instead of undefined to maintain persistence
     return createCookieStorage() as any
   }
@@ -62,7 +63,7 @@ function createSupabaseClient() {
   // Only use singleton on client-side
   if (typeof window !== 'undefined') {
     if (clientInstance) {
-      console.log('[Supabase] Returning existing client instance')
+      logger.debug('[Supabase] Returning existing client instance')
       return clientInstance
     }
   }
@@ -73,20 +74,20 @@ function createSupabaseClient() {
   if (!supabaseUrl) {
     if (typeof window === 'undefined') {
       // During build/prerender, return a mock client that won't be used
-      console.warn('[Supabase] Missing NEXT_PUBLIC_SUPABASE_URL during build')
+      logger.warn('[Supabase] Missing NEXT_PUBLIC_SUPABASE_URL during build')
       return {} as any
     }
-    console.error('[Supabase] Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
+    logger.error('[Supabase] Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
     throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable. Please check your .env.local file.')
   }
 
   if (!supabaseAnonKey) {
     if (typeof window === 'undefined') {
       // During build/prerender, return a mock client that won't be used
-      console.warn('[Supabase] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY during build')
+      logger.warn('[Supabase] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY during build')
       return {} as any
     }
-    console.error('[Supabase] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
+    logger.error('[Supabase] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
     throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable. Please check your .env.local file.')
   }
 
@@ -121,14 +122,14 @@ function createSupabaseClient() {
         : storage
           ? 'with cookie storage (localStorage blocked)'
           : 'with memory storage (no persistence)'
-      console.log('[Supabase] NEW client created and stored as singleton', storageType)
+      logger.debug('[Supabase] NEW client created and stored as singleton', storageType)
     } else {
-      console.log('[Supabase] Server-side client created (no singleton)')
+      logger.debug('[Supabase] Server-side client created (no singleton)')
     }
 
     return client
   } catch (error: any) {
-    console.error('[Supabase] Failed to create client:', error)
+    logger.error('[Supabase] Failed to create client:', error)
     if (typeof window === 'undefined') {
       // During build, return mock client
       return {} as any

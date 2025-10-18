@@ -55,6 +55,21 @@
    COMPONENT LAYER - Only for shadcn/ui customizations
    ============================================================================ */
 @layer components {
+  /* ============================================================================
+     SIMPLIFIED LAYOUT SYSTEM (Recommended - Use These!)
+     Consolidated from 13 classes to 3 core classes
+     ============================================================================ */
+
+  /* Main page container - Use for most pages (replaces container-wide, container-xl) */
+  .page-container {
+    @apply max-w-7xl mx-auto px-6 sm:px-8 lg:px-12;
+  }
+
+  /* ============================================================================
+     LEGACY CLASSES (Deprecated - Kept for backwards compatibility)
+     TODO: Migrate to simplified system above
+     ============================================================================ */
+
   /* Unified Layout System */
   .section-spacing {
     @apply py-12 lg:py-16;
