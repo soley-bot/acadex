@@ -1,0 +1,9 @@
+type,question,option_a,option_b,option_c,option_d,correct_answer,correct_answer_text,explanation,points,difficulty,tags
+multiple_choice,What is React?,A JavaScript library,A programming language,A database,A framework,0,,React is a JavaScript library for building user interfaces developed by Facebook.,10,easy,"react,javascript,frontend"
+multiple_choice,Which hook is used for side effects in React?,useState,useEffect,useContext,useReducer,1,,useEffect is used to perform side effects in function components.,10,medium,"react,hooks"
+true_false,React was created by Google.,,,,,False,React was created by Facebook (now Meta) not Google.,5,easy,"react,history"
+fill_blank,The ___ hook is used to manage state in React functional components.,,,,,useState,useState is the primary hook for managing state in React function components.,10,easy,"react,hooks,state"
+multiple_choice,What does JSX stand for?,JavaScript XML,JavaScript Extension,Java Syntax Extension,JSON XML,0,,JSX stands for JavaScript XML and allows you to write HTML-like code in JavaScript.,10,medium,"react,jsx"
+true_false,React components must return a single root element.,,,,,True,React components must return a single root element or use fragments to group multiple elements.,5,medium,"react,components"
+fill_blank,To pass data from parent to child components in React you use ___.,,,,,props,Props (properties) are used to pass data from parent to child components in React.,15,medium,"react,props,components"
+multiple_choice,Which method is used to update state in a class component?,this.setState(),this.updateState(),this.changeState(),this.modifyState(),0,,this.setState() is the method used to update state in React class components.,10,medium,"react,state,class-components"

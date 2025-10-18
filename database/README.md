@@ -1,47 +1,120 @@
-# Acadex Database Setup
+# 🗄️ Acadex Database Documentation
 
-This folder contains the essential database setup files for the Acadex learning management system.
+## 📂 Active Files
 
-## Files Overview
+### 🎯 Core Schema
+- **database-schema-v3-current.sql** - 🌟 Main production schema (40+ tables)
+- **fresh-db-schema.sql** - Alternative clean schema
 
-### 🗄️ **database-schema-v3-current.sql**
-- **Purpose**: Complete, production-ready database schema
-- **Status**: ✅ Current and up-to-date
-- **Contains**: All tables, indexes, triggers, RLS policies, and sample data
-- **Usage**: Run this to set up a new database instance
-- **Features**: 
-  - Complete quiz system with reading support
-  - Advanced analytics and question tracking
-  - Gamification (badges, leaderboards)
-  - E-commerce and certificate system
-  - AI content review capabilities
-  - Learning paths and templates
+### 👤 Setup Scripts
+- **create-admin-user.sql** - Creates first admin user
+- **storage-setup.sql** - Configures Supabase storage buckets
 
-### 👤 **create-admin-user.sql**
-- **Purpose**: Creates a development admin user
-- **Status**: ✅ Active for development
-- **Usage**: Run after schema setup for development/testing
-- **Credentials**: admin@acadex.com (development only)
+### ⚡ Performance & Optimization
+- **performance-indexes-week1.sql** - Initial indexes (✅ in main schema)
+- **supabase-indexes-fixed.sql** - Index corrections (✅ in main schema)
+- **optimize-quiz-triggers.sql** - Trigger optimizations (✅ in main schema)
+- **quiz-builder-optimization.sql** - Builder optimizations (✅ in main schema)
+- **safe-quiz-optimization.sql** - Safe improvements (✅ in main schema)
 
-### 📁 **storage-setup.sql**
-- **Purpose**: Configures Supabase storage buckets
-- **Status**: ✅ Required for file uploads
-- **Usage**: Run in Supabase SQL Editor
-- **Buckets**: course-images, quiz-images, user-avatars, lesson-resources
+### 🔧 Maintenance Tools
+- **fix-quiz-question-counts.sql** - Repair incorrect question counts
+- **add-quiz-constraints.sql** - Add data validation
+- **fix-rls-performance.sql** - Fix Row Level Security speed
 
-## Setup Instructions
+### 🧪 Verification Scripts
+- **schema-check.sql** - Verify schema structure
+- **simple-verification.sql** - Health check
+- **performance-verification.sql** - Performance test
 
-1. **Database Setup**: Run `database-schema-v3-current.sql` in your PostgreSQL/Supabase instance
-2. **Storage Setup**: Run `storage-setup.sql` in Supabase SQL Editor
-3. **Development**: Optionally run `create-admin-user.sql` for testing
+### 📊 Sample Data
+- **sample-quiz-data.sql** - Demo quiz questions
 
-## Removed Files
+---
 
-The following files were removed during cleanup (functionality integrated into v3 schema):
-- ❌ `database-schema-v2.sql` - Outdated schema
-- ❌ `add-quiz-constraints.sql` - Already included in v3
-- ❌ `add-reading-quiz-support.sql` - Already included in v3
-- ❌ `unified-category-migration.sql` - Already included in v3
+## 🚀 Quick Start
+
+### Fresh Database Setup
+```sql
+-- Step 1: Run core schema
+\i database/database-schema-v3-current.sql
+
+-- Step 2: Create admin user (edit email first!)
+\i database/create-admin-user.sql
+
+-- Step 3: Setup storage
+\i database/storage-setup.sql
+
+-- Step 4: (Optional) Add sample data
+\i database/sample-quiz-data.sql
+```
+
+---
+
+## 🛠️ Database Connection Options
+
+### ✅ Current Setup (Recommended)
+**Using:** Supabase Client + Direct SQL
+
+**Pros:**
+- ✅ Connection pooling handled
+- ✅ Built-in security (RLS)
+- ✅ Auto-scaling
+- ✅ Real-time subscriptions
+- ✅ No extra setup
+
+**Verdict:** Perfect for Acadex. Keep it!
+
+### 🔄 Alternative: Prisma ORM
+**Add only if you need:**
+- Complex joins
+- Strict TypeScript types
+- Automated migrations
+- ORM preference
+
+**Install:**
+```bash
+npm install prisma @prisma/client
+npx prisma init
+npx prisma generate
+```
+
+### ⚡ Alternative: Drizzle ORM
+**Best for:**
+- Lightweight solution
+- SQL-like syntax
+- Edge runtime
+
+**Install:**
+```bash
+npm install drizzle-orm drizzle-kit postgres
+```
+
+**💡 Recommendation:** Stick with current Supabase setup!
+
+---
+
+## 📋 Cleanup Recommendations
+
+### Create Archive Folder
+```bash
+mkdir database/archive
+```
+
+### Move Applied Optimizations
+These are already in main schema:
+```bash
+mv database/performance-indexes-week1.sql database/archive/
+mv database/quiz-builder-optimization.sql database/archive/
+mv database/safe-quiz-optimization.sql database/archive/
+```
+
+### Keep Active
+- ✅ database-schema-v3-current.sql
+- ✅ create-admin-user.sql
+- ✅ storage-setup.sql
+- ✅ fix-quiz-question-counts.sql
+- ✅ schema-check.sql
 
 ## Database Features
 

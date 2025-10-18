@@ -48,8 +48,7 @@ export const POST = withAdminAuth(async (request: NextRequest, user) => {
             total_questions: questions.length,
             duration_minutes: newQuizData.duration_minutes || 30,
             passing_score: newQuizData.passing_score || 70,
-            is_published: false, // Start as draft
-            created_by: user.id
+            is_published: false // Start as draft
           })
           .select('id')
           .single()
