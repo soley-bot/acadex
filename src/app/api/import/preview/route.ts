@@ -52,14 +52,17 @@ export const POST = withAdminAuth(async (request: NextRequest, user) => {
     
     logger.info('[Import Preview] Validation complete', validation.summary)
     
+    // Calculate correct summary counts (non-overlapping categories)
+    const validWithoutWarnings = validation.valid.length - validation.warnings.length
+
     return NextResponse.json({
       success: true,
       questions,
       summary: {
         total: validation.summary.total,
-        valid: validation.summary.valid,
-        warnings: validation.summary.withWarnings,
-        errors: validation.summary.invalid,
+        valid: validWithoutWarnings, // Only questions with NO warnings
+        warnings: validation.summary.withWarnings, // Questions with warnings
+        errors: validation.summary.invalid, // Questions with errors
         breakdown: {
           multiple_choice: questions.filter(q => q.type === 'multiple_choice').length,
           true_false: questions.filter(q => q.type === 'true_false').length,
