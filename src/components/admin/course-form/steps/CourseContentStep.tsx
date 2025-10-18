@@ -227,7 +227,7 @@ export const CourseContentStep = memo<CourseContentStepProps>(({
                       onClick={() => removeModule(moduleIndex)}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
                     >
-                      <Trash size={16} />
+                      <Trash2 size={16} />
                     </Button>
                   </div>
 
@@ -274,7 +274,7 @@ export const CourseContentStep = memo<CourseContentStepProps>(({
                                   onClick={() => removeLesson(moduleIndex, lessonIndex)}
                                   className="text-red-600 hover:text-red-700 hover:bg-red-50 p-1"
                                 >
-                                  <Trash size={14} />
+                                  <Trash2 size={14} />
                                 </Button>
                               </div>
 

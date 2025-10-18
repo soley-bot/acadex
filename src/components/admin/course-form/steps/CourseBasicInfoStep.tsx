@@ -207,7 +207,7 @@ export const CourseBasicInfoStep = memo<CourseBasicInfoStepProps>(({
           <div className="space-y-2">
             <Label htmlFor="price">Price (USD)</Label>
             <div className="relative">
-              <Coin size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Coins size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <Input
                 id="price"
                 type="number"

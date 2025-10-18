@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Progress } from '@/components/ui/progress'
 import {
-  Image,
+  Image as ImageIcon,
   Upload,
   X,
   Check,
@@ -152,7 +152,7 @@ export const CourseImageStep = memo<CourseImageStepProps>(({
       <Card className="border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors">
         <CardContent className="p-8">
           <div className="flex flex-col items-center text-center space-y-3" style={{ minHeight: 120 }}>
-            <Image size={40} className="text-gray-400" />
+            <ImageIcon size={40} className="text-gray-400" />
             <div>
               <h4 className="text-lg font-medium">{title}</h4>
               <p className="text-sm text-gray-600">{description}</p>
@@ -181,7 +181,7 @@ export const CourseImageStep = memo<CourseImageStepProps>(({
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Image size={20} className="text-blue-600" />
+          <ImageIcon size={20} className="text-blue-600" />
           Course Images
         </CardTitle>
         <p className="text-sm text-gray-600">
