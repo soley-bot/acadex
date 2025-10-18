@@ -446,11 +446,14 @@ export default function ImportPage() {
 
                 <div className="border-t" />
 
-                {/* AI Options */}
-                <div className="space-y-4">
+                {/* AI Options - Coming Soon */}
+                <div className="space-y-4 opacity-60">
                   <h3 className="font-semibold flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm">3</div>
+                    <div className="w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center text-sm">3</div>
                     AI Enhancement (Optional)
+                    <Badge variant="outline" className="ml-2 text-xs bg-blue-50 text-blue-600 border-blue-200">
+                      Coming Soon
+                    </Badge>
                   </h3>
 
                   <div className="ml-8 space-y-2">
@@ -460,17 +463,20 @@ export default function ImportPage() {
                       autoTag: 'Auto-tag questions',
                       validateAnswers: 'Validate with AI'
                     }).map(([key, label]) => (
-                      <label key={key} className="flex items-center gap-2">
+                      <label key={key} className="flex items-center gap-2 cursor-not-allowed">
                         <input
                           type="checkbox"
-                          checked={aiOptions[key as keyof typeof aiOptions]}
-                          onChange={(e) => setAiOptions(prev => ({ ...prev, [key]: e.target.checked }))}
-                          className="w-4 h-4"
+                          checked={false}
+                          disabled
+                          className="w-4 h-4 cursor-not-allowed opacity-50"
                         />
-                        <span className="text-sm">{label}</span>
+                        <span className="text-sm text-gray-500">{label}</span>
                       </label>
                     ))}
                   </div>
+                  <p className="ml-8 text-xs text-gray-500 italic">
+                    AI-powered enhancements will be available in a future update
+                  </p>
                 </div>
 
                 {/* Actions */}
