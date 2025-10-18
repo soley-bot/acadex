@@ -277,7 +277,7 @@ export default function AdminDashboard() {
                 </div>
               </button>
               
-              <button 
+              <button
                 onClick={() => router.push('/admin/quizzes')}
                 className="w-full text-left p-4 card-interactive"
               >
@@ -291,18 +291,18 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </button>
-              
-              <button 
-                onClick={() => router.push('/admin/security-audit')}
+
+              <button
+                onClick={() => router.push('/admin/analytics')}
                 className="w-full text-left p-4 card-interactive"
               >
                 <div className="flex items-center">
-                  <div className="bg-red-100 p-2 rounded-lg mr-3 group-hover:bg-red-200 transition-colors">
-                    <Icon name="shield" size={20} color="current" className="text-red-600" />
+                  <div className="bg-purple-100 p-2 rounded-lg mr-3 group-hover:bg-purple-200 transition-colors">
+                    <Icon name="chart" size={20} color="current" className="text-purple-600" />
                   </div>
                   <div>
-                    <div className="font-semibold text-foreground">Security Audit</div>
-                    <div className="text-sm text-muted-foreground">Comprehensive security assessment</div>
+                    <div className="font-semibold text-foreground">View Analytics</div>
+                    <div className="text-sm text-muted-foreground">Platform performance and insights</div>
                   </div>
                 </div>
               </button>

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
 import AdminRoute from '@/components/AdminRoute'
+import { AdminErrorBoundary } from '@/components/admin/AdminErrorBoundary'
 
 export default function AdminLayout({
   children,
@@ -13,6 +14,7 @@ export default function AdminLayout({
 
   return (
     <AdminRoute>
+      <AdminErrorBoundary>
       <div className="flex h-screen bg-gray-50">
         {/* Subtle background pattern using your design system */}
         <div className="fixed inset-0 section-background pointer-events-none" />
@@ -24,9 +26,11 @@ export default function AdminLayout({
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="glass btn btn-ghost p-3"
-            aria-label="Toggle menu"
+            aria-label={sidebarOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={sidebarOpen}
+            aria-controls="admin-sidebar"
           >
-            <svg className="w-6 h-6 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
@@ -37,25 +41,38 @@ export default function AdminLayout({
           <div
             className="lg:hidden fixed inset-0 bg-background/50 backdrop-blur-sm z-40"
             onClick={() => setSidebarOpen(false)}
+            role="button"
+            tabIndex={0}
+            aria-label="Close navigation menu"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setSidebarOpen(false)
+              }
+            }}
           />
         )}
 
         {/* Sidebar */}
-        <div className={`
-          fixed lg:static inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        `}>
+        <aside
+          id="admin-sidebar"
+          className={`
+            fixed lg:static inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          `}
+          aria-label="Admin navigation"
+        >
           <AdminSidebar onMobileClose={() => setSidebarOpen(false)} />
-        </div>
+        </aside>
 
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto lg:ml-0 relative">
-          <div className="lg:hidden h-16" /> {/* Spacer for mobile menu button */}
+        <main className="flex-1 overflow-y-auto lg:ml-0 relative" role="main">
+          <div className="lg:hidden h-16" aria-hidden="true" /> {/* Spacer for mobile menu button */}
           <div className="p-6">
             {children}
           </div>
         </main>
       </div>
+      </AdminErrorBoundary>
     </AdminRoute>
   )
 }

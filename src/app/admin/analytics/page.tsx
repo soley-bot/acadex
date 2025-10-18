@@ -275,17 +275,17 @@ export default function AdminAnalytics() {
   }
   
   return (
-    <div className="min-h-screen bg-gray-50"> {/* Ensure consistent background */}
-      <div className="container-mobile py-4 sm:py-8 space-y-6 sm:space-y-8">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
         {/* Header Section - Mobile First */}
         <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
             <p className="text-gray-600 mt-1">Monitor platform performance and growth</p>
           </div>
-        
-        {/* Action Controls - Responsive Stack */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
+
+          {/* Action Controls - Responsive Stack */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
           {/* Time Range Selector */}
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-gray-500 sm:hidden" />
@@ -320,8 +320,8 @@ export default function AdminAnalytics() {
               <span className="hidden sm:inline">Export</span>
             </button>
           </div>
+          </div>
         </div>
-      </div>
 
       {/* Error State */}
       {error && (
@@ -490,7 +490,7 @@ export default function AdminAnalytics() {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
     </div>
   )
 }

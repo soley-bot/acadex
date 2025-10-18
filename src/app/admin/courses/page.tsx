@@ -323,26 +323,31 @@ export default function CoursesPage() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="relative flex-1">
-              <Icon 
-                name="search" 
-                size={20} 
+              <label htmlFor="course-search" className="sr-only">Search courses</label>
+              <Icon
+                name="search"
+                size={20}
                 color="muted"
-                className="absolute left-4 top-1/2 transform -translate-y-1/2" 
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none"
+                aria-hidden="true"
               />
               <input
-                type="text"
+                id="course-search"
+                type="search"
                 placeholder="Search courses by title or instructor..."
                 className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors text-base"
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
+                aria-label="Search courses by title or instructor"
               />
             </div>
             <div className="w-full sm:w-64">
+              <label htmlFor="category-filter" className="sr-only">Filter by category</label>
               <Select
                 value={selectedCategory}
                 onValueChange={handleCategoryChange}
               >
-                <SelectTrigger>
+                <SelectTrigger id="category-filter" aria-label="Filter courses by category">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>

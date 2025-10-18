@@ -171,34 +171,41 @@ export default function AdminUsers() {
       {/* Search and Filters */}
       <div className="mb-6 flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Icon 
-            name="search" 
-            size={16} 
+          <label htmlFor="user-search" className="sr-only">Search users</label>
+          <Icon
+            name="search"
+            size={16}
             color="muted"
-            className="absolute left-3 top-1/2 transform -translate-y-1/2" 
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+            aria-hidden="true"
           />
           <input
-            type="text"
+            id="user-search"
+            type="search"
             placeholder="Search users by name or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-primary"
+            aria-label="Search users by name or email"
           />
         </div>
-        <Select 
-          value={roleFilter} 
-          onValueChange={setRoleFilter}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Roles" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="instructor">Instructor</SelectItem>
-            <SelectItem value="student">Student</SelectItem>
-          </SelectContent>
-        </Select>
+        <div>
+          <label htmlFor="role-filter" className="sr-only">Filter by role</label>
+          <Select
+            value={roleFilter}
+            onValueChange={setRoleFilter}
+          >
+            <SelectTrigger className="w-[180px]" id="role-filter" aria-label="Filter users by role">
+              <SelectValue placeholder="All Roles" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="instructor">Instructor</SelectItem>
+              <SelectItem value="student">Student</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Users Table */}
@@ -213,10 +220,7 @@ export default function AdminUsers() {
               <thead className="bg-muted/40">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Email
+                    User
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Role
@@ -225,9 +229,9 @@ export default function AdminUsers() {
                     Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Joined
+                    Joined Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -235,12 +239,12 @@ export default function AdminUsers() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center">
+                    <td colSpan={5} className="px-6 py-12 text-center">
                       <div className="text-gray-500">
                         <Icon name="users" size={48} color="muted" className="mx-auto mb-4" />
                         <h3 className="text-lg font-bold text-black mb-2">No users found</h3>
                         <p className="text-sm">
-                          {searchTerm || roleFilter !== 'all' 
+                          {searchTerm || roleFilter !== 'all'
                             ? 'Try adjusting your search or filter criteria'
                             : 'No users have been added yet'
                           }
@@ -253,48 +257,50 @@ export default function AdminUsers() {
                     <tr key={user.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
+                          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                             <span className="text-sm font-bold text-white">
                               {user.name.split(' ').map(n => n[0]).join('')}
                             </span>
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-bold text-black">{user.name}</div>
-                            <div className="text-sm text-gray-500">{user.email}</div>
+                          <div className="ml-4 min-w-0">
+                            <div className="text-sm font-bold text-black truncate">{user.name}</div>
+                            <div className="text-sm text-gray-500 truncate">{user.email}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-bold rounded-full ${getRoleBadge(user.role)}`}>
+                        <span className={`inline-flex px-2 py-1 text-xs font-bold rounded-full capitalize ${getRoleBadge(user.role)}`}>
                           {user.role}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex px-2 py-1 text-xs font-bold rounded-full bg-destructive/20 text-red-800">
-                          active
+                        <span className="inline-flex items-center px-2 py-1 text-xs font-bold rounded-full bg-green-100 text-green-800">
+                          <Icon name="check-circle" size={12} className="mr-1" />
+                          Active
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-black">
-                        {formatDate(user.created_at)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div>
-                          <div className="font-bold">Active user</div>
-                          <div>Joined {formatDate(user.created_at)}</div>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center text-sm text-gray-900">
+                          <Icon name="calendar" size={14} className="mr-2 text-gray-400" />
+                          <span className="font-medium">{formatDate(user.created_at)}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold">
-                        <div className="flex space-x-2">
-                          <button 
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                        <div className="flex items-center justify-end space-x-3">
+                          <button
                             onClick={() => handleEditUser(user)}
-                            className="text-primary hover:text-primary/80 transition-colors"
+                            className="text-secondary hover:text-primary font-semibold transition-colors inline-flex items-center"
+                            aria-label={`Edit ${user.name}`}
                           >
+                            <Icon name="edit" size={14} className="mr-1" />
                             Edit
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDeleteUser(user)}
-                            className="text-primary hover:text-primary/80 transition-colors"
+                            className="text-red-600 hover:text-red-800 font-semibold transition-colors inline-flex items-center"
+                            aria-label={`Delete ${user.name}`}
                           >
+                            <Icon name="delete" size={14} className="mr-1" />
                             Delete
                           </button>
                         </div>
