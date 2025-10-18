@@ -18,7 +18,7 @@ export interface AuthenticatedUser {
  * Creates an authenticated Supabase client from request
  * Supports both cookie-based and Authorization header auth
  */
-export function createAuthenticatedClient(request: NextRequest) {
+export async function createAuthenticatedClient(request: NextRequest) {
   // Try Authorization header first (for API clients)
   const authHeader = request.headers.get('authorization')
   
@@ -45,13 +45,29 @@ export function createAuthenticatedClient(request: NextRequest) {
     )
   }
 
-  // Fallback to cookie-based auth (for browser requests)
+  // Use Next.js cookies() - it's async in Next.js 15
+  const cookieStore = await cookies()
+  
+  // Log available cookies for debugging
+  const allCookies = cookieStore.getAll()
+  logger.debug('[API Auth] Available cookies:', allCookies.map(c => ({ 
+    name: c.name, 
+    hasValue: !!c.value,
+    valuePreview: c.value?.substring(0, 20) + '...'
+  })))
+  
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get: (name: string) => request.cookies.get(name)?.value,
+        get: (name: string) => {
+          const value = cookieStore.get(name)?.value
+          if (value) {
+            logger.debug(`[API Auth] Cookie "${name}" found`)
+          }
+          return value
+        },
         set: () => {}, // Not needed for API routes
         remove: () => {} // Not needed for API routes
       }
@@ -91,7 +107,15 @@ export function createServiceClient() {
 export async function verifyAuthentication(supabase: any): Promise<AuthenticatedUser> {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   
+  logger.debug('[API Auth] getUser result:', { 
+    hasUser: !!user, 
+    userId: user?.id,
+    userEmail: user?.email,
+    error: authError?.message 
+  })
+  
   if (authError || !user) {
+    logger.warn('[API Auth] Authentication failed:', { error: authError?.message })
     throw new Error('Authentication required')
   }
 
@@ -166,7 +190,7 @@ export function withAdminAuth(
 ) {
   return async (request: NextRequest) => {
     try {
-      const supabase = createAuthenticatedClient(request)
+      const supabase = await createAuthenticatedClient(request)
       const user = await verifyAdminAuth(supabase)
       
       return await handler(request, user)
@@ -195,7 +219,7 @@ export function withInstructorAuth(
 ) {
   return async (request: NextRequest) => {
     try {
-      const supabase = createAuthenticatedClient(request)
+      const supabase = await createAuthenticatedClient(request)
       const user = await verifyInstructorAuth(supabase)
       
       return await handler(request, user)
@@ -219,7 +243,7 @@ export function withAuth(
 ) {
   return async (request: NextRequest) => {
     try {
-      const supabase = createAuthenticatedClient(request)
+      const supabase = await createAuthenticatedClient(request)
       const user = await verifyAuthentication(supabase)
       
       return await handler(request, user)

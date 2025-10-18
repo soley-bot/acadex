@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 import type { UserRole } from './auth-security'
 import { logger } from './logger'
 
@@ -92,39 +92,45 @@ function createSupabaseClient() {
   }
 
   try {
-    const storage = getStorageAdapter()
-
-    const client = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-        storageKey: 'acadex-auth-token',
-        storage: storage,
-        flowType: 'pkce'
-      },
-      global: {
-        headers: {
-          'x-application-name': 'Acadex'
+    // Use createBrowserClient from @supabase/ssr for proper cookie handling
+    // This ensures cookies are set in a way that server-side code can read them
+    const client = createBrowserClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        get(name: string) {
+          if (typeof document === 'undefined') return undefined
+          const value = document.cookie
+            .split('; ')
+            .find(row => row.startsWith(`${name}=`))
+            ?.split('=')[1]
+          return value ? decodeURIComponent(value) : undefined
+        },
+        set(name: string, value: string, options: any) {
+          if (typeof document === 'undefined') return
+          
+          const cookieOptions = [
+            `${name}=${encodeURIComponent(value)}`,
+            `path=${options.path || '/'}`,
+            `max-age=${options.maxAge || 31536000}`, // 1 year default
+            options.secure ? 'Secure' : '',
+            `SameSite=${options.sameSite || 'Lax'}`
+          ].filter(Boolean).join('; ')
+          
+          document.cookie = cookieOptions
+          logger.debug('[Supabase] Cookie set:', { name })
+        },
+        remove(name: string, options: any) {
+          if (typeof document === 'undefined') return
+          
+          document.cookie = `${name}=; path=${options.path || '/'}; max-age=0`
+          logger.debug('[Supabase] Cookie removed:', { name })
         }
-      },
-      db: {
-        schema: 'public'
       }
     })
 
     // Only store singleton on client-side, never on server
     if (typeof window !== 'undefined') {
       clientInstance = client
-
-      const storageType = storage === window.localStorage
-        ? 'with localStorage'
-        : storage
-          ? 'with cookie storage (localStorage blocked)'
-          : 'with memory storage (no persistence)'
-      logger.debug('[Supabase] NEW client created and stored as singleton', { storageType })
-    } else {
-      logger.debug('[Supabase] Server-side client created (no singleton)')
+      logger.debug('[Supabase] NEW browser client created with SSR cookie handling')
     }
 
     return client
