@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Upload, FileSpreadsheet, AlertCircle, CheckCircle, Info, Loader2, Download, X, ChevronDown, ChevronUp, Search, FolderOpen } from 'lucide-react'
+import { Upload, FileSpreadsheet, AlertCircle, CheckCircle, Info, Loader2, Download, X, ChevronDown, ChevronUp, Search, FolderOpen, Sparkles, Check } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,6 +17,14 @@ import { useAuth } from '@/contexts/AuthContext'
 type ImportType = 'quizzes' | 'courses'
 type Step = 'form' | 'preview' | 'importing' | 'success'
 type ValidationStatus = 'valid' | 'warning' | 'error'
+
+interface AIEnhancement {
+  explanation?: string
+  tags?: string[]
+  difficulty?: 'easy' | 'medium' | 'hard'
+  warnings?: string[]
+  confidence: number
+}
 
 interface PreviewQuestion {
   rowIndex: number
@@ -35,6 +43,8 @@ interface PreviewQuestion {
   status: ValidationStatus
   issues?: string[]
   selected?: boolean
+  aiEnhancement?: AIEnhancement
+  aiAccepted?: boolean // Track if user accepted AI suggestions
 }
 
 interface Quiz {
@@ -58,6 +68,7 @@ export default function ImportPage() {
   const [newQuizCategory, setNewQuizCategory] = useState('')
   const [showQuizModal, setShowQuizModal] = useState(false)
   const [quizSearchQuery, setQuizSearchQuery] = useState('')
+  const [aiProvider, setAiProvider] = useState<'claude' | 'gemini'>('gemini')
   const [aiOptions, setAiOptions] = useState({
     generateExplanations: true,
     suggestDifficulty: true,
@@ -86,12 +97,43 @@ export default function ImportPage() {
   const [error, setError] = useState<string | null>(null)
   const [importedCount, setImportedCount] = useState(0)
   const [importedQuizId, setImportedQuizId] = useState<string>('')
+  const [aiEnhancing, setAiEnhancing] = useState(false)
+  const [aiEnhanced, setAiEnhanced] = useState(false)
+  const [aiStats, setAiStats] = useState({
+    total: 0,
+    enhanced: 0,
+    explanationsAdded: 0,
+    tagsAdded: 0,
+    difficultyAdded: 0,
+    warningsFound: 0
+  })
 
   // Fetch quizzes on mount
   useEffect(() => {
     fetchQuizzes()
     checkAuth()
   }, [])
+
+  // Recalculate summary whenever questions change (e.g., after accepting AI suggestions)
+  useEffect(() => {
+    if (questions.length > 0) {
+      const validCount = questions.filter(q => q.status === 'valid').length
+      const warningCount = questions.filter(q => q.status === 'warning').length
+      const errorCount = questions.filter(q => q.status === 'error').length
+
+      setSummary({
+        total: questions.length,
+        valid: validCount,
+        warnings: warningCount,
+        errors: errorCount,
+        breakdown: {
+          multiple_choice: questions.filter(q => q.type === 'multiple_choice').length,
+          true_false: questions.filter(q => q.type === 'true_false').length,
+          fill_blank: questions.filter(q => q.type === 'fill_blank').length
+        }
+      })
+    }
+  }, [questions])
 
   const checkAuth = async () => {
     try {
@@ -168,6 +210,16 @@ export default function ImportPage() {
       console.log('[Import] Success:', data.summary)
       setQuestions(data.questions)
       setSummary(data.summary)
+      // Reset AI enhancement state when fetching new preview
+      setAiEnhanced(false)
+      setAiStats({
+        total: 0,
+        enhanced: 0,
+        explanationsAdded: 0,
+        tagsAdded: 0,
+        difficultyAdded: 0,
+        warningsFound: 0
+      })
       setCurrentStep('preview')
     } catch (err: any) {
       console.error('[Import] Exception:', err)
@@ -242,8 +294,130 @@ export default function ImportPage() {
     }
   }
 
+  const handleAiEnhance = async () => {
+    try {
+      setAiEnhancing(true)
+      setError(null)
+
+      console.log('[Import] Requesting AI enhancement')
+
+      const response = await fetch('/api/import/ai-enhance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          questions,
+          options: {
+            ...aiOptions,
+            provider: aiProvider
+          }
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to enhance questions')
+      }
+
+      const data = await response.json()
+      console.log('[Import] AI enhancement complete:', data.stats)
+
+      setQuestions(data.questions)
+      setAiStats(data.stats)
+      setAiEnhanced(true)
+    } catch (err: any) {
+      console.error('[Import] AI enhancement error:', err)
+      setError(err.message || 'Failed to enhance questions with AI')
+    } finally {
+      setAiEnhancing(false)
+    }
+  }
+
+  const acceptAiSuggestion = (rowIndex: number) => {
+    setQuestions(prev => prev.map(q => {
+      if (q.rowIndex === rowIndex && q.aiEnhancement) {
+        // Apply AI enhancements
+        const updatedQuestion = {
+          ...q,
+          explanation: q.aiEnhancement.explanation || q.explanation,
+          tags: q.aiEnhancement.tags ? q.aiEnhancement.tags.join(', ') : q.tags,
+          difficulty: q.aiEnhancement.difficulty || q.difficulty,
+          aiAccepted: true
+        }
+
+        // Re-check warnings after applying AI suggestions
+        const newIssues = []
+        if (!updatedQuestion.explanation) {
+          newIssues.push('Missing explanation (recommended)')
+        }
+        if (!updatedQuestion.difficulty) {
+          newIssues.push('Missing difficulty level')
+        }
+        if (!updatedQuestion.tags) {
+          newIssues.push('No tags specified')
+        }
+
+        // Update status: if no more issues, change from 'warning' to 'valid'
+        return {
+          ...updatedQuestion,
+          status: newIssues.length === 0 ? 'valid' as const : q.status,
+          issues: newIssues
+        }
+      }
+      return q
+    }))
+  }
+
+  const rejectAiSuggestion = (rowIndex: number) => {
+    setQuestions(prev => prev.map(q => {
+      if (q.rowIndex === rowIndex) {
+        return {
+          ...q,
+          aiEnhancement: undefined,
+          aiAccepted: false
+        }
+      }
+      return q
+    }))
+  }
+
+  const acceptAllAiSuggestions = () => {
+    setQuestions(prev => prev.map(q => {
+      if (q.aiEnhancement) {
+        // Apply AI enhancements
+        const updatedQuestion = {
+          ...q,
+          explanation: q.aiEnhancement.explanation || q.explanation,
+          tags: q.aiEnhancement.tags ? q.aiEnhancement.tags.join(', ') : q.tags,
+          difficulty: q.aiEnhancement.difficulty || q.difficulty,
+          aiAccepted: true
+        }
+
+        // Re-check warnings after applying AI suggestions
+        const newIssues = []
+        if (!updatedQuestion.explanation) {
+          newIssues.push('Missing explanation (recommended)')
+        }
+        if (!updatedQuestion.difficulty) {
+          newIssues.push('Missing difficulty level')
+        }
+        if (!updatedQuestion.tags) {
+          newIssues.push('No tags specified')
+        }
+
+        // Update status: if no more issues, change from 'warning' to 'valid'
+        return {
+          ...updatedQuestion,
+          status: newIssues.length === 0 ? 'valid' as const : q.status,
+          issues: newIssues
+        }
+      }
+      return q
+    }))
+  }
+
   const toggleQuestion = (id: number) => {
-    setExpandedQuestions(prev => 
+    setExpandedQuestions(prev =>
       prev.includes(id) ? prev.filter(qid => qid !== id) : [...prev, id]
     )
   }
@@ -446,36 +620,75 @@ export default function ImportPage() {
 
                 <div className="border-t" />
 
-                {/* AI Options - Coming Soon */}
-                <div className="space-y-4 opacity-60">
+                {/* AI Options - Now Available */}
+                <div className="space-y-4">
                   <h3 className="font-semibold flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-gray-400 text-white flex items-center justify-center text-sm">3</div>
+                    <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
                     AI Enhancement (Optional)
-                    <Badge variant="outline" className="ml-2 text-xs bg-blue-50 text-blue-600 border-blue-200">
-                      Coming Soon
+                    <Badge variant="outline" className={`ml-2 text-xs ${
+                      aiProvider === 'claude'
+                        ? 'bg-purple-50 text-purple-600 border-purple-200'
+                        : 'bg-blue-50 text-blue-600 border-blue-200'
+                    }`}>
+                      {aiProvider === 'claude' ? 'Powered by Claude' : 'Powered by Gemini'}
                     </Badge>
                   </h3>
+
+                  {/* AI Provider Selection */}
+                  <div className="ml-8 space-y-3">
+                    <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <span className="text-sm font-medium text-gray-700">AI Provider:</span>
+                      <div className="flex gap-3">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="aiProvider"
+                            checked={aiProvider === 'claude'}
+                            onChange={() => setAiProvider('claude')}
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                          <span className="text-sm text-gray-700">Claude (Anthropic)</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="aiProvider"
+                            checked={aiProvider === 'gemini'}
+                            onChange={() => setAiProvider('gemini')}
+                            className="w-4 h-4 cursor-pointer"
+                          />
+                          <span className="text-sm text-gray-700">Gemini (Google)</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
 
                   <div className="ml-8 space-y-2">
                     {Object.entries({
                       generateExplanations: 'Generate missing explanations',
-                      suggestDifficulty: 'Auto-suggest difficulty',
-                      autoTag: 'Auto-tag questions',
-                      validateAnswers: 'Validate with AI'
+                      suggestDifficulty: 'Auto-suggest difficulty levels',
+                      autoTag: 'Auto-tag questions by topic',
+                      validateAnswers: 'Validate answers with AI'
                     }).map(([key, label]) => (
-                      <label key={key} className="flex items-center gap-2 cursor-not-allowed">
+                      <label key={key} className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={false}
-                          disabled
-                          className="w-4 h-4 cursor-not-allowed opacity-50"
+                          checked={aiOptions[key as keyof typeof aiOptions]}
+                          onChange={(e) => setAiOptions(prev => ({
+                            ...prev,
+                            [key]: e.target.checked
+                          }))}
+                          className="w-4 h-4 cursor-pointer"
                         />
-                        <span className="text-sm text-gray-500">{label}</span>
+                        <span className="text-sm text-gray-700">{label}</span>
                       </label>
                     ))}
                   </div>
-                  <p className="ml-8 text-xs text-gray-500 italic">
-                    AI-powered enhancements will be available in a future update
+                  <p className="ml-8 text-xs text-gray-500 flex items-center gap-1">
+                    <Info className="w-3 h-3" />
+                    AI will suggest improvements in the preview step
                   </p>
                 </div>
 
@@ -522,6 +735,89 @@ export default function ImportPage() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* AI Enhancement Section */}
+              {!aiEnhanced && Object.values(aiOptions).some(v => v) && (
+                <Card className={`border-2 ${
+                  aiProvider === 'claude'
+                    ? 'border-purple-200 bg-purple-50/50'
+                    : 'border-blue-200 bg-blue-50/50'
+                }`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg ${
+                          aiProvider === 'claude'
+                            ? 'bg-purple-100'
+                            : 'bg-blue-100'
+                        }`}>
+                          <Sparkles className={`w-5 h-5 ${
+                            aiProvider === 'claude'
+                              ? 'text-purple-600'
+                              : 'text-blue-600'
+                          }`} />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">AI Enhancement Available</h3>
+                          <p className="text-sm text-gray-600">
+                            Let {aiProvider === 'claude' ? 'Claude' : 'Gemini'} analyze and improve your questions
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        onClick={handleAiEnhance}
+                        disabled={aiEnhancing}
+                        className="gap-2"
+                      >
+                        {aiEnhancing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Enhancing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4" />
+                            Enhance with AI
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* AI Enhancement Stats */}
+              {aiEnhanced && aiStats.enhanced > 0 && (
+                <Card className="border-2 border-green-200 bg-green-50/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-green-100 rounded-lg">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">AI Enhancement Complete</h3>
+                          <div className="text-sm text-gray-600 flex gap-4 mt-1">
+                            {aiStats.explanationsAdded > 0 && <span>✨ {aiStats.explanationsAdded} explanations</span>}
+                            {aiStats.tagsAdded > 0 && <span>🏷️ {aiStats.tagsAdded} tagged</span>}
+                            {aiStats.difficultyAdded > 0 && <span>📊 {aiStats.difficultyAdded} difficulty set</span>}
+                            {aiStats.warningsFound > 0 && <span>⚠️ {aiStats.warningsFound} warnings</span>}
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        onClick={acceptAllAiSuggestions}
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                      >
+                        <Check className="w-4 h-4" />
+                        Accept All
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Filter Tabs */}
               <div className="flex gap-2">
@@ -573,6 +869,80 @@ export default function ImportPage() {
                         </Button>
                       </div>
                       
+                      {/* AI Suggestions */}
+                      {q.aiEnhancement && !q.aiAccepted && (
+                        <div className="mt-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                          <div className="flex items-start justify-between gap-3 mb-2">
+                            <div className="flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-purple-600" />
+                              <span className="text-sm font-semibold text-purple-900">AI Suggestions</span>
+                              <Badge variant="outline" className="text-xs">
+                                {Math.round(q.aiEnhancement.confidence * 100)}% confident
+                              </Badge>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => acceptAiSuggestion(q.rowIndex)}
+                                className="h-7 px-2 text-xs gap-1 bg-white hover:bg-green-50 hover:border-green-300"
+                              >
+                                <Check className="w-3 h-3" />
+                                Accept
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => rejectAiSuggestion(q.rowIndex)}
+                                className="h-7 px-2 text-xs gap-1 bg-white hover:bg-red-50 hover:border-red-300"
+                              >
+                                <X className="w-3 h-3" />
+                                Reject
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="space-y-2 text-sm">
+                            {q.aiEnhancement.explanation && (
+                              <div className="flex gap-2">
+                                <span className="font-medium text-gray-700">Explanation:</span>
+                                <span className="text-gray-600">{q.aiEnhancement.explanation}</span>
+                              </div>
+                            )}
+                            {q.aiEnhancement.tags && q.aiEnhancement.tags.length > 0 && (
+                              <div className="flex gap-2 items-center flex-wrap">
+                                <span className="font-medium text-gray-700">Tags:</span>
+                                {q.aiEnhancement.tags.map((tag, i) => (
+                                  <Badge key={i} variant="secondary" className="text-xs">{tag}</Badge>
+                                ))}
+                              </div>
+                            )}
+                            {q.aiEnhancement.difficulty && (
+                              <div className="flex gap-2">
+                                <span className="font-medium text-gray-700">Difficulty:</span>
+                                <Badge variant="outline" className="text-xs">{q.aiEnhancement.difficulty}</Badge>
+                              </div>
+                            )}
+                            {q.aiEnhancement.warnings && q.aiEnhancement.warnings.length > 0 && (
+                              <div className="space-y-1">
+                                <span className="font-medium text-orange-700">⚠️ AI Warnings:</span>
+                                {q.aiEnhancement.warnings.map((warning, i) => (
+                                  <div key={i} className="text-orange-600 ml-5 text-xs">• {warning}</div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {q.aiAccepted && (
+                        <div className="mt-4 p-2 bg-green-50 border border-green-200 rounded-lg">
+                          <div className="flex items-center gap-2 text-sm text-green-700">
+                            <CheckCircle className="w-4 h-4" />
+                            <span className="font-medium">AI suggestions applied</span>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Expanded Details */}
                       {expandedQuestions.includes(q.rowIndex) && (
                         <div className="mt-4 pt-4 border-t space-y-2 text-sm">
@@ -637,7 +1007,10 @@ export default function ImportPage() {
               <Card>
                 <CardContent className="p-4">
                   <div className="flex justify-between items-center">
-                    <Button variant="outline" onClick={() => setCurrentStep('form')}>
+                    <Button variant="outline" onClick={() => {
+                      setCurrentStep('form')
+                      // Don't reset questions/summary so user can go back and forth
+                    }}>
                       ← Back
                     </Button>
                     <div className="flex items-center gap-3">
