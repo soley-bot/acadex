@@ -22,22 +22,18 @@ export type {
   QuestionType
 } from './supabase'
 
-// Authentication
-export { 
+// Authentication (client-side only)
+export {
   getAuthHeaders,
-  authenticatedGet, 
-  authenticatedPost, 
-  authenticatedPut, 
-  authenticatedDelete 
+  authenticatedGet,
+  authenticatedPost,
+  authenticatedPut,
+  authenticatedDelete
 } from './auth-api'
 
-export { 
-  withAdminAuth, 
-  withAuth, 
-  createAuthenticatedClient,
-  createServiceClient,
-  verifyAdminAuth
-} from './api-auth'
+// NOTE: Server-side auth utilities (withAdminAuth, createAuthenticatedClient, etc.)
+// are NOT exported here to prevent "next/headers" import errors in client components.
+// Import them directly from './api-auth' in API routes and server components only.
 
 // Image handling
 export { uploadImage } from './imageUpload'
