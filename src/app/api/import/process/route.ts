@@ -91,7 +91,7 @@ export const POST = withAdminAuth(async (request: NextRequest, user) => {
       
       // Transform questions to database format
       const insertData = questions
-        .filter((q: any) => q.status === 'valid') // Only import valid questions
+        .filter((q: any) => q.status === 'valid' || q.status === 'warning') // Import valid and warning questions (exclude only errors)
         .map((q: QuestionImport) => {
           const dbQuestion: any = {
             quiz_id: targetQuizId,

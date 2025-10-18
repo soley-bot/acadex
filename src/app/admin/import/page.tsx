@@ -635,13 +635,29 @@ export default function ImportPage() {
 
               {/* Actions */}
               <Card>
-                <CardContent className="p-4 flex justify-between">
-                  <Button variant="outline" onClick={() => setCurrentStep('form')}>
-                    ← Back
-                  </Button>
-                  <Button onClick={handleImport} disabled={summary.errors > 0}>
-                    Import {summary.valid} {importType === 'quizzes' ? 'Questions' : 'Items'} →
-                  </Button>
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center">
+                    <Button variant="outline" onClick={() => setCurrentStep('form')}>
+                      ← Back
+                    </Button>
+                    <div className="flex items-center gap-3">
+                      {summary.warnings > 0 && summary.errors === 0 && (
+                        <div className="flex items-center gap-2 text-sm text-yellow-700 bg-yellow-50 px-3 py-2 rounded-lg border border-yellow-200">
+                          <AlertCircle className="w-4 h-4" />
+                          <span>{summary.warnings} item{summary.warnings !== 1 ? 's' : ''} with warnings will be imported</span>
+                        </div>
+                      )}
+                      {summary.errors > 0 && (
+                        <div className="flex items-center gap-2 text-sm text-red-700 bg-red-50 px-3 py-2 rounded-lg border border-red-200">
+                          <X className="w-4 h-4" />
+                          <span>Fix {summary.errors} error{summary.errors !== 1 ? 's' : ''} before importing</span>
+                        </div>
+                      )}
+                      <Button onClick={handleImport} disabled={summary.errors > 0}>
+                        Import {summary.valid + summary.warnings} {importType === 'quizzes' ? 'Questions' : 'Items'} →
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>

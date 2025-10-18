@@ -214,7 +214,7 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         {/* Header */}
-        <div className="bg-primary text-white flex items-center justify-between rounded-t-2xl">
+        <div className="bg-primary text-white flex items-center justify-between p-6 rounded-t-2xl">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
               <Trash2 size={20} />
@@ -363,7 +363,7 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
               )}
 
               {error && (
-                <div className="mb-4 p-3 bg-primary/5 border border-destructive/30 text-red-700 rounded-lg text-sm">
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
                   {error}
                 </div>
               )}
@@ -375,7 +375,7 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
         <div className="border-t p-6 bg-gray-50 flex items-center justify-between rounded-b-2xl">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
+            className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors"
           >
             Cancel
           </button>
@@ -385,7 +385,7 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
               <button
                 onClick={handleCleanDelete}
                 disabled={isSubmitting}
-                className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 font-medium disabled:opacity-50 flex items-center gap-2"
+                className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 font-medium disabled:opacity-50 flex items-center gap-2 transition-colors"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -398,7 +398,7 @@ export function DeleteModal({ item, isOpen, onClose, onSuccess }: DeleteModalPro
             <button
               onClick={deleteOption === 'cascade' ? handleCascadeDelete : canDelete ? handleCascadeDelete : undefined}
               disabled={isSubmitting || (hasUsage && !deleteOption)}
-              className="px-4 py-2 bg-primary text-secondary rounded-lg hover:bg-primary/90 font-medium disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 disabled:bg-gray-300 disabled:text-gray-500 flex items-center gap-2 transition-colors"
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
