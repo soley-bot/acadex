@@ -30,19 +30,6 @@ const CategoryManagementComponent = dynamic(
   }
 )
 
-const QuestionCreationComponent = dynamic(
-  () => import('@/components/admin/QuestionCreation').then(mod => ({ default: mod.QuestionCreation })),
-  {
-    loading: () => (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Loading Question Editor...</span>
-      </div>
-    ),
-    ssr: false
-  }
-)
-
 const QuizBuilderComponent = dynamic(
   () => import('@/components/admin/QuizBuilder').then(mod => ({ default: mod.QuizBuilder })),
   {
@@ -94,17 +81,6 @@ export const LazyComponents = {
     </Suspense>
   ),
 
-  QuestionCreation: (props: any) => (
-    <Suspense fallback={
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Loading Question Editor...</span>
-      </div>
-    }>
-      <QuestionCreationComponent {...props} />
-    </Suspense>
-  ),
-
   QuizBuilder: (props: any) => (
     <Suspense fallback={
       <div className="flex items-center justify-center p-8">
@@ -132,7 +108,6 @@ export const LazyComponents = {
 export {
   CourseFormComponent,
   CategoryManagementComponent,
-  QuestionCreationComponent,
   QuizBuilderComponent,
   QuizAnalyticsComponent
 }
