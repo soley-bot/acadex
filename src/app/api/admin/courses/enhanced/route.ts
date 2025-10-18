@@ -1,22 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
-
+import { createAuthenticatedClient, verifyAdminAuth as verifyAdminAuthHelper } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
-
-// Helper function to create authenticated Supabase client
-function createAuthenticatedClient(request: NextRequest) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get: (name: string) => request.cookies.get(name)?.value,
-        set: () => {}, // Not needed for API routes
-        remove: () => {} // Not needed for API routes
-      }
-    }
-  )
-}
 
 // Helper function to verify admin authentication
 async function verifyAdminAuth(supabase: any) {
@@ -42,10 +26,10 @@ async function verifyAdminAuth(supabase: any) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createAuthenticatedClient(request)
+    const supabase = await createAuthenticatedClient(request)
     
     // Verify admin authentication
-    await verifyAdminAuth(supabase)
+    await verifyAdminAuthHelper(supabase)
     
     const { searchParams } = new URL(request.url)
     const courseId = searchParams.get('id')
@@ -128,10 +112,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createAuthenticatedClient(request)
+    const supabase = await createAuthenticatedClient(request)
     
     // Verify admin authentication and get user
-    const user = await verifyAdminAuth(supabase)
+    const user = await verifyAdminAuthHelper(supabase)
     
     const body = await request.json()
     const { courseData, action } = body

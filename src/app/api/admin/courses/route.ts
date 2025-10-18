@@ -132,7 +132,7 @@ export const GET = withAdminAuth(async (request: NextRequest, user) => {
 
     return NextResponse.json({
       success: true,
-      data,
+      courses: data,
       pagination
     })
 

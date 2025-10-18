@@ -34,7 +34,7 @@ export async function GET(
     const attemptId = validateAttemptId(rawAttemptId)
 
     // Create authenticated client
-    const supabase = createAuthenticatedClient(request)
+    const supabase = await createAuthenticatedClient(request)
 
     // Verify authentication
     let user

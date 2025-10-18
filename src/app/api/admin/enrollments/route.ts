@@ -7,34 +7,95 @@ export const GET = withAdminAuth(async (request: NextRequest) => {
   try {
     logger.info('Admin enrollments fetch requested')
 
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '50')
+    const search = searchParams.get('search') || ''
+    const statusFilter = searchParams.get('status') || 'all'
+
     const serviceClient = createServiceClient()
-    const { data, error } = await serviceClient
+    
+    // Build query with filters
+    let query = serviceClient
       .from('enrollments')
       .select(`
         *,
         courses (
-          id,
           title,
-          thumbnail_url,
-          price
+          instructor_name,
+          price,
+          level
         ),
         users (
-          id,
           name,
           email
         )
-      `)
+      `, { count: 'exact' })
+
+    // Apply search filter
+    if (search) {
+      query = query.or(`users.name.ilike.%${search}%,users.email.ilike.%${search}%,courses.title.ilike.%${search}%`)
+    }
+
+    // Apply status filter
+    if (statusFilter === 'completed') {
+      query = query.not('completed_at', 'is', null)
+    } else if (statusFilter === 'active') {
+      query = query.is('completed_at', null)
+    }
+
+    // Apply pagination
+    const from = (page - 1) * limit
+    const to = from + limit - 1
+    
+    const { data, error, count } = await query
+      .range(from, to)
       .order('enrolled_at', { ascending: false })
 
     if (error) {
       throw new Error(`Database error: ${error.message}`)
     }
 
+    // Calculate stats
+    const { data: allEnrollments } = await serviceClient
+      .from('enrollments')
+      .select(`
+        completed_at,
+        courses!inner (
+          price
+        )
+      `)
+    
+    const totalEnrollments = count || 0
+    const activeEnrollments = allEnrollments?.filter(e => !e.completed_at).length || 0
+    const completedEnrollments = allEnrollments?.filter(e => e.completed_at).length || 0
+    const totalRevenue = allEnrollments?.reduce((sum, e: any) => {
+      const price = Array.isArray(e.courses) ? e.courses[0]?.price : e.courses?.price
+      return sum + (Number(price) || 0)
+    }, 0) || 0
+
     logger.info('Admin enrollments fetch completed', { 
-      count: data?.length || 0 
+      count: data?.length || 0,
+      totalEnrollments,
+      activeEnrollments,
+      completedEnrollments
     })
 
-    return NextResponse.json({ enrollments: data })
+    return NextResponse.json({ 
+      data: data || [],
+      pagination: {
+        page,
+        limit,
+        total: totalEnrollments,
+        totalPages: Math.ceil(totalEnrollments / limit)
+      },
+      stats: {
+        totalEnrollments,
+        activeEnrollments,
+        completedEnrollments,
+        totalRevenue
+      }
+    })
   } catch (error: any) {
     logger.error('Enrollments fetch failed', { 
       error: error.message 

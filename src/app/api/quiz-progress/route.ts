@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     // Validate and sanitize input data
     const { quizId, userId, answers, currentQuestion } = validateQuizProgressData(requestData)
     
-    const supabase = createAuthenticatedClient(request)
+    const supabase = await createAuthenticatedClient(request)
     
     // Verify user is authenticated and matches the userId
     try {
@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
     // Validate and sanitize query parameters
     const { quizId, userId } = validateQueryParams(searchParams)
     
-    const supabase = createAuthenticatedClient(request)
+    const supabase = await createAuthenticatedClient(request)
     
     // Verify user is authenticated and matches the userId
     try {

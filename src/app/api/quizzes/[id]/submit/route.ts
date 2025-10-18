@@ -58,7 +58,7 @@ export async function POST(
     const { answers, time_taken } = validateSubmissionData(requestData)
 
     // Create authenticated client
-    const supabase = createAuthenticatedClient(request)
+    const supabase = await createAuthenticatedClient(request)
 
     // Verify authentication
     let user

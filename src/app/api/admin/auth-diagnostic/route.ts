@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     console.log('🔐 Auth header:', authHeader ? 'Present' : 'Missing')
     
     // Try to create authenticated client
-    const supabase = createAuthenticatedClient(request)
+    const supabase = await createAuthenticatedClient(request)
     
     // Test getUser
     const { data: { user }, error: userError } = await supabase.auth.getUser()
