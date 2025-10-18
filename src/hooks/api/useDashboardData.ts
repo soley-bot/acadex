@@ -101,7 +101,7 @@ export function useAdminDashboardData(page = 1, limit = 12) {
         success: true,
         quizzes: quizzesData.quizzes || [],
         categories: categoriesData.categories || [],
-        courses: [], // TODO: Add courses if needed
+        courses: [], // Future: Add courses endpoint when dashboard needs course data
         stats: {
           totalQuizzes: quizzesData.pagination?.total || 0,
           totalCourses: 0,

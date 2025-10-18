@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus, Edit, Trash2, Save, X, Palette } from 'lucide-react'
 import { createSupabaseClient } from '@/lib/supabase'
 import { logger } from '@/lib/logger'
+import { toast } from 'sonner'
 
 interface Category {
   id: string
@@ -167,8 +168,9 @@ export const CategoryManagement = memo<CategoryManagementProps>(({ isOpen, onClo
     } catch (err: any) {
       const errorMessage = err instanceof Error ? err.message : String(err)
       logger.error('Error saving category', { error: errorMessage })
-      // TODO: Add user-facing error notification
-      console.error('Category save error:', errorMessage)
+      toast.error('Failed to save category', {
+        description: errorMessage || 'An unexpected error occurred. Please try again.'
+      })
     }
   }
 

@@ -146,7 +146,7 @@ export async function GET(request: NextRequest) {
     }
 
     // For detailed mode, optionally add minimal stats (cached or pre-computed)
-    // TODO: Add cached statistics lookup here if needed
+    // Future: Add cached statistics lookup when performance optimization needed
     
     logger.info('Public quizzes fetch completed', { 
       count: quizzes?.length || 0,

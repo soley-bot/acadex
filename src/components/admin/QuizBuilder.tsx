@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { Plus, Save, Trash2, GripVertical, Clock, BookOpen, Zap, Upload, X, FileText, Loader2 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -548,15 +549,16 @@ export function QuizBuilder({ quiz, isOpen, onClose, onSuccess }: QuizBuilderPro
                         Cover Image
                       </label>
                       {imagePreview || quizData.image_url ? (
-                        <div className="relative">
-                          <img
+                        <div className="relative w-full h-40">
+                          <Image
                             src={imagePreview || quizData.image_url || ''}
                             alt="Quiz cover"
-                            className="w-full h-40 object-cover rounded-lg border-2 border-gray-200"
+                            fill
+                            className="object-cover rounded-lg border-2 border-gray-200"
                           />
                           <button
                             onClick={removeImage}
-                            className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                            className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
                           >
                             <X className="w-4 h-4" />
                           </button>
