@@ -20,19 +20,6 @@ export type {
   AdminActivityItem,
   SystemHealthStatus,
   
-  // AI generation types
-  BaseAIGenerationRequest,
-  CourseGenerationRequest,
-  QuizGenerationRequest,
-  
-  // Generated content types
-  GeneratedQuiz,
-  GeneratedQuizQuestion,
-  GeneratedCourse,
-  GeneratedCourseData,
-  GeneratedModule,
-  GeneratedLesson,
-  
   // Admin operations
   AdminListFilters,
   AdminBulkOperationRequest,
