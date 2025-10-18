@@ -4,6 +4,7 @@
  */
 
 import { createSupabaseClient } from './supabase'
+import { logger } from './logger'
 
 // Create module-level Supabase client for auth operations
 const supabase = createSupabaseClient()
@@ -17,7 +18,7 @@ export async function getAccessToken(): Promise<string | null> {
     const { data: { session } } = await supabase.auth.getSession()
     return session?.access_token || null
   } catch (error: any) {
-    console.error('Failed to get access token:', error)
+    logger.error('Failed to get access token:', { error: error?.message || 'Unknown error' })
     return null
   }
 }
@@ -55,11 +56,11 @@ export async function authenticatedFetch(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  console.log('🌐 [AUTH_FETCH] Starting fetch to:', url)
-  console.log('🌐 [AUTH_FETCH] Options:', options)
+  logger.debug('🌐 [AUTH_FETCH] Starting fetch to:', url)
+  logger.debug('🌐 [AUTH_FETCH] Options:', options)
 
   const authHeaders = await createAuthHeaders()
-  console.log('🌐 [AUTH_FETCH] Auth headers created')
+  logger.debug('🌐 [AUTH_FETCH] Auth headers created')
 
   const fetchOptions = {
     ...options,
@@ -70,11 +71,11 @@ export async function authenticatedFetch(
     credentials: 'include' as RequestCredentials // Include cookies as fallback
   }
 
-  console.log('🌐 [AUTH_FETCH] About to call fetch with options:', fetchOptions)
+  logger.debug('🌐 [AUTH_FETCH] About to call fetch with options:', fetchOptions)
 
   const response = await fetch(url, fetchOptions)
 
-  console.log('🌐 [AUTH_FETCH] Fetch completed with status:', response.status)
+  logger.debug('🌐 [AUTH_FETCH] Fetch completed with status:', response.status)
 
   return response
 }
@@ -149,17 +150,17 @@ export const quizAPI = {
    * Create a new quiz with timeout
    */
   async createQuiz(quizData: any) {
-    console.log('🚀 [QUIZ_API] Creating new quiz:', quizData.title)
+    logger.debug('🚀 [QUIZ_API] Creating new quiz:', quizData.title)
 
     try {
       // Add timeout to prevent hanging
       const controller = new AbortController()
       const timeoutId = setTimeout(() => {
-        console.log('⏰ [QUIZ_API] Quiz creation timeout - aborting request')
+        logger.debug('⏰ [QUIZ_API] Quiz creation timeout - aborting request')
         controller.abort()
       }, 30000) // 30 second timeout
 
-      console.log('📝 [QUIZ_API] Sending quiz creation payload:', quizData)
+      logger.debug('📝 [QUIZ_API] Sending quiz creation payload:', quizData)
 
       const response = await authenticatedPost('/api/admin/quizzes', quizData, {
         signal: controller.signal
@@ -167,16 +168,16 @@ export const quizAPI = {
 
       clearTimeout(timeoutId)
 
-      console.log('📡 [QUIZ_API] Response status:', response.status)
+      logger.debug('📡 [QUIZ_API] Response status:', response.status)
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('❌ [QUIZ_API] Quiz creation failed:', errorText)
+        logger.error('❌ [QUIZ_API] Quiz creation failed:', errorText)
         throw new Error(`Quiz creation failed: ${errorText}`)
       }
 
       const result = await response.json()
-      console.log('✅ [QUIZ_API] Quiz created successfully:', result)
+      logger.debug('✅ [QUIZ_API] Quiz created successfully:', result)
 
       if (!result.quiz) {
         throw new Error(result.error || 'Quiz creation failed')
@@ -184,7 +185,7 @@ export const quizAPI = {
 
       return result
     } catch (error: any) {
-      console.error('💥 [QUIZ_API] Quiz creation error:', error)
+      logger.error('💥 [QUIZ_API] Quiz creation error:', { error: error?.message || 'Unknown error' })
 
       if (error.name === 'AbortError') {
         throw new Error('Quiz creation timed out. Please try again.')
@@ -198,32 +199,32 @@ export const quizAPI = {
    * Update an existing quiz with timeout
    */
   async updateQuiz(quizData: any) {
-    console.log('🚀 [QUIZ_API] Updating quiz:', quizData.id)
+    logger.debug('🚀 [QUIZ_API] Updating quiz:', quizData.id)
 
     try {
       // Add timeout to prevent hanging
       const controller = new AbortController()
       const timeoutId = setTimeout(() => {
-        console.log('⏰ [QUIZ_API] Quiz update timeout - aborting request')
+        logger.debug('⏰ [QUIZ_API] Quiz update timeout - aborting request')
         controller.abort()
       }, 30000) // 30 second timeout
 
-      console.log('📝 [QUIZ_API] Sending quiz update payload:', quizData)
+      logger.debug('📝 [QUIZ_API] Sending quiz update payload:', quizData)
 
       const response = await authenticatedPut('/api/admin/quizzes', quizData)
 
       clearTimeout(timeoutId)
 
-      console.log('📡 [QUIZ_API] Response status:', response.status)
+      logger.debug('📡 [QUIZ_API] Response status:', response.status)
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('❌ [QUIZ_API] Quiz update failed:', errorText)
+        logger.error('❌ [QUIZ_API] Quiz update failed:', errorText)
         throw new Error(`Quiz update failed: ${errorText}`)
       }
 
       const result = await response.json()
-      console.log('✅ [QUIZ_API] Quiz updated successfully:', result)
+      logger.debug('✅ [QUIZ_API] Quiz updated successfully:', result)
 
       if (!result.quiz) {
         throw new Error(result.error || 'Quiz update failed')
@@ -231,7 +232,7 @@ export const quizAPI = {
 
       return result
     } catch (error: any) {
-      console.error('💥 [QUIZ_API] Quiz update error:', error)
+      logger.error('💥 [QUIZ_API] Quiz update error:', { error: error?.message || 'Unknown error' })
 
       if (error.name === 'AbortError') {
         throw new Error('Quiz update timed out. Please try again.')
@@ -301,16 +302,16 @@ export const courseAPI = {
    * Create a new course with timeout and better error handling
    */
   async createCourse(courseData: any) {
-    console.log('🚀 [COURSE_API] Creating new course:', courseData.title)
-    
+    logger.debug('🚀 [COURSE_API] Creating new course:', courseData.title)
+
     try {
       // Add timeout to prevent hanging
       const controller = new AbortController()
       const timeoutId = setTimeout(() => {
-        console.log('⏰ [COURSE_API] Course creation timeout - aborting request')
+        logger.debug('⏰ [COURSE_API] Course creation timeout - aborting request')
         controller.abort()
       }, 30000) // 30 second timeout
-      
+
       const payload = {
         action: 'create',
         courseData: {
@@ -318,38 +319,38 @@ export const courseAPI = {
           instructor_id: courseData.instructor_id // Ensure instructor_id is included
         }
       }
-      
-      console.log('📝 [COURSE_API] Sending course creation payload:', payload)
-      
+
+      logger.debug('📝 [COURSE_API] Sending course creation payload:', payload)
+
       const response = await authenticatedPost('/api/admin/courses', payload, {
         signal: controller.signal
       })
-      
+
       clearTimeout(timeoutId)
-      
-      console.log('📡 [COURSE_API] Response status:', response.status)
-      
+
+      logger.debug('📡 [COURSE_API] Response status:', response.status)
+
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('❌ [COURSE_API] Course creation failed:', errorText)
+        logger.error('❌ [COURSE_API] Course creation failed:', errorText)
         throw new Error(`Course creation failed: ${errorText}`)
       }
-      
+
       const result = await response.json()
-      console.log('✅ [COURSE_API] Course created successfully:', result)
-      
+      logger.debug('✅ [COURSE_API] Course created successfully:', result)
+
       if (!result.success) {
         throw new Error(result.error || 'Course creation failed')
       }
-      
+
       return result.data || result
     } catch (error: any) {
-      console.error('💥 [COURSE_API] Course creation error:', error)
-      
+      logger.error('💥 [COURSE_API] Course creation error:', { error: error?.message || 'Unknown error' })
+
       if (error.name === 'AbortError') {
         throw new Error('Course creation timed out. Please try again.')
       }
-      
+
       throw error
     }
   },
@@ -358,35 +359,35 @@ export const courseAPI = {
    * Update an existing course
    */
   async updateCourse(courseId: string, courseData: any) {
-    console.log('🚀 courseAPI.updateCourse called with:', { courseId, courseData })
-    
+    logger.debug('🚀 courseAPI.updateCourse called with:', { courseId, courseData })
+
     try {
       // Ensure we don't send conflicting IDs
       const { id, ...cleanCourseData } = courseData
       if (id && id !== courseId) {
-        console.warn('⚠️ ID mismatch - courseId:', courseId, 'courseData.id:', id, 'Using courseId')
+        logger.warn('⚠️ ID mismatch - courseId:', courseId, 'courseData.id:', id, 'Using courseId')
       }
-      
+
       const payload = { id: courseId, ...cleanCourseData }
-      console.log('📝 Sending PUT request with payload:', payload)
-      
+      logger.debug('📝 Sending PUT request with payload:', payload)
+
       const response = await authenticatedPut('/api/admin/courses', payload)
-      
-      console.log('📡 PUT response status:', response.status)
-      console.log('📡 PUT response ok:', response.ok)
-      
+
+      logger.debug('📡 PUT response status:', response.status)
+      logger.debug('📡 PUT response ok:', response.ok)
+
       const result = await response.json()
-      console.log('📋 PUT response data:', result)
-      
+      logger.debug('📋 PUT response data:', result)
+
       if (!response.ok) {
-        console.error('❌ PUT request failed:', result)
+        logger.error('❌ PUT request failed:', result)
         throw new Error(result.error || 'Failed to update course')
       }
-      
-      console.log('✅ Course updated successfully via courseAPI')
+
+      logger.debug('✅ Course updated successfully via courseAPI')
       return result
     } catch (error: any) {
-      console.error('courseAPI.updateCourse error:', error)
+      logger.error('courseAPI.updateCourse error:', { error: error?.message || 'Unknown error' })
       throw error
     }
   },
@@ -422,26 +423,26 @@ export const courseAPI = {
    * Save course modules and lessons
    */
   async saveModulesAndLessons(courseId: string, modules: any[]) {
-    console.log('🎯 [DIRECT_LOG] courseAPI.saveModulesAndLessons called!!')
-    console.log('🎯 [DIRECT_LOG] Course ID:', courseId)
-    console.log('🎯 [DIRECT_LOG] Modules:', modules)
-    
+    logger.debug('🎯 [DIRECT_LOG] courseAPI.saveModulesAndLessons called!!')
+    logger.debug('🎯 [DIRECT_LOG] Course ID:', courseId)
+    logger.debug('🎯 [DIRECT_LOG] Modules:', modules)
+
     try {
-      console.log('🎯 [DIRECT_LOG] About to call authenticatedPost...')
+      logger.debug('🎯 [DIRECT_LOG] About to call authenticatedPost...')
       const response = await authenticatedPost('/api/admin/courses/modules', {
         courseId,
         modules
       })
-      
-      console.log('🎯 [DIRECT_LOG] authenticatedPost response status:', response.status)
-      console.log('🎯 [DIRECT_LOG] authenticatedPost response ok:', response.ok)
-      
+
+      logger.debug('🎯 [DIRECT_LOG] authenticatedPost response status:', response.status)
+      logger.debug('🎯 [DIRECT_LOG] authenticatedPost response ok:', response.ok)
+
       const result = await response.json()
-      console.log('🎯 [DIRECT_LOG] authenticatedPost result:', result)
-      
+      logger.debug('🎯 [DIRECT_LOG] authenticatedPost result:', result)
+
       return result
     } catch (error: any) {
-      console.error('🎯 [DIRECT_LOG] ERROR in courseAPI.saveModulesAndLessons:', error)
+      logger.error('🎯 [DIRECT_LOG] ERROR in courseAPI.saveModulesAndLessons:', { error: error?.message || 'Unknown error' })
       throw error
     }
   }
