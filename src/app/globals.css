@@ -118,18 +118,60 @@
   .container-content {
     @apply container-unified max-w-4xl;
   }
-  
-  /* Public Page Design System */
+
+  /* ============================================================================
+     BUTTON SYSTEM - Fixed Missing Base Class
+     ============================================================================ */
+
+  /* Base button class (was missing - causing bugs!) */
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  /* Button variants */
+  .btn-default {
+    @apply btn bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl;
+  }
+
   .btn-primary {
-    @apply bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl;
+    @apply btn bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl;
   }
-  
+
   .btn-secondary {
-    @apply bg-secondary hover:bg-secondary/90 text-secondary-foreground px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl;
+    @apply btn bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg hover:shadow-xl;
   }
-  
+
   .btn-outline {
-    @apply border border-primary text-primary hover:bg-primary hover:text-primary-foreground px-6 py-3 rounded-xl font-semibold transition-all duration-200;
+    @apply btn border border-primary text-primary hover:bg-primary hover:text-primary-foreground;
+  }
+
+  .btn-ghost {
+    @apply btn hover:bg-accent hover:text-accent-foreground shadow-none;
+  }
+
+  /* Button sizes */
+  .btn-sm {
+    @apply px-4 py-2 text-sm;
+  }
+
+  .btn-lg {
+    @apply px-8 py-4 text-lg;
+  }
+
+  /* ============================================================================
+     CARD SYSTEM - Fixed Missing Utility Classes
+     ============================================================================ */
+
+  .card-base {
+    @apply rounded-lg border border-border bg-background shadow-sm;
+  }
+
+  .card-interactive {
+    @apply rounded-lg border border-border bg-background shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-pointer;
+  }
+
+  .glass {
+    @apply rounded-3xl backdrop-blur-lg bg-white/80 border border-white/20 shadow-2xl transition-all duration-300;
   }
   
   .nav-link {
