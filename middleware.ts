@@ -20,7 +20,8 @@ export async function middleware(request: NextRequest) {
       pathname === '/favicon.ico' ||
       pathname === '/robots.txt' ||
       pathname === '/sitemap.xml' ||
-      pathname.startsWith('/auth/')) {
+      pathname.startsWith('/auth/') ||
+      pathname.startsWith('/admin/import')) {  // Let AdminRoute component handle import auth
     return response
   }
 
