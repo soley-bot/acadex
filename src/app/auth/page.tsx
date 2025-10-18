@@ -54,6 +54,8 @@ export default function AuthPage() {
       setIsRedirecting(true)
       
       const redirectTo = searchParams.get('redirect') || searchParams.get('redirectTo')
+      console.log('[Auth Page] Raw redirectTo param:', redirectTo)
+      console.log('[Auth Page] All search params:', Object.fromEntries(searchParams.entries()))
       const secureRedirect = getSecureRedirect(redirectTo, user.role)
       console.log('[Auth Page] Redirecting to:', secureRedirect)
       

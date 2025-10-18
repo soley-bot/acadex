@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { SAFE_REDIRECTS } from '@/lib/redirect-security'
 
@@ -12,12 +12,13 @@ interface AdminRouteProps {
 export default function AdminRoute({ children }: AdminRouteProps) {
   const { user, loading } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        // Not logged in - redirect to login
-        router.push(`${SAFE_REDIRECTS.LOGIN}?redirectTo=${encodeURIComponent('/admin')}`)
+        // Not logged in - redirect to login with current path
+        router.push(`${SAFE_REDIRECTS.LOGIN}&redirectTo=${encodeURIComponent(pathname)}`)
         return
       }
       
@@ -27,7 +28,7 @@ export default function AdminRoute({ children }: AdminRouteProps) {
         return
       }
     }
-  }, [user, loading, router])
+  }, [user, loading, router, pathname])
 
   // Show loading spinner while checking auth (more subtle to prevent flashing)
   if (loading) {
