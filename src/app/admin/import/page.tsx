@@ -534,8 +534,8 @@ export default function ImportPage() {
 
               {/* Questions */}
               <div className="space-y-3">
-                {filteredQuestions.map(q => (
-                  <Card key={q.rowIndex} className={`border-2 ${getStatusColor(q.status)}`}>
+                {filteredQuestions.map((q, index) => (
+                  <Card key={`question-${q.rowIndex}-${index}`} className={`border-2 ${getStatusColor(q.status)}`}>
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         <div>{getStatusIcon(q.status)}</div>

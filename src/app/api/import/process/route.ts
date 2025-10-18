@@ -44,7 +44,7 @@ export const POST = withAdminAuth(async (request: NextRequest, user) => {
             title: newQuizData.title,
             description: newQuizData.description || 'Imported quiz',
             category: newQuizData.category || 'General',
-            difficulty: newQuizData.difficulty || 'medium',
+            difficulty: newQuizData.difficulty || 'beginner', // Fixed: 'beginner' not 'medium'
             total_questions: questions.length,
             duration_minutes: newQuizData.duration_minutes || 30,
             passing_score: newQuizData.passing_score || 70,
