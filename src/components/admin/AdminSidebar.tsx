@@ -9,6 +9,7 @@ const navigationItems = [
   { title: 'Courses', href: '/admin/courses' },
   { title: 'Enrollments', href: '/admin/enrollments' },
   { title: 'Quizzes', href: '/admin/quizzes' },
+  { title: 'Import', href: '/admin/import' },
   { title: 'Analytics', href: '/admin/analytics' },
   { title: 'Settings', href: '/admin/settings' }
 ]
