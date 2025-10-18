@@ -187,18 +187,24 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Statistics Grid */}
-        <Grid cols={4} className="mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {dashboardCards.map((stat) => (
-            <Card key={stat.title} variant="default" className="text-center p-6 hover:shadow-lg transition-all duration-300">
-              <div className={`inline-block p-3 ${stat.bgColor} rounded-xl mb-4`}>
-                <Icon name={stat.icon as any} size={24} className={stat.color} />
-              </div>
-              <div className="text-3xl font-bold text-foreground mb-2">{stat.value}</div>
-              <BodyLG className="text-foreground mb-1">{stat.title}</BodyLG>
-              <BodyMD className="text-muted-foreground">{stat.description}</BodyMD>
+            <Card key={stat.title} variant="elevated" className="hover:shadow-lg transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-muted-foreground mb-2">{stat.title}</p>
+                    <p className="text-3xl font-bold text-foreground mb-1">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground">{stat.description}</p>
+                  </div>
+                  <div className={`p-3 ${stat.bgColor} rounded-xl ml-4 flex-shrink-0`}>
+                    <Icon name={stat.icon as any} size={24} className={stat.color} />
+                  </div>
+                </div>
+              </CardContent>
             </Card>
           ))}
-        </Grid>
+        </div>
 
         {/* Additional Dashboard Content */}
         <Grid cols={2}>

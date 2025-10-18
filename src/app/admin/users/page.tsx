@@ -122,48 +122,64 @@ export default function AdminUsers() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card variant="elevated" size="md" className="shadow-md hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold">Total Users</CardTitle>
-            <Icon name="users" size={16} color="primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">{userStats.total}</div>
-            <p className="text-xs text-muted-foreground">All registered users</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card variant="elevated" className="hover:shadow-lg transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-2">Total Users</p>
+                <p className="text-2xl font-bold text-foreground mb-1">{userStats.total}</p>
+                <p className="text-xs text-muted-foreground">All registered users</p>
+              </div>
+              <div className="p-3 bg-primary/10 rounded-xl ml-4 flex-shrink-0">
+                <Icon name="users" size={20} color="primary" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         
-        <Card variant="elevated" size="md" className="shadow-md hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold">Students</CardTitle>
-            <Icon name="users" size={16} color="primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">{userStats.students}</div>
-            <p className="text-xs text-muted-foreground">Student accounts</p>
+        <Card variant="elevated" className="hover:shadow-lg transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-2">Students</p>
+                <p className="text-2xl font-bold text-foreground mb-1">{userStats.students}</p>
+                <p className="text-xs text-muted-foreground">Student accounts</p>
+              </div>
+              <div className="p-3 bg-blue-100 rounded-xl ml-4 flex-shrink-0">
+                <Icon name="users" size={20} className="text-blue-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card variant="elevated" size="md" className="border-secondary">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold">Instructors</CardTitle>
-            <Icon name="briefcase" size={16} color="primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">{userStats.instructors}</div>
-            <p className="text-xs text-muted-foreground">Instructor accounts</p>
+        <Card variant="elevated" className="hover:shadow-lg transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-2">Instructors</p>
+                <p className="text-2xl font-bold text-foreground mb-1">{userStats.instructors}</p>
+                <p className="text-xs text-muted-foreground">Instructor accounts</p>
+              </div>
+              <div className="p-3 bg-secondary/10 rounded-xl ml-4 flex-shrink-0">
+                <Icon name="briefcase" size={20} color="secondary" />
+              </div>
+            </div>
           </CardContent>
         </Card>
         
-        <Card variant="elevated" size="md" className="border-primary">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-bold">Admins</CardTitle>
-            <Icon name="shield" size={16} color="primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{userStats.admins}</div>
-            <p className="text-xs text-muted-foreground">Admin accounts</p>
+        <Card variant="elevated" className="hover:shadow-lg transition-shadow">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-2">Admins</p>
+                <p className="text-2xl font-bold text-foreground mb-1">{userStats.admins}</p>
+                <p className="text-xs text-muted-foreground">Admin accounts</p>
+              </div>
+              <div className="p-3 bg-red-100 rounded-xl ml-4 flex-shrink-0">
+                <Icon name="shield" size={20} className="text-red-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -203,53 +203,53 @@ export default function AdminEnrollmentsPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-4 md:p-5 bg-secondary/10 rounded-lg">
-              <Users className="w-6 h-6 text-secondary" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Enrollments</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-2">Total Enrollments</p>
               <p className="text-2xl font-bold text-gray-900">{stats.totalEnrollments}</p>
             </div>
+            <div className="p-3 bg-secondary/10 rounded-xl ml-4 flex-shrink-0">
+              <Users className="w-6 h-6 text-secondary" />
+            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-4 md:p-5 bg-yellow-100 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-yellow-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Active</p>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-2">Active</p>
               <p className="text-2xl font-bold text-gray-900">{stats.activeEnrollments}</p>
             </div>
+            <div className="p-3 bg-yellow-100 rounded-xl ml-4 flex-shrink-0">
+              <TrendingUp className="w-6 h-6 text-yellow-600" />
+            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-4 md:p-5 bg-green-100 rounded-lg">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Completed</p>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-2">Completed</p>
               <p className="text-2xl font-bold text-gray-900">{stats.completedEnrollments}</p>
             </div>
+            <div className="p-3 bg-green-100 rounded-xl ml-4 flex-shrink-0">
+              <CheckCircle className="w-6 h-6 text-green-600" />
+            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-4 md:p-5 bg-purple-100 rounded-lg">
-              <BookOpen className="w-6 h-6 text-purple-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Completion Rate</p>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-600 mb-2">Completion Rate</p>
               <p className="text-2xl font-bold text-gray-900">
                 {stats.totalEnrollments > 0 ? Math.round((stats.completedEnrollments / stats.totalEnrollments) * 100) : 0}%
               </p>
+            </div>
+            <div className="p-3 bg-purple-100 rounded-xl ml-4 flex-shrink-0">
+              <BookOpen className="w-6 h-6 text-purple-600" />
             </div>
           </div>
         </div>
