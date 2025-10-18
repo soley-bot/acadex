@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Upload, FileSpreadsheet, AlertCircle, CheckCircle, Info, Loader2, Download, X, ChevronDown, ChevronUp, Search, FolderOpen } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -46,6 +47,7 @@ interface Quiz {
 
 export default function ImportPage() {
   const { user } = useAuth()
+  const router = useRouter()
   const [importType, setImportType] = useState<ImportType>('quizzes')
   const [currentStep, setCurrentStep] = useState<Step>('form')
   const [importMode, setImportMode] = useState<'new' | 'existing'>('existing')
@@ -83,6 +85,7 @@ export default function ImportPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [importedCount, setImportedCount] = useState(0)
+  const [importedQuizId, setImportedQuizId] = useState<string>('')
 
   // Fetch quizzes on mount
   useEffect(() => {
@@ -230,7 +233,8 @@ export default function ImportPage() {
       const data = await response.json()
       setImportProgress(100)
       setImportedCount(data.imported)
-      
+      setImportedQuizId(data.quizId) // Store the quiz ID for "View Quiz" button
+
       setTimeout(() => setCurrentStep('success'), 500)
     } catch (err: any) {
       setError(err.message || 'Failed to import questions')
@@ -682,7 +686,11 @@ export default function ImportPage() {
                   }}>
                     Import More
                   </Button>
-                  <Button>
+                  <Button onClick={() => {
+                    if (importedQuizId) {
+                      router.push(`/admin/quizzes/${importedQuizId}/edit`)
+                    }
+                  }}>
                     View {importType === 'quizzes' ? 'Quiz' : 'Course'}
                   </Button>
                 </div>
