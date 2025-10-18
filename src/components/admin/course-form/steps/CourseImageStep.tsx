@@ -7,13 +7,13 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Progress } from '@/components/ui/progress'
-import { 
-  IconPhoto,
-  IconUpload,
-  IconX,
-  IconCheck,
-  IconAlertTriangle
-} from '@tabler/icons-react'
+import {
+  Image,
+  Upload,
+  X,
+  Check,
+  AlertTriangle
+} from 'lucide-react'
 
 interface CourseImageData {
   id?: string
@@ -115,7 +115,7 @@ export const CourseImageStep = memo<CourseImageStepProps>(({
             onClick={onRemove}
             className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
           >
-            <IconX size={16} />
+            <X size={16} />
           </Button>
         </div>
         <div className="relative">
@@ -152,7 +152,7 @@ export const CourseImageStep = memo<CourseImageStepProps>(({
       <Card className="border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors">
         <CardContent className="p-8">
           <div className="flex flex-col items-center text-center space-y-3" style={{ minHeight: 120 }}>
-            <IconPhoto size={40} className="text-gray-400" />
+            <Image size={40} className="text-gray-400" />
             <div>
               <h4 className="text-lg font-medium">{title}</h4>
               <p className="text-sm text-gray-600">{description}</p>
@@ -167,7 +167,7 @@ export const CourseImageStep = memo<CourseImageStepProps>(({
                 className="sr-only"
               />
               <Button type="button" disabled={disabled} className="pointer-events-none">
-                <IconUpload size={16} className="mr-2" />
+                <Upload size={16} className="mr-2" />
                 Select Image
               </Button>
             </Label>
@@ -181,7 +181,7 @@ export const CourseImageStep = memo<CourseImageStepProps>(({
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <IconPhoto size={20} className="text-blue-600" />
+          <Image size={20} className="text-blue-600" />
           Course Images
         </CardTitle>
         <p className="text-sm text-gray-600">
@@ -296,7 +296,7 @@ export const CourseImageStep = memo<CourseImageStepProps>(({
 
         {/* Guidelines */}
         <Alert>
-          <IconAlertTriangle className="w-4 h-4" />
+          <AlertTriangle className="w-4 h-4" />
           <AlertDescription>
             <div className="space-y-2">
               <p className="text-sm font-medium">Image Guidelines:</p>

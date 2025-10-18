@@ -1,4 +1,4 @@
-import { IconX, IconDeviceFloppy, IconLoader2, IconAlertCircle, IconBook, IconList } from '@tabler/icons-react'
+import { X, Save, Loader2, AlertCircle, Book, List } from 'lucide-react'
 import { useCourseForm } from './hooks/useCourseForm'
 import { BasicInfoStep } from './steps/BasicInfoStep'
 import type { CourseFormProps } from './types'
@@ -93,7 +93,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                     onClose();
                   }}
                 >
-                  <IconX className="w-4 h-4 mr-2" />
+                  <X className="w-4 h-4 mr-2" />
                   Cancel
                 </Button>
               )}
@@ -107,9 +107,9 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                 } disabled:opacity-50`}
               >
                 {isLoading ? (
-                  <IconLoader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : isDirty ? (
-                  <IconDeviceFloppy className="w-4 h-4 mr-2" />
+                  <Save className="w-4 h-4 mr-2" />
                 ) : (
                   <span className="mr-2">✓</span>
                 )}
@@ -141,7 +141,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
         {/* Error/Success Messages */}
         {error && (
           <Alert className="border-red-200 bg-red-50">
-            <IconAlertCircle className="w-4 h-4" />
+            <AlertCircle className="w-4 h-4" />
             <AlertDescription className="text-red-800">
               {error}
             </AlertDescription>
@@ -158,7 +158,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
 
         {mutationError && (
           <Alert className="border-red-200 bg-red-50">
-            <IconAlertCircle className="w-4 h-4" />
+            <AlertCircle className="w-4 h-4" />
             <AlertDescription className="text-red-800">
               {mutationError.message}
             </AlertDescription>
@@ -176,7 +176,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              <IconBook className="w-4 h-4" />
+              <Book className="w-4 h-4" />
               Basic Info
             </button>
             <button
@@ -187,7 +187,7 @@ export function CourseForm({ course, isOpen, onClose, onSuccess, embedded = fals
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              <IconList className="w-4 h-4" />
+              <List className="w-4 h-4" />
               Modules & Lessons
             </button>
           </div>

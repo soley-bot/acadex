@@ -1,4 +1,4 @@
-import { IconPlus, IconTrash } from '@tabler/icons-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { categories, levels } from '@/lib/courseConstants'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import type { EnhancedCourseData } from '../types'
@@ -165,7 +165,7 @@ export function BasicInfoStep({ formData, onFieldChange, hasValidationErrors }: 
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-bold">Learning Objectives</h3>
               <Button variant="outline" size="sm" onClick={addLearningObjective}>
-                <IconPlus className="w-4 h-4 mr-2" />
+                <Plus className="w-4 h-4 mr-2" />
                 Add Objective
               </Button>
             </div>
@@ -187,7 +187,7 @@ export function BasicInfoStep({ formData, onFieldChange, hasValidationErrors }: 
                       className="text-red-600 border-red-300 hover:bg-red-50"
                       onClick={() => removeLearningObjective(index)}
                     >
-                      <IconTrash className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   )}
                 </div>

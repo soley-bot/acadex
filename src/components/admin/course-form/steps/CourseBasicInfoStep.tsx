@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { IconBook, IconUser, IconCoin, IconX } from '@tabler/icons-react'
+import { Book, User, Coins, X } from 'lucide-react'
 
 const courseBasicInfoSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters').min(1, 'Course title is required'),
@@ -105,7 +105,7 @@ export const CourseBasicInfoStep = memo<CourseBasicInfoStepProps>(({
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <IconBook size={20} className="text-blue-600" />
+          <Book size={20} className="text-blue-600" />
           Course Information
         </CardTitle>
       </CardHeader>
@@ -127,7 +127,7 @@ export const CourseBasicInfoStep = memo<CourseBasicInfoStepProps>(({
           <div className="space-y-2">
             <Label htmlFor="instructor_name">Instructor Name *</Label>
             <div className="relative">
-              <IconUser size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <User size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <Input
                 id="instructor_name"
                 placeholder="Enter instructor name"
@@ -207,7 +207,7 @@ export const CourseBasicInfoStep = memo<CourseBasicInfoStepProps>(({
           <div className="space-y-2">
             <Label htmlFor="price">Price (USD)</Label>
             <div className="relative">
-              <IconCoin size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Coin size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <Input
                 id="price"
                 type="number"
@@ -250,7 +250,7 @@ export const CourseBasicInfoStep = memo<CourseBasicInfoStepProps>(({
                   onClick={() => handleTagRemove(tag)}
                   className="ml-1 hover:text-red-600"
                 >
-                  <IconX size={12} />
+                  <X size={12} />
                 </button>
               </Badge>
             ))}
@@ -281,7 +281,7 @@ export const CourseBasicInfoStep = memo<CourseBasicInfoStepProps>(({
                   onClick={() => handleOutcomeRemove(outcome)}
                   className="text-red-500 hover:text-red-700 mt-0.5"
                 >
-                  <IconX size={16} />
+                  <X size={16} />
                 </button>
               </div>
             ))}

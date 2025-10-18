@@ -8,13 +8,13 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { 
-  IconPlus, 
-  IconTrash, 
-  IconBook, 
-  IconVideo,
-  IconAlertTriangle
-} from '@tabler/icons-react'
+import {
+  Plus,
+  Trash2,
+  Book,
+  Video,
+  AlertTriangle
+} from 'lucide-react'
 
 interface LessonData {
   id?: string
@@ -144,7 +144,7 @@ export const CourseContentStep = memo<CourseContentStepProps>(({
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <IconBook size={20} className="text-blue-600" />
+            <Book size={20} className="text-blue-600" />
             <h3 className="text-lg font-semibold">Course Content</h3>
           </div>
           <Button
@@ -152,7 +152,7 @@ export const CourseContentStep = memo<CourseContentStepProps>(({
             variant="outline"
             className="flex items-center gap-2"
           >
-            <IconPlus size={16} />
+            <Plus size={16} />
             Add Module
           </Button>
         </div>
@@ -189,7 +189,7 @@ export const CourseContentStep = memo<CourseContentStepProps>(({
                 onClick={addModule}
                 className="flex items-center gap-2"
               >
-                <IconPlus size={16} />
+                <Plus size={16} />
                 Create First Module
               </Button>
             </CardContent>
@@ -227,7 +227,7 @@ export const CourseContentStep = memo<CourseContentStepProps>(({
                       onClick={() => removeModule(moduleIndex)}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
                     >
-                      <IconTrash size={16} />
+                      <Trash size={16} />
                     </Button>
                   </div>
 
@@ -243,7 +243,7 @@ export const CourseContentStep = memo<CourseContentStepProps>(({
                         onClick={() => addLesson(moduleIndex)}
                         className="flex items-center gap-2"
                       >
-                        <IconPlus size={14} />
+                        <Plus size={14} />
                         Add Lesson
                       </Button>
                     </div>
@@ -274,7 +274,7 @@ export const CourseContentStep = memo<CourseContentStepProps>(({
                                   onClick={() => removeLesson(moduleIndex, lessonIndex)}
                                   className="text-red-600 hover:text-red-700 hover:bg-red-50 p-1"
                                 >
-                                  <IconTrash size={14} />
+                                  <Trash size={14} />
                                 </Button>
                               </div>
 
@@ -305,7 +305,7 @@ export const CourseContentStep = memo<CourseContentStepProps>(({
 
                               <div>
                                 <Label className="flex items-center gap-2 text-sm">
-                                  <IconVideo size={16} />
+                                  <Video size={16} />
                                   Video URL
                                 </Label>
                                 <Input
@@ -356,7 +356,7 @@ export const CourseContentStep = memo<CourseContentStepProps>(({
         {/* Summary Alert */}
         {modules.length > 0 && totalLessons === 0 && (
           <Alert>
-            <IconAlertTriangle className="w-4 h-4" />
+            <AlertTriangle className="w-4 h-4" />
             <AlertDescription>
               <p className="text-sm">
                 Your course has {modules.length} module(s) but no lessons yet. 
