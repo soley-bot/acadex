@@ -36,13 +36,15 @@ export const POST = withAdminAuth(async (request: NextRequest, user) => {
         const warning = validation.warnings.find(w => w.data === q)
         return {
           ...q,
+          rowIndex: index + 1, // Add rowIndex for AI enhancement matching
           status: warning ? 'warning' as const : 'valid' as const,
           issues: warning?.warnings || []
         }
       }),
       // Invalid questions
-      ...validation.invalid.map(inv => ({
+      ...validation.invalid.map((inv, index) => ({
         ...inv.data,
+        rowIndex: validation.valid.length + index + 1, // Continue numbering after valid questions
         status: 'error' as const,
         issues: inv.errors
       }))
