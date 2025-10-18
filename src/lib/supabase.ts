@@ -24,13 +24,13 @@ function createCookieStorage() {
       // Use 30 days expiry, Secure flag, and Lax SameSite for better compatibility
       const maxAge = 30 * 24 * 60 * 60 // 30 days in seconds
       document.cookie = `${key}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/; SameSite=Lax; Secure`
-      logger.debug('[Supabase] Saved to cookie:', key)
+      logger.debug('[Supabase] Saved to cookie:', { key })
     },
     removeItem: (key: string): void => {
       if (typeof document === 'undefined') return
 
       document.cookie = `${key}=; max-age=0; path=/; SameSite=Lax; Secure`
-      logger.debug('[Supabase] Removed from cookie:', key)
+      logger.debug('[Supabase] Removed from cookie:', { key })
     }
   }
 }
@@ -122,7 +122,7 @@ function createSupabaseClient() {
         : storage
           ? 'with cookie storage (localStorage blocked)'
           : 'with memory storage (no persistence)'
-      logger.debug('[Supabase] NEW client created and stored as singleton', storageType)
+      logger.debug('[Supabase] NEW client created and stored as singleton', { storageType })
     } else {
       logger.debug('[Supabase] Server-side client created (no singleton)')
     }
