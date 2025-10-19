@@ -38,7 +38,7 @@ const availableSubjects = [
 ]
 
 export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
-  const { user, updateProfile } = useAuth()
+  const { user } = useAuth()
   const [profile, setProfile] = useState<UserProfile>({
     name: '',
     email: '',

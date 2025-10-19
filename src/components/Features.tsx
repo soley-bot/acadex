@@ -42,7 +42,7 @@ export default function Features() {
           </h2>
 
           <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Mastering English isn't about knowing everything. It's about building the foundational skills that make you confident in any situation—whether that's an exam, a conversation, or your career.
+            Mastering English isn&apos;t about knowing everything. It&apos;s about building the foundational skills that make you confident in any situation—whether that&apos;s an exam, a conversation, or your career.
           </p>
         </AnimatedDiv>
 

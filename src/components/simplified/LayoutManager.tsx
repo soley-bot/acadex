@@ -35,16 +35,11 @@ function getLayoutType(pathname: string) {
 
 export function LayoutManager({ children }: LayoutManagerProps) {
   const pathname = usePathname()
-  const { loading: authLoading, error: authError, retry } = useAuth()
+  const { loading: authLoading } = useAuth()
 
   // Show loading during auth check (only for protected routes)
   const layoutType = getLayoutType(pathname)
   const isProtectedRoute = layoutType === 'dashboard' || layoutType === 'admin'
-
-  // Show auth error UI if there's an error on protected routes
-  if (authError && isProtectedRoute) {
-    return <AuthErrorUI error={authError} onRetry={retry} />
-  }
 
   if (authLoading && isProtectedRoute) {
     return <LoadingScreen message="Authenticating..." />

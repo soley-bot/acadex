@@ -46,7 +46,7 @@ export default function Hero() {
             <StaggerItem>
               <p className="text-lg md:text-xl lg:text-2xl text-white/90 leading-relaxed drop-shadow-lg">
                 Build real English skills with focused micro-quizzes designed by an experienced educator.
-                Whether you're preparing for IELTS or strengthening your everyday English, I've got you covered.
+                Whether you&apos;re preparing for IELTS or strengthening your everyday English, I&apos;ve got you covered.
               </p>
             </StaggerItem>
 

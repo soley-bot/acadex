@@ -47,13 +47,7 @@ export async function createCourse(courseData: Partial<Course>): Promise<Course>
       .select(COURSE_FIELDS.join(','))
       .single()
 
-    const result = await executeWithTimeout(
-      createOperation, 
-      10000, 
-      'Course creation'
-    ) as any
-
-    const { data, error } = result
+    const { data, error } = await createOperation
 
     if (error) {
       logger.error('❌ [DB_CREATE] Database error', { error: error?.message || 'Unknown error' })
