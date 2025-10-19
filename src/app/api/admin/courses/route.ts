@@ -125,14 +125,14 @@ export const GET = withAdminAuth(async (request: NextRequest, user) => {
       }
     })
 
-    logger.info('Admin courses fetch completed', { 
-      adminUserId: user.id, 
-      count: data.length 
+    logger.info('Admin courses fetch completed', {
+      adminUserId: user.id,
+      count: data.length
     })
 
     return NextResponse.json({
       success: true,
-      courses: data,
+      data: data,  // Changed from 'courses' to 'data' to match hook expectations
       pagination
     })
 
