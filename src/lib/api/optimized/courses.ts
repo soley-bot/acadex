@@ -79,6 +79,7 @@ export async function getCourses(
       tags,
       prerequisites,
       learning_objectives,
+      status,
       rating,
       student_count,
       is_published,

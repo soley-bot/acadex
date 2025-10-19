@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSound } from '@/contexts/SoundContext';
 import { StandardQuizLayout } from '@/components/quiz/layouts/StandardQuizLayout';
 import { ReadingQuizLayout } from '@/components/quiz/layouts/ReadingQuizLayout';
 import { QuizErrorBoundary } from '@/components/ErrorBoundary';
@@ -12,6 +13,7 @@ export default function QuizTakingPage() {
   const router = useRouter();
   const params = useParams();
   const { user, loading: authLoading } = useAuth();
+  const sound = useSound();
 
   const quizId = params?.id as string | undefined;
 
@@ -99,6 +101,9 @@ export default function QuizTakingPage() {
         }
 
         setLoading(false);
+
+        // Play quiz start sound
+        sound.play('quiz-start');
       } catch (err) {
         console.error('[Quiz] Error loading quiz:', err);
         setError(err instanceof Error ? err.message : 'Failed to load quiz');
@@ -109,7 +114,7 @@ export default function QuizTakingPage() {
     };
 
     loadQuiz();
-  }, [authLoading, user, quizId, router]);
+  }, [authLoading, user, quizId, router, sound]);
 
   // Timer countdown effect
   useEffect(() => {
@@ -153,6 +158,7 @@ export default function QuizTakingPage() {
 
     submitRef.current = true;
     setSubmitting(true);
+    sound.play('quiz-complete'); // Play completion sound
 
     try {
       const timeTaken = quiz?.time_limit_minutes
@@ -194,21 +200,24 @@ export default function QuizTakingPage() {
       // Allow retry on error
       submitRef.current = false;
     }
-  }, [submitting, quizId, user, quiz, timeLeft, answers, router]);
+  }, [submitting, quizId, user, quiz, timeLeft, answers, router, sound]);
 
   // Handle answer changes
   const handleAnswerChange = useCallback((questionId: string, answer: any) => {
     setAnswers(prev => ({ ...prev, [questionId]: answer }));
-  }, []);
+    sound.play('answer-select'); // Play sound when answer is selected
+  }, [sound]);
 
   // Navigation
   const goNext = useCallback(() => {
     setCurrentQuestionIndex(prev => Math.min(prev + 1, questions.length - 1));
-  }, [questions.length]);
+    sound.play('question-next'); // Play sound when moving to next question
+  }, [questions.length, sound]);
 
   const goPrevious = useCallback(() => {
     setCurrentQuestionIndex(prev => Math.max(prev - 1, 0));
-  }, []);
+    sound.play('question-next'); // Play sound when moving to previous question
+  }, [sound]);
 
   // Loading state
   if (loading || authLoading) {

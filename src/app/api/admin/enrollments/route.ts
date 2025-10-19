@@ -56,20 +56,30 @@ export const GET = withAdminAuth(async (request: NextRequest) => {
       throw new Error(`Database error: ${error.message}`)
     }
 
-    // Calculate stats
-    const { data: allEnrollments } = await serviceClient
-      .from('enrollments')
-      .select(`
-        completed_at,
-        courses!inner (
-          price
-        )
-      `)
-    
+    // Calculate stats using optimized aggregate queries instead of fetching all records
+    const [activeCountResult, completedCountResult, revenueDataResult] = await Promise.all([
+      // Count active enrollments
+      serviceClient
+        .from('enrollments')
+        .select('*', { count: 'exact', head: true })
+        .is('completed_at', null),
+
+      // Count completed enrollments
+      serviceClient
+        .from('enrollments')
+        .select('*', { count: 'exact', head: true })
+        .not('completed_at', 'is', null),
+
+      // Get price data for revenue calculation (only what we need)
+      serviceClient
+        .from('enrollments')
+        .select('courses!inner(price)')
+    ])
+
     const totalEnrollments = count || 0
-    const activeEnrollments = allEnrollments?.filter(e => !e.completed_at).length || 0
-    const completedEnrollments = allEnrollments?.filter(e => e.completed_at).length || 0
-    const totalRevenue = allEnrollments?.reduce((sum, e: any) => {
+    const activeEnrollments = activeCountResult.count || 0
+    const completedEnrollments = completedCountResult.count || 0
+    const totalRevenue = revenueDataResult.data?.reduce((sum, e: any) => {
       const price = Array.isArray(e.courses) ? e.courses[0]?.price : e.courses?.price
       return sum + (Number(price) || 0)
     }, 0) || 0

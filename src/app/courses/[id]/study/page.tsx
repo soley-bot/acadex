@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { createSupabaseClient, Course, CourseModule, CourseLesson, LessonProgress } from '@/lib/supabase'
 import { getCourseWithModulesAndLessons, updateEnrollmentProgress } from '@/lib/database-operations'
 import { useAuth } from '@/contexts/AuthContext'
+import { useSound } from '@/contexts/SoundContext'
 import { CourseHeader } from '@/components/course/CourseHeader'
 import { CourseSidebar } from '@/components/course/CourseSidebar'
 import { LessonContent } from '@/components/course/LessonContent'
@@ -30,6 +31,7 @@ export default function CourseStudyPage() {
   const params = useParams()
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
+  const sound = useSound()
   const courseId = params?.id as string | undefined
   
   // Core state
@@ -70,13 +72,15 @@ export default function CourseStudyPage() {
 
   // Safety timeout - prevent infinite loading
   useEffect(() => {
+    // Longer timeout in dev to account for compilation time
+    const safetyTimeout = process.env.NODE_ENV === 'development' ? 90000 : 45000 // 90s dev, 45s prod
     const timeoutId = setTimeout(() => {
       if (loading && !error) {
-        console.error('⏱️ Loading timeout after 45 seconds')
+        console.error(`⏱️ Loading timeout after ${safetyTimeout / 1000} seconds`)
         setError('Loading timeout. Please check your connection and try again.')
         setLoading(false)
       }
-    }, 45000) // 45 second safety timeout (longer than fetch timeout)
+    }, safetyTimeout)
 
     return () => clearTimeout(timeoutId)
   }, [loading, error])
@@ -176,11 +180,15 @@ export default function CourseStudyPage() {
       }
 
       // Use API route instead of direct Supabase (fixes CORS on custom domains)
-      // Use shared abort controller
-      const timeoutId = setTimeout(() => abortControllerRef.current?.abort(), 30000) // 30 second timeout
+      // Use shared abort controller with longer timeout for dev (includes compilation time)
+      const timeout = process.env.NODE_ENV === 'development' ? 60000 : 30000 // 60s dev, 30s prod
+      const timeoutId = setTimeout(() => abortControllerRef.current?.abort(), timeout)
 
       let response
       let didTimeout = false
+      const fetchStartTime = Date.now()
+      console.log('[Course] Starting fetch to /api/courses/study...')
+
       try {
         response = await fetch(`/api/courses/${courseId}/study`, {
           method: 'GET',
@@ -191,6 +199,8 @@ export default function CourseStudyPage() {
           signal: abortControllerRef.current.signal
         })
         clearTimeout(timeoutId)
+        const fetchDuration = Date.now() - fetchStartTime
+        console.log(`[Course] Fetch completed in ${fetchDuration}ms`)
       } catch (fetchError: any) {
         clearTimeout(timeoutId)
         if (fetchError.name === 'AbortError') {
@@ -199,7 +209,7 @@ export default function CourseStudyPage() {
             console.log('[Course] Request aborted due to component unmount')
             return
           }
-          console.error('[Course] Request timed out after 30 seconds')
+          console.error(`[Course] Request timed out after ${timeout / 1000} seconds`)
           setError('Request timed out. Please check your connection and try again.')
           setLoading(false)
           hasFetchedRef.current = false // Allow retry
@@ -356,6 +366,9 @@ export default function CourseStudyPage() {
     setCurrentLesson(lesson)
     setIsSidebarOpen(false) // Close sidebar on mobile when lesson is selected
 
+    // Play sound when selecting a new lesson
+    sound.play('click')
+
     // Save lesson position to localStorage for recovery
     try {
       localStorage.setItem(`course_${courseId}_last_lesson`, lesson.id)
@@ -422,6 +435,9 @@ export default function CourseStudyPage() {
 
       console.log('✅ Lesson marked as complete successfully!')
 
+      // Play lesson complete sound
+      sound.play('lesson-complete')
+
       // Update local state with proper typing
       setModules(prev => prev.map(module => ({
         ...module,
@@ -477,7 +493,8 @@ export default function CourseStudyPage() {
       if (user.role !== 'admin') {
         console.log('📊 Updating enrollment progress for regular user...')
         try {
-          await updateEnrollmentProgress(user.id, params.id as string, validatedProgress, currentLesson.id)
+          const supabase = createSupabaseClient()
+          await updateEnrollmentProgress(supabase, user.id, params.id as string, validatedProgress, currentLesson.id)
           console.log('✅ Enrollment progress updated successfully')
         } catch (progressError) {
           console.warn('⚠️ Failed to update enrollment progress:', progressError)

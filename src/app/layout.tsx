@@ -3,6 +3,7 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 import { Toaster } from '@/components/ui/toaster'
 import { AppProviders } from '@/components/simplified/AppProviders'
 import { LayoutManager } from '@/components/simplified/LayoutManager'
+import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister'
 import { getOptionalUser } from '@/lib/auth'
 
 // Global styles with consolidated design tokens
@@ -79,6 +80,7 @@ export default async function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
       </head>
       <body className="font-sans antialiased">
+        <ServiceWorkerRegister />
         <ErrorBoundary>
           <AppProviders serverUser={serverUser}>
             <LayoutManager>

@@ -135,7 +135,11 @@ export default function Header() {
               ) : user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-3 bg-white border border-gray-300 rounded-xl px-4 py-2.5 h-11 hover:border-gray-400 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                    <button
+                      className="flex items-center gap-3 bg-white border border-gray-300 rounded-xl px-4 py-2.5 h-11 hover:border-gray-400 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                      aria-label="User menu"
+                      aria-haspopup="true"
+                    >
                       <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center shadow-sm">
                         <span className="text-white font-bold text-sm">{user.name?.charAt(0).toUpperCase() || 'U'}</span>
                       </div>
@@ -213,7 +217,9 @@ export default function Header() {
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-muted transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary"
-                aria-label="Toggle mobile menu"
+                aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={isMenuOpen}
+                aria-controls="mobile-navigation"
               >
                 <Menu 
                   size={20} 
@@ -239,8 +245,11 @@ export default function Header() {
       )}
 
       {/* Mobile Navigation Menu - 75% Width with Swipe to Close */}
-      <aside 
+      <aside
         ref={sidebarRef}
+        id="mobile-navigation"
+        role="navigation"
+        aria-label="Mobile navigation"
         className={`fixed top-0 right-0 h-screen w-[75vw] sm:w-80 max-w-sm bg-background border-l border-border shadow-2xl z-50 md:hidden transform transition-transform duration-300 ease-in-out ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         } flex flex-col touch-manipulation`}
@@ -372,6 +381,7 @@ export default function Header() {
                 href="/auth?tab=signin"
                 className="w-full flex items-center justify-center px-4 py-3 text-primary bg-transparent hover:bg-primary/10 transition-all duration-300 font-semibold rounded-lg border-2 border-primary active:scale-95"
                 onClick={handleMobileNavClick}
+                aria-label="Sign in to your account"
               >
                 Sign In
               </Link>
@@ -379,6 +389,7 @@ export default function Header() {
                 href="/auth?tab=signup"
                 className="w-full flex items-center justify-center px-4 py-3 bg-primary text-white hover:bg-primary/90 hover:shadow-lg transition-all duration-300 font-semibold rounded-lg active:scale-95"
                 onClick={handleMobileNavClick}
+                aria-label="Create a new account"
               >
                 Get Started
               </Link>

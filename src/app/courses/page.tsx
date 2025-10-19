@@ -9,32 +9,25 @@ import { Pagination } from '@/components/ui/Pagination'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
 import { CourseCard } from '@/components/cards/CourseCard'
-import { 
-  BookOpen, 
-  Filter, 
-  Loader2, 
+import { blurPlaceholders } from '@/lib/blur-placeholders'
+import {
+  BookOpen,
+  Filter,
+  Loader2,
   ArrowLeft,
   Target,
   GraduationCap,
-  MessageCircle
+  MessageCircle,
+  X
 } from 'lucide-react'
-// Temporarily disabled to isolate layout issue
-// import { useMemoryMonitor } from '@/lib/memory-optimization'
-// import { useEnhancedWebVitals } from '@/lib/safe-web-vitals'
 
 export default function CoursesPage() {
-  // Temporarily disabled to isolate layout issue
-  // const memoryStats = useMemoryMonitor('CoursesPage')
-  // useEnhancedWebVitals((report) => {
-  //   if (process.env.NODE_ENV === 'development' && report.metric === 'LCP') {
-  //     console.info(`📚 Courses Performance: ${report.value.toFixed(0)}ms`)
-  //   }
-  // })
-
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedLevel, setSelectedLevel] = useState<string>('all')
+  const [heroImageError, setHeroImageError] = useState(false)
 
   // React Query hooks
   const { 
@@ -152,14 +145,21 @@ export default function CoursesPage() {
       <section className="relative min-h-[70vh] lg:min-h-[80vh]">
         {/* Full-bleed background */}
         <div className="absolute inset-0 z-0">
-          <Image
-            src="/images/hero/learning-together.jpg"
-            alt="Students learning together in collaborative environment"
-            fill
-            className="object-cover"
-            priority
-            quality={90}
-          />
+          {!heroImageError ? (
+            <Image
+              src="/images/hero/learning-together.jpg"
+              alt="Students learning together in collaborative environment"
+              fill
+              className="object-cover"
+              priority
+              quality={90}
+              placeholder="blur"
+              blurDataURL={blurPlaceholders.learningWarm}
+              onError={() => setHeroImageError(true)}
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-primary/80" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent"></div>
         </div>
 
@@ -206,6 +206,46 @@ export default function CoursesPage() {
               </p>
             </div>
           </div>
+
+          {/* Active Filter Badges */}
+          {(selectedCategory !== 'all' || selectedLevel !== 'all') && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">Active filters:</span>
+              {selectedCategory !== 'all' && (
+                <Badge variant="secondary" className="gap-1.5 pr-1">
+                  Category: {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}
+                  <button
+                    onClick={() => handleCategoryChange('all')}
+                    className="ml-1 hover:bg-gray-300 rounded-full p-0.5 transition-colors"
+                    aria-label="Remove category filter"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              )}
+              {selectedLevel !== 'all' && (
+                <Badge variant="secondary" className="gap-1.5 pr-1">
+                  Level: {selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1)}
+                  <button
+                    onClick={() => handleLevelChange('all')}
+                    className="ml-1 hover:bg-gray-300 rounded-full p-0.5 transition-colors"
+                    aria-label="Remove level filter"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              )}
+              <button
+                onClick={() => {
+                  handleCategoryChange('all')
+                  handleLevelChange('all')
+                }}
+                className="text-sm text-primary hover:text-secondary underline ml-2"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
 
           {/* Filters Bar - Flat Design */}
           <div className="flex flex-col md:flex-row md:items-end gap-4 pb-8 border-b border-gray-200">
@@ -303,7 +343,7 @@ export default function CoursesPage() {
 
           {/* Courses Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {isLoading && courses.length === 0 ? (
+            {isLoading ? (
               // Enhanced loading skeleton cards
               Array.from({ length: 6 }).map((_, index) => (
                 <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-300">

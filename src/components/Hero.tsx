@@ -1,22 +1,36 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { BlobBackground } from '@/components/ui/BlobBackground'
 import { AnimatedDiv, StaggerContainer, StaggerItem, HoverScale } from '@/components/ui/AnimatedComponents'
+import { blurPlaceholders } from '@/lib/blur-placeholders'
 
 export default function Hero() {
+  const [imageError, setImageError] = useState(false)
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Full-bleed Hero Image Background */}
       <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/hero/learning-together.jpg"
-          alt="Students learning English together"
-          fill
-          className="object-cover"
-          priority
-          quality={90}
-        />
+        {!imageError ? (
+          <Image
+            src="/images/hero/learning-together.jpg"
+            alt="Students learning English together"
+            fill
+            className="object-cover"
+            priority
+            quality={90}
+            placeholder="blur"
+            blurDataURL={blurPlaceholders.learningWarm}
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          /* Fallback gradient background if image fails to load */
+          <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-primary/80" />
+        )}
         {/* Gradient overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent"></div>
       </div>

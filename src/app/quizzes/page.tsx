@@ -4,7 +4,7 @@ import { logger } from '@/lib/logger'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Brain, Loader2, Filter, RefreshCcw, BookCheck, Search } from 'lucide-react'
+import { Brain, Loader2, Filter, RefreshCcw, BookCheck, Search, X } from 'lucide-react'
 import { Pagination } from '@/components/ui/Pagination'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge'
 import { TextInput } from '@/components/ui/FormInputs'
 import { usePublicQuizzes, usePublicQuizCategories } from '@/hooks/usePublicQuizzes'
 import { useDebounce } from '@/hooks/useDebounce'
+import { blurPlaceholders } from '@/lib/blur-placeholders'
 
 interface PaginationData {
   page: number
@@ -27,20 +28,12 @@ interface PaginationData {
 }
 
 export default function QuizzesPageWithReactQuery() {
-  // Temporarily disabled performance monitoring to isolate layout issue
-  // const memoryStats = useMemoryMonitor('QuizzesPage')
-  // useEnhancedWebVitals((report) => {
-  //   if (process.env.NODE_ENV === 'development' && report.metric === 'LCP') {
-  //     console.info(`✅ Quizzes Page Performance: ${report.metric} = ${report.value.toFixed(0)}ms`)
-  //   }
-  // })
-
-  // Filter and pagination state
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedDifficulty, setSelectedDifficulty] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
+  const [heroImageError, setHeroImageError] = useState(false)
   const itemsPerPage = 9
 
   // Optimized search with reduced debounce (safe optimization)
@@ -113,14 +106,21 @@ export default function QuizzesPageWithReactQuery() {
       <section className="relative min-h-[70vh] lg:min-h-[80vh]">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
-          <Image
-            src="/images/hero/online-learning.jpg"
-            alt="A student focused on IELTS preparation using the Acadex platform"
-            fill
-            priority
-            quality={90}
-            className="object-cover"
-          />
+          {!heroImageError ? (
+            <Image
+              src="/images/hero/online-learning.jpg"
+              alt="A student focused on IELTS preparation using the Acadex platform"
+              fill
+              priority
+              quality={90}
+              className="object-cover"
+              placeholder="blur"
+              blurDataURL={blurPlaceholders.learningCool}
+              onError={() => setHeroImageError(true)}
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-primary/80" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
         </div>
 
@@ -160,6 +160,55 @@ export default function QuizzesPageWithReactQuery() {
               </p>
             </div>
           </div>
+
+          {/* Active Filter Badges */}
+          {(selectedCategory || selectedDifficulty || searchTerm) && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">Active filters:</span>
+              {searchTerm && (
+                <Badge variant="secondary" className="gap-1.5 pr-1">
+                  Search: &quot;{searchTerm}&quot;
+                  <button
+                    onClick={() => handleSearchChange('')}
+                    className="ml-1 hover:bg-gray-300 rounded-full p-0.5 transition-colors"
+                    aria-label="Remove search filter"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              )}
+              {selectedCategory && selectedCategory !== 'all' && (
+                <Badge variant="secondary" className="gap-1.5 pr-1">
+                  Category: {selectedCategory}
+                  <button
+                    onClick={() => handleCategoryChange('all')}
+                    className="ml-1 hover:bg-gray-300 rounded-full p-0.5 transition-colors"
+                    aria-label="Remove category filter"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              )}
+              {selectedDifficulty && selectedDifficulty !== 'all' && (
+                <Badge variant="secondary" className="gap-1.5 pr-1">
+                  Difficulty: {selectedDifficulty.charAt(0).toUpperCase() + selectedDifficulty.slice(1)}
+                  <button
+                    onClick={() => handleDifficultyChange('all')}
+                    className="ml-1 hover:bg-gray-300 rounded-full p-0.5 transition-colors"
+                    aria-label="Remove difficulty filter"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              )}
+              <button
+                onClick={clearFilters}
+                className="text-sm text-primary hover:text-secondary underline ml-2"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
 
           {/* Filters - Horizontal Layout */}
           <div className="flex flex-col md:flex-row md:items-end gap-4 pb-8 border-b border-gray-200">
@@ -215,36 +264,27 @@ export default function QuizzesPageWithReactQuery() {
                 Search Quizzes
               </label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                {optimizedSearchTerm !== searchTerm ? (
+                  <Loader2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary animate-spin" />
+                ) : (
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                )}
                 <Input
                   placeholder="Search by topic..."
                   value={searchTerm}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg 
-                    focus:ring-2 focus:ring-primary/30 focus:border-primary/60 
-                    bg-white"
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg
+                    focus:ring-2 focus:ring-primary/30 focus:border-primary/60
+                    bg-white transition-colors ${
+                      optimizedSearchTerm !== searchTerm
+                        ? 'border-primary'
+                        : 'border-gray-300'
+                    }`}
                 />
               </div>
             </div>
           </div>
 
-          {/* Clear Filters */}
-          {hasActiveFilters && (
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600">
-                Active filters applied
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={clearFilters}
-                className="gap-2"
-              >
-                <RefreshCcw className="w-4 h-4" />
-                Clear Filters
-              </Button>
-            </div>
-          )}
           {/* Loading State */}
           {isLoading && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">

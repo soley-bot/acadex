@@ -41,30 +41,21 @@ function AuthPageContent() {
 
   // Handle redirect if already logged in
   useEffect(() => {
-    console.log('[Auth Page] Redirect check:', { 
-      hasUser: !!user, 
-      isRedirecting,
-      userRole: user?.role 
-    })
-    
-    // CRITICAL FIX: Use soft navigation to preserve React state
-    // Small delay ensures user state propagates to all context consumers
-    if (user && !isRedirecting) {
-      console.log('[Auth Page] User detected, redirecting with soft navigation...')
-      setIsRedirecting(true)
-      
-      const redirectTo = searchParams.get('redirect') || searchParams.get('redirectTo')
-      console.log('[Auth Page] Raw redirectTo param:', redirectTo)
-      console.log('[Auth Page] All search params:', Object.fromEntries(searchParams.entries()))
-      const secureRedirect = getSecureRedirect(redirectTo, user.role)
-      console.log('[Auth Page] Redirecting to:', secureRedirect)
-      
-      // Use router.push() to preserve state + small delay for propagation
-      setTimeout(() => {
-        router.push(secureRedirect)
-      }, 100)
-    }
-  }, [user, isRedirecting, searchParams, router])
+    // Only redirect if user exists and we haven't started redirecting yet
+    if (!user || isRedirecting) return
+
+    console.log('[Auth Page] User detected, initiating redirect')
+    setIsRedirecting(true)
+
+    // Get redirect destination once
+    const redirectTo = searchParams.get('redirect') || searchParams.get('redirectTo')
+    const secureRedirect = getSecureRedirect(redirectTo, user.role)
+    console.log('[Auth Page] Redirecting to:', secureRedirect)
+
+    // Use replace to avoid back button issues
+    router.replace(secureRedirect)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]) // Only depend on user to prevent redirect loops
 
   // Check for tab parameter and error messages in URL
   useEffect(() => {
@@ -449,6 +440,7 @@ function AuthPageContent() {
               onClick={handleGoogleAuth}
               disabled={loading}
               className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl h-14 flex items-center justify-center hover:bg-white/20 transition-all disabled:opacity-50"
+              aria-label="Sign in with Google"
             >
               <svg className="w-6 h-6" viewBox="0 0 24 24">
                 <path fill="#FFF" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -462,6 +454,7 @@ function AuthPageContent() {
               onClick={handleFacebookAuth}
               disabled={loading}
               className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl h-14 flex items-center justify-center hover:bg-white/20 transition-all disabled:opacity-50"
+              aria-label="Sign in with Facebook"
             >
               <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>

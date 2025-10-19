@@ -3,9 +3,10 @@ import { logger } from '@/lib/logger'
 // Database operations that match the exact schema structure
 import { createSupabaseClient, Course, Quiz, User, Enrollment, CourseModule, CourseLesson } from './supabase'
 import { validateCourseData, validateQuiz, prepareCourseForDatabase, COURSE_FIELDS, QUIZ_FIELDS } from './database-types'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
-// Create a shared client instance for this module
-const supabase = createSupabaseClient()
+// IMPORTANT: No shared client - each function accepts a client parameter
+// This ensures proper request-scoped auth in Next.js App Router
 
 // Enhanced database operation with proper error handling
 async function executeWithTimeout<T>(
@@ -28,18 +29,18 @@ async function executeWithTimeout<T>(
 }
 
 // Course operations
-export async function createCourse(courseData: Partial<Course>): Promise<Course> {
+export async function createCourse(supabase: SupabaseClient, courseData: Partial<Course>): Promise<Course> {
   logger.info('📊 [DB_CREATE] Starting course creation')
-  
+
   const { errors } = validateCourseData(courseData)
-  
+
   if (errors.length > 0) {
     logger.error('❌ [DB_CREATE] Validation failed:', errors)
     throw new Error(`Validation errors: ${errors.join(', ')}`)
   }
 
   const preparedData = prepareCourseForDatabase(courseData)
-  
+
   try {
     const createOperation = supabase
       .from('courses')
@@ -68,7 +69,7 @@ export async function createCourse(courseData: Partial<Course>): Promise<Course>
   }
 }
 
-export async function updateCourse(id: string, updates: Partial<Course>): Promise<Course> {
+export async function updateCourse(supabase: SupabaseClient, id: string, updates: Partial<Course>): Promise<Course> {
   logger.debug('📊 [DB_UPDATE] === STARTING SIMPLIFIED UPDATE ===')
   logger.debug('📊 [DB_UPDATE] Course ID', { id })
   logger.debug('📊 [DB_UPDATE] Updates', { updates })
@@ -84,40 +85,27 @@ export async function updateCourse(id: string, updates: Partial<Course>): Promis
     const preparedData = prepareCourseForDatabase(updates)
     logger.debug('📊 [DB_UPDATE] Prepared data for DB')
 
-    // Step 3: Simple update (no select, no timeout complexity)
-    logger.debug('📊 [DB_UPDATE] Executing simple update...')
-    const updateResult = await supabase
+    // Step 3: Single-query update with select (best practice)
+    logger.debug('📊 [DB_UPDATE] Executing update with select...')
+    const { data, error } = await supabase
       .from('courses')
       .update(preparedData)
       .eq('id', id)
+      .select('*')
+      .single()
 
     logger.debug('📊 [DB_UPDATE] Update result received')
 
-    if (updateResult.error) {
-      logger.error('❌ [DB_UPDATE] Update failed', { error: updateResult.error?.message || 'Unknown error' })
-      throw updateResult.error
+    if (error) {
+      logger.error('❌ [DB_UPDATE] Update failed', { error: error?.message || 'Unknown error' })
+      throw error
     }
 
-    // Step 4: Fetch updated course
-    logger.debug('📊 [DB_UPDATE] Fetching updated course...')
-    const fetchResult = await supabase
-      .from('courses')
-      .select('*')
-      .eq('id', id)
-      .single()
-
-    logger.debug('📊 [DB_UPDATE] Fetch result received')
-
-    if (fetchResult.error) {
-      logger.error('❌ [DB_UPDATE] Fetch failed', { error: fetchResult.error?.message || 'Unknown error' })
-      throw fetchResult.error
-    }
-
-    if (!fetchResult.data) {
+    if (!data) {
       throw new Error('Course not found after update')
     }
 
-    const updatedCourse = fetchResult.data as unknown as Course
+    const updatedCourse = data as unknown as Course
     logger.debug('✅ [DB_UPDATE] SUCCESS! Course updated', { id: updatedCourse.id })
     return updatedCourse
 
@@ -127,7 +115,7 @@ export async function updateCourse(id: string, updates: Partial<Course>): Promis
   }
 }
 
-export async function getCourses(filters?: {
+export async function getCourses(supabase: SupabaseClient, filters?: {
   category?: string
   level?: string
   is_published?: boolean
@@ -182,7 +170,7 @@ interface ModuleWithContent {
   }>
 }
 
-export async function getCourseWithModulesAndLessons(courseId: string): Promise<Course & { modules: ModuleWithContent[] }> {
+export async function getCourseWithModulesAndLessons(supabase: SupabaseClient, courseId: string): Promise<Course & { modules: ModuleWithContent[] }> {
   // Get course details
   const { data: course, error: courseError } = await supabase
     .from('courses')
@@ -211,7 +199,7 @@ export async function getCourseWithModulesAndLessons(courseId: string): Promise<
 }
 
 // Quiz operations
-export async function createQuiz(quizData: Partial<Quiz>) {
+export async function createQuiz(supabase: SupabaseClient, quizData: Partial<Quiz>) {
   const errors = validateQuiz(quizData)
   if (errors.length > 0) {
     throw new Error(`Validation errors: ${errors.join(', ')}`)
@@ -227,7 +215,7 @@ export async function createQuiz(quizData: Partial<Quiz>) {
   return data
 }
 
-export async function getQuizzes(filters?: {
+export async function getQuizzes(supabase: SupabaseClient, filters?: {
   category?: string
   difficulty?: string
   is_published?: boolean
@@ -258,7 +246,7 @@ export async function getQuizzes(filters?: {
 }
 
 // Enrollment operations
-export async function enrollUserInCourse(userId: string, courseId: string) {
+export async function enrollUserInCourse(supabase: SupabaseClient, userId: string, courseId: string) {
   // Check if already enrolled
   const { data: existing } = await supabase
     .from('enrollments')
@@ -291,8 +279,9 @@ export async function enrollUserInCourse(userId: string, courseId: string) {
 }
 
 export async function updateEnrollmentProgress(
-  userId: string, 
-  courseId: string, 
+  supabase: SupabaseClient,
+  userId: string,
+  courseId: string,
   progress: number,
   currentLessonId?: string
 ) {
@@ -336,7 +325,7 @@ export async function updateEnrollmentProgress(
 }
 
 // User management operations
-export async function updateUserProfile(userId: string, updates: Partial<User>) {
+export async function updateUserProfile(supabase: SupabaseClient, userId: string, updates: Partial<User>) {
   const { data, error } = await supabase
     .from('users')
     .update(updates)
@@ -361,7 +350,7 @@ interface QuizAttemptRecord {
 }
 
 // Analytics and reporting
-export async function getCourseAnalytics(courseId: string) {
+export async function getCourseAnalytics(supabase: SupabaseClient, courseId: string) {
   // Get enrollment stats
   const { data: enrollments, error: enrollmentError } = await supabase
     .from('enrollments')
@@ -405,7 +394,7 @@ export async function getCourseAnalytics(courseId: string) {
 }
 
 // Database utility functions
-export async function syncCourseStudentCount(courseId: string) {
+export async function syncCourseStudentCount(supabase: SupabaseClient, courseId: string) {
   const { count, error } = await supabase
     .from('enrollments')
     .select('*', { count: 'exact', head: true })
@@ -422,10 +411,10 @@ export async function syncCourseStudentCount(courseId: string) {
   return count || 0
 }
 
-export async function cleanupOrphanedRecords() {
+export async function cleanupOrphanedRecords(supabase: SupabaseClient) {
   // This function can be used to clean up any orphaned records
   // due to cascade delete issues or data inconsistencies
-  
+
   // Remove lessons without modules
   await supabase
     .from('course_lessons')

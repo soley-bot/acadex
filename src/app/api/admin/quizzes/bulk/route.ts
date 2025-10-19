@@ -62,13 +62,10 @@ export const POST = withAdminAuth(async (request: NextRequest, user) => {
           break
 
         case 'delete':
-          // Soft delete by setting deleted_at timestamp
+          // Hard delete quizzes (cascade will delete related questions and results)
           const { data: deleteData, error: deleteError } = await serviceClient
             .from('quizzes')
-            .update({ 
-              deleted_at: new Date().toISOString(),
-              is_published: false // Unpublish when deleting
-            })
+            .delete()
             .in('id', quizIds)
             .select('id, title')
 

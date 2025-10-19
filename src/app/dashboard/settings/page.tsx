@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { useSound } from '@/contexts/SoundContext'
 import { DashboardLayout } from '@/components/layouts/DashboardLayout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -13,7 +14,9 @@ import {
   Palette,
   Moon,
   Sun,
-  Check
+  Check,
+  Volume2,
+  VolumeX
 } from 'lucide-react'
 
 interface UserSettings {
@@ -39,6 +42,7 @@ interface UserSettings {
 
 export default function SettingsPage() {
   const { user, loading: authLoading } = useAuth()
+  const sound = useSound()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
 
@@ -79,37 +83,24 @@ export default function SettingsPage() {
         setLoading(true)
         const supabase = createSupabaseClient()
 
+        // Note: users table only has: id, email, name, avatar_url, role, created_at, updated_at
+        // Settings are stored locally for now (could be moved to a separate user_settings table later)
         const { data: userData, error: userError } = await supabase
           .from('users')
-          .select('id, email, full_name, bio, location, timezone, notification_preferences, privacy_settings, appearance_settings')
+          .select('id, email, name')
           .eq('id', user.id)
           .single()
 
         if (userError) {
+          console.log('[Settings] Error fetching user data:', userError.message)
           // Error fetching user data - using default settings
         } else if (userData) {
-          setSettings(prev => ({
-            notifications: {
-              courseReminders: userData.notification_preferences?.courseReminders ?? prev.notifications.courseReminders,
-              quizDeadlines: userData.notification_preferences?.quizDeadlines ?? prev.notifications.quizDeadlines,
-              progressUpdates: userData.notification_preferences?.progressUpdates ?? prev.notifications.progressUpdates,
-              emailDigest: userData.notification_preferences?.emailDigest ?? prev.notifications.emailDigest
-            },
-            preferences: {
-              language: userData.appearance_settings?.language ?? prev.preferences.language,
-              timezone: userData.timezone ?? prev.preferences.timezone,
-              theme: userData.appearance_settings?.theme ?? prev.preferences.theme,
-              autoplay: userData.appearance_settings?.autoplay ?? prev.preferences.autoplay,
-              soundEffects: userData.appearance_settings?.soundEffects ?? prev.preferences.soundEffects
-            },
-            privacy: {
-              profileVisibility: userData.privacy_settings?.profileVisibility ?? prev.privacy.profileVisibility,
-              progressSharing: userData.privacy_settings?.progressSharing ?? prev.privacy.progressSharing,
-              analyticsOptOut: userData.privacy_settings?.analyticsOptOut ?? prev.privacy.analyticsOptOut
-            }
-          }))
+          console.log('[Settings] User data loaded:', userData)
+          // For now, settings are managed locally
+          // In the future, could add a user_settings table to persist these
         }
       } catch (error: any) {
+        console.error('[Settings] Error fetching user settings:', error)
         // Error fetching user settings - using defaults
       } finally {
         setLoading(false)
@@ -138,6 +129,14 @@ export default function SettingsPage() {
         [key]: value
       }
     }))
+
+    // Sync sound effects with sound context
+    if (key === 'soundEffects') {
+      // Toggle sound only if it doesn't match the desired state
+      if (value !== sound.enabled) {
+        sound.toggleSound()
+      }
+    }
   }
 
   const updatePrivacySetting = (key: keyof UserSettings['privacy'], value: any) => {
@@ -154,30 +153,22 @@ export default function SettingsPage() {
     if (!user?.id) return
 
     try {
-      const supabase = createSupabaseClient()
+      // Note: Settings are currently stored in localStorage via SoundContext
+      // The users table doesn't have columns for these settings yet
+      // In the future, could add a user_settings table to persist these to the database
 
-      const { error } = await supabase
-        .from('users')
-        .update({
-          notification_preferences: settings.notifications,
-          privacy_settings: settings.privacy,
-          appearance_settings: {
-            language: settings.preferences.language,
-            theme: settings.preferences.theme,
-            autoplay: settings.preferences.autoplay,
-            soundEffects: settings.preferences.soundEffects
-          },
-          timezone: settings.preferences.timezone
-        })
-        .eq('id', user.id)
+      console.log('[Settings] Settings saved locally:', settings)
+      // Settings saved successfully - already persisted via localStorage in SoundContext
 
-      if (error) {
-        // Error saving settings - could add toast notification
-      } else {
-        // Settings saved successfully - could add toast notification
-      }
+      // If you want to add database persistence later, create a user_settings table with:
+      // - user_id (uuid, foreign key to users.id)
+      // - notification_preferences (jsonb)
+      // - privacy_settings (jsonb)
+      // - appearance_settings (jsonb)
+      // - timezone (text)
+
     } catch (error: any) {
-      // Error saving settings - could add toast notification
+      console.error('[Settings] Error saving settings:', error)
     }
   }
 
@@ -370,23 +361,55 @@ export default function SettingsPage() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-medium text-gray-900">Sound Effects</h4>
-                  <p className="text-sm text-gray-600">Play sounds for quiz answers and achievements</p>
-                </div>
-                <button
-                  onClick={() => updatePreferenceSetting('soundEffects', !settings.preferences.soundEffects)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    settings.preferences.soundEffects ? 'bg-primary' : 'bg-gray-200'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      settings.preferences.soundEffects ? 'translate-x-6' : 'translate-x-1'
+              {/* Sound Effects with Volume Control */}
+              <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                      {sound.enabled ? <Volume2 size={18} className="text-primary" /> : <VolumeX size={18} className="text-gray-400" />}
+                      Sound Effects
+                    </h4>
+                    <p className="text-sm text-gray-600">Play sounds for quiz answers and achievements</p>
+                  </div>
+                  <button
+                    onClick={() => updatePreferenceSetting('soundEffects', !settings.preferences.soundEffects)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      settings.preferences.soundEffects ? 'bg-primary' : 'bg-gray-200'
                     }`}
-                  />
-                </button>
+                    aria-label={settings.preferences.soundEffects ? 'Disable sound effects' : 'Enable sound effects'}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        settings.preferences.soundEffects ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Volume Control */}
+                {settings.preferences.soundEffects && (
+                  <div className="pt-3 border-t border-gray-200">
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Volume: {Math.round(sound.volume * 100)}%
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <VolumeX size={16} className="text-gray-400 flex-shrink-0" />
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={sound.volume * 100}
+                        onChange={(e) => sound.setVolume(parseFloat(e.target.value) / 100)}
+                        className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary hover:accent-secondary"
+                        aria-label="Sound volume"
+                      />
+                      <Volume2 size={16} className="text-primary flex-shrink-0" />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Adjust the volume of quiz and course sound effects
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

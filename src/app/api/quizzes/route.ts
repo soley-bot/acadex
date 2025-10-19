@@ -1,10 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/api-auth'
 import { logger } from '@/lib/logger'
+import rateLimiter, { getClientIdentifier, RateLimitPresets } from '@/lib/rate-limit'
 
 // GET - Fetch public quizzes (OPTIMIZED FOR PERFORMANCE)
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting - 300 requests per minute per IP
+    const clientId = getClientIdentifier(request)
+    const rateLimitResult = rateLimiter.check(
+      clientId,
+      RateLimitPresets.relaxed.limit,
+      RateLimitPresets.relaxed.windowMs
+    )
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Too many requests',
+          message: 'Please slow down. Try again in a moment.',
+          retryAfter: rateLimitResult.retryAfter,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(rateLimitResult.retryAfter || 60),
+            'X-RateLimit-Limit': String(RateLimitPresets.relaxed.limit),
+            'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+            'X-RateLimit-Reset': new Date(rateLimitResult.resetAt).toISOString(),
+          },
+        }
+      )
+    }
+
     const supabase = createServiceClient()
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
@@ -154,17 +183,26 @@ export async function GET(request: NextRequest) {
       mode
     })
 
-    return NextResponse.json({
-      success: true,
-      quizzes: quizzes || [],
-      pagination: {
-        page,
-        limit,
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / limit),
-        hasMore: count ? count > from + limit : false
+    return NextResponse.json(
+      {
+        success: true,
+        quizzes: quizzes || [],
+        pagination: {
+          page,
+          limit,
+          total: count || 0,
+          totalPages: Math.ceil((count || 0) / limit),
+          hasMore: count ? count > from + limit : false,
+        },
+      },
+      {
+        headers: {
+          'X-RateLimit-Limit': String(RateLimitPresets.relaxed.limit),
+          'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+          'X-RateLimit-Reset': new Date(rateLimitResult.resetAt).toISOString(),
+        },
       }
-    })
+    )
 
   } catch (error: any) {
     logger.error('Public quizzes API error', { 

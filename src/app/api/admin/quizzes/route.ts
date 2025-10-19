@@ -58,11 +58,11 @@ export const GET = withAdminAuth(async (request: NextRequest, user) => {
       if (search) {
         query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
       }
-      
+
       if (category) {
         query = query.eq('category', category)
       }
-      
+
       if (difficulty) {
         query = query.eq('difficulty', difficulty)
       }
@@ -76,27 +76,30 @@ export const GET = withAdminAuth(async (request: NextRequest, user) => {
       // Only load statistics for full mode or when explicitly requested
       if (mode === 'full' || mode === 'stats' || fields.some(f => ['total_questions', 'attempts_count', 'average_score'].includes(f))) {
         const quizIds = quizzes?.map((q: any) => q.id) || []
-        
-        // Get question counts for each quiz
-        const { data: questionCounts, error: questionCountsError } = await serviceClient
-          .from('quiz_questions')
-          .select('quiz_id')
-          .in('quiz_id', quizIds)
+
+        // Optimized: Use parallel queries to fetch stats for all quizzes
+        const [questionCountsResult, attemptsResult] = await Promise.all([
+          // Get question counts with aggregation
+          serviceClient
+            .from('quiz_questions')
+            .select('quiz_id')
+            .in('quiz_id', quizIds),
+
+          // Get attempts with scores
+          serviceClient
+            .from('quiz_attempts')
+            .select('quiz_id, score')
+            .in('quiz_id', quizIds)
+        ])
 
         // Count questions per quiz
-        const questionCountMap = questionCounts?.reduce((acc: any, q: any) => {
+        const questionCountMap = questionCountsResult.data?.reduce((acc: any, q: any) => {
           acc[q.quiz_id] = (acc[q.quiz_id] || 0) + 1
           return acc
         }, {}) || {}
 
-        // Get attempt counts and scores for each quiz
-        const { data: attempts } = await serviceClient
-          .from('quiz_attempts')
-          .select('quiz_id, score')
-          .in('quiz_id', quizIds)
-
         // Count attempts and calculate average scores per quiz
-        const quizStats = attempts?.reduce((acc: any, attempt: any) => {
+        const quizStats = attemptsResult.data?.reduce((acc: any, attempt: any) => {
           if (!acc[attempt.quiz_id]) {
             acc[attempt.quiz_id] = { count: 0, totalScore: 0 }
           }
@@ -109,7 +112,7 @@ export const GET = withAdminAuth(async (request: NextRequest, user) => {
         const enrichedQuizzes = quizzes?.map((quiz: any) => {
           const stats = quizStats[quiz.id] || { count: 0, totalScore: 0 }
           const averageScore = stats.count > 0 ? Math.round(stats.totalScore / stats.count) : 0
-          
+
           return {
             ...quiz,
             total_questions: questionCountMap[quiz.id] || 0,

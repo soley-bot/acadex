@@ -3,6 +3,7 @@
 
 import { ReactNode } from 'react'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { SoundProvider } from '@/contexts/SoundContext'
 import { QueryProvider } from '@/providers/QueryProvider'
 import { User } from '@/lib/supabase'
 
@@ -15,7 +16,7 @@ export function AppProviders({ children, serverUser }: AppProvidersProps) {
   return (
     <QueryProvider>
       <AuthProvider serverUser={serverUser}>
-        {children}
+        <SoundProvider>{children}</SoundProvider>
       </AuthProvider>
     </QueryProvider>
   )
