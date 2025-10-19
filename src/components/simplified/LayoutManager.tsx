@@ -1,11 +1,12 @@
 // Simplified Layout Manager - Clean separation of concerns
 'use client'
 
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 import { Footer } from '@/components/Footer'
+import { AuthErrorUI } from '@/components/ErrorBoundary'
 
 interface LayoutManagerProps {
   children: ReactNode
@@ -34,23 +35,17 @@ function getLayoutType(pathname: string) {
 
 export function LayoutManager({ children }: LayoutManagerProps) {
   const pathname = usePathname()
-  const { loading: authLoading } = useAuth()
-  const [isHydrated, setIsHydrated] = useState(false)
-  
-  // Simple hydration check
-  useEffect(() => {
-    setIsHydrated(true)
-  }, [])
-  
-  // Show loading during hydration
-  if (!isHydrated) {
-    return <LoadingScreen message="Initializing..." />
-  }
-  
+  const { loading: authLoading, error: authError, retry } = useAuth()
+
   // Show loading during auth check (only for protected routes)
   const layoutType = getLayoutType(pathname)
   const isProtectedRoute = layoutType === 'dashboard' || layoutType === 'admin'
-  
+
+  // Show auth error UI if there's an error on protected routes
+  if (authError && isProtectedRoute) {
+    return <AuthErrorUI error={authError} onRetry={retry} />
+  }
+
   if (authLoading && isProtectedRoute) {
     return <LoadingScreen message="Authenticating..." />
   }

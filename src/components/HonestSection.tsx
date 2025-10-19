@@ -38,19 +38,19 @@ export default function HonestSection() {
 
                   <AnimatedDiv variant="fadeInUp" delay={0.3}>
                     <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                      Learning Is Hard. Practice Shouldn&apos;t Be.
+                      Learning Should Fit Your Life
                     </h2>
                   </AnimatedDiv>
 
                   <AnimatedDiv variant="fadeInUp" delay={0.4}>
                     <p className="text-base md:text-lg text-gray-600 leading-relaxed">
-                      My name is Soley, and I&apos;ve spent my career in educational field for more than a decade. I&apos;ve seen countless bright, dedicated students get stuck at the same IELTS score.
+                      My name is Soley, and I&apos;ve spent over a decade in education. I&apos;ve seen countless bright, dedicated learners struggle—not because they lack potential, but because traditional learning doesn&apos;t fit their busy lives.
                     </p>
                   </AnimatedDiv>
 
                   <AnimatedDiv variant="fadeInUp" delay={0.5}>
                     <p className="text-base md:text-lg text-gray-600 leading-relaxed">
-                      It&apos;s rarely because they don&apos;t know enough; it&apos;s because they haven&apos;t mastered the small, foundational details. I built Acadex to fix that one problem.
+                      That&apos;s why I built Acadex. Whether you&apos;re preparing for IELTS or simply want to speak English more confidently, you deserve learning that&apos;s efficient, focused, and designed around you—not a rigid curriculum.
                     </p>
                   </AnimatedDiv>
 
@@ -72,22 +72,22 @@ export default function HonestSection() {
           <StaggerContainer className="text-center space-y-8">
             <StaggerItem>
               <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
-                Ready to Feel the Difference?
+                Ready to Start Learning Smarter?
               </h3>
             </StaggerItem>
 
             <StaggerItem>
               <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-                Experience our teaching method for yourself. Your first quiz is on us.
+                Try my teaching method for yourself. Your first quiz is completely free.
               </p>
             </StaggerItem>
 
             <StaggerItem>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <HoverScale scale={1.05}>
-                  <Link href="/quizzes">
+                  <Link href="/courses">
                     <button className="w-full sm:w-auto bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white px-8 py-4 rounded-2xl text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-2 min-w-[240px]">
-                      <span>Get the Writing Skill Pack</span>
+                      <span>Start Learning Free</span>
                       <ArrowRight size={20} />
                     </button>
                   </Link>

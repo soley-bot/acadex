@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { createSupabaseClient } from '@/lib/supabase'
@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 
 type TabType = 'signin' | 'signup'
 
-export default function AuthPage() {
+function AuthPageContent() {
   const { signIn, signUp, user, loading: authLoading } = useAuth()
   const [supabase] = useState(() => createSupabaseClient()) // Local client for OAuth
   const router = useRouter()
@@ -471,10 +471,26 @@ export default function AuthPage() {
 
           {/* Footer Text */}
           <p className="text-center text-white/50 text-sm mt-8">
-            By {activeTab === 'signup' ? 'creating an account' : 'signing in'}, you agree to our Terms & Service
+            By {activeTab === 'signup' ? 'creating an account' : 'signing in'}, you agree to our terms of service
           </p>
         </div>
       </div>
     </div>
+  )
+}
+
+// Wrap in Suspense boundary to handle useSearchParams
+export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-secondary to-primary/80">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-white" />
+          <p className="text-white">Loading...</p>
+        </div>
+      </div>
+    }>
+      <AuthPageContent />
+    </Suspense>
   )
 }

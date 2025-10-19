@@ -6,22 +6,22 @@ export default function Features() {
     {
       icon: Crosshair,
       title: "Targeted Micro-Quizzes",
-      description: "Stop wasting hours on generic lessons. Fix a specific weakness, like 'Complex Sentences' or 'Environment Vocabulary,' in just 15 minutes."
+      description: "Stop wasting hours on generic lessons. I've designed focused quizzes to help you master specific skills like 'Complex Sentences' or 'Environment Vocabulary' in just 15 minutes."
     },
     {
       icon: CheckCircle,
-      title: "Expert-Verified Content",
-      description: "Every question is AI-assisted for variety and human-verified for quality by an experienced educator. This isn't just English; it's the English that impresses examiners."
+      title: "Educator-Verified Content",
+      description: "Every question is AI-assisted for variety and personally verified by me for quality. This isn't just English—it's the English that works in real conversations and impresses examiners."
     },
     {
       icon: Zap,
-      title: "Instant, Detailed Feedback",
-      description: "Understand the 'why' behind every answer. Our clear, detailed explanations in Khmer help you learn from your mistakes so you don't repeat them on exam day."
+      title: "Instant, Clear Feedback",
+      description: "Understand the 'why' behind every answer. I provide clear, detailed explanations that help you learn from your mistakes and build lasting understanding."
     },
     {
       icon: BarChart,
       title: "Build Real Mastery",
-      description: "Don't just memorize word lists. Our interactive quizzes force you to apply your knowledge in context, building the deep understanding needed for a high score."
+      description: "Don't just memorize word lists. My interactive quizzes help you apply your knowledge in context, building the deep understanding you need to use English confidently."
     }
   ]
 
@@ -38,11 +38,11 @@ export default function Features() {
           </AnimatedDiv>
 
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
-            Focus on What Truly Matters for Your Score
+            Focus on What Truly Matters
           </h2>
 
           <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Getting a high score in IELTS is not about knowing everything. It is about mastering the foundational skills that examiners look for.
+            Mastering English isn't about knowing everything. It's about building the foundational skills that make you confident in any situation—whether that's an exam, a conversation, or your career.
           </p>
         </AnimatedDiv>
 

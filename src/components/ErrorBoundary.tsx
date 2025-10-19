@@ -37,19 +37,28 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo)
-    
+    // Log error details
+    if (typeof window !== 'undefined') {
+      // Only log in browser context
+      if (process.env.NODE_ENV === 'development') {
+        console.error('ErrorBoundary caught an error:', error, errorInfo)
+      }
+    }
+
     // Call the optional onError callback
     if (this.props.onError) {
       this.props.onError(error, errorInfo)
     }
-    
+
     // Log to monitoring service in production
     if (process.env.NODE_ENV === 'production') {
       // You can integrate with Sentry, LogRocket, etc. here
-      console.error('Production error logged:', error.message)
+      // For now, we'll silently log
+      if (typeof window !== 'undefined' && window.console?.error) {
+        window.console.error('Production error:', error.message)
+      }
     }
-    
+
     this.setState({
       error,
       errorInfo
@@ -130,12 +139,16 @@ class ErrorBoundary extends Component<Props, State> {
 // Hook version for functional components
 export function useErrorHandler() {
   return (error: Error, errorInfo?: ErrorInfo) => {
-    console.error('Error caught by useErrorHandler:', error, errorInfo)
-    
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error caught by useErrorHandler:', error, errorInfo)
+    }
+
     // In a real app, you might want to send this to a logging service
     if (process.env.NODE_ENV === 'production') {
-      // Log to monitoring service
-      console.error('Production error:', error.message)
+      // Log to monitoring service (e.g., Sentry, LogRocket)
+      if (typeof window !== 'undefined' && window.console?.error) {
+        window.console.error('Production error:', error.message)
+      }
     }
   }
 }
@@ -202,6 +215,54 @@ export function CourseErrorBoundary({ children }: { children: ReactNode }) {
     >
       {children}
     </ErrorBoundary>
+  )
+}
+
+// Auth Error UI Component (for use in LayoutManager)
+export function AuthErrorUI({ error, onRetry }: { error: string; onRetry: () => void }) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-yellow-100 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-orange-100 rounded-full flex items-center justify-center">
+            <AlertTriangle className="w-8 h-8 text-orange-600" />
+          </div>
+          <CardTitle className="text-xl">Authentication Error</CardTitle>
+          <CardDescription>
+            We couldn&apos;t verify your authentication. This might be due to a slow network connection.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {error && (
+            <div className="text-sm text-gray-600 bg-gray-100 p-3 rounded">
+              <strong>Error:</strong> {error}
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button
+              onClick={onRetry}
+              variant="outline"
+              className="flex-1"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Retry
+            </Button>
+            <Button
+              onClick={() => window.location.href = '/'}
+              className="flex-1"
+            >
+              <Home className="w-4 h-4 mr-2" />
+              Go Home
+            </Button>
+          </div>
+
+          <p className="text-xs text-center text-gray-500">
+            If this problem persists, try clearing your browser cache or using a different browser.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 

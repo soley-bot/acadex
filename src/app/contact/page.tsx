@@ -2,13 +2,13 @@ import { Metadata } from 'next'
 import ContactForm from '@/components/contact/ContactForm'
 
 export const metadata: Metadata = {
-  title: 'Contact Acadex - IELTS Preparation Support',
-  description: 'Have a question about your IELTS prep? Need help with a quiz or want to suggest a new topic? Get in touch with our founder directly.',
+  title: 'Contact Acadex - English Learning Support',
+  description: 'Have a question about learning English? Need help with a quiz or want to suggest a new topic? Get in touch with Soley directly.',
   keywords: [
     'contact acadex',
-    'ielts support',
-    'ielts cambodia help',
-    'ielts quiz feedback',
+    'english learning support',
+    'quiz feedback',
+    'ielts help',
     'contact soley heng'
   ],
   alternates: {

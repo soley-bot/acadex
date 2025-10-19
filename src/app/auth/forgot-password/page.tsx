@@ -123,10 +123,10 @@ export default function ForgotPasswordPage() {
             <Mail className="w-8 h-8 text-secondary" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Forgot your password?
+            Forgot Your Password?
           </h1>
           <p className="text-gray-900 text-lg">
-            No worries! Enter your email and we&apos;ll send you a reset link.
+            No worries! Enter your email and I&apos;ll send you a reset link.
           </p>
         </div>
 
@@ -163,7 +163,7 @@ export default function ForgotPasswordPage() {
                 <strong>What happens next?</strong>
               </p>
               <p className="text-primary text-sm mt-1">
-                We&apos;ll send you a secure link to reset your password. 
+                I&apos;ll send you a secure link to reset your password.
                 The link will expire in 1 hour for your security.
               </p>
             </div>
@@ -202,7 +202,7 @@ export default function ForgotPasswordPage() {
           <p className="text-sm text-gray-500">
             Still having trouble?{' '}
             <Link href="/contact" className="text-secondary hover:text-secondary">
-              Contact our support team
+              Contact me directly
             </Link>
           </p>
         </div>

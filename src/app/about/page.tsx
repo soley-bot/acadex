@@ -10,14 +10,14 @@ import { SectionHeader } from '@/components/layout/SectionHeader'
 
 export const metadata: Metadata = {
   title: 'About Acadex - Built from Scratch, Built with Heart',
-  description: 'The story of Soley Heng and how Acadex was created to challenge traditional education and support self-directed learning for Cambodian students.',
+  description: 'The story of Soley Heng and how Acadex was created to make English learning efficient, focused, and accessible for self-directed learners everywhere.',
   keywords: [
     'about acadex',
     'soley heng',
-    'cambodian education',
-    'online learning story',
+    'online english learning',
+    'educator-led platform',
     'self-directed learning',
-    'ielts preparation cambodia'
+    'efficient english learning'
   ],
   alternates: {
     canonical: 'https://acadex.academy/about',
@@ -59,9 +59,9 @@ export default function AboutPage() {
             <div className="md:col-span-2 p-8 md:p-12">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Hi, I&apos;m Soley Heng</h2>
               <p className="text-lg text-gray-600 leading-relaxed">
-                I&apos;ve spent years in educational sector. I saw the same pattern again and again: bright students feeling stuck, practicing their mistakes, and losing confidence because they hadn&apos;t mastered the small, foundational details.
+                I&apos;ve spent over a decade in education, and I kept seeing the same pattern: bright learners feeling stuck—not because they lacked potential, but because traditional learning didn&apos;t fit their busy lives.
                 <br /><br />
-                I built Acadex to fix that. With no tech background, I spent months learning to code, driven by one belief: that with the right tools, any student can achieve their goals.
+                So I built Acadex. With no tech background, I taught myself to code, driven by one belief: that with the right tools, anyone can master English efficiently and on their own terms.
               </p>
             </div>
           </div>
@@ -76,7 +76,7 @@ export default function AboutPage() {
           />
 
           <p className="text-lg text-gray-600 max-w-3xl leading-relaxed mb-12">
-            At Acadex, we believe self-study is powerful. When you&apos;re given clear, focused content and the right interactive tools, you can learn more effectively than in a traditional classroom. Our mission is to support that journey.
+            I believe self-study is powerful. When you have clear, focused content and the right interactive tools, you can learn more effectively than sitting through long lectures. My mission is to give you exactly that—learning that fits your life.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -87,7 +87,7 @@ export default function AboutPage() {
                 </div>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Targeted Content</h3>
-              <p className="text-gray-600">No long lectures. Just focused practice on the skills that have the biggest impact on your score.</p>
+              <p className="text-gray-600">No long lectures. Just focused practice on the specific skills that matter most—whether for exams or real-world confidence.</p>
             </Card>
 
             <Card className="p-6 text-center hover:shadow-xl transition-shadow">
@@ -106,8 +106,8 @@ export default function AboutPage() {
                   <Users className="w-8 h-8 text-white" />
                 </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Student-Focused</h3>
-              <p className="text-gray-600">We&apos;re still growing, but our commitment is to build what you actually need to succeed.</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Learner-Focused</h3>
+              <p className="text-gray-600">I&apos;m still growing this platform, but my commitment is always to build what you actually need to succeed.</p>
             </Card>
           </div>
         </div>
@@ -115,13 +115,13 @@ export default function AboutPage() {
         {/* CTA Section */}
         <div className="text-center pt-4">
           <Card className="max-w-2xl mx-auto p-8 md:p-12 shadow-2xl bg-gradient-to-br from-white to-blue-50">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Let&apos;s Build This Together</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Let&apos;s Learn Together</h2>
             <p className="text-lg text-gray-600 mb-8">
-              If you&apos;ve ever felt like you weren&apos;t good at learning, Acadex is here to prove you wrong. Start with a free quiz and feel the difference an educator-led approach can make.
+              If you&apos;ve ever felt frustrated with traditional learning methods, Acadex is here to offer a better way. Start with a free quiz and experience how efficient, focused learning can transform your English skills.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="w-full sm:w-auto">
-                <Link href="/quizzes">Explore IELTS Quizzes</Link>
+                <Link href="/quizzes">Browse Free Quizzes</Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
                 <Link href="/">Back to Home</Link>

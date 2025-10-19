@@ -20,10 +20,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icon', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/logo.svg', type: 'image/svg+xml' },
     ],
     apple: [
-      { url: '/apple-icon', sizes: '180x180', type: 'image/png' },
+      { url: '/logo.svg', sizes: '180x180', type: 'image/svg+xml' },
     ],
   },
   openGraph: {
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
     siteName: 'Acadex',
     images: [
       {
-        url: '/opengraph-image',
+        url: '/og-image-ielts.png',
         width: 1200,
         height: 630,
         alt: 'Acadex - English Learning Platform',
@@ -46,7 +47,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Acadex - English Learning Platform',
     description: 'Master English with expert-led courses and interactive quizzes.',
-    images: ['/opengraph-image'],
+    images: ['/og-image-ielts.png'],
   },
   robots: {
     index: true,

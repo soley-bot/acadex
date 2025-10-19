@@ -38,15 +38,15 @@ export default function Hero() {
             {/* Main Heading - White text for contrast */}
             <StaggerItem>
               <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight drop-shadow-2xl">
-                Transform Your IELTS Score in 15 Minutes a Day
+                Master English in Just 15 Minutes a Day
               </h1>
             </StaggerItem>
 
             {/* Subtitle - White text with good contrast */}
             <StaggerItem>
               <p className="text-lg md:text-xl lg:text-2xl text-white/90 leading-relaxed drop-shadow-lg">
-                Master essential IELTS skills with AI-powered micro-quizzes designed by education experts.
-                Focus on your weak areas and boost your score efficiently.
+                Build real English skills with focused micro-quizzes designed by an experienced educator.
+                Whether you're preparing for IELTS or strengthening your everyday English, I've got you covered.
               </p>
             </StaggerItem>
 

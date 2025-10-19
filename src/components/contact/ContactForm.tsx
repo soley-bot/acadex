@@ -75,20 +75,20 @@ function ContactFormComponent() {
   
   const faqItems = [
     {
-      question: "Is this platform ONLY for IELTS?",
-      answer: "For our initial launch, yes. Our single-minded focus is on providing the absolute best, most targeted practice for the IELTS exam. This allows us to ensure the highest quality. We plan to expand to other topics in the future!"
+      question: "What topics do you cover?",
+      answer: "I'm starting with IELTS preparation because it's what I know best from my decade in education. But I'm building this platform to eventually cover general English skills too—vocabulary, grammar, conversation practice, and more. IELTS is just the beginning!"
     },
     {
-      question: "How do the 'Skill Packs' work?",
-      answer: "A Skill Pack is a curated collection of micro-quizzes designed to help you master one specific area, like 'Writing Task 2 Vocabulary.' Instead of a long, general course, you get focused practice to fix specific weaknesses."
+      question: "How do the quizzes work?",
+      answer: "Each quiz is a focused micro-lesson targeting one specific skill—like 'Complex Sentences' or 'Environment Vocabulary.' You spend just 15 minutes, get instant feedback, and move on. No fluff, just the practice you need."
     },
     {
-      question: "Are the quizzes updated?",
-      answer: "Yes. As an educator-led platform, I am constantly reviewing and adding new questions based on the latest exam trends and student feedback to keep the content relevant and effective."
+      question: "Are the quizzes updated regularly?",
+      answer: "Yes! I'm constantly reviewing and adding new questions based on learner feedback and the latest trends. This is an educator-led platform, which means quality and relevance come first."
     },
     {
-      question: "Do I get a certificate?",
-      answer: "Our goal is to help you get the official IELTS certificate that matters. We focus on building the skills you need for that, rather than providing our own certificate."
+      question: "Is there a certificate when I finish?",
+      answer: "My goal is to help you build real skills—whether that's passing IELTS or feeling confident in everyday conversations. I focus on the learning itself rather than certificates, but I track your progress so you can see how far you've come."
     },
   ]
 
@@ -97,8 +97,8 @@ function ContactFormComponent() {
       {/* Hero Section */}
       <PageHero
         badge={{ icon: MessageCircle, text: 'Contact Us' }}
-        title="Questions About Your IELTS Prep?"
-        description="Whether you have a question, a suggestion for a new quiz topic, or need technical support, I'm here to help. Every message helps us build a better platform for you."
+        title="Have Questions About Learning English?"
+        description="Whether you have a question, a suggestion for a new quiz topic, or need technical support, I'm here to help. Every message helps me build a better platform for you."
         imageSrc="/images/hero/learning-together.jpg"
         minHeight="min-h-[60vh] lg:min-h-[70vh]"
       />
@@ -114,7 +114,7 @@ function ContactFormComponent() {
                 {success && (
                   <div className="bg-green-100 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-6 flex items-center gap-3">
                     <CheckCircle className="w-5 h-5" />
-                    <p>Thank you for your message! We&apos;ll get back to you within 1-2 business days.</p>
+                    <p>Thank you for your message! I&apos;ll get back to you within 1-2 business days.</p>
                   </div>
                 )}
                 {error && (
@@ -137,8 +137,8 @@ function ContactFormComponent() {
                     <label htmlFor="subject" className="block text-sm font-medium text-gray-900 mb-2">Subject</label>
                     <select id="subject" name="subject" value={formData.subject} onChange={handleInputChange} required className="input">
                       <option value="">Select a topic</option>
-                      <option value="IELTS Quiz Question">IELTS Quiz Question</option>
-                      <option value="Content Suggestion">Content Suggestion</option>
+                      <option value="Quiz Question or Feedback">Quiz Question or Feedback</option>
+                      <option value="New Topic Suggestion">New Topic Suggestion</option>
                       <option value="Technical Support">Technical Support</option>
                       <option value="Partnership Inquiry">Partnership Inquiry</option>
                       <option value="General Feedback">General Feedback</option>
@@ -146,7 +146,7 @@ function ContactFormComponent() {
                   </div>
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium text-gray-900 mb-2">Message</label>
-                    <textarea id="message" name="message" value={formData.message} onChange={handleInputChange} required rows={5} className="input" placeholder="Tell us how we can help..."></textarea>
+                    <textarea id="message" name="message" value={formData.message} onChange={handleInputChange} required rows={5} className="input" placeholder="Tell me how I can help..."></textarea>
                   </div>
                   <Button type="submit" disabled={loading || submitRef.current} size="lg" className="w-full">
                     {loading ? (
