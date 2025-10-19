@@ -45,6 +45,7 @@ export default function SettingsPage() {
   useEffect(() => {
     if (!authLoading && !user) {
       console.log('[Settings] No user found, redirecting to auth...')
+      router.refresh() // Refresh server components before redirect
       router.push('/auth?tab=signin&redirect=/dashboard/settings')
     }
   }, [authLoading, user, router])

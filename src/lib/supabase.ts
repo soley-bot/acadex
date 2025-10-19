@@ -1,163 +1,26 @@
-import { createBrowserClient } from '@supabase/ssr'
+/**
+ * LEGACY COMPATIBILITY LAYER
+ * This file maintains backward compatibility with the old createSupabaseClient pattern
+ * while using the new @supabase/ssr client pattern internally.
+ *
+ * MIGRATION PATH:
+ * - Client Components: Use createClient() from @/utils/supabase/client
+ * - Server Components: Use createClient() from @/utils/supabase/server
+ * - This file provides createSupabaseClient() for backward compatibility
+ */
+
+import { createClient } from '@/utils/supabase/client'
 import type { UserRole } from './auth-security'
-import { logger } from './logger'
 
 /**
- * Cookie-based storage adapter for when localStorage is blocked
- * Used as fallback on mobile Safari private mode
+ * Legacy client factory function for backward compatibility
+ * Uses the new SSR-compatible client under the hood
+ *
+ * @deprecated Use createClient() from @/utils/supabase/client instead
  */
-function createCookieStorage() {
-  return {
-    getItem: (key: string): string | null => {
-      if (typeof document === 'undefined') return null
-
-      const value = document.cookie
-        .split('; ')
-        .find(row => row.startsWith(`${key}=`))
-        ?.split('=')[1]
-
-      return value ? decodeURIComponent(value) : null
-    },
-    setItem: (key: string, value: string): void => {
-      if (typeof document === 'undefined') return
-
-      // Use 30 days expiry, Secure flag, and Lax SameSite for better compatibility
-      const maxAge = 30 * 24 * 60 * 60 // 30 days in seconds
-      document.cookie = `${key}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/; SameSite=Lax; Secure`
-      logger.debug('[Supabase] Saved to cookie:', { key })
-    },
-    removeItem: (key: string): void => {
-      if (typeof document === 'undefined') return
-
-      document.cookie = `${key}=; max-age=0; path=/; SameSite=Lax; Secure`
-      logger.debug('[Supabase] Removed from cookie:', { key })
-    }
-  }
+export function createSupabaseClient() {
+  return createClient()
 }
-
-/**
- * Check if localStorage is available and working
- * Mobile browsers (especially Safari) may block it in private mode
- * Falls back to cookie-based storage for persistence
- */
-function getStorageAdapter() {
-  if (typeof window === 'undefined') return undefined
-
-  try {
-    const testKey = '__storage_test__'
-    window.localStorage.setItem(testKey, 'test')
-    window.localStorage.removeItem(testKey)
-    logger.debug('[Supabase] localStorage available')
-    return window.localStorage
-  } catch (e) {
-    logger.warn('[Supabase] localStorage blocked - using cookie storage fallback (mobile Safari private mode)')
-    // Return cookie-based storage instead of undefined to maintain persistence
-    return createCookieStorage() as any
-  }
-}
-
-// Client-side singleton to ensure single instance across all components
-let clientInstance: any = null
-
-function createSupabaseClient() {
-  // Only use singleton on client-side
-  if (typeof window !== 'undefined') {
-    if (clientInstance) {
-      logger.debug('[Supabase] Returning existing client instance')
-      return clientInstance
-    }
-  }
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  if (!supabaseUrl) {
-    if (typeof window === 'undefined') {
-      // During build/prerender, return a mock client that won't be used
-      logger.warn('[Supabase] Missing NEXT_PUBLIC_SUPABASE_URL during build')
-      return {} as any
-    }
-    logger.error('[Supabase] Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable. Please check your .env.local file.')
-  }
-
-  if (!supabaseAnonKey) {
-    if (typeof window === 'undefined') {
-      // During build/prerender, return a mock client that won't be used
-      logger.warn('[Supabase] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY during build')
-      return {} as any
-    }
-    logger.error('[Supabase] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable')
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable. Please check your .env.local file.')
-  }
-
-  try {
-    // Use createBrowserClient from @supabase/ssr for proper cookie handling
-    // This ensures cookies are set in a way that server-side code can read them
-    const client = createBrowserClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        get(name: string) {
-          if (typeof document === 'undefined') return undefined
-          const value = document.cookie
-            .split('; ')
-            .find(row => row.startsWith(`${name}=`))
-            ?.split('=')[1]
-          return value ? decodeURIComponent(value) : undefined
-        },
-        set(name: string, value: string, options: any) {
-          if (typeof document === 'undefined') return
-          
-          const cookieOptions = [
-            `${name}=${encodeURIComponent(value)}`,
-            `path=${options.path || '/'}`,
-            `max-age=${options.maxAge || 31536000}`, // 1 year default
-            options.secure ? 'Secure' : '',
-            `SameSite=${options.sameSite || 'Lax'}`
-          ].filter(Boolean).join('; ')
-          
-          document.cookie = cookieOptions
-          logger.debug('[Supabase] Cookie set:', { name })
-        },
-        remove(name: string, options: any) {
-          if (typeof document === 'undefined') return
-          
-          document.cookie = `${name}=; path=${options.path || '/'}; max-age=0`
-          logger.debug('[Supabase] Cookie removed:', { name })
-        }
-      }
-    })
-
-    // Only store singleton on client-side, never on server
-    if (typeof window !== 'undefined') {
-      clientInstance = client
-      logger.debug('[Supabase] NEW browser client created with SSR cookie handling')
-    }
-
-    return client
-  } catch (error: any) {
-    logger.error('[Supabase] Failed to create client:', error)
-    if (typeof window === 'undefined') {
-      // During build, return mock client
-      return {} as any
-    }
-    throw error
-  }
-}
-
-/**
- * FINAL FIX: Export the factory function instead of a singleton
- * 
- * WHY THIS WORKS:
- * - Components can call createSupabaseClient() in their own lifecycle
- * - React components only run on client after hydration
- * - No module-level initialization = no SSR issues
- * 
- * AuthContext creates its own client in useEffect for client-side only auth.
- * Other files should use createSupabaseClient() directly or useAuth() hook.
- */
-
-// Export ONLY the factory function - no module-level instance
-export { createSupabaseClient }
 
 // Database Types matching exact schema
 export interface User {

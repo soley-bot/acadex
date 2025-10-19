@@ -51,12 +51,12 @@ export default function CourseStudyPage() {
   const abortControllerRef = useRef<AbortController | null>(null)
   const mountedRef = useRef(true)
 
-  // Session expiry detection
+  // Session expiry detection - BEST PRACTICE: Use getUser() for verification
   useEffect(() => {
     const checkSession = async () => {
       const supabase = createSupabaseClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session && user) {
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      if (!currentUser && user) {
         console.warn('⚠️ Session expired detected')
         setSessionWarning(true)
       }
@@ -151,15 +151,26 @@ export default function CourseStudyPage() {
         
         if (!user) {
           console.log('No user found, redirecting to auth...')
+          router.refresh() // Refresh server components before redirect
           router.push(`/auth?tab=signin&redirect=/courses/${courseId}/study`)
           return
         }
 
-      // Get session token for API authentication
+      // Get session token for API authentication - BEST PRACTICE: Verify user first
       const supabase = createSupabaseClient()
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+      if (authError || !authUser) {
+        console.error('Auth error:', authError)
+        router.refresh() // Refresh server components before redirect
+        router.push(`/auth?tab=signin&redirect=/courses/${courseId}/study`)
+        return
+      }
+
+      // After verification, get session for token
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       if (sessionError || !session) {
         console.error('Session error:', sessionError)
+        router.refresh() // Refresh server components before redirect
         router.push(`/auth?tab=signin&redirect=/courses/${courseId}/study`)
         return
       }
@@ -213,6 +224,7 @@ export default function CourseStudyPage() {
           setError('Course not found.')
         } else if (response.status === 401) {
           console.log('Unauthorized, redirecting to auth...')
+          router.refresh() // Refresh server components before redirect
           router.push(`/auth?tab=signin&redirect=/courses/${courseId}/study`)
           return
         } else {
@@ -753,7 +765,10 @@ export default function CourseStudyPage() {
                     Your progress has been saved. Please sign in again to continue.
                   </p>
                   <button
-                    onClick={() => router.push(`/auth?tab=signin&redirect=/courses/${courseId}/study`)}
+                    onClick={() => {
+                      router.refresh() // Refresh server components before redirect
+                      router.push(`/auth?tab=signin&redirect=/courses/${courseId}/study`)
+                    }}
                     className="mt-2 text-sm font-medium text-yellow-700 hover:text-yellow-600 underline"
                   >
                     Sign in again

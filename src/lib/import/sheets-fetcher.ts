@@ -35,50 +35,86 @@ export function extractSheetId(url: string): string {
 function createSheetsClient() {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
   const key = process.env.GOOGLE_PRIVATE_KEY
-  
+
   if (!email || !key) {
     throw new Error(
       'Missing Google credentials. Please set GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_PRIVATE_KEY in .env.local'
     )
   }
-  
+
+  // Clean and format the private key properly
+  let privateKey = key
+
+  // If the key is base64 encoded, decode it
+  if (!key.includes('BEGIN PRIVATE KEY')) {
+    try {
+      privateKey = Buffer.from(key, 'base64').toString('utf-8')
+    } catch (e) {
+      console.warn('[Sheets Fetcher] Key is not base64 encoded, using as-is')
+    }
+  }
+
+  // Replace literal \n strings with actual newlines
+  privateKey = privateKey.replace(/\\n/g, '\n')
+
+  // Ensure proper key format
+  if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+    throw new Error(
+      'Invalid private key format. Key should start with "-----BEGIN PRIVATE KEY-----"'
+    )
+  }
+
   const auth = new google.auth.GoogleAuth({
     credentials: {
       client_email: email,
-      private_key: key.replace(/\\n/g, '\n'), // Handle escaped newlines
+      private_key: privateKey,
     },
     scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
   })
-  
+
   return google.sheets({ version: 'v4', auth })
 }
 
 /**
  * Fetch and parse Google Sheets data
- * 
+ *
  * @param sheetUrl - Full Google Sheets URL
- * @param range - Optional range (default: "Sheet1!A2:L") - assumes header in row 1, data starts row 2
+ * @param range - Optional range (default: auto-detect first sheet with "A2:L") - assumes header in row 1, data starts row 2
  * @returns Array of question objects
  */
 export async function fetchGoogleSheet(
   sheetUrl: string,
-  range: string = 'Sheet1!A2:L'
+  range?: string
 ): Promise<SheetQuestion[]> {
   try {
     // Extract sheet ID from URL
     const sheetId = extractSheetId(sheetUrl)
-    
+
     // Create authenticated client
     const sheets = createSheetsClient()
-    
+
+    // If no range specified, get first sheet name and use that
+    let finalRange = range
+    if (!finalRange) {
+      const sheetInfo = await sheets.spreadsheets.get({
+        spreadsheetId: sheetId,
+      })
+
+      const firstSheet = sheetInfo.data.sheets?.[0]
+      const sheetName = firstSheet?.properties?.title || 'Sheet1'
+      finalRange = `${sheetName}!A2:L`
+
+      console.log(`[Sheets Fetcher] Auto-detected sheet name: "${sheetName}"`)
+    }
+
     // Fetch data from sheet
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range,
+      range: finalRange,
     })
-    
+
     const rows = response.data.values
-    
+
     if (!rows || rows.length === 0) {
       throw new Error('No data found in spreadsheet. Make sure your sheet has data starting from row 2.')
     }

@@ -3,6 +3,7 @@ import ErrorBoundary from '@/components/ErrorBoundary'
 import { Toaster } from '@/components/ui/toaster'
 import { AppProviders } from '@/components/simplified/AppProviders'
 import { LayoutManager } from '@/components/simplified/LayoutManager'
+import { getOptionalUser } from '@/lib/auth'
 
 // Global styles with consolidated design tokens
 import './globals.css'
@@ -62,11 +63,14 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Fetch user on server for initial auth state
+  const serverUser = await getOptionalUser()
+  
   return (
     <html lang="en">
       <head>
@@ -76,7 +80,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased">
         <ErrorBoundary>
-          <AppProviders>
+          <AppProviders serverUser={serverUser}>
             <LayoutManager>
               {children}
             </LayoutManager>

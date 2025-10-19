@@ -7,13 +7,19 @@ import type { Course } from '@/types'
 
 const supabase = createSupabaseClient()
 
-// Auth helper
+// Auth helper - BEST PRACTICE: Use getUser() for verification
 async function getAuthHeaders() {
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error || !user) {
     throw new Error('Authentication required')
   }
-  
+
+  // After user verification, get session for token
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) {
+    throw new Error('Session not found')
+  }
+
   return {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${session.access_token}`

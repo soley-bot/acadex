@@ -32,6 +32,7 @@ export default function StudentDashboard() {
   useEffect(() => {
     if (!authLoading && !user) {
       console.log('[Dashboard] No user found, redirecting to auth...')
+      router.refresh() // Refresh server components before redirect
       router.push('/auth?tab=signin&redirect=/dashboard')
     }
   }, [authLoading, user, router])

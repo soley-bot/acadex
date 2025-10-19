@@ -52,6 +52,7 @@ export default function ProgressPage() {
   useEffect(() => {
     if (!authLoading && !user) {
       console.log('[Progress] No user found, redirecting to auth...')
+      router.refresh() // Refresh server components before redirect
       router.push('/auth?tab=signin&redirect=/dashboard/progress')
     }
   }, [authLoading, user, router])

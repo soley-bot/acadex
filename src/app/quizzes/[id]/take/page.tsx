@@ -41,6 +41,7 @@ export default function QuizTakingPage() {
     // Check if user is logged in
     if (!user) {
       console.log('[Quiz] No user found, redirecting to auth...')
+      router.refresh() // Refresh server components before redirect
       router.push(`/auth?tab=signin&redirect=/quizzes/${quizId}/take`);
       return;
     }
@@ -74,6 +75,7 @@ export default function QuizTakingPage() {
           // Handle 401/403 specifically - means auth issue
           if (response.status === 401 || response.status === 403) {
             console.log('[Quiz] Auth error, redirecting...');
+            router.refresh() // Refresh server components before redirect
             router.push(`/auth?tab=signin&redirect=/quizzes/${quizId}/take`);
             return;
           }

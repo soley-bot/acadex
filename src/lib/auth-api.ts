@@ -3,18 +3,27 @@
  * Adds authentication headers to API requests
  */
 
-import { createSupabaseClient } from './supabase'
+import { createClient } from '@/utils/supabase/client'
 import { logger } from './logger'
 
 // Create module-level Supabase client for auth operations
-const supabase = createSupabaseClient()
+const supabase = createClient()
 
 /**
  * Get the current access token
- * Simple and direct - Supabase SDK already handles caching
+ * BEST PRACTICE: Using getUser() instead of getSession() for security
+ * Note: On client-side, we extract session after user verification
  */
 export async function getAccessToken(): Promise<string | null> {
   try {
+    // Verify user first, then get session
+    const { data: { user }, error } = await supabase.auth.getUser()
+
+    if (error || !user) {
+      return null
+    }
+
+    // After verification, get session for the token
     const { data: { session } } = await supabase.auth.getSession()
     return session?.access_token || null
   } catch (error: any) {

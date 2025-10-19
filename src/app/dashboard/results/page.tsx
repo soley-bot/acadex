@@ -54,6 +54,7 @@ export default function AllResultsPage() {
 
   useEffect(() => {
     if (!user) {
+      router.refresh() // Refresh server components before redirect
       router.push('/auth?tab=signin&redirect=/dashboard/results')
       return
     }

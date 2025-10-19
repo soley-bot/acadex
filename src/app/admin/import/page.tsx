@@ -179,11 +179,18 @@ export default function ImportPage() {
       
       console.log('[Import] Fetching preview for:', sheetUrl)
       console.log('[Import] User:', user?.email, 'Role:', user?.role)
-      
-      // Get the current session token
+
+      // BEST PRACTICE: Verify user first with getUser()
       const supabase = createSupabaseClient()
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+
+      if (authError || !authUser) {
+        throw new Error('Authentication required - please log in again')
+      }
+
+      // After verification, get session for token
       const { data: { session } } = await supabase.auth.getSession()
-      
+
       if (!session) {
         throw new Error('No active session - please log in again')
       }
