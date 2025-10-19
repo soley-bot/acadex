@@ -42,7 +42,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-muted-foreground mb-6 leading-relaxed">
-              Targeted IELTS prep, built by an educator to help you master the skills you need for a high score.
+              Learn English efficiently with educator-designed micro-quizzes. Master the skills you need—whether for IELTS or everyday confidence.
             </p>
             <div className="mb-8">
               <p className="text-muted-foreground mb-2">
@@ -59,10 +59,10 @@ export function Footer() {
             <h3 className="text-base md:text-lg font-semibold text-primary mb-6">Practice</h3>
             <ul className="space-y-4">
               {[
-                { name: "IELTS Writing Skill Pack", href: "/quizzes" },
-                { name: "Vocabulary Quizzes", href: "/quizzes?category=ielts-vocabulary" },
-                { name: "Grammar Drills", href: "/quizzes?category=ielts-grammar" },
-                { name: "Try a Free Quiz", href: "/quizzes/free-sample" }
+                { name: "All Courses", href: "/courses" },
+                { name: "Browse Quizzes", href: "/quizzes" },
+                { name: "IELTS Preparation", href: "/quizzes?category=ielts" },
+                { name: "Try a Free Quiz", href: "/quizzes" }
               ].map((link) => (
                 <li key={link.name}>
                   <Link 
@@ -124,9 +124,9 @@ export function Footer() {
       <div className="relative border-t border-border">
         <div className="container-wide section-spacing-sm">
           <div className="text-center">
-            <h2 className="text-section-title mb-4">Get an Edge on the Exam</h2>
+            <h2 className="text-section-title mb-4">Stay Sharp with Weekly Tips</h2>
             <p className="text-section-subtitle mb-8 max-w-3xl mx-auto leading-relaxed">
-              Get IELTS tips, mini-lessons, and updates on new Skill Packs — sent right to your inbox.
+              Get English learning tips, mini-lessons, and updates on new quizzes—sent right to your inbox.
             </p>
             <NewsletterSignup />
           </div>
@@ -145,7 +145,7 @@ export function Footer() {
                   <span className="text-foreground">X</span>
                 </span>. All rights reserved.
                 <br className="sm:hidden" />
-                <span className="block sm:inline sm:ml-2">Made with <Heart size={16} className="inline text-destructive" /> in Cambodia. Powered by persistence.</span>
+                <span className="block sm:inline sm:ml-2">Built with <Heart size={16} className="inline text-destructive" /> by an educator who believes learning should fit your life.</span>
               </p>
             </div>
             <div className="flex items-center gap-4 flex-wrap justify-center">

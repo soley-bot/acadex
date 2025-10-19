@@ -272,7 +272,7 @@ export default function Header() {
                 <X size={20} className="text-primary" />
               </button>
             </div>
-            <p className="text-sm text-muted-foreground mt-2">Navigate your learning journey</p>
+            <p className="text-sm text-muted-foreground mt-2">Your English learning journey starts here</p>
           </div>
 
           {/* Navigation Content */}
