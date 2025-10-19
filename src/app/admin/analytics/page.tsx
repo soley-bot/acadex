@@ -153,7 +153,13 @@ export default function AdminAnalytics() {
           .limit(100)
       ])
 
-      // Handle individual query results gracefully
+      // Check for critical errors (fail fast)
+      if (totalUsersResult.error) throw new Error(`Failed to fetch users: ${totalUsersResult.error.message}`)
+      if (coursesResult.error) throw new Error(`Failed to fetch courses: ${coursesResult.error.message}`)
+      if (quizzesResult.error) throw new Error(`Failed to fetch quizzes: ${quizzesResult.error.message}`)
+      if (enrollmentsResult.error) throw new Error(`Failed to fetch enrollments: ${enrollmentsResult.error.message}`)
+
+      // Handle individual query results with fallbacks
       const totalUsers = totalUsersResult.count || 0
       const newUsers = newUsersResult.count || 0
       const courses = coursesResult.data || []
@@ -161,12 +167,8 @@ export default function AdminAnalytics() {
       const totalEnrollments = enrollmentsResult.count || 0
       const recentEnrollments = revenueResult.data || []
 
-      // Log any individual errors but don't fail completely
-      if (totalUsersResult.error) logger.warn('Total users query error', { error: totalUsersResult.error })
-      if (newUsersResult.error) logger.warn('New users query error', { error: newUsersResult.error })
-      if (coursesResult.error) logger.warn('Courses query error', { error: coursesResult.error })
-      if (quizzesResult.error) logger.warn('Quizzes query error', { error: quizzesResult.error })
-      if (enrollmentsResult.error) logger.warn('Enrollments query error', { error: enrollmentsResult.error })
+      // Log non-critical errors as warnings
+      if (newUsersResult.error) logger.warn('New users query error (using fallback)', { error: newUsersResult.error })
 
       // Calculate total revenue from course prices (already filtered data)
       const totalRevenue = courses.reduce((sum: number, course: { price: number }) => sum + (Number(course.price) || 0), 0)

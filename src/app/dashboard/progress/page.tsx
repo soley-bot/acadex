@@ -10,6 +10,7 @@ import { StatCard, StatCardPresets } from '@/components/ui/stat-card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { BookOpen, Target, Trophy, TrendingUp, Award } from 'lucide-react'
+import { getScoreBadgeClasses, calculatePercentage } from '@/lib/score-utils'
 
 interface CourseProgress {
   id: string
@@ -72,11 +73,18 @@ export default function ProgressPage() {
       console.log('[Progress] Fetching progress data...')
       setLoading(true)
 
-      const [enrollmentsResult, quizAttemptsResult] = await Promise.all([
+      // Fetch ALL quiz attempts for accurate average score calculation
+      // Also fetch recent 5 for display
+      const [enrollmentsResult, allQuizAttemptsResult, recentQuizAttemptsResult] = await Promise.all([
         supabaseClient
           .from('enrollments')
           .select('*')
           .eq('user_id', user.id),
+        supabaseClient
+          .from('quiz_attempts')
+          .select('score, quiz_id, completed_at')
+          .eq('user_id', user.id)
+          .not('completed_at', 'is', null), // Only completed attempts for average
         supabaseClient
           .from('quiz_attempts')
           .select('*')
@@ -86,10 +94,12 @@ export default function ProgressPage() {
       ])
 
       if (enrollmentsResult.error) throw enrollmentsResult.error
-      if (quizAttemptsResult.error) throw quizAttemptsResult.error
+      if (allQuizAttemptsResult.error) throw allQuizAttemptsResult.error
+      if (recentQuizAttemptsResult.error) throw recentQuizAttemptsResult.error
 
       const enrollments = enrollmentsResult.data || []
-      const quizAttempts = quizAttemptsResult.data || []
+      const allQuizAttempts = allQuizAttemptsResult.data || []
+      const quizAttempts = recentQuizAttemptsResult.data || []
 
       const coursePromises = enrollments.map(async (enrollment: any) => {
         const [courseResult, totalLessonsResult, completedLessonsResult] = await Promise.all([
@@ -131,6 +141,7 @@ export default function ProgressPage() {
         return null
       })
 
+      // Process quiz attempts for display (recent 5)
       const quizPromises = quizAttempts.map(async (attempt: any) => {
         const { data: quiz } = await supabaseClient
           .from('quizzes')
@@ -140,12 +151,12 @@ export default function ProgressPage() {
 
         if (quiz) {
           const totalQuestions = Array.isArray(quiz.questions) ? quiz.questions.length : 0
-          const percentage = totalQuestions > 0 ? Math.round((attempt.score / totalQuestions) * 100) : 0
+          const percentage = calculatePercentage(attempt.score ?? 0, totalQuestions)
 
           return {
             id: attempt.id,
             quiz_title: quiz.title,
-            score: attempt.score,
+            score: attempt.score ?? 0,
             total_questions: totalQuestions,
             completed_at: attempt.completed_at,
             percentage
@@ -154,17 +165,36 @@ export default function ProgressPage() {
         return null
       })
 
-      const [progressData, recentQuizData] = await Promise.all([
+      // Process ALL quiz attempts for accurate average score
+      const allQuizPromises = allQuizAttempts.map(async (attempt: any) => {
+        const { data: quiz } = await supabaseClient
+          .from('quizzes')
+          .select('questions')
+          .eq('id', attempt.quiz_id)
+          .single()
+
+        if (quiz) {
+          const totalQuestions = Array.isArray(quiz.questions) ? quiz.questions.length : 0
+          const percentage = calculatePercentage(attempt.score ?? 0, totalQuestions)
+          return percentage
+        }
+        return null
+      })
+
+      const [progressData, recentQuizData, allQuizPercentages] = await Promise.all([
         Promise.all(coursePromises),
-        Promise.all(quizPromises)
+        Promise.all(quizPromises),
+        Promise.all(allQuizPromises)
       ])
 
       const validProgressData = progressData.filter((p): p is CourseProgress => p !== null)
       const validQuizData = recentQuizData.filter((q): q is QuizAttempt => q !== null)
+      const validPercentages = allQuizPercentages.filter((p): p is number => p !== null)
 
       console.log('[Progress] Processed data:', {
         courses: validProgressData.length,
-        quizzes: validQuizData.length
+        recentQuizzes: validQuizData.length,
+        totalQuizAttempts: validPercentages.length
       })
 
       setCourseProgress(validProgressData)
@@ -173,8 +203,10 @@ export default function ProgressPage() {
       const totalEnrolled = validProgressData.length
       const completed = validProgressData.filter(course => course.progress_percentage >= 100).length
       const totalLessonsCompleted = validProgressData.reduce((sum: number, course) => sum + course.lessons_completed, 0)
-      const averageScore = validQuizData.length > 0
-        ? Math.round(validQuizData.reduce((sum: number, quiz: QuizAttempt) => sum + quiz.percentage, 0) / validQuizData.length)
+
+      // Calculate average score from ALL completed quiz attempts, not just recent 5
+      const averageScore = validPercentages.length > 0
+        ? Math.round(validPercentages.reduce((sum: number, percentage: number) => sum + percentage, 0) / validPercentages.length)
         : 0
 
       setStats({
@@ -193,11 +225,7 @@ export default function ProgressPage() {
     }
   }
 
-  const getScoreColor = (percentage: number) => {
-    if (percentage >= 80) return 'bg-green-100 text-green-800'
-    if (percentage >= 60) return 'bg-yellow-100 text-yellow-800'
-    return 'bg-red-100 text-red-800'
-  }
+  // Removed - now using standardized getScoreBadgeClasses from score-utils
 
   if (loading || authLoading) {
     return (
@@ -251,8 +279,9 @@ export default function ProgressPage() {
               iconColor="text-green-500"
             />
             <StatCard
-              label="Average Score"
+              label="Average Quiz Score"
               value={`${stats.average_score}%`}
+              description="Across all attempts"
               icon={TrendingUp}
               variant="default"
               iconColor="text-blue-500"
@@ -318,14 +347,14 @@ export default function ProgressPage() {
                 {recentQuizzes.length > 0 ? (
                   recentQuizzes.map((quiz) => (
                     <div key={quiz.id} className="border-b border-gray-100 last:border-0 pb-4 last:pb-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium text-gray-900">{quiz.quiz_title}</h4>
-                        <Badge className={getScoreColor(quiz.percentage)}>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <h4 className="font-medium text-gray-900 flex-1 truncate">{quiz.quiz_title}</h4>
+                        <Badge className={getScoreBadgeClasses(quiz.percentage)}>
                           {quiz.percentage}%
                         </Badge>
                       </div>
                       <div className="flex items-center justify-between text-sm text-gray-600">
-                        <span>{quiz.score}/{quiz.total_questions} correct</span>
+                        <span>{quiz.score}/{quiz.total_questions} correct answers</span>
                         <span>{new Date(quiz.completed_at).toLocaleDateString()}</span>
                       </div>
                     </div>

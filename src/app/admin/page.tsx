@@ -55,9 +55,14 @@ export default function AdminDashboard() {
       if (quizzesCount.error) throw quizzesCount.error
       if (attemptsCount.error) throw attemptsCount.error
 
-      // Calculate revenue and published courses from actual data
+      // Calculate metrics from course data
       const courses = coursesData.data || []
+
+      // IMPORTANT: This calculates POTENTIAL revenue (sum of all course prices)
+      // NOT actual revenue from sales/enrollments
+      // To track actual revenue, implement a transactions/payments table
       const totalRevenue = courses.reduce((sum: number, course: any) => sum + (Number(course.price) || 0), 0)
+
       const publishedCourses = courses.filter((course: any) => course.is_published).length
 
       const newStats = {
@@ -163,9 +168,9 @@ export default function AdminDashboard() {
       bgColor: 'bg-warning/10'
     },
     {
-      title: 'Total Revenue',
+      title: 'Potential Revenue',
       value: `$${stats.totalRevenue.toLocaleString()}`,
-      description: 'Platform earnings',
+      description: 'Sum of all course prices',
       icon: 'dollar',
       color: 'text-primary',
       bgColor: 'bg-primary/10'

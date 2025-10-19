@@ -23,6 +23,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import { formatDate } from '@/lib/date-utils'
+import { getScoreBackgroundColor } from '@/lib/score-utils'
 
 export default function StudentDashboard() {
   const { user, loading: authLoading } = useAuth()
@@ -154,8 +155,9 @@ export default function StudentDashboard() {
                 {...StatCardPresets.quizzes.gradient}
               />
               <StatCard
-                label="Avg Score"
+                label="Average Score"
                 value={`${stats.averageScore}%`}
+                description="Recent quizzes"
                 icon={Trophy}
                 variant="gradient"
                 {...StatCardPresets.score.gradient}
@@ -238,17 +240,17 @@ export default function StudentDashboard() {
                         <div className="flex-1 min-w-0 mr-2 sm:mr-3">
                           <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-1 truncate">{quiz.title}</h4>
                           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600">
-                            <span>{quiz.score}/{quiz.totalQuestions} correct</span>
+                            <span>{quiz.score ?? 0}/{quiz.totalQuestions ?? 0} correct</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span className="hidden sm:inline">Attempt #{(quiz as any).attemptNumber ?? 1}</span>
                             <span className="hidden sm:inline">•</span>
                             <span className="hidden sm:inline">{formatDate(quiz.completedAt)}</span>
                           </div>
                         </div>
                         <div className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg font-bold text-xs sm:text-sm whitespace-nowrap ${
-                          quiz.percentage >= 85 ? 'bg-green-100 text-green-700' :
-                          quiz.percentage >= 70 ? 'bg-amber-100 text-amber-700' :
-                          'bg-red-100 text-red-700'
+                          getScoreBackgroundColor(quiz.percentage ?? 0)
                         }`}>
-                          {quiz.percentage}%
+                          Latest: {quiz.percentage ?? 0}%
                         </div>
                       </div>
                     ))

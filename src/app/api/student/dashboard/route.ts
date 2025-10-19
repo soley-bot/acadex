@@ -54,6 +54,7 @@ export const GET = withAuth(async (request: NextRequest, user) => {
             percentage_score,
             completed_at,
             quiz_id,
+            attempt_number,
             quizzes!inner (
               id,
               title
@@ -143,7 +144,8 @@ export const GET = withAuth(async (request: NextRequest, user) => {
           score: attempt.score || 0,
           totalQuestions: attempt.total_questions || 0,
           completedAt: new Date(attempt.completed_at).toISOString(),
-          percentage: attempt.percentage
+          percentage: attempt.percentage,
+          attemptNumber: attempt.attempt_number || 1
         }
       })
 

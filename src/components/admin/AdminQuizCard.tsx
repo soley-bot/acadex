@@ -109,8 +109,8 @@ export function AdminQuizCard({
                   {quiz.difficulty}
                 </span>
                 <span>{quiz.category}</span>
-                <span>{quiz.total_questions}q</span>
-                <span>{quiz.duration_minutes}m</span>
+                <span>{quiz.total_questions} {quiz.total_questions === 1 ? 'question' : 'questions'}</span>
+                <span>{quiz.duration_minutes} min</span>
                 <span>{quiz.attempts_count || 0} attempts</span>
               </div>
             </div>
@@ -226,14 +226,14 @@ export function AdminQuizCard({
             <div className="flex items-center gap-2 text-gray-700">
               <Clock className="h-5 w-5 flex-shrink-0 text-secondary" />
               <div className="flex flex-col">
-                <span className="font-medium">{quiz.duration_minutes} min</span>
-                <span className="text-xs text-gray-500">Expected</span>
+                <span className="font-medium">{quiz.duration_minutes} minutes</span>
+                <span className="text-xs text-gray-500">Expected duration</span>
               </div>
             </div>
             <div className="flex items-center gap-2 text-gray-700">
               <Brain className="h-5 w-5 flex-shrink-0 text-purple-600" />
               <div className="flex flex-col">
-                <span className="font-medium">{quiz.total_questions} questions</span>
+                <span className="font-medium">{quiz.total_questions} {quiz.total_questions === 1 ? 'question' : 'questions'}</span>
                 <span className="text-xs text-gray-500">Total</span>
               </div>
             </div>
@@ -245,15 +245,15 @@ export function AdminQuizCard({
                 <>
                   <Timer className="h-5 w-5 flex-shrink-0 text-red-600" />
                   <div className="flex flex-col">
-                    <span className="font-medium">{quiz.time_limit_minutes} min</span>
-                    <span className="text-xs text-red-600">Time Limit</span>
+                    <span className="font-medium">{quiz.time_limit_minutes} minutes</span>
+                    <span className="text-xs text-red-600">Time limit</span>
                   </div>
                 </>
               ) : (
                 <>
                   <Clock className="h-5 w-5 flex-shrink-0 text-green-600" />
                   <div className="flex flex-col">
-                    <span className="font-medium text-green-600">No Limit</span>
+                    <span className="font-medium text-green-600">No time limit</span>
                     <span className="text-xs text-green-600">Unlimited</span>
                   </div>
                 </>
@@ -263,7 +263,7 @@ export function AdminQuizCard({
               <Users className="h-5 w-5 flex-shrink-0 text-emerald-600" />
               <div className="flex flex-col">
                 <span className="font-medium">{quiz.attempts_count || 0} attempts</span>
-                <span className="text-xs text-gray-500">Total</span>
+                <span className="text-xs text-gray-500">Total attempts</span>
               </div>
             </div>
           </div>
@@ -272,8 +272,8 @@ export function AdminQuizCard({
             <div className="flex items-center gap-2 text-gray-700">
               <BarChart3 className="h-5 w-5 flex-shrink-0 text-orange-600" />
               <div className="flex flex-col">
-                <span className="font-medium">{quiz.average_score || 0}% avg score</span>
-                <span className="text-xs text-gray-500">Performance</span>
+                <span className="font-medium">Average score: {quiz.average_score || 0}%</span>
+                <span className="text-xs text-gray-500">Overall performance</span>
               </div>
             </div>
           </div>

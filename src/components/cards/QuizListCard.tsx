@@ -10,6 +10,7 @@ import { Brain, Clock, Users, Play, CheckCircle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { getQuizImage } from '@/lib/imageMapping'
+import { normalizeScore, getScoreTextColor } from '@/lib/score-utils'
 
 interface Quiz {
   id: string
@@ -51,6 +52,43 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
     title: quiz.title,
     image_url: quiz.image_url
   }), [quiz.category, quiz.title, quiz.image_url])
+  
+  // Memoize score display to calculate once
+  const scoreDisplay = useMemo(() => {
+    if (!showProgress || !user || !lastAttempt?.completed_at) return null
+
+    // Calculate percentage from the correct fields
+    let percentage = 0
+    const attempt = lastAttempt as any
+
+    // Priority 1: Use percentage_score if available (already calculated in DB)
+    if (attempt.percentage_score != null) {
+      percentage = normalizeScore(attempt.percentage_score)
+    }
+    // Priority 2: Calculate from score and total_questions
+    else if (attempt.score != null && attempt.total_questions != null && attempt.total_questions > 0) {
+      percentage = Math.round((attempt.score / attempt.total_questions) * 100)
+    }
+    // Fallback: Can't calculate, don't show
+    else {
+      return null
+    }
+
+    const scoreColor = getScoreTextColor(percentage)
+    const attemptNumber = attempt.attempt_number || 1
+
+    return (
+      <div className="flex flex-col gap-1">
+        <div className={`text-sm font-semibold ${scoreColor} flex items-center gap-1.5`}>
+          <CheckCircle className="w-4 h-4" />
+          <span>Latest score: {percentage}%</span>
+        </div>
+        <div className="text-xs text-muted-foreground">
+          Attempt #{attemptNumber}
+        </div>
+      </div>
+    )
+  }, [showProgress, user, lastAttempt])
 
   const handleQuickStart = useCallback(async () => {
     // Wait for auth to finish loading before making navigation decisions
@@ -96,20 +134,6 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
     }
     return 'Start Quiz'
   }, [user, authLoading, attempted, lastAttempt])
-
-  const getScoreDisplay = useCallback(() => {
-    if (!lastAttempt?.completed_at || !lastAttempt?.score) return null
-    
-    const percentage = Math.round(lastAttempt.score)
-    const scoreColor = percentage >= 70 ? 'text-success' : 'text-primary'
-    
-    return (
-      <div className={`text-sm font-semibold ${scoreColor} flex items-center gap-1`}>
-        <CheckCircle className="w-4 h-4" />
-        {percentage}%
-      </div>
-    )
-  }, [lastAttempt])
 
   return (
     <Card className="group bg-white hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 h-full overflow-hidden border border-gray-100 shadow-lg">
@@ -168,11 +192,11 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
             <div className="flex items-center gap-4 text-sm text-muted-foreground mb-1.5">
               <div className="flex items-center gap-1">
                 <Brain className="w-4 h-4" />
-                <span>{quiz.total_questions || quiz.question_count || 'N/A'}q</span>
+                <span>{quiz.total_questions ?? quiz.question_count ?? 0} {(quiz.total_questions ?? quiz.question_count ?? 0) === 1 ? 'question' : 'questions'}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
-                <span>{quiz.duration_minutes || 0}m</span>
+                <span>{quiz.duration_minutes ?? 0} min</span>
               </div>
               <span className={`px-2 py-1 text-xs font-semibold rounded-md border ${getDifficultyColor(quiz.difficulty)}`}>
                 {quiz.difficulty || 'Unknown'}
@@ -186,9 +210,9 @@ export const QuizListCard = memo<QuizListCardProps>(({ quiz, showProgress = true
           </div>
 
           {/* Score Display for Completed Quizzes */}
-          {showProgress && user && getScoreDisplay() && (
+          {scoreDisplay && (
             <div className="mb-2">
-              {getScoreDisplay()}
+              {scoreDisplay}
             </div>
           )}
 

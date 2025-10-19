@@ -157,12 +157,10 @@ export const CourseCard = memo<CourseCardProps>(({
               <BookOpen className="w-3 h-3" />
               Course
             </div>
-            {course.student_count > 0 && (
-              <div className="flex items-center gap-1">
-                <Users className="w-3 h-3" />
-                {course.student_count} students
-              </div>
-            )}
+            <div className="flex items-center gap-1">
+              <Users className="w-3 h-3" />
+              {course.student_count ?? 0} {(course.student_count ?? 0) === 1 ? 'student' : 'students'}
+            </div>
           </div>
 
           {/* Price and CTA */}

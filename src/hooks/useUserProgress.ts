@@ -17,7 +17,10 @@ interface UserQuizAttemptStatus {
   hasAttempted: boolean
   lastAttempt?: {
     completedAt?: string
-    score?: number
+    score?: number // Raw count of correct answers
+    percentage_score?: number // Actual percentage (0-100)
+    total_questions?: number
+    attempt_number?: number
     createdAt: string
   }
   attempts: number
@@ -74,6 +77,9 @@ export function useUserProgress(courseId?: string, quizId?: string) {
             quiz_id,
             completed_at,
             score,
+            percentage_score,
+            total_questions,
+            attempt_number,
             created_at
           `)
           .eq('user_id', user.id)
