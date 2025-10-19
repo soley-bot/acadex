@@ -38,6 +38,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserProfile = async (userId: string): Promise<User | null> => {
     try {
+      logger.debug('[Auth] Fetching user profile for:', userId)
+
       const profilePromise = supabase
         .from('users')
         .select('*')
@@ -46,18 +48,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const result: any = await withTimeout(
         profilePromise,
-        5000, // 5 second timeout
-        'User profile fetch timed out'
+        10000, // Increased to 10 second timeout for slower connections
+        'User profile fetch timed out - check database connection'
       )
 
       if (result.error) {
-        logger.error('[Auth] Failed to fetch user profile:', result.error)
+        logger.error('[Auth] Failed to fetch user profile:', {
+          error: result.error.message,
+          code: result.error.code,
+          details: result.error.details,
+          hint: result.error.hint
+        })
+
+        // If it's an RLS policy error, the user might not exist in users table
+        if (result.error.code === 'PGRST116' || result.error.message?.includes('no rows')) {
+          logger.warn('[Auth] User not found in users table, may need profile creation')
+        }
+
         return null
       }
 
+      logger.debug('[Auth] User profile fetched successfully')
       return result.data as User | null
     } catch (err: any) {
-      logger.error('[Auth] User profile fetch error:', err.message)
+      logger.error('[Auth] User profile fetch error:', {
+        message: err.message,
+        name: err.name,
+        userId
+      })
+
+      // Don't block auth completely - return null and let the app continue
       return null
     }
   }
@@ -67,12 +87,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true)
       setError(null)
 
+      logger.debug('[Auth] Starting initialization...')
+
       // Get session with timeout
       const sessionPromise = supabase.auth.getSession()
       const result: any = await withTimeout(
         sessionPromise,
-        8000, // 8 second timeout
-        'Auth session check timed out'
+        10000, // Increased to 10 second timeout
+        'Auth session check timed out - check network connection'
       )
 
       if (result.error) {
@@ -84,7 +106,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         logger.debug('[Auth] Session found, fetching user profile')
         const userData = await fetchUserProfile(session.user.id)
-        setUser(userData)
+
+        if (userData) {
+          setUser(userData)
+          logger.info('[Auth] User authenticated successfully')
+        } else {
+          // Session exists but no user profile - might be new user
+          logger.warn('[Auth] Session exists but no user profile found')
+          setUser(null)
+          setError('User profile not found. Please contact support.')
+        }
       } else {
         logger.debug('[Auth] No active session')
         setUser(null)
@@ -92,16 +123,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setLoading(false)
     } catch (err: any) {
-      logger.error('[Auth] Initialization error:', err.message)
-      setError(err.message || 'Failed to initialize authentication')
+      logger.error('[Auth] Initialization error:', {
+        message: err.message,
+        name: err.name,
+        retryCount
+      })
+
+      const errorMessage = err.message || 'Failed to initialize authentication'
+      setError(errorMessage)
       setLoading(false)
 
-      // Auto-retry once after 2 seconds
+      // Auto-retry once after 3 seconds (increased from 2)
       if (retryCount === 0) {
-        logger.info('[Auth] Auto-retrying in 2 seconds...')
+        logger.info('[Auth] Auto-retrying in 3 seconds...')
         setTimeout(() => {
           setRetryCount(1)
-        }, 2000)
+        }, 3000)
+      } else {
+        logger.error('[Auth] Max retries reached, giving up')
       }
     }
   }
