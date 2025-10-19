@@ -1,6 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/api-auth'
 
+// Simple in-memory cache with TTL (Time To Live)
+const requestCache = new Map<string, { data: any; timestamp: number }>()
+const CACHE_TTL = 30000 // 30 seconds
+
+function getCachedResponse(key: string) {
+  const cached = requestCache.get(key)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    console.log(`[API Study] Returning cached response for ${key}`)
+    return cached.data
+  }
+  return null
+}
+
+function setCachedResponse(key: string, data: any) {
+  requestCache.set(key, { data, timestamp: Date.now() })
+  // Clean up old cache entries
+  if (requestCache.size > 100) {
+    const oldestKey = requestCache.keys().next().value
+    if (oldestKey) {
+      requestCache.delete(oldestKey)
+    }
+  }
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -33,7 +57,16 @@ export async function GET(
 
     console.log(`[API Study] User authenticated: ${user.id}`)
 
-    // Optimize: Run all queries in parallel using Promise.all
+    // Check cache first
+    const cacheKey = `course-study:${courseId}:${user.id}`
+    const cachedData = getCachedResponse(cacheKey)
+    if (cachedData) {
+      return NextResponse.json(cachedData)
+    }
+
+    // Optimize: Run all queries in parallel using Promise.all with detailed timing
+    console.log(`[API Study] Starting parallel queries...`)
+    const queryStartTime = Date.now()
     const [userResult, courseResult, modulesResult] = await Promise.all([
       // Get user role
       supabase
@@ -57,6 +90,8 @@ export async function GET(
         .eq('course_id', courseId)
         .order('order_index')
     ])
+    const queryDuration = Date.now() - queryStartTime
+    console.log(`[API Study] Parallel queries completed in ${queryDuration}ms`)
 
     // Check course exists
     if (courseResult.error || !courseResult.data) {
@@ -75,14 +110,18 @@ export async function GET(
     let enrollmentProgress = 0
 
     if (userResult.data?.role === 'admin') {
+      console.log(`[API Study] Admin user detected, bypassing enrollment check`)
       isEnrolled = true
     } else {
+      console.log(`[API Study] Checking enrollment...`)
+      const enrollmentStartTime = Date.now()
       const { data: enrollment, error: enrollmentError } = await supabase
         .from('enrollments')
         .select('progress')
         .eq('user_id', user.id)
         .eq('course_id', courseId)
         .maybeSingle()
+      console.log(`[API Study] Enrollment check completed in ${Date.now() - enrollmentStartTime}ms`)
 
       if (!enrollmentError && enrollment) {
         isEnrolled = true
@@ -108,22 +147,42 @@ export async function GET(
       )
     }
 
-    // Get lesson progress for user
-    const { data: progressData } = await supabase
+    // Get lesson progress for user - OPTIMIZED: Filter by course lessons only
+    console.log(`[API Study] Fetching lesson progress...`)
+    const progressStartTime = Date.now()
+    const lessonIds = modulesResult.data?.flatMap(module =>
+      module.course_lessons?.map((lesson: any) => lesson.id) || []
+    ) || []
+    console.log(`[API Study] Found ${lessonIds.length} lessons to check progress for`)
+
+    const { data: progressData, error: progressError } = await supabase
       .from('lesson_progress')
       .select('*')
       .eq('user_id', user.id)
+      .in('lesson_id', lessonIds.length > 0 ? lessonIds : [''])
+
+    console.log(`[API Study] Progress fetch completed in ${Date.now() - progressStartTime}ms, found ${progressData?.length || 0} progress records`)
+
+    if (progressError) {
+      console.error('[API Study] Progress fetch error:', progressError)
+      // Don't fail the request, just return empty progress
+    }
 
     const duration = Date.now() - startTime
     console.log(`[API Study] Request completed in ${duration}ms`)
 
-    return NextResponse.json({
+    const responseData = {
       course: courseResult.data,
       modules: modulesResult.data || [],
       progress: progressData || [],
       enrollmentProgress,
       isEnrolled
-    })
+    }
+
+    // Cache the response
+    setCachedResponse(cacheKey, responseData)
+
+    return NextResponse.json(responseData)
 
   } catch (error: any) {
     console.error('Error in course study API:', error)

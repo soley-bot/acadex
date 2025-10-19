@@ -8,26 +8,6 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 // IMPORTANT: No shared client - each function accepts a client parameter
 // This ensures proper request-scoped auth in Next.js App Router
 
-// Enhanced database operation with proper error handling
-async function executeWithTimeout<T>(
-  operation: Promise<T>, 
-  timeoutMs: number = 10000,
-  operationName: string = 'Database operation'
-): Promise<T> {
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    setTimeout(() => {
-      reject(new Error(`${operationName} timed out after ${timeoutMs}ms`))
-    }, timeoutMs)
-  })
-
-  try {
-    return await Promise.race([operation, timeoutPromise])
-  } catch (error: any) {
-    logger.error(`${operationName} failed:`, error)
-    throw error
-  }
-}
-
 // Course operations
 export async function createCourse(supabase: SupabaseClient, courseData: Partial<Course>): Promise<Course> {
   logger.info('📊 [DB_CREATE] Starting course creation')

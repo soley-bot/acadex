@@ -58,11 +58,30 @@ export function CourseSidebar({
   const getStatusIcon = (status: string, lesson: CourseLesson & { progress?: LessonProgress }) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle size={16} className="text-success" />
+        return <CheckCircle size={18} className="text-success fill-success/20" />
       case 'current':
-        return <PlayCircle size={16} className="text-primary" />
+        return <PlayCircle size={18} className="text-primary fill-primary/20" />
       default:
-        return <Circle size={16} className="text-muted-foreground" />
+        return <Circle size={18} className="text-muted-foreground/50" />
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return (
+          <span className="text-xs font-medium text-success">
+            ✓ Done
+          </span>
+        )
+      case 'current':
+        return (
+          <span className="text-xs font-medium text-primary">
+            Playing
+          </span>
+        )
+      default:
+        return null
     }
   }
 
@@ -100,8 +119,24 @@ export function CourseSidebar({
         {/* Sidebar Header */}
         <div className="p-6 border-b border-border">
           <h2 className="text-lg font-semibold text-foreground mb-2">Course Content</h2>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground mb-3">
             {modules.length} modules • {modules.reduce((acc, mod) => acc + (mod.course_lessons?.length || 0), 0)} lessons
+          </div>
+
+          {/* Legend */}
+          <div className="mt-3 pt-3 border-t border-border/50 space-y-1.5">
+            <div className="flex items-center gap-2 text-xs">
+              <CheckCircle size={14} className="text-success fill-success/20" />
+              <span className="text-muted-foreground">Completed lesson</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <PlayCircle size={14} className="text-primary fill-primary/20" />
+              <span className="text-muted-foreground">Currently playing</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <Circle size={14} className="text-muted-foreground/50" />
+              <span className="text-muted-foreground">Not started</span>
+            </div>
           </div>
         </div>
 
@@ -129,21 +164,39 @@ export function CourseSidebar({
                     
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-foreground truncate">
-                        Module {moduleIndex + 1}: {module.title}
+                        {module.title}
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        {(() => {
-                          const isDevelopment = process.env.NODE_ENV === 'development'
-                          let lessonsToShow = module.course_lessons?.filter(l => l.is_published) || []
+                      <div className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                        <span>
+                          {(() => {
+                            const isDevelopment = process.env.NODE_ENV === 'development'
+                            let lessonsToShow = module.course_lessons?.filter(l => l.is_published) || []
 
-                          // Fallback: show all lessons in development if none are published
-                          if (lessonsToShow.length === 0 && isDevelopment) {
-                            lessonsToShow = module.course_lessons || []
-                          }
+                            // Fallback: show all lessons in development if none are published
+                            if (lessonsToShow.length === 0 && isDevelopment) {
+                              lessonsToShow = module.course_lessons || []
+                            }
 
-                          const completedCount = lessonsToShow.filter(l => l.progress?.is_completed).length
-                          return `${completedCount}/${lessonsToShow.length} lessons`
-                        })()}
+                            const completedCount = lessonsToShow.filter(l => l.progress?.is_completed).length
+                            return `${completedCount}/${lessonsToShow.length} completed`
+                          })()}
+                        </span>
+                        {progress > 0 && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-success/10 text-success">
+                            {progress}%
+                          </span>
+                        )}
+                      </div>
+                      {/* Progress bar */}
+                      <div className="mt-2 w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="h-full bg-success transition-all duration-300 rounded-full"
+                          style={{ width: `${progress}%` }}
+                          role="progressbar"
+                          aria-valuenow={progress}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                        />
                       </div>
                     </div>
                   </button>
@@ -205,11 +258,14 @@ export function CourseSidebar({
                                 {lessonIndex + 1}. {lesson.title}
                               </div>
 
-                              {lesson.duration_minutes && (
-                                <div className="text-xs text-muted-foreground mt-1">
-                                  {lesson.duration_minutes} min
-                                </div>
-                              )}
+                              <div className="flex items-center gap-2 mt-1">
+                                {lesson.duration_minutes && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {lesson.duration_minutes} min
+                                  </span>
+                                )}
+                                {getStatusBadge(status)}
+                              </div>
                             </div>
 
                             {/* Mobile: Show arrow for current lesson */}

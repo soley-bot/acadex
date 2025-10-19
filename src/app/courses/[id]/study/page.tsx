@@ -50,7 +50,6 @@ export default function CourseStudyPage() {
 
   // Refs to prevent race conditions
   const hasFetchedRef = useRef<string | false>(false)
-  const abortControllerRef = useRef<AbortController | null>(null)
   const mountedRef = useRef(true)
 
   // Session expiry detection - BEST PRACTICE: Use getUser() for verification
@@ -70,20 +69,7 @@ export default function CourseStudyPage() {
     return () => clearInterval(intervalId)
   }, [user])
 
-  // Safety timeout - prevent infinite loading
-  useEffect(() => {
-    // Longer timeout in dev to account for compilation time
-    const safetyTimeout = process.env.NODE_ENV === 'development' ? 90000 : 45000 // 90s dev, 45s prod
-    const timeoutId = setTimeout(() => {
-      if (loading && !error) {
-        console.error(`⏱️ Loading timeout after ${safetyTimeout / 1000} seconds`)
-        setError('Loading timeout. Please check your connection and try again.')
-        setLoading(false)
-      }
-    }, safetyTimeout)
-
-    return () => clearTimeout(timeoutId)
-  }, [loading, error])
+  // Note: Removed artificial timeout - browser and Supabase handle connection timeouts naturally
 
   // Development debug logging
   useEffect(() => {
@@ -104,11 +90,6 @@ export default function CourseStudyPage() {
     mountedRef.current = true
     return () => {
       mountedRef.current = false
-      // Only abort on actual component unmount
-      if (abortControllerRef.current) {
-        console.log('[Course] Component unmounting, aborting requests')
-        abortControllerRef.current.abort()
-      }
     }
   }, [])
 
@@ -146,8 +127,6 @@ export default function CourseStudyPage() {
     console.log('[Course] Starting course data fetch for:', courseId);
 
     const loadCourseContent = async () => {
-      // Create new AbortController for this request
-      abortControllerRef.current = new AbortController();
       try {
         setLoadingStage('content')
         setLoading(true)
@@ -160,17 +139,8 @@ export default function CourseStudyPage() {
           return
         }
 
-      // Get session token for API authentication - BEST PRACTICE: Verify user first
+      // Get session token for API authentication
       const supabase = createSupabaseClient()
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
-      if (authError || !authUser) {
-        console.error('Auth error:', authError)
-        router.refresh() // Refresh server components before redirect
-        router.push(`/auth?tab=signin&redirect=/courses/${courseId}/study`)
-        return
-      }
-
-      // After verification, get session for token
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       if (sessionError || !session) {
         console.error('Session error:', sessionError)
@@ -180,15 +150,10 @@ export default function CourseStudyPage() {
       }
 
       // Use API route instead of direct Supabase (fixes CORS on custom domains)
-      // Use shared abort controller with longer timeout for dev (includes compilation time)
-      const timeout = process.env.NODE_ENV === 'development' ? 60000 : 30000 // 60s dev, 30s prod
-      const timeoutId = setTimeout(() => abortControllerRef.current?.abort(), timeout)
-
-      let response
-      let didTimeout = false
       const fetchStartTime = Date.now()
       console.log('[Course] Starting fetch to /api/courses/study...')
 
+      let response: Response
       try {
         response = await fetch(`/api/courses/${courseId}/study`, {
           method: 'GET',
@@ -196,31 +161,26 @@ export default function CourseStudyPage() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${session.access_token}`
           },
-          signal: abortControllerRef.current.signal
+          cache: 'no-store'
         })
-        clearTimeout(timeoutId)
+
         const fetchDuration = Date.now() - fetchStartTime
         console.log(`[Course] Fetch completed in ${fetchDuration}ms`)
-      } catch (fetchError: any) {
-        clearTimeout(timeoutId)
-        if (fetchError.name === 'AbortError') {
-          // Check if component is still mounted to distinguish timeout from unmount
-          if (!mountedRef.current) {
-            console.log('[Course] Request aborted due to component unmount')
-            return
-          }
-          console.error(`[Course] Request timed out after ${timeout / 1000} seconds`)
-          setError('Request timed out. Please check your connection and try again.')
-          setLoading(false)
-          hasFetchedRef.current = false // Allow retry
-        } else {
-          console.error('[Course] Fetch error:', fetchError)
-          if (mountedRef.current) {
-            setError('Network error. Please check your connection and try again.')
-            setLoading(false)
-            hasFetchedRef.current = false // Allow retry
-          }
+
+        // Warn if request took too long (informational only)
+        if (fetchDuration > 10000) {
+          console.warn(`⚠️ [Course] Slow API response: ${fetchDuration}ms`)
         }
+      } catch (fetchError: any) {
+        if (!mountedRef.current) {
+          console.log('[Course] Request aborted due to component unmount')
+          return
+        }
+
+        console.error('[Course] Fetch error:', fetchError)
+        setError(`Network error: ${fetchError.message || 'Unknown error'}. Please check your connection and try again.`)
+        setLoading(false)
+        hasFetchedRef.current = false // Allow retry
         return
       }
 
@@ -670,7 +630,7 @@ export default function CourseStudyPage() {
 
   // Enhanced loading UI with stage information
   if (loading) {
-    const loadingMessage = 
+    const loadingMessage =
       loadingStage === 'auth' ? 'Checking authentication...' :
       loadingStage === 'params' ? 'Loading course...' :
       'Loading course content...'
