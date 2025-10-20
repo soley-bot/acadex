@@ -82,26 +82,31 @@ export default function MyQuizzesPage() {
           ? attemptsResponse.data
           : attemptsResponse.data?.data || []
         transformedAttempts = attemptsData.map((attempt: any) => {
-          let calculatedPercentage = attempt.percentage || 0
+          // Calculate percentage correctly from score and total_questions
+          const score = attempt.score || attempt.correct_answers || 0
+          const totalQuestions = attempt.total_questions || 0
 
-          if (calculatedPercentage > 100) {
-            calculatedPercentage = attempt.total_questions > 0
-              ? Math.round((attempt.score / attempt.total_questions) * 100)
-              : 0
-          }
+          // Always calculate percentage from score/total_questions (ignore stored percentage if inconsistent)
+          const calculatedPercentage = totalQuestions > 0
+            ? Math.round((score / totalQuestions) * 100)
+            : 0
 
-          calculatedPercentage = Math.min(Math.max(calculatedPercentage, 0), 100)
+          // Ensure percentage is within valid range
+          const validPercentage = Math.min(Math.max(calculatedPercentage, 0), 100)
+
+          // Handle nested quiz data from Supabase join
+          const quizData = attempt.quizzes || {}
 
           return {
             id: attempt.id,
             quiz_id: attempt.quiz_id || 'unknown',
             user_id: attempt.user_id || user.id,
-            quiz_title: attempt.quiz_title,
-            category: attempt.category || 'General',
-            difficulty: attempt.difficulty || 'Intermediate',
-            score: attempt.score || 0,
-            total_questions: attempt.total_questions || 0,
-            percentage: calculatedPercentage,
+            quiz_title: attempt.quiz_title || quizData.title || 'Unknown Quiz',
+            category: attempt.category || quizData.category || 'General',
+            difficulty: attempt.difficulty || quizData.difficulty || 'Intermediate',
+            score: score,
+            total_questions: totalQuestions,
+            percentage: validPercentage,
             completed_at: attempt.completed_at,
             time_taken_minutes: attempt.time_taken_minutes || 15,
             created_at: attempt.completed_at,

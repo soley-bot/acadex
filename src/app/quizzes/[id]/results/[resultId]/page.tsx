@@ -219,22 +219,39 @@ export default function QuizResultsPage() {
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
       {/* Confetti Effect */}
       {showConfetti && (
-        <div className="fixed inset-0 pointer-events-none z-50">
-          <div className="absolute inset-0">
-            {[...Array(50)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute w-2 h-2 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full animate-bounce"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 2}s`,
-                  animationDuration: `${2 + Math.random() * 3}s`,
-                }}
-              />
-            ))}
+        <>
+          <style jsx>{`
+            @keyframes confetti-fall {
+              0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+              }
+              100% {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+              }
+            }
+            .confetti-particle {
+              animation: confetti-fall linear forwards;
+            }
+          `}</style>
+          <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+            <div className="absolute inset-0">
+              {[...Array(50)].map((_, i) => (
+                <div
+                  key={i}
+                  className="confetti-particle absolute w-2 h-2 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `-10vh`,
+                    animationDelay: `${Math.random() * 0.5}s`,
+                    animationDuration: `${2 + Math.random() * 2}s`,
+                  }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-8 sm:pb-12">

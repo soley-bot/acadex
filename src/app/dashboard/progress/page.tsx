@@ -102,7 +102,7 @@ export default function ProgressPage() {
       const quizAttempts = recentQuizAttemptsResult.data || []
 
       const coursePromises = enrollments.map(async (enrollment: any) => {
-        const [courseResult, totalLessonsResult, completedLessonsResult] = await Promise.all([
+        const [courseResult, totalLessonsResult] = await Promise.all([
           supabaseClient
             .from('courses')
             .select('id, title, duration')
@@ -111,17 +111,25 @@ export default function ProgressPage() {
           supabaseClient
             .from('course_lessons')
             .select('id')
-            .eq('course_id', enrollment.course_id),
-          supabaseClient
-            .from('lesson_progress')
-            .select('lesson_id')
-            .eq('user_id', user.id)
-            .eq('completed', true)
+            .eq('course_id', enrollment.course_id)
         ])
 
         const course = courseResult.data
         const totalLessons = totalLessonsResult.data || []
-        const completedLessons = completedLessonsResult.data || []
+        const lessonIds = totalLessons.map((lesson: any) => lesson.id)
+
+        // Get completed lessons for this specific course
+        let completedLessons: any[] = []
+        if (lessonIds.length > 0) {
+          const { data } = await supabaseClient
+            .from('lesson_progress')
+            .select('lesson_id')
+            .eq('user_id', user.id)
+            .in('lesson_id', lessonIds)
+            .eq('completed', true)
+
+          completedLessons = data || []
+        }
 
         const totalLessonsCount = totalLessons.length
         const completedLessonsCount = completedLessons.length
@@ -143,14 +151,23 @@ export default function ProgressPage() {
 
       // Process quiz attempts for display (recent 5)
       const quizPromises = quizAttempts.map(async (attempt: any) => {
-        const { data: quiz } = await supabaseClient
-          .from('quizzes')
-          .select('title, questions')
-          .eq('id', attempt.quiz_id)
-          .single()
+        // Get quiz details and count questions
+        const [quizResult, questionsResult] = await Promise.all([
+          supabaseClient
+            .from('quizzes')
+            .select('title, total_questions')
+            .eq('id', attempt.quiz_id)
+            .single(),
+          supabaseClient
+            .from('quiz_questions')
+            .select('id', { count: 'exact', head: true })
+            .eq('quiz_id', attempt.quiz_id)
+        ])
 
+        const quiz = quizResult.data
         if (quiz) {
-          const totalQuestions = Array.isArray(quiz.questions) ? quiz.questions.length : 0
+          // Use total_questions from attempt if available, otherwise from quiz table, or count from questions
+          const totalQuestions = attempt.total_questions || quiz.total_questions || questionsResult.count || 0
           const percentage = calculatePercentage(attempt.score ?? 0, totalQuestions)
 
           return {
@@ -167,14 +184,28 @@ export default function ProgressPage() {
 
       // Process ALL quiz attempts for accurate average score
       const allQuizPromises = allQuizAttempts.map(async (attempt: any) => {
-        const { data: quiz } = await supabaseClient
-          .from('quizzes')
-          .select('questions')
-          .eq('id', attempt.quiz_id)
-          .single()
+        // If attempt already has total_questions, use that
+        if (attempt.total_questions) {
+          const percentage = calculatePercentage(attempt.score ?? 0, attempt.total_questions)
+          return percentage
+        }
 
+        // Otherwise fetch quiz details
+        const [quizResult, questionsResult] = await Promise.all([
+          supabaseClient
+            .from('quizzes')
+            .select('total_questions')
+            .eq('id', attempt.quiz_id)
+            .single(),
+          supabaseClient
+            .from('quiz_questions')
+            .select('id', { count: 'exact', head: true })
+            .eq('quiz_id', attempt.quiz_id)
+        ])
+
+        const quiz = quizResult.data
         if (quiz) {
-          const totalQuestions = Array.isArray(quiz.questions) ? quiz.questions.length : 0
+          const totalQuestions = quiz.total_questions || questionsResult.count || 0
           const percentage = calculatePercentage(attempt.score ?? 0, totalQuestions)
           return percentage
         }
