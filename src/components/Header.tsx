@@ -181,7 +181,7 @@ export default function Header() {
                       
                       {/* Profile */}
                       <DropdownMenuItem asChild>
-                        <Link href="/profile" className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors w-full cursor-pointer">
+                        <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors w-full cursor-pointer">
                           <User size={18} className="flex-shrink-0 text-primary" />
                           <span className="font-medium">Profile</span>
                         </Link>
@@ -338,8 +338,8 @@ export default function Header() {
                     <span className="flex-1">Dashboard</span>
                   </Link>
 
-                  <Link 
-                    href="/profile" 
+                  <Link
+                    href="/dashboard"
                     className="w-full p-4 text-left transition-all duration-200 flex items-center gap-3 min-h-[56px] touch-manipulation hover:bg-muted/30 active:bg-muted/50 active:scale-[0.98] rounded-lg font-medium text-foreground"
                     onClick={handleMobileNavClick}
                   >
