@@ -1,0 +1,37 @@
+# Acadex Academy - Robots.txt
+# Allow all crawlers to index public content
+
+User-agent: *
+Allow: /
+
+# Block admin pages from being indexed
+Disallow: /admin/
+Disallow: /admin/*
+
+# Block authentication pages (no need to index these)
+Disallow: /auth/
+Disallow: /auth/*
+
+# Block user dashboard pages
+Disallow: /dashboard/
+Disallow: /dashboard/*
+
+# Block unauthorized page
+Disallow: /unauthorized
+
+# Block import demo page
+Disallow: /import-demo
+
+# Allow public pages
+Allow: /
+Allow: /courses
+Allow: /courses/*
+Allow: /quizzes
+Allow: /quizzes/*
+Allow: /about
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+
+# Sitemap location
+Sitemap: https://acadex.academy/sitemap.xml

@@ -1,97 +1,75 @@
 import { Metadata } from 'next'
 import { createServiceClient } from '@/lib/api-auth'
 
-interface QuizLayoutProps {
-  children: React.ReactNode
+type Props = {
   params: Promise<{ id: string }>
+  children: React.ReactNode
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}): Promise<Metadata> {
-  const { id } = await params
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const resolvedParams = await params
+  const baseUrl = 'https://acadex.academy'
+  const quizUrl = `${baseUrl}/quizzes/${resolvedParams.id}`
 
   try {
     const supabase = createServiceClient()
     const { data: quiz } = await supabase
       .from('quizzes')
-      .select('title, description, category, difficulty, duration_minutes, total_questions, image_url')
-      .eq('id', id)
+      .select('id, title, description, cover_image_url, category')
+      .eq('id', resolvedParams.id)
       .eq('is_published', true)
       .single()
 
     if (!quiz) {
       return {
-        title: 'Quiz Not Found',
+        title: 'Quiz Not Found - Acadex',
         description: 'The quiz you are looking for does not exist.',
+        alternates: {
+          canonical: quizUrl,
+        },
       }
     }
 
-    const baseUrl = 'https://acadex.academy'
-    const quizUrl = `${baseUrl}/quizzes/${id}`
-
     return {
-      title: `${quiz.title} | Acadex Quiz`,
-      description: quiz.description || `Test your knowledge with ${quiz.title}. ${quiz.total_questions} questions, ${quiz.duration_minutes} minutes, ${quiz.difficulty} level.`,
-      keywords: [
-        quiz.title,
-        quiz.category,
-        quiz.difficulty,
-        'quiz',
-        'practice test',
-        'english test',
-        'online quiz',
-      ],
+      title: `${quiz.title} - Acadex Quiz`,
+      description: quiz.description || 'Test your knowledge with interactive quizzes on Acadex Academy',
+      alternates: {
+        canonical: quizUrl,
+      },
       openGraph: {
         title: quiz.title,
-        description: quiz.description || `Test your knowledge with ${quiz.title}`,
+        description: quiz.description || 'Test your knowledge with interactive quizzes on Acadex Academy',
         url: quizUrl,
         siteName: 'Acadex',
-        images: quiz.image_url
-          ? [
-              {
-                url: quiz.image_url,
-                width: 1200,
-                height: 630,
-                alt: quiz.title,
-              },
-            ]
-          : [
-              {
-                url: '/og-image-ielts.png',
-                width: 1200,
-                height: 630,
-                alt: 'Acadex - Quiz Practice',
-              },
-            ],
-        locale: 'en_US',
+        images: quiz.cover_image_url ? [
+          {
+            url: quiz.cover_image_url,
+            width: 1200,
+            height: 630,
+            alt: quiz.title,
+          },
+        ] : [],
         type: 'website',
       },
       twitter: {
         card: 'summary_large_image',
         title: quiz.title,
-        description: quiz.description || `Test your knowledge with ${quiz.title}`,
-        images: quiz.image_url ? [quiz.image_url] : ['/og-image-ielts.png'],
-      },
-      alternates: {
-        canonical: quizUrl,
-      },
-      robots: {
-        index: true,
-        follow: true,
+        description: quiz.description || 'Test your knowledge with interactive quizzes on Acadex Academy',
+        images: quiz.cover_image_url ? [quiz.cover_image_url] : [],
       },
     }
   } catch (error) {
     console.error('Error generating quiz metadata:', error)
     return {
-      title: 'Quiz | Acadex',
-      description: 'Online quiz on Acadex',
+      title: 'Quiz - Acadex',
+      description: 'Interactive quiz on Acadex Academy',
+      alternates: {
+        canonical: quizUrl,
+      },
     }
   }
 }
 
-export default function QuizLayout({ children }: QuizLayoutProps) {
+export default function QuizLayout({ children }: Props) {
   return <>{children}</>
 }

@@ -43,6 +43,44 @@ const nextConfig = {
       exclude: ['error', 'warn']
     } : false,
   },
+
+  // Redirects for SEO
+  async redirects() {
+    return [
+      // Redirect trailing slashes to non-trailing slash URLs
+      {
+        source: '/:path+/',
+        destination: '/:path+',
+        permanent: true,
+      },
+      // Common old URL patterns (add your specific ones here)
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/login',
+        destination: '/auth',
+        permanent: true,
+      },
+      {
+        source: '/signin',
+        destination: '/auth',
+        permanent: true,
+      },
+      {
+        source: '/signup',
+        destination: '/auth',
+        permanent: true,
+      },
+      {
+        source: '/register',
+        destination: '/auth',
+        permanent: true,
+      },
+    ]
+  },
 }
 
 module.exports = withBundleAnalyzer(nextConfig)

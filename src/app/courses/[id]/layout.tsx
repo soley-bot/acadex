@@ -1,96 +1,75 @@
 import { Metadata } from 'next'
 import { createServiceClient } from '@/lib/api-auth'
 
-interface CourseLayoutProps {
-  children: React.ReactNode
+type Props = {
   params: Promise<{ id: string }>
+  children: React.ReactNode
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}): Promise<Metadata> {
-  const { id } = await params
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const resolvedParams = await params
+  const baseUrl = 'https://acadex.academy'
+  const courseUrl = `${baseUrl}/courses/${resolvedParams.id}`
 
   try {
     const supabase = createServiceClient()
     const { data: course } = await supabase
       .from('courses')
-      .select('title, description, image_url, category, level, instructor_name, student_count, rating')
-      .eq('id', id)
+      .select('id, title, description, cover_image_url')
+      .eq('id', resolvedParams.id)
       .eq('is_published', true)
       .single()
 
     if (!course) {
       return {
-        title: 'Course Not Found',
+        title: 'Course Not Found - Acadex',
         description: 'The course you are looking for does not exist.',
+        alternates: {
+          canonical: courseUrl,
+        },
       }
     }
 
-    const baseUrl = 'https://acadex.academy'
-    const courseUrl = `${baseUrl}/courses/${id}`
-
     return {
-      title: `${course.title} | Acadex`,
-      description: course.description || `Learn ${course.title} with ${course.instructor_name}. ${course.level} level course.`,
-      keywords: [
-        course.title,
-        course.category,
-        course.level,
-        'online course',
-        'english learning',
-        course.instructor_name,
-      ],
+      title: `${course.title} - Acadex Academy`,
+      description: course.description || 'Learn with expert-led courses on Acadex Academy',
+      alternates: {
+        canonical: courseUrl,
+      },
       openGraph: {
         title: course.title,
-        description: course.description || `Learn ${course.title}`,
+        description: course.description || 'Learn with expert-led courses on Acadex Academy',
         url: courseUrl,
         siteName: 'Acadex',
-        images: course.image_url
-          ? [
-              {
-                url: course.image_url,
-                width: 1200,
-                height: 630,
-                alt: course.title,
-              },
-            ]
-          : [
-              {
-                url: '/og-image-ielts.png',
-                width: 1200,
-                height: 630,
-                alt: 'Acadex - English Learning Platform',
-              },
-            ],
-        locale: 'en_US',
+        images: course.cover_image_url ? [
+          {
+            url: course.cover_image_url,
+            width: 1200,
+            height: 630,
+            alt: course.title,
+          },
+        ] : [],
         type: 'website',
       },
       twitter: {
         card: 'summary_large_image',
         title: course.title,
-        description: course.description || `Learn ${course.title}`,
-        images: course.image_url ? [course.image_url] : ['/og-image-ielts.png'],
-      },
-      alternates: {
-        canonical: courseUrl,
-      },
-      robots: {
-        index: true,
-        follow: true,
+        description: course.description || 'Learn with expert-led courses on Acadex Academy',
+        images: course.cover_image_url ? [course.cover_image_url] : [],
       },
     }
   } catch (error) {
     console.error('Error generating course metadata:', error)
     return {
-      title: 'Course | Acadex',
-      description: 'Online course on Acadex',
+      title: 'Course - Acadex',
+      description: 'Online course on Acadex Academy',
+      alternates: {
+        canonical: courseUrl,
+      },
     }
   }
 }
 
-export default function CourseLayout({ children }: CourseLayoutProps) {
+export default function CourseLayout({ children }: Props) {
   return <>{children}</>
 }
